@@ -9,5 +9,6 @@ from .institutions import *
 from .departments import *
 from .accounts import *
 from .experience_levels import *
+from .sujbect_types import *
 from .m import *
 from .db_migrations import *
