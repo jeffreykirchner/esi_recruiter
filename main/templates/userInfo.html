@@ -1,0 +1,194 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+    <title>User Search</title>
+
+    <script type="text/javascript">
+        $(document).ready(function(){                         
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+
+            var app = new Vue({
+                elimiters: ['[[', ']]'],
+                el: '#root',        
+                data:{
+                    baseURL:'{{request.get_full_path}}',                                                                          
+                    submitButtonText:'<i class="fas fa-sign-in-alt"></i> Update',
+                    user:{"first_name":"",
+                          "last_name":"",
+                        },
+                    formIDs:{{formIDs|safe}},     
+                    warningText:"",                                      
+                },
+
+                methods:{
+                    getUser: function(){
+                        axios.post('{{request.get_full_path}}', {                            
+                            action:"getUser",                                                            
+                        })
+                        .then(function (response) {
+                           app.$data.user=response.data.user;
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    },
+
+                    updateUser:function(){
+                        axios.post('{{request.get_full_path}}', {
+                            action:"updateUser",    
+                            formData : $("#userForm").serializeArray(),
+                        })
+                        .then(function (response) {                              
+                            
+                            status=response.data.status;
+
+                            if(status=="success")
+                            {
+                                app.$data.user=response.data.user;
+                                app.$data.submitButtonText='<i class="fas fa-sign-in-alt"></i> Update';  
+                                app.clearFormErrors();                             
+                            }
+                            else if(status =="failSave")
+                            {
+                                app.clearFormErrors();
+                                app.$data.warningText=response.data.message;
+                            }
+                            else
+                            {
+                                app.displayErrors(response.data.errors);
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    },
+                    
+                    displayErrors:function(errors){
+                        for(var e in errors)
+                        {
+                            $("#id_" + e).attr("class","form-control is-invalid")
+                            var str='<span id=id_errors_'+ e +' class="text-danger">';
+                            
+                            for(var i in errors[e])
+                            {
+                                str +=errors[e][i] + '<br>';
+                            }
+
+                            str+='</span>';
+                            $("#div_id_" + e).append(str);    
+                        }
+                    },
+
+                    clearFormErrors:function(){
+                        for(var item in app.$data.formIDs)
+                        {
+                            $("#id_" + app.$data.formIDs[item]).attr("class","form-control");
+                            $("#id_errors_" + app.$data.formIDs[item]).remove();
+                        }                        
+                        app.$data.warningText="";
+                    },
+
+                    userChange:function(){                        
+                        app.$data.submitButtonText='<i class="fas fa-sign-in-alt"></i> Update *'                       
+                    },           
+                  
+                },
+                
+                mounted: function(){
+                    this.getUser();
+                },
+            });
+        });
+    </script>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-lg-center">
+    <div class="col col-lg-10">
+        <div class="card">                  
+            <div class="card-header">
+                User: <span v-html="user.last_name + ', ' + user.first_name"></span>                                                      
+            </div>
+            <div class="card-body">               
+             
+                <form id="userForm">                        
+                    <div class = "row">
+                        <div class = "col"> 
+                            {{userForm.first_name | as_crispy_field }}                            
+                        </div>
+                        <div class = "col"> 
+                            {{userForm.last_name | as_crispy_field }}                            
+                        </div>               
+                    </div>
+                    <div class = "row">
+                        <div class = "col"> 
+                            {{userForm.email | as_crispy_field }}                            
+                        </div>
+                        <div class = "col"> 
+                            {{userForm.chapmanID | as_crispy_field }}                           
+                        </div>               
+                    </div>
+                    <div class = "row">
+                        <div class = "col"> 
+                            {{userForm.gender | as_crispy_field }}                            
+                        </div>
+                        <div class = "col"> 
+                            {{userForm.type | as_crispy_field }}                           
+                        </div>               
+                    </div>
+                    <div class = "row">
+                        <div class = "col"> 
+                            {{userForm.blackballed | as_crispy_field }}                            
+                        </div>
+                        <div class = "col"> 
+                                                       
+                        </div>               
+                    </div>
+
+                    <center><span v-html="warningText" style="color:red;"></span></center>
+
+                    <button type="button" class="btn btn-outline-primary float-right" v-on:click = "updateUser()">
+                        <span v-html="submitButtonText"></span>
+                     </button>
+                </form>
+                <br>
+                <table class="table table-hover table-condensed">
+                    <caption style="caption-side:top;text-align: center;">Experiments</caption>
+
+                    <thead>
+                        <th width="35%">
+                            Experiment
+                        </th> 
+                        <th width="30%" style="text-align: center;">
+                            Info
+                        </th>                                                      
+                        <th width="35%" style="text-align: center;">
+                            Earnings
+                        </th>
+                    </thead>
+
+                    {% for i in experiments %}
+                        <tr>
+                            <td>
+                                <a href="{% url i.experiment.staff_url%}/sessionSubject/{{i.session}}">{{i.experiment.staff_name}}</a>
+                            </td>
+                        </tr>
+                        
+                    {% empty %}
+                    
+                        <tr>
+                            <td>
+                                This user is not in any experiments
+                            </td>
+                        </tr>                                               
+                    {% endfor %}
+
+                </table>
+                
+            </div>                    
+        </div>                
+    </div>
+</div>    
+{%endblock content%}

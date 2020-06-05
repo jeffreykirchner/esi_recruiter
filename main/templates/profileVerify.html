@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row justify-content-md-center">
+  <div class="col col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        Verify Your Email Address
+      </div>
+
+      <div class="card-body">
+        {%if status == 'update' %}                 
+
+          <form method="post" action="{% url 'profileVerify' 'post' %}">
+            {% csrf_token %}            
+            <div class="row">
+                <div class="col">
+                  <center>
+                    <button type="submit" class="btn btn-outline-primary"><i class="fas fa-sign-in-alt"></i> Click to Verify</button>
+                  </center>
+                </div>
+            </div>
+            {{form.token.as_hidden}}
+          </form>          
+
+        {%elif status == 'done'%}
+          <div class="row">
+              <div class = "col">  
+              <center>                
+                  Email verified.<br>
+                  <a href="{% url 'mainHome'%}">Return</a>
+              </center>         
+              </div>            
+          </div>
+        {%elif status == 'fail'%}
+        <div class="row">
+            <div class = "col">  
+            <center>                
+                The verification link no longer works.<br>
+                <a href="{% url 'mainHome'%}">Create a new one</a>
+            </center>         
+            </div>            
+        </div>
+        {%endif%}
+      </div>      
+    </div>
+  </div>
+</div>
+
+{% endblock %}
