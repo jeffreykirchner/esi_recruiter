@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from main.models import accountTypes
+from main.models import accountTypes,profile
 
 import logging
 
@@ -36,8 +36,6 @@ def profileCreate(request):
                                     form.cleaned_data['chapman_id'],
                                     form.cleaned_data['gender'],
                                     False,
-                                    False,
-                                    True,
                                     accountTypes.objects.get(id=2))
 
             profileCreateSendEmail(request,u)
@@ -50,27 +48,35 @@ def profileCreate(request):
 
     return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
 
-def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,labUser,isActive,saveUser,accountType):
+def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,isActive,accountType):
+    logger = logging.getLogger(__name__) 
+
     u = User.objects.create_user(username = username,
                              email = email,
                              password = password,                                         
                              first_name = firstName,
                              last_name = lastName)
-            
-    u.profile.chapmanID = chapmanID
-    u.profile.gender =  gender
-    u.profile.labUser = labUser
-    u.is_active = isActive
-    u.type = accountType                                      
-    
-    if saveUser:
-        u.save()
+
+    u.is_active = isActive    
+    u.save()
+
+    p = profile(user = u,chapmanID = chapmanID,gender=gender,type=accountType)
+
+    logger.info("Create Profile: ")
+    logger.info(p)
+
+    p.save()
+    u.save()
 
     return u
 
 def profileCreateSendEmail(request,u):
+    logger = logging.getLogger(__name__) 
+    logger.info("Verify Email: ")
+    logger.info(u.profile)
+
     u.profile.emailConfirmed = get_random_string(length=32)   
-    u.save()
+    u.profile.save()
 
     link=request.get_host()      
     link += "/profileVerify/" + u.profile.emailConfirmed +"/"

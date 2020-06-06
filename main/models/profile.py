@@ -9,18 +9,20 @@ from . import *
 class profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    chapmanID = models.CharField(max_length = 100,default="00000000")
     type =  models.ForeignKey(accountTypes,on_delete=models.CASCADE,default=2)             #subject or staff
     school = models.ForeignKey(schools,on_delete=models.CASCADE,default=1)                 #Chapman University ETC
     major = models.ForeignKey(majors,on_delete=models.CASCADE,default=1)                   #Economics ETC
-    #type = models.CharField(max_length=10, default="")
-    emailConfirmed =  models.CharField(max_length = 100,default="no")
     gender = models.ForeignKey(genders,on_delete=models.CASCADE,default=1)
+
+    chapmanID = models.CharField(max_length = 100,default="00000000")    
+    emailConfirmed =  models.CharField(max_length = 100,default="no")    
     blackballed = models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
+
+    def __str__(self):
+        return "Name: %s %s, Chapman ID: %s" % (self.user.first_name, self.user.last_name,self.chapmanID)
 
     def json_min(self):
         return{
