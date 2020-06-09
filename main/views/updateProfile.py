@@ -36,8 +36,13 @@ def updateProfile(request):
                 u.last_name=form.cleaned_data['last_name']
                 u.email=form.cleaned_data['email'].lower()
                 u.username=u.email
+
                 u.profile.chapmanID=form.cleaned_data['chapman_id']
                 u.profile.gender=form.cleaned_data['gender']
+                u.profile.gradStudent = form.cleaned_data['gradStudent']
+                u.profile.studentWorker = form.cleaned_data['studentWorker']
+                u.profile.phone = form.cleaned_data['phone']
+                u.profile.major = form.cleaned_data['major']
 
                 if form.cleaned_data['password1']:
                     if form.cleaned_data['password1'] != "":               
@@ -48,6 +53,7 @@ def updateProfile(request):
                     profileCreateSendEmail(request,u)
 
                 u.save()
+                u.profile.save()
                 status="done"
         else:
             logger.info("show profile")
@@ -57,7 +63,11 @@ def updateProfile(request):
                          'last_name': request.user.last_name,
                          'chapman_id': request.user.profile.chapmanID,
                          'email':request.user.email,
-                         'gender':request.user.profile.gender.id}
+                         'gender':request.user.profile.gender.id,
+                         'phone':request.user.profile.phone,
+                         'major':request.user.profile.major.id,
+                         'gradStudent':"Yes" if request.user.profile.gradStudent else "No",
+                         'studentWorker':"Yes" if request.user.profile.studentWorker else "No"}
             )
 
     except u.DoesNotExist:

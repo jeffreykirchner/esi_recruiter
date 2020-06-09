@@ -17,41 +17,14 @@
 
         <form method="post" action="{% url 'profile' %}">
           {% csrf_token %}            
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.first_name|as_crispy_field }}         
-            </div>            
-          </div>  
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.last_name|as_crispy_field }}       
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.chapman_id|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
+          
+          {% for i in form %}
+            <div class="row">
               <div class = "col col-md-10 offset-md-1">  
-                {{ form.email|as_crispy_field }}         
+                {{ i|as_crispy_field }}         
               </div>            
-            </div>
-          <div class="row">
-              <div class = "col col-md-10 offset-md-1">  
-                {{ form.gender|as_crispy_field }}         
-              </div>            
-            </div>
-          <div class="row">
-              <div class = "col col-md-10 offset-md-1">  
-                {{ form.password1|as_crispy_field }}         
-              </div>            
-            </div>
-          <div class="row">
-              <div class = "col col-md-10 offset-md-1">  
-                {{ form.password2|as_crispy_field }}         
-              </div>            
-          </div>
+            </div> 
+          {% endfor %}  
 
           <div class="row">
             <div class="col col-md-10 offset-md-1">
