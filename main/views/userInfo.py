@@ -8,7 +8,7 @@ from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
 from django.db.models.functions import Lower
-from main.views.forms import userInfoForm
+from main.forms import userInfoForm
 from django.http import Http404
 from django.db import IntegrityError
 

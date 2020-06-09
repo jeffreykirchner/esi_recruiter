@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.contrib.auth import authenticate, login
 from django import forms
-from .forms import verifyFormResend
+from main.forms import verifyFormResend
 from .profileCreate import profileCreateSendEmail
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist

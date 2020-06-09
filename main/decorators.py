@@ -8,7 +8,7 @@ def user_is_staff(function):
     def wrap(request, *args, **kwargs):    
         #check for profile
         if not request.user.profile:
-            p = Profile()
+            p = profile()
             p.chapmanID = 0000
             p.gender =  4
             p.labUser = 0
