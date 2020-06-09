@@ -16,9 +16,27 @@ from main.models import accountTypes,profile
 
 import logging
 
+from main.models.db_migrations import *
+
 #user account info
 
 def profileCreate(request):
+
+    #migrate_institutions()
+    #migrate_departments()
+    #migrate_accounts()
+    #migrate_schools()
+    #migrate_subjects1()   #***
+    #migrate_subjects2()
+    #migrate_experiments() #***
+    #migrate_locations()
+    #migrate_experiments_institutions()
+    #migrate_sessions()
+    #migrate_majors()
+    
+    #migrate_session_users1()
+    #migrate_session_users2()  #***
+    #migrate_session_users3()  #***
 
     token=""
     status="update"            #either filling out the form or 
@@ -35,6 +53,10 @@ def profileCreate(request):
                                     form.cleaned_data['last_name'],
                                     form.cleaned_data['chapman_id'],
                                     form.cleaned_data['gender'],
+                                    form.cleaned_data['phone'],
+                                    form.cleaned_data['major'],
+                                    form.cleaned_data['gradStudent'],
+                                    form.cleaned_data['studentWorker'],
                                     False,
                                     accountTypes.objects.get(id=2))
 
@@ -48,7 +70,7 @@ def profileCreate(request):
 
     return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
 
-def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,isActive,accountType):
+def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,gradStudent,studentWorker,isActive,accountType):
     logger = logging.getLogger(__name__) 
 
     u = User.objects.create_user(username = username,
@@ -60,7 +82,14 @@ def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gende
     u.is_active = isActive    
     u.save()
 
-    p = profile(user = u,chapmanID = chapmanID,gender=gender,type=accountType)
+    p = profile(user = u,
+                chapmanID = chapmanID,
+                gender=gender,
+                type=accountType,
+                phone=phone,
+                major=major,
+                gradStudent=gradStudent,
+                studentWorker=studentWorker)
 
     logger.info("Create Profile: ")
     logger.info(p)

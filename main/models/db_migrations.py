@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import copy
 from . import profile
+from django.utils.timezone import make_aware
+import datetime
+from django.conf import settings
 
 from main.models import institutions,\
                                 departments,\
@@ -15,7 +18,9 @@ from main.models import institutions,\
                                 experiment_session_days,\
                                 locations,\
                                 experiment_session_day_users,\
-                                experiments_institutions
+                                experiments_institutions, \
+                                schools, \
+                                majors
                         
 
 #migrate old data base over to new database
@@ -112,6 +117,8 @@ def migrate_experiments():
         # experiment_session_days.objects.all().delete()
         # experiment_sessions.objects.all().delete()        
         experiments.objects.all().delete()
+
+        migrate_departments()
         migrate_accounts()
         migrate_schools()
         migrate_institutions()
@@ -126,7 +133,7 @@ def migrate_experiments():
                                 notes=c[5],
                                 account_default_id=c[8],
                                 school_id=c[6],
-                                experience_level_default_id=0,
+                                experience_level_default_id=1,
                                 length_default=c[7],
                                 ) for c in cursor.fetchall())
 
@@ -360,7 +367,10 @@ def migrate_subjects1():
         # 
         #                   
 
-def migrate_subjects2():        
+def migrate_subjects2():       
+
+        migrate_schools()
+        migrate_majors() 
 
         cursor2 = connections['old'].cursor()
         cursor2.execute('''select id,
@@ -388,7 +398,7 @@ def migrate_subjects2():
         counter=0        
 
 
-        objs = (Profile(user_id = c[0],
+        objs = (profile(user_id = c[0],
                         chapmanID = c[1],
                         emailConfirmed = "no",
                         blackballed = c[6],
@@ -397,7 +407,7 @@ def migrate_subjects2():
                         studentWorker=c[8],
                         school_id=c[9],
                         major_id=c[5],
-                        type="subject",
+                        type_id=2,
                         gradStudent = c[4],
                 ) for c in cursor2.fetchall())
 
@@ -412,7 +422,7 @@ def migrate_subjects2():
                 if not batch:
                         break
 
-                Profile.objects.bulk_create(batch, batch_size)
+                profile.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
@@ -466,6 +476,7 @@ def migrate_experiments_institutions():
 def migrate_sessions():
 
         #sessions
+        print("Migrate Sessions")
         print("data loading")
 
         cursor = connections['old'].cursor()
@@ -498,6 +509,8 @@ def migrate_sessions():
                 counter+=batch_size
                 print(counter)
         
+        migrate_locations()
+
         print("session day")
 
         counter=0
@@ -528,7 +541,7 @@ def migrate_sessions():
                                         location_id=c[2],
                                         registration_cutoff=c[8],
                                         actual_participants=c[9],
-                                        date=c[3],
+                                        date=make_aware(c[3]),
                                         length=c[4],                                                               
                                         account_id=c[5],
                                         auto_reminder = c[6],
@@ -579,7 +592,7 @@ def migrate_sessions():
                                         location_id=c[2],
                                         registration_cutoff=c[9],
                                         actual_participants=c[10],
-                                        date=c[8],
+                                        date=make_aware(c[8]),
                                         length=c[4],                                                               
                                         account_id=c[5],
                                         auto_reminder = c[6],

@@ -5,22 +5,26 @@ import traceback
 from . import schools,accounts,institutions,genders,subject_types,experience_levels,institutions
 
 #info for each experiment
-class experiments(models.Model):
+class experiments(models.Model):    
+
     #experiment parameters
+    school = models.ForeignKey(schools,on_delete=models.CASCADE)
+    account_default = models.ForeignKey(accounts,on_delete=models.CASCADE)
+
+    institution = models.ManyToManyField(institutions,through = "experiments_institutions")
+
     title = models.CharField(max_length = 300)
     experiment_manager = models.CharField(max_length = 300)
     registration_cutoff_default = models.IntegerField()
     actual_participants_default = models.IntegerField()
     length_default = models.IntegerField()
-    notes = models.TextField(null=True)
-    school = models.ForeignKey(schools,on_delete=models.CASCADE)
-    account_default = models.ForeignKey(accounts,on_delete=models.CASCADE)    
-    institution = models.ManyToManyField(institutions,through = "experiments_institutions")
-
+    notes = models.TextField(null=True)          
+    
     #default recruitment parameters
+    experience_level_default = models.ForeignKey(experience_levels,on_delete=models.CASCADE)
+
     gender_default = models.ManyToManyField(genders)
-    subject_type_default =  models.ManyToManyField(subject_types)   
-    experience_level_default = models.ForeignKey(experience_levels,on_delete=models.CASCADE)    
+    subject_type_default =  models.ManyToManyField(subject_types)  
     institutions_exclude_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_exclude_default",blank=True)
     institutions_include_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_include_default",blank=True)
     experiments_exclude_default = models.ManyToManyField("self", related_name="%(class)s_experiments_exclude_default",blank=True)

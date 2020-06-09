@@ -2,6 +2,7 @@ from django.db import models
 import logging
 import traceback
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 
 from . import *
 
@@ -17,6 +18,9 @@ class profile(models.Model):
     chapmanID = models.CharField(max_length = 100,default="00000000")    
     emailConfirmed =  models.CharField(max_length = 100,default="no")    
     blackballed = models.BooleanField(default=False)
+    gradStudent = models.BooleanField(default=False)
+    phone = models.CharField(max_length = 100,default="")
+    studentWorker = models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

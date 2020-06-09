@@ -11,7 +11,7 @@ class experiment_sessions(models.Model):
     #recruitment parameters
     gender = models.ManyToManyField(genders)
     subject_type =  models.ManyToManyField(subject_types)   
-    experience_level = models.ForeignKey(experience_levels,on_delete=models.CASCADE,default="0")    
+    experience_level = models.ForeignKey(experience_levels,on_delete=models.CASCADE,default="1")    
     institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
     experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
