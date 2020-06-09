@@ -16,63 +16,16 @@
         {{ form.non_field_errors }}        
 
         <form method="post" action="{% url 'profileCreate' %}">
-          {% csrf_token %}            
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.first_name|as_crispy_field }}         
-            </div>            
-          </div>  
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.last_name|as_crispy_field }}       
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.chapman_id|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.email|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.gender|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.phone|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.major|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.gradStudent|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              {{ form.studentWorker|as_crispy_field }}         
-            </div>            
-          </div>
-          <div class="row">
+          {% csrf_token %}           
+          
+          {% for i in form %}
+            <div class="row">
               <div class = "col col-md-10 offset-md-1">  
-                {{ form.password1|as_crispy_field }}         
+                {{ i|as_crispy_field }}         
               </div>            
-            </div>
-          <div class="row">
-              <div class = "col col-md-10 offset-md-1">  
-                {{ form.password2|as_crispy_field }}         
-              </div>            
-          </div>
-
+            </div> 
+          {% endfor %}         
+          
           <div class="row">
             <div class="col col-md-8 offset-md-1">
                 <button type="submit" class="btn btn-outline-primary"><i class="fas fa-sign-in-alt"></i> Submit</button>
