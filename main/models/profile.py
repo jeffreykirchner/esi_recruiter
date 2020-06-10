@@ -6,6 +6,9 @@ from django.core.validators import RegexValidator
 
 from . import *
 
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+
 #user profile, extending the user model
 class profile(models.Model):
 
@@ -53,3 +56,9 @@ class profile(models.Model):
             "emailConfirmed":self.emailConfirmed,  
             "blackballed":self.blackballed,         
         }
+
+#delete associated user model
+@receiver(post_delete, sender=profile)
+def post_delete_user(sender, instance, *args, **kwargs):
+    if instance.user: # just in case user is not specified
+        instance.user.delete()
