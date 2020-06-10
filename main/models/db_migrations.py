@@ -69,12 +69,12 @@ def migrate_accounts():
                 account.save()
         
 def migrate_schools():
+        print("Migrate Schools")
+
         cursor = connections['old'].cursor()
         cursor.execute('''select * from schools''')
 
-        schools.objects.all().delete()
-
-        print("Migrate Schools")
+        schools.objects.all().delete()        
 
         for c in cursor.fetchall():
                 id,name,hide_school=c
@@ -120,7 +120,7 @@ def migrate_experiments():
 
         migrate_departments()
         migrate_accounts()
-        migrate_schools()
+        
         migrate_institutions()
 
         print("data loaded")       
@@ -205,6 +205,8 @@ def migrate_experiments():
         #                 experiment.save()   
 
 def migrate_locations():
+        print("Migrate Locations")
+
         cursor = connections['old'].cursor()
         cursor.execute('''select * from locations''')
 
@@ -217,11 +219,12 @@ def migrate_locations():
                 location.save()
 
 def migrate_majors():
+        print("Migrate Majors")
+
         cursor = connections['old'].cursor()
         cursor.execute('''select * from majors''')
 
         majors.objects.all().delete()
-
 
         objs = (majors(id=c[0],name=c[1]) for c in cursor.fetchall())
 
@@ -368,8 +371,7 @@ def migrate_subjects1():
         #                   
 
 def migrate_subjects2():       
-
-        migrate_schools()
+        
         migrate_majors() 
 
         cursor2 = connections['old'].cursor()
