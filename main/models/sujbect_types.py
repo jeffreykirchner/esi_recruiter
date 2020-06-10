@@ -11,6 +11,10 @@ class subject_types(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Subject Type'
+        verbose_name_plural = 'Subject Types'
+
     def json(self):
         return{
             "id":self.id,

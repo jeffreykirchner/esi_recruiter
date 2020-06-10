@@ -13,6 +13,10 @@ class locations(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        verbose_name = 'Location'
+        verbose_name_plural = 'Locations'
+    
     def json(self):
         return{
             "id":self.id,

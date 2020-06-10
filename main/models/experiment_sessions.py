@@ -21,7 +21,11 @@ class experiment_sessions(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return self.id
+        return "ID: " + self.id
+
+    class Meta:
+        verbose_name = 'Experiment Sessions'
+        verbose_name_plural = 'Experiment Sessions'
     
     def setupRecruitment(self):
         for i in self.experiment.gender_default.all():

@@ -13,6 +13,10 @@ class accounts(models.Model):
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
+    class Meta:
+        verbose_name = 'Account'
+        verbose_name_plural = 'Accounts'
+
     def __str__(self):
         if self.name != "":
             return self.number + "(" + self.name + ")" + " | " + self.department.name

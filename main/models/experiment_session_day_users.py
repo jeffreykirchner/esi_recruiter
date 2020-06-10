@@ -23,6 +23,13 @@ class experiment_session_day_users(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
+
+    def __str__(self):
+        return "ID:" + self.id + ", User: " + user.profile
+
+    class Meta:
+        verbose_name = 'Experiment Session Day Users'
+        verbose_name_plural = 'Experiment Session Day Users'
     
     def json_min(self):
         return{

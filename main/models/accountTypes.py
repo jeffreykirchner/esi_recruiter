@@ -11,6 +11,10 @@ class accountTypes(models.Model):
 
     def __str__(self):
         return self.name.upper()
+    
+    class Meta:
+        verbose_name = 'Account Type'
+        verbose_name_plural = 'Account Types'
 
     def json(self):
         return{

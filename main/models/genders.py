@@ -12,6 +12,10 @@ class genders(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Gender'
+        verbose_name_plural = 'Genders'
+
     def json(self):
         return{
             "id":self.id,

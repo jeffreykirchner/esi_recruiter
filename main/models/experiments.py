@@ -36,6 +36,10 @@ class experiments(models.Model):
     def __str__(self):
         return str(self.title)
     
+    class Meta:
+        verbose_name = 'Experiment'
+        verbose_name_plural = 'Experiments'
+    
     def json_min(self):
         return{
             "id":self.id,

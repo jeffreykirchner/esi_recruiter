@@ -11,6 +11,10 @@ class schools(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'School'
+        verbose_name_plural = 'Schools'
     
     def json(self):
         return{

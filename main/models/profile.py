@@ -26,7 +26,11 @@ class profile(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return "Name: %s %s, Chapman ID: %s" % (self.user.first_name, self.user.last_name,self.chapmanID)
+        return "%s, %s | Chapman ID: %s" % (self.user.last_name,self.user.first_name,self.chapmanID)
+
+    class Meta:
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
 
     def json_min(self):
         return{

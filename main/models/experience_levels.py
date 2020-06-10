@@ -12,6 +12,10 @@ class experience_levels(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Experience Levels'
+        verbose_name_plural = 'Experience Levels'
+
     def json(self):
         return{
             "id":self.id,

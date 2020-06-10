@@ -20,6 +20,13 @@ class experiment_session_days(models.Model):
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
+    def __str__(self):
+        return "ID: " + self.id
+
+    class Meta:
+        verbose_name = 'Experiment Session Days'
+        verbose_name_plural = 'Experiment Session Days'
+
     def setup(self,es):
         self.experiment_session=es
         self.location = locations.objects.first()
