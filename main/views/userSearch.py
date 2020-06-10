@@ -24,13 +24,13 @@ def userSearch(request):
             users= lookup(data["searchInfo"])
 
             return JsonResponse({"users" :  users},safe=False)
-        elif data["action"] == "deleteUser":
-            uid = data["uid"]
-            u=User.objects.get(id=uid)
-            u.delete()
+        # elif data["action"] == "deleteUser":
+        #     uid = data["uid"]
+        #     u=User.objects.get(id=uid)
+        #     u.delete()
 
-            users= lookup(request.session['userSearchTerm'])
-            return JsonResponse({"users" :  users},safe=False)
+        #     users= lookup(request.session['userSearchTerm'])
+        #     return JsonResponse({"users" :  users},safe=False)
     else:
         return render(request,'userSearch.html',{})      
 

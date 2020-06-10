@@ -40,29 +40,7 @@
                         .catch(function (error) {
                             console.log(error);                               
                         }); 
-                    },
-
-                    removeUser:function(uid){
-                        axios.post('{{request.get_full_path}}', {
-                            action:"deleteUser",    
-                            uid:uid,
-                        })
-                        .then(function (response) {
-                            app.$data.users=JSON.parse(response.data.users);
-                           
-                           if(app.$data.users.length == 0)
-                           {
-                              app.$data.warningText="No users found."
-                           }
-                           else
-                           {
-                              app.$data.warningText="";
-                           }
-                        })
-                        .catch(function (error) {
-                            console.log(error);                               
-                        }); 
-                    },                    
+                    },                                        
 
                     formatDate: function(value){
                             if (value) {
@@ -132,8 +110,7 @@
                             <td style="text-align: center;">                                        
                                 <span v-html="u.email + '<br>ID: ' + u.profile__chapmanID + '<br>' + u.profile__type__name.toUpperCase()">                                         
                             </td>                               
-                            <td style="text-align: center;">                                                                                      
-                                <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeUser(u.id)">Delete <i class="fa fa-trash fa-xs"></i></button>                                                                                                                                                                                        
+                            <td>
                             </td>                            
                         </tr>                                                    
                     </tbody>
