@@ -7,7 +7,7 @@ from . import experiment_sessions,locations,accounts
 
 #one day of a session
 class experiment_session_days(models.Model):
-    experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE)
+    experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,related_name='ES')
     location = models.ForeignKey(locations,on_delete=models.CASCADE)
     registration_cutoff = models.IntegerField(default=1)
     actual_participants = models.IntegerField(default=1)

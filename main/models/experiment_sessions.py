@@ -6,7 +6,7 @@ from . import genders,subject_types,experience_levels,institutions,experiments
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
-    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE)  
+    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='E')  
 
     #recruitment parameters
     gender = models.ManyToManyField(genders)

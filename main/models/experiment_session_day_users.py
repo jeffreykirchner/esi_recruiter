@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 
 #user results from a session day
 class experiment_session_day_users(models.Model):        
-    user = models.ForeignKey(User,on_delete=models.CASCADE)    
-    experiment_session_day = models.ForeignKey(experiment_session_days,on_delete=models.CASCADE,null = True)                                                                                               
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='ESDU')    
+    experiment_session_day = models.ForeignKey(experiment_session_days,on_delete=models.CASCADE,null = True,related_name='ESD')                                                                                               
     experiment_session_legacy = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,null=True)
 
     attended=models.BooleanField(default=False)
@@ -25,12 +25,18 @@ class experiment_session_day_users(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return "ID:" + self.id + ", User: " + user.profile
+        return "ID:" + str(self.id)
 
     class Meta:
         verbose_name = 'Experiment Session Day Users'
         verbose_name_plural = 'Experiment Session Day Users'
     
+    def json_subjectInfo(self):
+        return{
+            "id":self.id,
+            "title":self.experiment_session_day.ES.E.title,
+        }
+
     def json_min(self):
         return{
             "id":self.id,            

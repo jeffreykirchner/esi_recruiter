@@ -3,6 +3,7 @@ import logging
 import traceback
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.db.models import F
 
 from . import *
 
@@ -34,6 +35,14 @@ class profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
+
+    @property
+    def sorted_session_day_list(self):
+        qs=self.user.ESDU.all().annotate(date=F('experiment_session_day__date')) \
+                               .annotate(title = F('experiment_session_day__experiment_session__experiment__title')) \
+                               .order_by('-date') \
+                               
+        return qs
 
     def json_min(self):
         return{

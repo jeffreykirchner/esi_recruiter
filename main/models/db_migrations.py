@@ -371,7 +371,7 @@ def migrate_subjects1():
         #                   
 
 def migrate_subjects2():       
-        
+
         migrate_majors() 
 
         cursor2 = connections['old'].cursor()
@@ -705,10 +705,10 @@ def migrate_session_users2():
         print("session user day")
 
         cursor = connections['old'].cursor()
-        cursor.execute('''SELECT CASE WHEN NOT ontime_earnings REGEXP '^[0-9]+$'  
+        cursor.execute('''SELECT CASE WHEN NOT ontime_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'  
                                         THEN 0
                                         ELSE COALESCE(ontime_earnings,0) END,
-                                  CASE WHEN NOT participation_earnings REGEXP '^[0-9]+$'
+                                  CASE WHEN NOT participation_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'
                                         THEN 0
                                         ELSE COALESCE(participation_earnings,0) END,                                  
                                   COALESCE(attended,0),
@@ -723,7 +723,8 @@ def migrate_session_users2():
                                        WHERE session_id = id) AND 
                                 EXISTS(SELECT id 
                                        FROM students 
-                                       WHERE student_id = id)''')        
+                                       WHERE student_id = id)
+                                       ''')        
 
         experiment_session_day_users.objects.all().delete()                                 
 
