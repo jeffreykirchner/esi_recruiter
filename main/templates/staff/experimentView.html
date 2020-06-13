@@ -1,0 +1,656 @@
+
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+    <!-- <title>Experiment: {{experiment.title}} </title> -->
+
+    <script type="text/javascript">       
+
+        $(document).ready(function(){   
+            
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+
+            var app = new Vue({
+        
+                delimiters: ['[[', ']]'],
+                el: '#root',        
+                data:{           
+                    experimentURL:'',   
+                    loading: true,   
+                    message: null,              
+                    experiment:{institution:[],
+                                gender_default:[],
+                                subject_type_default:[],
+                                institutions_exclude_default:[],
+                                institutions_include_default:[],
+                                experiments_exclude_default:[],
+                                experiments_include_default:[],
+                                account_default_full:{str:""},
+                                title:'',
+                                school_full:{name:""},
+                                department_default_full:{name:""},
+                                experience_level_default_full:{name:""}},
+                    sessions:{},                            
+                    institutions_list:"",
+                    include_institutions_list:"",
+                    exclude_institutions_list:"",
+                    include_experiments_list:"",
+                    exclude_experiments_list:"", 
+                    subject_type_list:"",
+                    genders_list:"",              
+                    buttonText1:"Update",
+                    buttonText2:"Update",     
+                    errorsText:"",
+                    cancelModal:true,     
+                },
+        
+                methods:{       
+
+                    // getExperiment: function(id) {
+
+                    //     this.$data.loading = true;
+
+                    //     axios.get('/api/experiments/' + id + '/')
+                    //         .then( (response) => {
+                    //             app.$data.experiment = response.data;
+                    //             app.$data.loading = false;
+                    //         })
+                    //         .catch( (err) => {
+                    //             app.$data.loading = false;
+                    //             console.log(err);
+                    //         })
+                    // },       
+
+                    clearMainFormErrors:function(){
+                        for(var item in app.$data.experiment)
+                        {
+                            $("#id_" + item).attr("class","form-control");
+                            $("#id_errors_" + item).remove();
+                        }
+                    },
+
+                    updateDisplayLists:function(errors){
+                        var e = app.$data.experiment;
+
+                        app.$data.institutions_list=app.updateDisplayLists2(e.institution_full);
+                        app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_default_full);
+                        app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_default_full);
+                        app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_default_full);
+                        app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_default_full);
+                        app.$data.genders_list=app.updateDisplayLists2(e.gender_default_full);
+                        app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_default_full);
+                    },
+
+                    updateDisplayLists2:function(list){
+                        str="";
+
+                        for(var i=0;i<list.length;i++)
+                        {
+                            if(i>=1) str += " | ";
+                            str += list[i].name;
+                        }
+
+                        return str;
+                    },
+
+                    getExperiment: function(){
+                        axios.post('/experiment/{{id}}/', {
+                                status:"get",                                                              
+                            })
+                            .then(function (response) {                                   
+                                // app.$data.institutions= response.data.institutions; 
+                                app.$data.experiment =  response.data.experiment;     
+                                app.$data.sessions = response.data.sessions.experiment_sessions;                                                     
+                                app.$data.loading=false; 
+                                app.updateDisplayLists();
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    displayErrors:function(errors){
+                        for(var e in errors)
+                        {
+                            $("#id_" + e).attr("class","form-control is-invalid")
+                            var str='<span id=id_errors_'+ e +' class="text-danger">';
+                            
+                            for(var i in errors[e])
+                            {
+                                str +=errors[e][i] + '<br>';
+                            }
+
+                            str+='</span>';
+                            $("#div_id_" + e).append(str);    
+                        }
+                    },                   
+
+                    updateExperiment1: function(){
+
+                        app.$data.cancelModal=false;  
+
+                        axios.post('/experiment/{{id}}/', {
+                                status :"update1" ,                                
+                                formData : $("#mainForm1").serializeArray(),                                                              
+                            })
+                            .then(function (response) {     
+                                                               
+                                status=response.data.status;                               
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {                                 
+                                    app.$data.experiment =  response.data.experiment;  
+                                    app.updateDisplayLists();
+                                    $('#setupModalCenter').modal('toggle');
+                                }
+                                else
+                                {                                
+                                    app.displayErrors(response.data.errors);
+                                }          
+
+                                app.$data.buttonText1="Update"                      
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                    },
+
+                    updateExperiment2: function(){   
+
+                        app.$data.cancelModal=false;
+
+                        axios.post('/experiment/{{id}}/', {
+                                status :"update2" ,                                
+                                formData : $("#mainForm2").serializeArray(),                                                              
+                            })
+                            .then(function (response) {                                   
+                                status=response.data.status;                               
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {                           
+                                    app.$data.experiment =  response.data.experiment;  
+                                    app.updateDisplayLists();      
+                                    $('#recruitmentModalCenter').modal('toggle');
+                                }
+                                else
+                                {                                
+                                    app.displayErrors(response.data.errors);
+                                }          
+
+                                app.$data.buttonText2="Update"                      
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                    },
+
+                    addSession: function(){
+                        axios.post('/experiment/{{id}}/', {
+                                status :"add" ,                                                                                                                              
+                            })
+                            .then(function (response) {                                   
+                                //redirect to new session     
+
+                                window.location.href = response.data.url;            
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });
+                    },
+
+                    removeSession: function(sid){
+                        if(confirm("Delete session?")){
+                            axios.post('/experiment/{{id}}/', {
+                                    status : "remove" ,
+                                    sid : sid,                                                                                                                              
+                                })
+                                .then(function (response) {                                   
+                                    
+                                    app.$data.sessions = response.data.sessions.experiment_sessions;            
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });
+                        }
+                    },
+
+                    formatDate: function(value){
+                        if (value) {
+                            //return value;
+                            return moment(String(value)).local().format('M/D/YYYY, h:mm a')
+                        }
+                        else{
+                            return "date format error";
+                        }
+                    },
+
+                    checkToday: function(value1){
+                        if(moment(value1).format("YYYY/MM/DD")== moment().format("YYYY/MM/DD"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        
+                    },
+
+                    mainFormChange1:function(){
+                        app.$data.buttonText1="Update *";
+                    },
+
+                    mainFormChange2:function(){
+                        app.$data.buttonText2="Update *";
+                    },                   
+
+                    // fire when edit experiment model is shown, save copy for cancel
+                    showEditExperiment:function(){
+                        app.$data.cancelModal=true;
+                        app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
+                        $('#setupModalCenter').modal('show');
+                        app.clearMainFormErrors();
+                    },
+
+                    //fire when edit experiment model hides, cancel action if nessicary
+                    hideEditExperiment:function(){
+                        if(app.$data.cancelModal)
+                        {
+                            Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
+                            app.$data.experimentBeforeEdit=null;
+                        }
+                    },
+
+                    // fire when edit experiment model is shown, save copy for cancel
+                    showEditRecruitment:function(){
+                        app.$data.cancelModal=true;
+                        app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
+                        $('#recruitmentModalCenter').modal('show');
+                        app.clearMainFormErrors();
+                    },
+
+                    //fire when edit experiment model hides, cancel action if nessicary
+                    hideEditRecruitment:function(){
+                        if(app.$data.cancelModal)
+                        {
+                            Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
+                            app.$data.experimentBeforeEdit=null;
+                        }
+                    },
+                    
+                },
+        
+                mounted: function(){
+                    this.getExperiment();
+                    $('#setupModalCenter').on("hidden.bs.modal", this.hideEditExperiment);
+                    $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
+                },                 
+        
+            });
+        });
+        
+    </script>
+{%endblock head%}
+
+{%block content%}    
+
+<div class="row justify-content-md-center">
+    <div class="col col-md-12">
+        <div class="card">
+            <div class="card-header">
+                Experiment: <span v-if="loading"><i class="fas fa-spinner fa-spin"></i></span><span v-html="experiment.title"></span>
+            </div>
+      
+            <div class="card-body">
+                <!-- Experiment parameters                -->
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        <!-- <button class="btn btn-primary btn-sm" type="button" data-toggle="modal" data-target="#setupModalCenter"><i class="fas fa-pen fa-xs"></i></button> <u>Experiment Parameters</u>  -->                      
+                        <u>Experiment Parameters</u>
+                    </div>
+                    <div class="col col-md-8">
+                       
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.title.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.title"></span>
+                    </div>               
+                </div>  
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.experiment_manager.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.experiment_manager"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.actual_participants_default.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.actual_participants_default"></span>
+                    </div>               
+                </div>                
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.registration_cutoff_default.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.registration_cutoff_default"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.length_default.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.length_default"></span>
+                    </div>               
+                </div> 
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.school.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.school_full.name"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.account_default.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.account_default_full.str"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.institution.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="institutions_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.notes.label}}:
+                    </div>
+                    <div class="col col-md-8">                        
+                        <textarea class="form-control" rows="5" v-model="experiment.notes" readonly="true"></textarea>
+                    </div>               
+                </div>
+                <div class = "row mt-2">
+                    <div class="col col-md-4 text-right">
+                            
+                    </div>
+                    <div class="col col-md-8">                        
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
+                    </div>               
+                </div>                
+                <!-- end experiment parameters -->
+
+                <br>
+                <br>
+
+                <!-- recruitment parameters -->
+                <div class = "row">
+                    <div class="col col-md-4 text-right">                        
+                        <u>Recruitment Parameters (default)</u>
+                    </div>
+                    <div class="col col-md-8">
+                        
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Gender:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="genders_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Subject Type:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="subject_type_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Experience:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.experience_level_default_full.name"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Include Institutions:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="include_institutions_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Exclude Institutions:
+                    </div>
+                    <div class="col col-md-8">    
+                        <span v-html="exclude_institutions_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                        <div class="col col-md-4 text-right">
+                            Include Experiments:
+                        </div>
+                        <div class="col col-md-8">
+                            <span v-html="include_experiments_list"></span>
+                        </div>               
+                    </div>
+                    <div class = "row">
+                        <div class="col col-md-4 text-right">
+                            Exclude Experiments:
+                        </div>
+                        <div class="col col-md-8">    
+                            <span v-html="exclude_experiments_list"></span>
+                        </div>               
+                    </div>
+                <div class = "row mt-2">
+                    <div class="col col-md-4 text-right">
+
+                    </div>
+                    <div class="col col-md-8">
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+                    </div>               
+                </div>
+                <!-- end recruitment parameters -->
+
+                <br>
+                <br>
+                <!-- session table -->
+                <div class="row">                   
+                    <div class="col col-md-10 offset-md-1">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side:top;text-align: center;">Sessions</caption>
+                            <thead>
+                                <th width="35%">
+                                    Day(s) <button class="btn btn-primary btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
+                                </th> 
+                                <th width="35%">
+                                   
+                                </th>                                                      
+                                <th width="30%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody id="sessionList">                       
+                                <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
+                                    <td>
+                                        <span v-for="(d,index) in s.experiment_session_days">
+                                            <!-- <span v-if="index>0"> | </span>                                             -->
+                                            <div v-html="formatDate(d.date)"></div>                                                                                                                                   
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span v-for="(d,index) in s.experiment_session_days">
+                                            <div v-if="checkToday(d.date)">Today</div>
+                                            <div v-else="checkToday(d.date)"></div>
+                                        </span>
+                                    </td>                               
+                                    <td style="text-align: center;">                                        
+                                            <div>                                                
+                                                <a v-bind:href="s.url">Setup</a> | <button class="btn btn-primary btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>                                                
+                                            </div>                                                                                                                                         
+                                        </span>
+                                    </td>                            
+                                </tr>                        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>             
+
+            </div>      
+        </div>
+    </div>
+</div>
+
+<!-- setup modal -->  
+<div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupparameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Experiment Parameters</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form id="mainForm1">
+                    <!-- experiment parameters -->
+
+                    <div class="row">
+                        <div class = "col"> 
+                            {{form1.title | as_crispy_field }}                            
+                        </div>
+                        <div class = "col"> 
+                            {{form1.experiment_manager | as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class = "col">  
+                            {{form1.account_default | as_crispy_field }}  
+                        </div>
+                        <div class = "col">
+                            {{form1.school | as_crispy_field }}
+                        </div>            
+                    </div>  
+                    <div class="row">
+                        <div class = "col">  
+                            {{form1.registration_cutoff_default | as_crispy_field }}
+                        </div> 
+                        <div class = "col"> 
+                            {{form1.actual_participants_default | as_crispy_field }}
+                        </div>
+                    </div>                                
+                    <div class="row">                         
+                        <div class = "col">  
+                            {{form1.length_default | as_crispy_field }}
+                        </div>
+                        <div class = "col">
+                           
+                        </div>                                       
+                    </div>
+                    <div class="row">
+                        <div class = "col overflow-auto" style="height: 200px;">                         
+                            {{form1.notes | as_crispy_field }}
+                        </div>
+                        <div class = "col overflow-auto" style="height: 200px;">
+                            {{form1.institution | as_crispy_field }}                                                                                    
+                        </div>            
+                    </div>                                                                     
+                </form>  <!-- main form -->                                                   
+            </div>
+            <div class="modal-footer">                
+            <button type="button" class="btn btn-primary" v-on:click = "updateExperiment1()">
+                <i class="fas fa-sign-in-alt"></i> [[buttonText1]]
+            </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- recruitment modal -->
+<div class="modal" id="recruitmentModalCenter" tabindex="-1" role="dialog" aria-labelledby="recruitmentparameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Default Recruitment Parameters </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                    <form id="mainForm2">
+                        <!-- recruitment parameters -->
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.gender_default | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                {{form2.subject_type_default | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">    
+                            <div class = "col"> 
+                                {{form2.experience_level_default | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                
+                            </div>
+                        </div>       
+                            
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.institutions_exclude_default | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                {{form2.institutions_include_default | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.experiments_exclude_default | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                {{form2.experiments_include_default | as_crispy_field }}  
+                            </div>
+                        </div>
+                    </form> <!-- recruitment parameters form -->                                            
+                </div>
+            <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "updateExperiment2()">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock content%}

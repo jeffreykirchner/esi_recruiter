@@ -1,12 +1,13 @@
 from django.db import models
 import logging
 import traceback
+from django.urls import reverse
 
 from . import genders,subject_types,experience_levels,institutions,experiments
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
-    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='E')  
+    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
 
     #recruitment parameters
     gender = models.ManyToManyField(genders)
@@ -53,15 +54,15 @@ class experiment_sessions(models.Model):
     def json_min(self):
         return{
             "id":self.id,
-            "url": str(reverse('experimentSession',args=(self.id,))),           
-            "experiment_session_days" : [esd.json_min() for esd in self.experiment_session_days_set.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "url": str(reverse('experimentSessionView',args=(self.id,))),           
+            "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
         }
 
     def json(self):
         return{
             "id":self.id,            
             "experiment":self.experiment.id,
-            "experiment_session_days" : [esd.json() for esd in self.experiment_session_days_set.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],
             "subject_type" : [str(st.id) for st in self.subject_type.all()],

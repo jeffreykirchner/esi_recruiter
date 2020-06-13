@@ -48,8 +48,8 @@ class experiments(models.Model):
     
     def json_sessions(self):
         return{
-             "experiment_sessions":[es.json_min() for es in self.experiment_sessions_set.all()
-                                    .annotate(first_date=models.Min("experiment_session_days__date")).order_by('-first_date')],
+             "experiment_sessions":[es.json_min() for es in self.ES.all()
+                                    .annotate(first_date=models.Min("ESD__date")).order_by('-first_date')],
         }
     
     def json(self):

@@ -36,8 +36,6 @@ def profileCreate(request):
     #migrate_sessions()
     #migrate_majors()
 
-
-
     #migrate_session_users1()
     #migrate_session_users2()  #***
     #migrate_session_users3()  #***
