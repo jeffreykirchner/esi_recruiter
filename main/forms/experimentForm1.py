@@ -32,7 +32,7 @@ class experimentForm1(forms.ModelForm):
                                             queryset=accounts.objects.all(),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
                                                                        "v-on:change":"mainFormChange1"}))
-    institution = forms.ModelMultipleChoiceField(label="Institution(s)",
+    institution = forms.ModelMultipleChoiceField(label="",
                                                  queryset=institutions.objects.all().order_by("name"),
                                                  widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.institution",
                                                                                       "v-on:change":"mainFormChange1",

@@ -381,7 +381,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.institution.label}}:
+                        Institution(s):
                     </div>
                     <div class="col col-md-8">
                         <span v-html="institutions_list"></span>
@@ -443,7 +443,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Include Institutions:
+                        Include Institution Experience:
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_institutions_list"></span>
@@ -451,7 +451,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Exclude Institutions:
+                        Exclude Institution Experience:
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_institutions_list"></span>
@@ -459,7 +459,7 @@
                 </div>
                 <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Include Experiments:
+                            Include Experiment Experience:
                         </div>
                         <div class="col col-md-8">
                             <span v-html="include_experiments_list"></span>
@@ -467,7 +467,7 @@
                     </div>
                     <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Exclude Experiments:
+                            Exclude Experiment Experience:
                         </div>
                         <div class="col col-md-8">    
                             <span v-html="exclude_experiments_list"></span>
@@ -579,11 +579,14 @@
                         </div>                                       
                     </div>
                     <div class="row">
-                        <div class = "col overflow-auto" style="height: 200px;">                         
+                        <div class = "col" style="height: 300px;">                         
                             {{form1.notes | as_crispy_field }}
                         </div>
-                        <div class = "col overflow-auto" style="height: 200px;">
-                            {{form1.institution | as_crispy_field }}                                                                                    
+                        <div class = "col">
+                            Institution(s)
+                            <div class = "overflow-auto" style="height: 300px;">
+                                 {{form1.institution | as_crispy_field }} 
+                            </div>                                                                                                              
                         </div>            
                     </div>                                                                     
                 </form>  <!-- main form -->                                                   
@@ -627,20 +630,32 @@
                             </div>
                         </div>       
                             
-                        <div class="row">
+                        <div class="row mb-4">
                             <div class = "col"> 
-                                {{form2.institutions_exclude_default | as_crispy_field }}                            
+                                Exclude Institution Experience
+                                <div class = "overflow-auto" style="height: 300px;">
+                                    {{form2.institutions_exclude_default | as_crispy_field }} 
+                                </div>                                                           
                             </div>
                             <div class = "col"> 
-                                {{form2.institutions_include_default | as_crispy_field }}
+                                Include Institution Experience
+                                <div class = "overflow-auto" style="height: 300px;">
+                                    {{form2.institutions_include_default | as_crispy_field }}
+                                </div>                                
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-4">
                             <div class = "col"> 
-                                {{form2.experiments_exclude_default | as_crispy_field }}  
-                            </div>
+                                Exclude Experiment Experience
+                                <div class = "overflow-auto" style="height: 300px;">
+                                    {{form2.experiments_exclude_default | as_crispy_field }}
+                                </div>                                  
+                            </div>                            
                             <div class = "col"> 
-                                {{form2.experiments_include_default | as_crispy_field }}  
+                                Include Experiment Experience
+                                <div class=" overflow-auto" style="height: 300px;">
+                                    {{form2.experiments_include_default | as_crispy_field }}
+                                </div>                                  
                             </div>
                         </div>
                     </form> <!-- recruitment parameters form -->                                            

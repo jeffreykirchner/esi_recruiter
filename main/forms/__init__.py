@@ -4,5 +4,5 @@ from .profileFormUpdate import *
 from .verifyForm import *
 from .verifyFormResend import *
 from .userInfoForm import *
-from .experiment1 import *
-from .experiment2 import *
+from .experimentForm1 import *
+from .experimentForm2 import *
