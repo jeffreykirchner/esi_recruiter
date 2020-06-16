@@ -9,6 +9,7 @@ from . import profile
 from django.utils.timezone import make_aware
 import datetime
 from django.conf import settings
+import pytz
 
 from main.models import institutions,\
                                 departments,\
@@ -543,7 +544,7 @@ def migrate_sessions():
                                         location_id=c[2],
                                         registration_cutoff=c[8],
                                         actual_participants=c[9],
-                                        date=make_aware(c[3]),
+                                        date=make_aware(c[3],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],
                                         auto_reminder = c[6],
@@ -594,7 +595,7 @@ def migrate_sessions():
                                         location_id=c[2],
                                         registration_cutoff=c[9],
                                         actual_participants=c[10],
-                                        date=make_aware(c[8]),
+                                        date=make_aware(c[8],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],
                                         auto_reminder = c[6],

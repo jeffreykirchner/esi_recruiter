@@ -228,7 +228,8 @@
                     formatDate: function(value){
                         if (value) {
                             //return value;
-                            return moment(String(value)).local().format('M/D/YYYY, h:mm a')
+                            //console.log(value);
+                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
                         }
                         else{
                             return "date format error";
@@ -492,7 +493,7 @@
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
                                 <th width="35%">
-                                    Day(s) <button class="btn btn-primary btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
+                                    Day(s) <button class="btn btn-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
                                 </th> 
                                 <th width="35%">
                                    
@@ -517,7 +518,7 @@
                                     </td>                               
                                     <td style="text-align: center;">                                        
                                             <div>                                                
-                                                <a v-bind:href="s.url">Setup</a> | <button class="btn btn-primary btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>                                                
+                                                <a v-bind:href="s.url">View</a> | <button class="btn btn-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>                                                
                                             </div>                                                                                                                                         
                                         </span>
                                     </td>                            

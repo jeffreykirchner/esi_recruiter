@@ -2,31 +2,815 @@
 {% load crispy_forms_tags %}
 
 {%block head%}
-    <title>User Info</title>
 
-    <script type="text/javascript">
-       
-    </script>
+    <!-- Date-picker itself -->
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
+<link rel="stylesheet" href="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/css/bootstrap-datetimepicker.min.css"/>
+
+<script src="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-bootstrap-datetimepicker@5"></script>
+
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" integrity="sha256-DOS9W6NR+NFe1fUhEE0PGKY/fubbUCnOfTje2JMDw3Y=" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js" integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script> -->
+
+    <script type="text/javascript">            
+
+        $(document).ready(function(){             
+            
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+
+            // http://eonasdan.github.io/bootstrap-datetimepicker/
+            Vue.component('date-picker', VueBootstrapDatetimePicker);
+
+            $.extend(true, $.fn.datetimepicker.defaults, {
+                icons: {
+                    time: 'far fa-clock',
+                    date: 'far fa-calendar',
+                    up: 'fas fa-arrow-up',
+                    down: 'fas fa-arrow-down',
+                    previous: 'fas fa-chevron-left',
+                    next: 'fas fa-chevron-right',
+                    today: 'fas fa-calendar-check',
+                    clear: 'far fa-trash-alt',
+                    close: 'far fa-times-circle'
+                }
+                });
+
+            var app = new Vue({
+        
+                delimiters: ['[[', ']]'],
+                el: '#root',        
+                data:{        
+                    sessionURL:'',   
+                    loading: true,   
+                    message: null,              
+                    session:{gender:[],
+                             subject_type:[],
+                             institutions_exclude:[],
+                             institutions_include:[],
+                             experiments_include:[],
+                             experiments_exclude:[]},
+                    currentSessionDayIndex:0,
+                    currentSessionDay:{ account:0,
+                                        actual_participants:0,
+                                        auto_reminder:1,
+                                        canceled:0,
+                                        date_raw:"",
+                                        date:"",
+                                        account:0,
+                                        id:0,
+                                        length:0,
+                                        location:0,
+                                        registration_cutoff:0,
+                                        experiment_session_days_user:[],
+                                        experiment_session_days_user_unconfirmed:[],
+                                        confirmedCount:"-",
+                                        unConfirmedCount:"-"},                    
+                    include_institutions_list:"",
+                    exclude_institutions_list:"",
+                    include_experiments_list:"",
+                    exclude_experiments_list:"", 
+                    subject_type_list:"",
+                    genders_list:"",        
+                    buttonText1:"Update",  
+                    buttonText2:"Update",
+                    subjectsCaption1:"Confirmed",
+                    options: {
+                        // https://momentjs.com/docs/#/displaying/
+                        format: 'MM/D/YYYY h:mm A',
+                        useCurrent: true,
+                        showClear: false,
+                        showClose: true,
+                        sideBySide: true,
+                        },                         
+                },
+        
+                methods:{     
+
+                    clearMainFormErrors:function(){
+
+                        for(var item in app.$data.currentSessionDay)
+                        {
+                            $("#id_" + item).attr("class","form-control");
+                            $("#id_errors_" + item).remove();
+                        }
+
+                        for(var item in app.$data.session)
+                        {
+                            $("#id_" + item).attr("class","form-control");
+                            $("#id_errors_" + item).remove();
+                        }
+                    },
+
+                    //update recruitment parameters 
+                    updateSession1: function(){                       
+                        axios.post('/experimentSession/{{id}}/', {
+                                status :"update1" ,                                
+                                formData : $("#mainForm1").serializeArray(),                                                              
+                            })
+                            .then(function (response) {     
+                                                            
+                                status=response.data.status;                               
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {                                 
+                                    app.$data.session =  response.data.session;  
+                                    app.updateDisplayLists();
+
+                                    app.$data.cancelModal=false; 
+                                    $('#recruitmentModalCenter').modal('toggle');
+                                }
+                                else
+                                {                                
+                                    app.displayErrors(response.data.errors);
+                                }          
+
+                                app.$data.buttonText1="Update"                      
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                        },
+
+                    updateDisplayLists:function(errors){
+                        var e = app.$data.session;
+                        
+                        app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
+                        app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
+                        app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
+                        app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
+                        app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
+                        app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
+                    },
+
+                    updateDisplayLists2:function(list){
+                        str="";
+
+                        for(var i=0;i<list.length;i++)
+                        {
+                            if(i>=1) str += " | ";
+                            str += list[i].name;
+                        }
+
+                        return str;
+                    },
+
+                    getSession: function(){
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"get",                                                              
+                            })
+                            .then(function (response) {                                   
+                                app.$data.session= response.data.session; 
+                                // app.$data.experiment =  response.data.experiment;                                                            
+                                // app.$data.loading=false; 
+                                app.updateDisplayLists();
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    addSessionDay: function(){
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"addSessionDay",                                                              
+                            })
+                            .then(function (response) {                                   
+                                app.$data.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                 
+                                //app.updateDisplayLists();
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    removeSessionDay: function(id){
+                        if(confirm("Delete Session Day?")){
+                            axios.post('/experimentSession/{{id}}/', {
+                                    status:"removeSessionDay",    
+                                    id:id,                                                          
+                                })
+                                .then(function (response) {                                   
+                                    app.$data.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                
+                                    //app.updateDisplayLists();
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    //app.$data.searching=false;                                                              
+                                });                        
+                        }
+                    },
+
+                    cancelSessionDay: function(id){                        
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"cancelSessionDay",   
+                                id:id,                                                           
+                            })
+                            .then(function (response) {                                   
+                                //app.$data.session= response.data.session;                                 
+                                //app.updateDisplayLists();
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    updateSessionDay: function(){
+
+                        var sessionCanceledChangedMessage=false;
+
+                        if(app.$data.currentSessionDay.canceled != 
+                           app.$data.session.experiment_session_days[app.$data.currentSessionDayIndex].canceled)
+                        {
+                            if(confirm("Send email about cancellation update?")){
+                                var sessionCanceledChangedMessage=true;
+                            }
+                        }
+
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"updateSessionDay",   
+                                id:app.$data.currentSessionDay.id, 
+                                formData : $("#mainForm2").serializeArray(),
+                                sessionCanceledChangedMessage:sessionCanceledChangedMessage,                                                          
+                            })
+                            .then(function (response) {
+                                status=response.data.status;
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {
+                                    app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
+                                    app.$data.cancelModal=false;
+                                    $('#setupModalCenter').modal('toggle');
+                                }
+                                else
+                                {
+                                    app.displayErrors(response.data.errors);
+                                }                                   
+                               
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    displayErrors:function(errors){
+                        for(var e in errors)
+                        {
+                            $("#id_" + e).attr("class","form-control is-invalid")
+                            var str='<span id=id_errors_'+ e +' class="text-danger">';
+                            
+                            for(var i in errors[e])
+                            {
+                                str +=errors[e][i] + '<br>';
+                            }
+
+                            str+='</span>';
+                            $("#div_id_" + e).append(str);    
+                        }
+                    },
+
+                    mainFormChange1:function(){
+                        app.$data.buttonText1="Update *";
+                    },
+
+                    mainFormChange2:function(){
+                        app.$data.buttonText2="Update *";
+                    },
+
+                    // fire when edit experiment model is shown, save copy for cancel
+                    showEditRecruitment:function(){
+                        app.$data.cancelModal=true;
+                        app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+                        $('#recruitmentModalCenter').modal('show');
+                        app.clearMainFormErrors();
+                    },
+
+                     //fire when edit experiment model hides, cancel action if nessicary
+                    hideEditRecruitment:function(){
+                        if(app.$data.cancelModal)
+                        {
+                            Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+                            app.$data.sessionBeforeEdit=null;
+                            app.$data.buttonText1="Update";
+                        }
+                    },
+
+                    // fire when edit setup model is shown, save copy for cancel
+                    showSetup:function(id){
+                        app.$data.cancelModal=true;
+                        app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
+                        app.$data.currentSessionDayIndex=id;
+                        app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+                        app.$data.buttonText2="Update";
+                        $('#setupModalCenter').modal('show');
+                        //$('#id_date').datepicker('update');;
+                        app.clearMainFormErrors();
+                        //$('#id_date').val(app.formatDate(app.$data.currentSessionDay.date));
+                    },
+
+                    //fire when edit setup model hides, cancel action if nessicary
+                    hideSetup:function(){
+                        if(app.$data.cancelModal)
+                        {
+                            Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+                            app.$data.sessionBeforeEdit=null;                            
+                            app.$data.buttonText2="Update";
+                        }
+                    },
+
+                    // fire when edit recruit subjects model is shown
+                    showRecruitSubjects:function(id){
+                        app.$data.cancelModal=true;
+                        app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[id]);
+                        app.$data.currentSessionDayIndex =id;
+                        // app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+                        app.$data.buttonText3="Update";
+                        $('#recruitSubjectsModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                    //fire when edit setup model subjects, cancel action if nessicary
+                    hideRecruitSubjects:function(){                        
+                    },
+
+
+                    removeSubject: function(id,uid,confirmed){
+
+                        if(confirm("Remove subject from session?")){
+                            axios.post('/experimentSession/{{id}}/', {
+                                status:"removeSubject",   
+                                id:id, 
+                                uid:uid,                                                                                                                        
+                            })
+                            .then(function (response) {
+                                status=response.data.status;
+
+                                if(status=="success")
+                                {
+                                    if(confirmed)
+                                    {
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                   // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                                }
+                                else
+                                {
+                                    app.displayErrors(response.data.errors);
+                                }                                   
+                               
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });
+                        }                       
+                                                
+                    },                  
+
+                    formatDate: function(value){
+                        if (value) {        
+                            console.log(value);                    
+                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                        }
+                        else{
+                            return "date format error";
+                        }
+                    },
+
+                    checkToday: function(value1){
+                        if(moment(value1).format("YYYY/MM/DD")== moment().format("YYYY/MM/DD"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        
+                    },
+                   
+                    
+                },
+
+                mounted: function(){
+                    this.getSession();
+                    //attach modal close events to vue
+                    $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
+                    $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
+                    $('#recruitSubjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
+                    $('#id_date').on("dp.hide",this.mainFormChange2);
+                },                 
+        
+            });
+
+            // $(function () {
+            //     $("#id_date").datetimepicker({
+            //         format: 'd/m/Y H:i AM/PM',
+            //         defaultDate: "11/1/2013",
+            //     });
+            // });
+        });
+
+        
+        
+    </script>   
+
 {%endblock head%}
 
-{%block content%}
-<div class="row justify-content-lg-center">
-    <div class="col col-lg-10">
-        <div class="card">                  
+{%block content%}    
+
+<div class="row justify-content-md-center">
+    <div class="col col-md-12">
+        <div class="card">
             <div class="card-header">
-               <!-- Header Text here      -->
-                {%if user.is_superuser%}
-                <span class="float-right">
-                    <!-- buttons here -->
-                </span>
-                {%endif%}                                                 
+                Experiment Session: <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment.title}}</a>
             </div>
-            <div class="card-body">               
-             
-                
-                
-            </div>                    
-        </div>                
+    
+            <div class="card-body">
+
+                <!-- recruitment parameters -->
+                <div class = "row">
+                    <div class="col col-md-4 text-right">                        
+                        <u>Recruitment Parameters</u>
+                    </div>
+                    <div class="col col-md-8">
+                        
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.gender.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="genders_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.subject_type.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="subject_type_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.experience_level.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <div v-if="session.experience_level_full">
+                            <span v-html="session.experience_level_full.name"></span>
+                        </div>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.institutions_include.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="include_institutions_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.institutions_exclude.label}}:
+                    </div>
+                    <div class="col col-md-8">    
+                        <span v-html="exclude_institutions_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.experiments_include.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="include_experiments_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.experiments_exclude.label}}:
+                    </div>
+                    <div class="col col-md-8">    
+                        <span v-html="exclude_experiments_list"></span>
+                    </div>               
+                </div>
+                <div class = "row mt-2">
+                    <div class="col col-md-4 text-right">
+
+                    </div>
+                    <div class="col col-md-8">
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+                    </div>               
+                </div>
+                <!-- end recruitment parameters -->
+                <br>
+                <br>                                    
+                   
+                <!-- session day table -->
+                <div class="row">                   
+                    <div class="col col-md-10 offset-md-1">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side:top;text-align: center;">Day(s)</caption>
+                            <thead>
+                                <th width="35%">
+                                    Date <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()">Multi Day <i class="fas fa-plus fa-xs"></i></button> 
+                                </th> 
+                                <th width="35%">
+                                   
+                                </th>                                                      
+                                <th width="30%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody id="sessionList">                       
+                                <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
+                                    <td>
+                                        <span v-html="formatDate(sd.date_raw)"></span>                                       
+                                    </td>
+                                    <td style="text-align: center;">                                        
+                                        <div v-if="checkToday(sd.date_raw)">Today</div>
+                                        <div v-else></div>                                        
+                                    </td>                               
+                                    <td style="text-align: center;">                                       
+                                              
+                                            <!-- <a v-bind:href="">Run</a> |  -->         
+                                        Run
+                                        <br>                                
+                                        <div v-if="session.experiment_session_days.length == 1">                                            
+                                            <div>
+                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
+                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showRecruitSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                            </div>
+                                            <!-- <div style="padding-top: 5px;">                                                
+                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button>
+                                            </div> -->
+                                        </div>
+                                        <div v-else>
+                                            <div>
+                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
+                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showRecruitSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                            </div>
+                                            <div style="padding-top: 5px;">                                                
+                                                <!-- <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button> |  -->
+                                                <button style="width:80px;" class="btn btn-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                            </div>                                           
+                                        </div>                                                                                                                                                                                    
+                                    </td>                            
+                                </tr>                        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>      
+        </div>
     </div>
-</div>    
+</div>
+
+<!-- recruitment parameters modal -->
+<div class="modal" id="recruitmentModalCenter" tabindex="-1" role="dialog" aria-labelledby="recruitmentparameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Recruitment Parameters </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                    <form id="mainForm1">
+                        <!-- recruitment parameters -->
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form1.gender | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                {{form1.subject_type | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">    
+                            <div class = "col"> 
+                                {{form1.experience_level | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                
+                            </div>
+                        </div>       
+                            
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form1.institutions_exclude | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                {{form1.institutions_include | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form1.experiments_exclude | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                {{form1.experiments_include | as_crispy_field }}  
+                            </div>
+                        </div>
+                    </form> <!-- recruitment parameters form -->                                            
+                </div>
+            <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "updateSession1()">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText1]]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- setup modal -->
+<div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupParameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Session Day Parameters </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                    <form id="mainForm2">
+                        <!-- setup parameters -->
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.location | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                <!-- {{form2.date | as_crispy_field }} -->
+                                <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
+
+                                <div id="div_id_date" class="form-group">
+                                    <label for="id_date" class="requiredField">
+                                        Date and Time<span class="asteriskField">*</span>
+                                    </label>
+                                    <div>
+                                        <!-- <input type="text" name="date" required="required" id="id_date" class="form-control"> -->
+                                        <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
+                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date" :config="options" v-on:change="mainFormChange2"></date-picker>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">    
+                            <div class = "col"> 
+                                {{form2.registration_cutoff | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                {{form2.actual_participants | as_crispy_field }}
+                            </div>
+                        </div>       
+                            
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.length | as_crispy_field }}                            
+                            </div>
+                            <div class = "col"> 
+                                {{form2.account | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.auto_reminder | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                                {{form2.canceled | as_crispy_field }}  
+                            </div>
+                        </div>
+                    </form> <!-- recruitment parameters form -->                                            
+                </div>
+            <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "updateSessionDay()">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- recruit subjects modal -->
+<div class="modal" id="recruitSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="recruitSubjectsParameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Subjects</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                    
+                <div class="row">
+                    <div class = "col col-md-2">
+
+                    </div>
+                    <div class = "col col-md-8">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button">Find</button>
+                                <button class="btn btn-outline-primary" type="button">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class = "col col-md-2">
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name 
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                    <td>
+                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                    </td>                               
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                        </button>
+                                    </td>                                
+                                </tr>
+                            </tbody>                                                                      
+                            
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Un-Confirmed ([[currentSessionDay.unConfirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name
+                                    <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                        Show <i class="fas fa-eye fa-xs"></i> 
+                                    </button>
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user_unconfirmed" v-bind:key="esdu.id">
+                                    <td>
+                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                    </td>                               
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                            Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+                    
+                    
+                    
+                   
+            </div>
+            <!-- <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
+                </button>
+            </div> -->
+        </div>
+    </div>
+</div>
 {%endblock content%}

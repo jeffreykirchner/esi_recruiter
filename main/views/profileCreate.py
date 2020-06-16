@@ -30,15 +30,15 @@ def profileCreate(request):
     #migrate_subjects1()   #***
     #migrate_subjects2()
    
-    #migrate_experiments() #***
+    migrate_experiments() #***
     #migrate_locations()
     #migrate_experiments_institutions()
     #migrate_sessions()
     #migrate_majors()
 
     #migrate_session_users1()
-    #migrate_session_users2()  #***
-    #migrate_session_users3()  #***
+    migrate_session_users2()  #***
+    migrate_session_users3()  #***
 
     token=""
     status="update"            #either filling out the form or 

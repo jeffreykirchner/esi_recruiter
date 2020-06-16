@@ -126,6 +126,7 @@ def experimentView(request,id):
             es=experiment_sessions()
             es.experiment=e           
             es.save()
+
             es.setupRecruitment()
             es.save()
 
@@ -134,7 +135,7 @@ def experimentView(request,id):
             esd.setup(es)
             esd.save()
 
-            return JsonResponse({'url':reverse('experimentSession',args=(es.id,))},safe=False)
+            return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False)
         elif data["status"] == "remove":
             es=experiment_sessions.objects.get(id=data["sid"])
             es.delete()

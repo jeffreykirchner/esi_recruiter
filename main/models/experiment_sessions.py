@@ -29,6 +29,7 @@ class experiment_sessions(models.Model):
         verbose_name_plural = 'Experiment Sessions'
     
     def setupRecruitment(self):
+        #setup this session with defualt parameters from related experiment
         for i in self.experiment.gender_default.all():
             self.gender.add(i)
         
