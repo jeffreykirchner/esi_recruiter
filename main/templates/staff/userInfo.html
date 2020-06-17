@@ -83,10 +83,20 @@
                             <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
                         </div>               
                     </div>
-
-                    <button type="button" class="btn btn-outline-primary float-right" v-on:click = "updateUser()">
-                        <span v-html="submitButtonText"></span>
-                     </button>
+                    <div class = "row">
+                        <div class = "col"> 
+                            <span class="float-right">Chapman ID:</span>                            
+                        </div>
+                        <div class = "col"> 
+                            <span class="float-left">{{u.profile.chapmanID}}</span>
+                        </div>
+                        <div class = "col"> 
+                                                        
+                        </div>
+                        <div class = "col"> 
+                            
+                        </div>               
+                    </div>
                 </form>
                 <br>
 
@@ -110,7 +120,7 @@
                         {%if i.attended or i.bumped%}
                             <tr>
                                 <td>                                
-                                    {{i.title}} {{i.id}} {{i.experiment_session_day.experiment_session.experiment.id}}
+                                    <a href="\experimentSession\{{i.experiment_session_day.experiment_session.id}}">{{i.title}}</a>
                                 </td>
                                 <td  style="text-align: center;">                                
                                     {{i.date}}
