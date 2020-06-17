@@ -106,7 +106,7 @@
                     //update recruitment parameters 
                     updateSession1: function(){                       
                         axios.post('/experimentSession/{{id}}/', {
-                                status :"update1" ,                                
+                                status :"updateRecruitmentParameters" ,                                
                                 formData : $("#mainForm1").serializeArray(),                                                              
                             })
                             .then(function (response) {     
@@ -233,10 +233,12 @@
                             }
                         }
 
+                        var formData =  $("#mainForm2").serializeArray();
+
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"updateSessionDay",   
                                 id:app.$data.currentSessionDay.id, 
-                                formData : $("#mainForm2").serializeArray(),
+                                formData : formData,
                                 sessionCanceledChangedMessage:sessionCanceledChangedMessage,                                                          
                             })
                             .then(function (response) {
@@ -478,7 +480,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.institutions_include.label}}:
+                        Include Institution Experience:
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_institutions_list"></span>
@@ -486,7 +488,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.institutions_exclude.label}}:
+                        Exclude Institution Experience:
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_institutions_list"></span>
@@ -494,7 +496,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.experiments_include.label}}:
+                        Include Experiment Experience:
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_experiments_list"></span>
@@ -502,7 +504,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.experiments_exclude.label}}:
+                        Exclude Experiment Experience:
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_experiments_list"></span>
@@ -611,20 +613,32 @@
                             </div>
                         </div>       
                             
-                        <div class="row">
+                        <div class="row mb-4">
                             <div class = "col"> 
-                                {{form1.institutions_exclude | as_crispy_field }}                            
+                                Exclude Institution Experience
+                                <div class=" overflow-auto" style="height: 300px;">
+                                    {{form1.institutions_exclude | as_crispy_field }} 
+                                </div>                                                           
                             </div>
                             <div class = "col"> 
-                                {{form1.institutions_include | as_crispy_field }}
+                                Include Institution Experience
+                                <div class=" overflow-auto" style="height: 300px;">
+                                    {{form1.institutions_include | as_crispy_field }}
+                                </div>                               
                             </div>
                         </div>
                         <div class="row">
                             <div class = "col"> 
-                                {{form1.experiments_exclude | as_crispy_field }}  
+                                Exclude Experiment Experience
+                                <div class=" overflow-auto" style="height: 300px;">
+                                    {{form1.experiments_exclude | as_crispy_field }}
+                                </div>                                  
                             </div>
                             <div class = "col"> 
-                                {{form1.experiments_include | as_crispy_field }}  
+                                Include Experiment Experience
+                                <div class=" overflow-auto" style="height: 300px;">
+                                    {{form1.experiments_include | as_crispy_field }} 
+                                </div>                                 
                             </div>
                         </div>
                     </form> <!-- recruitment parameters form -->                                            

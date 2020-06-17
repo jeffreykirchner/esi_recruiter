@@ -51,12 +51,23 @@ class experiment_sessions(models.Model):
             self.experiments_include.add(i)
 
         return self
+    
+    def allowDelete(self):
+
+        ESD = self.ESD.all()    
+
+        for e in ESD:
+            if not e.allowDelete():
+                return False
+
+        return True
 
     def json_min(self):
         return{
             "id":self.id,
             "url": str(reverse('experimentSessionView',args=(self.id,))),           
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "allow_delete": self.allowDelete(),
         }
 
     def json(self):
@@ -78,4 +89,5 @@ class experiment_sessions(models.Model):
             "experiments_exclude_full" : [e.json_min() for e in self.experiments_exclude.all()],
             "experiments_include" : [str(e.id) for e in self.experiments_include.all()],
             "experiments_include_full" : [e.json_min() for e in self.experiments_include.all()],
+            "allow_delete": self.allowDelete(),
         }

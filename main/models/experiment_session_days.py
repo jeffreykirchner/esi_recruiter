@@ -2,6 +2,7 @@ from django.db import models
 import logging
 import traceback
 from datetime import datetime
+from django.utils import timezone
 
 from . import experiment_sessions,locations,accounts
 
@@ -33,7 +34,19 @@ class experiment_session_days(models.Model):
         self.registration_cutoff = es.experiment.registration_cutoff_default
         self.actual_participants = es.experiment.actual_participants_default
         self.length=es.experiment.length_default
-        self.account = es.experiment.account_default      
+        self.account = es.experiment.account_default    
+        self.date = datetime.now(timezone.utc)
+
+    #check if this session day can be deleted
+    def allowDelete(self):
+
+        ESDU = self.experiment_session_day_users_set.all()    
+
+        for u in ESDU:
+            if u.earnings > 0 or u.show_up_fee > 0:
+                return False
+
+        return True  
 
     def json_min(self):
         return{

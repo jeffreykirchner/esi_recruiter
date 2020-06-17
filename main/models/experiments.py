@@ -81,5 +81,4 @@ class experiments(models.Model):
             "experiments_exclude_default_full" : [e.json_min() for e in self.experiments_exclude_default.all()],
             "experiments_include_default" : [str(e.id) for e in self.experiments_include_default.all()],
             "experiments_include_default_full" : [e.json_min() for e in self.experiments_include_default.all()],
-
         }

@@ -138,7 +138,9 @@ def experimentView(request,id):
             return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False)
         elif data["status"] == "remove":
             es=experiment_sessions.objects.get(id=data["sid"])
-            es.delete()
+
+            if es.allow_delete():
+                es.delete()
 
             return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
     else: #GET       

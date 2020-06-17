@@ -518,7 +518,10 @@
                                     </td>                               
                                     <td style="text-align: center;">                                        
                                             <div>                                                
-                                                <a v-bind:href="s.url">View</a> | <button class="btn btn-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>                                                
+                                                <a v-bind:href="s.url">View</a>
+                                                 <span v-if="s.allow_delete">
+                                                    | <button class="btn btn-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>
+                                                 </span>                                                   
                                             </div>                                                                                                                                         
                                         </span>
                                     </td>                            

@@ -14,7 +14,7 @@ def doPython(apps, schema_editor):
     staff.save()
 
     staff=MyModel()
-    staff.name="Any"
+    staff.name="Non-Students"
     staff.save()
 
 class Migration(migrations.Migration):

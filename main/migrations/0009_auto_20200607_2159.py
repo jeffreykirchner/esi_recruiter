@@ -7,15 +7,15 @@ def doPython(apps, schema_editor):
     MyModel = apps.get_model('main', 'experience_levels')
 
     staff=MyModel()
-    staff.name="None"
+    staff.name="No Experience"
     staff.save()
 
     staff=MyModel()
-    staff.name="One or More"
+    staff.name="One or More Experiments"
     staff.save()
 
     staff=MyModel()
-    staff.name="Any"
+    staff.name="Some or No Experience"
     staff.save()
 
 class Migration(migrations.Migration):
