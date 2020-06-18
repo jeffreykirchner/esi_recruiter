@@ -38,7 +38,7 @@ def experimentView(request,id):
         data = json.loads(request.body.decode('utf-8'))         
 
         try:
-            e = experiments.objects.prefetch_related("ES").get(id=id)  
+            e = experiments.objects.all().prefetch_related("ES").get(id=id)     
         except e.DoesNotExist:
             raise Http404('Experiment Not Found')
         

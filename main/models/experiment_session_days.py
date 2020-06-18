@@ -3,6 +3,7 @@ import logging
 import traceback
 from datetime import datetime
 from django.utils import timezone
+from django.db.models import F
 
 from . import experiment_sessions,locations,accounts
 
@@ -10,8 +11,6 @@ from . import experiment_sessions,locations,accounts
 class experiment_session_days(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,related_name='ESD')
     location = models.ForeignKey(locations,on_delete=models.CASCADE)
-    registration_cutoff = models.IntegerField(default=1)
-    actual_participants = models.IntegerField(default=1)
     date = models.DateTimeField(default=datetime.now)
     length = models.IntegerField(default=60)    
     account = models.ForeignKey(accounts,on_delete=models.CASCADE)
@@ -58,15 +57,16 @@ class experiment_session_days(models.Model):
         return{
             "id":self.id,
             "location":self.location.id,
-            "registration_cutoff":self.registration_cutoff,
-            "actual_participants":self.actual_participants,
             "date":self.date.strftime("%#m/%#d/%Y %#I:%M %p"),
             "date_raw":self.date,
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
             "canceled":str(self.canceled),
-            "experiment_session_days_user" : [i.json_min() for i in self.experiment_session_day_users_set.all().filter(confirmed=True)],
+            "experiment_session_days_user" : [i.json_min() for i in self.experiment_session_day_users_set.all() \
+                                                                        .annotate(last_name = F('user__last_name')) \
+                                                                        .order_by("last_name") \
+                                                                        .filter(confirmed=True)],
             "confirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=True).count(),
             "unConfirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=False).count(),          
         }

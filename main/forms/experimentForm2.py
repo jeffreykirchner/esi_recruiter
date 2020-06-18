@@ -2,6 +2,15 @@ from django import forms
 from main.models import genders,subject_types,experience_levels,institutions,experiments
 
 class experimentForm2(forms.ModelForm):   
+
+    actual_participants_default = forms.CharField(label='Number of Participants (default)', 
+                                                  widget=forms.NumberInput(attrs={"v-model":"experiment.actual_participants_default",
+                                                                                  "v-on:keyup":"mainFormChange2",
+                                                                                  "v-on:change":"mainFormChange2"}))
+    registration_cutoff_default = forms.CharField(label='Registration Cutoff (default)',
+                                                  widget=forms.NumberInput(attrs={"v-model":"experiment.registration_cutoff_default",
+                                                                                  "v-on:keyup":"mainFormChange2",
+                                                                                  "v-on:change":"mainFormChange2"}))  
     gender_default = forms.ModelMultipleChoiceField(label="Gender(s)", 
                                                     queryset=genders.objects.all(),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.gender_default",
@@ -50,4 +59,31 @@ class experimentForm2(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['title','experiment_manager','actual_participants_default','registration_cutoff_default','notes','school','account_default','department_default','institution','length_default']
+        exclude=['experiment_manager','title','notes','school','account_default','department_default','institution','length_default']
+
+    def clean_registration_cutoff_default(self):
+        registration_cutoff_default = self.data['registration_cutoff_default']
+        actual_participants_default = self.data['actual_participants_default']
+
+        try: 
+            if int(registration_cutoff_default) <= 0:
+                raise forms.ValidationError('Must be greater than zero')                
+        
+            if int(registration_cutoff_default) < int(actual_participants_default):
+                raise forms.ValidationError('Must be greater or equal to than Number of Participants')
+        
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return registration_cutoff_default
+
+    def clean_actual_participants_default(self):
+        actual_participants_default = self.data['actual_participants_default']
+
+        try:
+            if int(actual_participants_default) <= 0:
+                raise forms.ValidationError('Must be greater than zero')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return actual_participants_default

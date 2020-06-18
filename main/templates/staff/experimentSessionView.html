@@ -329,21 +329,40 @@
                         }
                     },
 
-                    // fire when edit recruit subjects model is shown
-                    showRecruitSubjects:function(id){
+                    // fire when view subjects model is shown
+                    showSubjects:function(id){
                         app.$data.cancelModal=true;
                         app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[id]);
                         app.$data.currentSessionDayIndex =id;
                         // app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
                         app.$data.buttonText3="Update";
-                        $('#recruitSubjectsModalCenter').modal('show');
+                        $('#subjectsModalCenter').modal('show');
                         // app.clearMainFormErrors();
                     },
 
-                    //fire when edit setup model subjects, cancel action if nessicary
-                    hideRecruitSubjects:function(){                        
+                    //fire when view setup model closes, cancel action if nessicary
+                    hideShowSubjects:function(){                        
                     },
 
+                    // fire when invite subjects subjects model is shown
+                    showInviteSubjects:function(id){                        
+                        $('#inviteSubjectsModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                    //fire when hide invite subjects  model, cancel action if nessicary
+                    hideInviteSubjects:function(){                        
+                    },
+
+                    // fire when invite subjects subjects model is shown
+                    showManuallyAddSubjects:function(id){                        
+                        $('#manuallyAddSubjectsModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                    //fire when hide invite subjects  model, cancel action if nessicary
+                    hideManuallyAddSubjects:function(){                        
+                    },
 
                     removeSubject: function(id,uid,confirmed){
 
@@ -412,7 +431,7 @@
                     //attach modal close events to vue
                     $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
                     $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
-                    $('#recruitSubjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
+                    $('#subjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
                     $('#id_date').on("dp.hide",this.mainFormChange2);
                 },                 
         
@@ -470,6 +489,22 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
+                        {{form1.actual_participants.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="session.actual_participants"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        {{form1.registration_cutoff.label}}:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="session.registration_cutoff"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
                         {{form1.experience_level.label}}:
                     </div>
                     <div class="col col-md-8">
@@ -516,6 +551,8 @@
                     </div>
                     <div class="col col-md-8">
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -529,7 +566,8 @@
                             <caption style="caption-side:top;text-align: center;">Day(s)</caption>
                             <thead>
                                 <th width="35%">
-                                    Date <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()">Multi Day <i class="fas fa-plus fa-xs"></i></button> 
+                                    Date 
+                                    <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()">Multi Day <i class="fas fa-plus fa-xs"></i></button> 
                                 </th> 
                                 <th width="35%">
                                    
@@ -555,7 +593,7 @@
                                         <div v-if="session.experiment_session_days.length == 1">                                            
                                             <div>
                                                 <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
-                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showRecruitSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
                                             </div>
                                             <!-- <div style="padding-top: 5px;">                                                
                                                 <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button>
@@ -564,7 +602,7 @@
                                         <div v-else>
                                             <div>
                                                 <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
-                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showRecruitSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
                                             </div>
                                             <div style="padding-top: 5px;">                                                
                                                 <!-- <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button> |  -->
@@ -579,6 +617,127 @@
                 </div>
 
             </div>      
+        </div>
+    </div>
+</div>
+
+<!-- manually add subjects to sesssion modal-->
+<div class="modal" id="manuallyAddSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Manually Add Subject to Session</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">   
+                <div class="row">
+                    <div class = "col col-md-2">
+                    </div>                  
+                    <div class = "col col-md-8">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button">Find</button>
+                                <button class="btn btn-outline-primary" type="button">Clear</button>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class = "col col-md-2">
+                    </div>
+                </div>               
+                
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name 
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                    <td>
+                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                    </td>                               
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                        </button>
+                                    </td>                                
+                                </tr>
+                            </tbody>                                                                      
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
+                </button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- invite subjects to sesssion modal-->
+<div class="modal" id="inviteSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="inviteSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Invite Subjects</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                  
+                
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name 
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                    <td>
+                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                    </td>                               
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                        </button>
+                                    </td>                                
+                                </tr>
+                            </tbody>                                                                      
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="modal-footer">                
+                <button type="button" class="btn btn-primary" v-on:click = "">
+                    <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
+                </button>
+            </div> -->
         </div>
     </div>
 </div>
@@ -603,6 +762,14 @@
                             <div class = "col"> 
                                 {{form1.subject_type | as_crispy_field }}
                             </div>
+                        </div>
+                        <div class="row">    
+                            <div class = "col"> 
+                                {{form1.actual_participants | as_crispy_field }}
+                            </div>
+                            <div class = "col"> 
+                                {{form1.registration_cutoff | as_crispy_field }}  
+                            </div>                            
                         </div>
                         <div class="row">    
                             <div class = "col"> 
@@ -684,16 +851,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">    
-                            <div class = "col"> 
-                                {{form2.registration_cutoff | as_crispy_field }}  
-                            </div>
-                            <div class = "col"> 
-                                {{form2.actual_participants | as_crispy_field }}
-                            </div>
-                        </div>       
-                            
+                        </div>                              
                         <div class="row">
                             <div class = "col"> 
                                 {{form2.length | as_crispy_field }}                            
@@ -721,8 +879,8 @@
     </div>
 </div>
 
-<!-- recruit subjects modal -->
-<div class="modal" id="recruitSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="recruitSubjectsParameters" aria-hidden="true">
+<!-- view subjects modal -->
+<div class="modal" id="subjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="subjectsParameters" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -732,23 +890,6 @@
                 </button>
             </div>
             <div class="modal-body">                    
-                <div class="row">
-                    <div class = "col col-md-2">
-
-                    </div>
-                    <div class = "col col-md-8">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button">Find</button>
-                                <button class="btn btn-outline-primary" type="button">Clear</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class = "col col-md-2">
-                    </div>
-                </div>
-                <hr>
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">
@@ -764,7 +905,7 @@
                             <tbody>
                                 <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
                                     <td>
-                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                        <span v-html="index+1"></span>) <a  v-bind:href='"/userInfo/" + esdu.user.id'><span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span></a>                                    
                                     </td>                               
                                     <td style="text-align: center;">
                                         <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">

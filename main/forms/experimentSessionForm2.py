@@ -6,14 +6,6 @@ class experimentSessionForm2(forms.ModelForm):
                                         queryset=locations.objects.all(),
                                         widget = forms.Select(attrs={"v-model":"currentSessionDay.location",
                                                                      "v-on:change":"mainFormChange2"}))                                                               
-    registration_cutoff = forms.CharField(label='Registration Cutoff',
-                                            widget=forms.NumberInput(attrs={"v-model":"currentSessionDay.registration_cutoff",
-                                                                            "v-on:keyup":"mainFormChange2",
-                                                                            "v-on:change":"mainFormChange2"}))
-    actual_participants = forms.CharField(label='Number of Participants', 
-                                            widget=forms.NumberInput(attrs={"v-model":"currentSessionDay.actual_participants",
-                                                                            "v-on:keyup":"mainFormChange2",
-                                                                            "v-on:change":"mainFormChange2"}))
     date = forms.DateTimeField(label="Date and Time",
                                input_formats=['%m/%d/%Y %I:%M %p'],
                                error_messages={'invalid': 'Format: M/D/YYYY H:MM AM/PM'},                                                                                                           

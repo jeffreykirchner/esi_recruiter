@@ -483,9 +483,12 @@ def migrate_sessions():
         print("data loading")
 
         cursor = connections['old'].cursor()
-        cursor.execute('''SELECT id,
-                                 experiment_id                                
+        cursor.execute('''SELECT sessions.id,
+                                 experiment_id,
+                                 CASE WHEN registration_cutoff IS NULL THEN 0 ELSE registration_cutoff END AS registration_cutoff,
+                                 CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants                                
                         FROM sessions 
+                        INNER JOIN experiments ON sessions.experiment_id=experiments.id
                         WHERE EXISTS(SELECT id
                                         FROM experiments 
                                         WHERE experiment_id=id)''')
@@ -494,7 +497,9 @@ def migrate_sessions():
 
         
         objs = (experiment_sessions(id=c[0],
-                                experiment_id=c[1],
+                                    experiment_id=c[1],
+                                    registration_cutoff = c[2],    
+                                    actual_participants=c[3]
                                 ) for c in cursor.fetchall())
 
         batch_size=150
@@ -531,9 +536,7 @@ def migrate_sessions():
                                                       FROM accounts
                                                       WHERE account_number=id) THEN 1 ELSE account_number END AS account_number,
                                  auto_reminder,
-                                 cancelled,
-                                 CASE WHEN registration_cutoff IS NULL THEN 0 ELSE registration_cutoff END AS registration_cutoff,
-                                 CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants
+                                 cancelled                                 
                         FROM sessions
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id 
                         WHERE EXISTS(SELECT id
@@ -542,8 +545,6 @@ def migrate_sessions():
 
         objs = (experiment_session_days(experiment_session_id=c[0],
                                         location_id=c[2],
-                                        registration_cutoff=c[8],
-                                        actual_participants=c[9],
                                         date=make_aware(c[3],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],
@@ -581,9 +582,7 @@ def migrate_sessions():
                                                 WHERE account_number=id) THEN 1 ELSE account_number END AS account_number,
                                 auto_reminder,
                                 cancelled,
-                                additional_day,
-                                CASE WHEN registration_cutoff IS NULL THEN 0 ELSE registration_cutoff END AS registration_cutoff,
-                                CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants
+                                additional_day
                         FROM sessions
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id 
                         WHERE EXISTS(SELECT id
@@ -593,8 +592,6 @@ def migrate_sessions():
 
         objs = (experiment_session_days(experiment_session_id=c[0],
                                         location_id=c[2],
-                                        registration_cutoff=c[9],
-                                        actual_participants=c[10],
                                         date=make_aware(c[8],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],

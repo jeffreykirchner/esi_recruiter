@@ -10,9 +10,11 @@ class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
 
     #recruitment parameters
+    actual_participants = models.IntegerField(default=1)
+    registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(genders)
     subject_type =  models.ManyToManyField(subject_types)   
-    experience_level = models.ForeignKey(experience_levels,on_delete=models.CASCADE,default="1")    
+    experience_level = models.ForeignKey(experience_levels,on_delete=models.CASCADE,default="3")    
     institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
     experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
@@ -30,6 +32,10 @@ class experiment_sessions(models.Model):
     
     def setupRecruitment(self):
         #setup this session with defualt parameters from related experiment
+
+        self.actual_participants = self.experiment.actual_participants_default
+        self.registration_cutoff = self.experiment.registration_cutoff_default
+
         for i in self.experiment.gender_default.all():
             self.gender.add(i)
         
@@ -74,6 +80,8 @@ class experiment_sessions(models.Model):
         return{
             "id":self.id,            
             "experiment":self.experiment.id,
+            "actual_participants":self.actual_participants,
+            "registration_cutoff":self.registration_cutoff,
             "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],

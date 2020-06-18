@@ -339,23 +339,7 @@
                     <div class="col col-md-8">
                         <span v-html="experiment.experiment_manager"></span>
                     </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.actual_participants_default.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="experiment.actual_participants_default"></span>
-                    </div>               
-                </div>                
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.registration_cutoff_default.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="experiment.registration_cutoff_default"></span>
-                    </div>               
-                </div>
+                </div>                                
                 <div class = "row">
                     <div class="col col-md-4 text-right">
                         {{form1.length_default.label}}:
@@ -432,6 +416,22 @@
                     </div>
                     <div class="col col-md-8">
                         <span v-html="subject_type_list"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Number of Participants:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.actual_participants_default"></span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Registration Cutoff:
+                    </div>
+                    <div class="col col-md-8">
+                        <span v-html="experiment.registration_cutoff_default"></span>
                     </div>               
                 </div>
                 <div class = "row">
@@ -565,15 +565,7 @@
                         <div class = "col">
                             {{form1.school | as_crispy_field }}
                         </div>            
-                    </div>  
-                    <div class="row">
-                        <div class = "col">  
-                            {{form1.registration_cutoff_default | as_crispy_field }}
-                        </div> 
-                        <div class = "col"> 
-                            {{form1.actual_participants_default | as_crispy_field }}
-                        </div>
-                    </div>                                
+                    </div>                                 
                     <div class="row">                         
                         <div class = "col">  
                             {{form1.length_default | as_crispy_field }}
@@ -625,6 +617,14 @@
                                 {{form2.subject_type_default | as_crispy_field }}
                             </div>
                         </div>
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.actual_participants_default | as_crispy_field }}
+                            </div>
+                            <div class = "col">  
+                                {{form2.registration_cutoff_default | as_crispy_field }}
+                            </div>                            
+                        </div> 
                         <div class="row">    
                             <div class = "col"> 
                                 {{form2.experience_level_default | as_crispy_field }}  
