@@ -39,7 +39,7 @@ def updateProfile(request):
 
                 u.profile.chapmanID=form.cleaned_data['chapman_id']
                 u.profile.gender=form.cleaned_data['gender']
-                u.profile.gradStudent = form.cleaned_data['gradStudent']
+                u.profile.subjecType = form.cleaned_data['subjectType']
                 u.profile.studentWorker = form.cleaned_data['studentWorker']
                 u.profile.phone = form.cleaned_data['phone']
                 u.profile.major = form.cleaned_data['major']
@@ -66,7 +66,7 @@ def updateProfile(request):
                          'gender':request.user.profile.gender.id,
                          'phone':request.user.profile.phone,
                          'major':request.user.profile.major.id,
-                         'gradStudent':"Yes" if request.user.profile.gradStudent else "No",
+                         'subjectType':request.user.profile.subjectType.id,
                          'studentWorker':"Yes" if request.user.profile.studentWorker else "No"}
             )
 

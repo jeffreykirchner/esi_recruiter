@@ -3,13 +3,13 @@ from .schools import *
 from .genders import *
 from .accountTypes import *
 from .majors import *
+from .subject_types import *
 from .profile import *
 from .locations import *
 from .institutions import *
 from .departments import *
 from .accounts import *
 from .experience_levels import *
-from .sujbect_types import *
 from .experiments import *
 from .experiments_institutions import *
 from .experiment_sessions import *

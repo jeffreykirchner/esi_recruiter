@@ -8,12 +8,15 @@ from main.models import experiment_session_days, \
                         experiment_session_day_users, \
                         experiment_sessions, \
                         institutions
-from main.forms import experimentSessionForm1,experimentSessionForm2
+from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
 from django.conf import settings
 import logging
+from django.db.models import CharField,Q,F,Value as V
+from django.contrib.auth.models import User
+import random
 
 #induvidual experiment view
 @login_required
@@ -43,15 +46,47 @@ def experimentSessionView(request,id):
             return updateSessionDay(data,id)
         elif data["status"] ==  "removeSubject":
             return removeSubject(data)
+        elif  data["status"] ==  "findSubjectsToInvite":
+            return findSubjectsToInvite(data,id)
 
     else: #GET             
 
         return render(request,
                       'staff/experimentSessionView.html',
                       {'form1':experimentSessionForm1(),    
-                       'form2':experimentSessionForm2(),                                        
+                       'form2':experimentSessionForm2(),    
+                       'form3':recruitForm(),                                    
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
+
+#find list of subjects to invite based on recruitment parameters
+def findSubjectsToInvite(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Find subjects to invite")
+    logger.info(data)
+
+    number = int(data["number"])
+
+    es = experiment_sessions.objects.get(id=id)
+    es_genders = es.gender.all()
+    
+    es_subjectTypes = es.subject_type.all()
+
+    logger.info(es_genders)
+    logger.info(es_subjectTypes)
+
+
+    users=User.objects.filter(profile__gender__in = es_genders,
+                              profile__subject_type__in = es_subjectTypes)    
+
+    users_json = [u.profile.json_min() for u in users.all()]
+
+    if number > len(users_json):
+        usersSmall = users_json
+    else:  
+        usersSmall = random.sample(users_json,number)
+
+    return JsonResponse({"subjectInvitations" : usersSmall,"status":"success"}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):

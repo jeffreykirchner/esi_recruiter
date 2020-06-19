@@ -57,7 +57,7 @@ def profileCreate(request):
                                     form.cleaned_data['gender'],
                                     form.cleaned_data['phone'],
                                     form.cleaned_data['major'],
-                                    form.cleaned_data['gradStudent'],
+                                    form.cleaned_data['subjectType'],
                                     form.cleaned_data['studentWorker'],
                                     False,
                                     accountTypes.objects.get(id=2))
@@ -72,7 +72,7 @@ def profileCreate(request):
 
     return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
 
-def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,gradStudent,studentWorker,isActive,accountType):
+def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,subjectType,studentWorker,isActive,accountType):
     logger = logging.getLogger(__name__) 
 
     u = User.objects.create_user(username = username,
@@ -90,7 +90,7 @@ def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gende
                 type=accountType,
                 phone=phone,
                 major=major,
-                gradStudent=gradStudent,
+                subjectType=subjectType,
                 studentWorker=studentWorker)
 
     logger.info("Create Profile: ")

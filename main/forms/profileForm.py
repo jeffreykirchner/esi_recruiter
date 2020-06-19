@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from main.models import genders,profile,accountTypes,majors
+from main.models import genders,profile,accountTypes,majors,subject_types
 
 import logging
 import re
@@ -19,10 +19,9 @@ class profileForm(forms.Form):
     major = forms.ModelChoiceField(label="Major",
                                      queryset=majors.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"profile.major"})) 
-    gradStudent = forms.ChoiceField(label='Are you in a Masters, Law or Doctoral program?',             
-                                         choices=(('---','---'),('Yes', 'Yes'), ('No', 'No')),
-                                         initial='---',                   
-                                         widget=forms.Select)
+    subjectType = forms.ModelChoiceField(label="What is your enrollment status?",
+                                     queryset=subject_types.objects.all(),
+                                     widget=forms.Select(attrs={"v-model":"profile.subjectType"}))
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
                                          choices=(('---','---'),('Yes', 'Yes'), ('No', 'No')),
                                          initial='---',                   
@@ -39,19 +38,6 @@ class profileForm(forms.Form):
         if studentWorker == "Yes":
             return True
         elif studentWorker == "No":
-            return False
-        else:
-            raise forms.ValidationError("Please answer the question.")
-
-    def clean_gradStudent(self):
-        logger = logging.getLogger(__name__) 
-        logger.info("Clean gradStudent")
-
-        gradStudent = self.cleaned_data['gradStudent']
-
-        if gradStudent == "Yes":
-            return True
-        elif gradStudent == "No":
             return False
         else:
             raise forms.ValidationError("Please answer the question.")

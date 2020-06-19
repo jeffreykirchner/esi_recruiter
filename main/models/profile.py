@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db.models import F
 
-from . import *
+from main.models import *
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -18,11 +18,11 @@ class profile(models.Model):
     school = models.ForeignKey(schools,on_delete=models.CASCADE,default=1)                 #Chapman University ETC
     major = models.ForeignKey(majors,on_delete=models.CASCADE,default=1)                   #Economics ETC
     gender = models.ForeignKey(genders,on_delete=models.CASCADE,default=1)
+    subjectType = models.ForeignKey(subject_types,on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
 
     chapmanID = models.CharField(max_length = 100,default="00000000")    
     emailConfirmed =  models.CharField(max_length = 100,default="no")    
     blackballed = models.BooleanField(default=False)
-    gradStudent = models.BooleanField(default=False)
     phone = models.CharField(max_length = 100,default="")
     studentWorker = models.BooleanField(default=False)
 

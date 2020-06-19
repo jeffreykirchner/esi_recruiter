@@ -380,7 +380,7 @@ def migrate_subjects2():
                         COALESCE(chapman_id,"Not Listed"),                       
                         COALESCE(phone,"0"),                                
                         CASE WHEN gender = "Female" THEN 1 ELSE 2 END,
-                        CASE WHEN grade = "Graduate" THEN 1 ELSE 0 END,
+                        CASE WHEN grade = "Graduate" THEN 2 ELSE 1 END,
                         CASE WHEN NOT EXISTS(SELECT id
                                                 FROM majors
                                                 WHERE s1.major_id = id ) 
@@ -411,7 +411,7 @@ def migrate_subjects2():
                         school_id=c[9],
                         major_id=c[5],
                         type_id=2,
-                        gradStudent = c[4],
+                        subjectType_id = c[4],
                 ) for c in cursor2.fetchall())
 
         batch_size=50

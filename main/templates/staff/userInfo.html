@@ -1,6 +1,7 @@
 {%extends "base.html"%}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load tz %}
 
 {%block head%}
     <title>User Info</title>
@@ -57,10 +58,10 @@
                     </div>
                     <div class = "row">
                         <div class = "col"> 
-                            <span class="float-right">Grauate Student:</span>                            
+                            <span class="float-right">Enrollment Status:</span>                            
                         </div>
                         <div class = "col"> 
-                            <span class="float-left">{%if u.profile.gradStudent%}Yes{%else%}No{%endif%}</span>
+                            <span class="float-left">{{u.profile.subjectType}}</span>
                         </div>
                         <div class = "col"> 
                             <span class="float-right">Student Worker:</span>                            
@@ -122,8 +123,10 @@
                                 <td>                                
                                     <a href="/experimentSession/{{i.experiment_session_day.experiment_session.id}}">{{i.title}}</a>
                                 </td>
-                                <td  style="text-align: center;">                                
+                                <td  style="text-align: center;"> 
+                                    {% localtime on %}                              
                                     {{i.date}}
+                                    {% endlocaltime %}
                                 </td>
                                 <td  style="text-align: center;">     
                                     {%if i.bumped%}                           

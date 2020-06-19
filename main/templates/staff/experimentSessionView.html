@@ -51,6 +51,9 @@
                              institutions_include:[],
                              experiments_include:[],
                              experiments_exclude:[]},
+                    subjectInvitations:[],                     //list of subject invitations
+                    subjectInvitationCount:0,                  //binding to invition count input box
+                    subjectInvitationList:"",                  //visable list of subject invitations
                     currentSessionDayIndex:0,
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
@@ -88,6 +91,7 @@
         
                 methods:{     
 
+                    //remove all the form errors
                     clearMainFormErrors:function(){
 
                         for(var item in app.$data.currentSessionDay)
@@ -136,6 +140,7 @@
                             });                        
                         },
 
+                    //creates lists  of recruitment parameters
                     updateDisplayLists:function(errors){
                         var e = app.$data.session;
                         
@@ -159,6 +164,7 @@
                         return str;
                     },
 
+                    //gets session info from the server
                     getSession: function(){
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"get",                                                              
@@ -175,6 +181,7 @@
                             });                        
                     },
 
+                    //add a new session day
                     addSessionDay: function(){
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"addSessionDay",                                                              
@@ -189,6 +196,7 @@
                             });                        
                     },
 
+                    //deletes a session day
                     removeSessionDay: function(id){
                         if(confirm("Delete Session Day?")){
                             axios.post('/experimentSession/{{id}}/', {
@@ -206,6 +214,40 @@
                         }
                     },
 
+                    //find subjects to invite
+                    findSubjectsToInvite: function(){
+                        app.$data.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"findSubjectsToInvite",    
+                            number:app.$data.subjectInvitationCount,                                                          
+                        })
+                        .then(function (response) {                                   
+                            app.$data.subjectInvitations = response.data.subjectInvitations;   
+
+                            var s ="";
+                            var l = app.$data.subjectInvitations.length
+
+                            for (var i = 0; i < l; i++) {
+                                
+                                if(i  >0 && i != l-1)
+                                    s += ", ";
+                                else if(i == l-1)
+                                    s += " and ";                                    
+
+                                s += app.$data.subjectInvitations[i].first_name + " ";
+                                s += app.$data.subjectInvitations[i].last_name; 
+                            }
+
+                            app.$data.subjectInvitationList = s;                             
+                            //app.updateDisplayLists();
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                                                                        
+                        }); 
+                    },
+
+                    //cancel a session day (not in use)
                     cancelSessionDay: function(id){                        
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"cancelSessionDay",   
@@ -221,6 +263,7 @@
                             });                        
                     },
 
+                    //update the session day parameters
                     updateSessionDay: function(){
 
                         var sessionCanceledChangedMessage=false;
@@ -264,6 +307,7 @@
                             });                        
                     },
 
+                    //displays to the form errors
                     displayErrors:function(errors){
                         for(var e in errors)
                         {
@@ -280,10 +324,12 @@
                         }
                     },
 
+                    //if form is changed add * to button
                     mainFormChange1:function(){
                         app.$data.buttonText1="Update *";
                     },
 
+                    //if form is changed add * to button
                     mainFormChange2:function(){
                         app.$data.buttonText2="Update *";
                     },
@@ -364,6 +410,7 @@
                     hideManuallyAddSubjects:function(){                        
                     },
 
+                    //remove subject from a sesssion day
                     removeSubject: function(id,uid,confirmed){
 
                         if(confirm("Remove subject from session?")){
@@ -547,10 +594,9 @@
                 </div>
                 <div class = "row mt-2">
                     <div class="col col-md-4 text-right">
-
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button>
                     </div>
-                    <div class="col col-md-8">
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+                    <div class="col col-md-8">                        
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                     </div>               
@@ -699,45 +745,36 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">                  
-                
+            <div class="modal-body">   
                 <div class="row">
-                    <div class = "col">
-                        <table class="table table-hover table-condensed">
-                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
-                            <thead>
-                                <th width="50%">
-                                    Name 
-                                </th>                                                                                   
-                                <th width="50%" style="text-align: center;">
-                                    Control
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
-                                    <td>
-                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
-                                    </td>                               
-                                    <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
-                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
-                                        </button>
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
-                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
-                                        </button>
-                                    </td>                                
-                                </tr>
-                            </tbody>                                                                      
-                            
-                        </table>
+                    <div class = "col col-md-3">
                     </div>
-                </div>
+                    <div class = "col col-md-6">
+                        <form id="mainForm3">                            
+                            <div class="input-group mb-3">
+                                <input v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find</button>
+                                    <button class="btn btn-outline-primary" type="button">Clear</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class = "col col-md-3">
+                    </div>
+                </div>   
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <span v-html="subjectInvitationList"></span>
+                    </div>
+                </div>                            
             </div>
-            <!-- <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "">
-                    <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
+            <div class="modal-footer">                
+                <button type="button" class="btn btn-success" v-on:click = "">
+                    <i class="fas fa-envelope fa-xs"></i> Invite
                 </button>
-            </div> -->
+            </div>
         </div>
     </div>
 </div>
