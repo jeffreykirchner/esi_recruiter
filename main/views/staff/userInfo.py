@@ -27,12 +27,12 @@ def userInfo(request,id=None):
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["action"] == "updateUser":
+        if data["status"] == "updateUser":
             pass
-        elif data["action"] == "getUser":
-           
-            return JsonResponse({"user" :  u.profile.json()},safe=False)       
+        elif data["status"] == "getSessions":           
+            return JsonResponse({"sessions" :  u.profile.sorted_session_day_list_earningsOnly()},safe=False)       
     else:      
         return render(request,'staff/userInfo.html',{"u":u,
-                                               "experiments":u.ESDU.all() })      
+                                                     "id":id,
+                                                     "experiments":u.ESDU.all() })      
 

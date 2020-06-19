@@ -5,7 +5,38 @@
     <title>User Info</title>
 
     <script type="text/javascript">
-       
+      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ['[[', ']]'],
+            el: '#root',        
+            data:{
+                sessions:[],
+            },
+
+            methods:{
+                getUser:function(){
+                    axios.post('/userInfo/{{id}}/', {
+                                    status :"getUser" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                                                                    
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                            },
+            },
+
+            mounted: function(){
+                    this.getUser();                    
+            },
+        });
+
+
     </script>
 {%endblock head%}
 

@@ -4,11 +4,62 @@
 {% load tz %}
 
 {%block head%}
-    <title>User Info</title>
+<title>User Info</title>
 
-    <script type="text/javascript">
-       
-    </script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ["[[", "]]"],
+            el: '#root',        
+            data:{
+                sessions:[{id:"0"}],
+            },
+
+            methods:{
+                getSessions:function(){
+                    axios.post('/userInfo/{{id}}/', {
+                            status :"getSessions" ,                                                                                                                             
+                        })
+                        .then(function (response) {     
+                            app.$data.sessions = response.data.sessions;       
+
+                            for(var i=0;i<app.$data.sessions.length;i++)
+                            {
+                                app.$data.sessions[i].date = app.formatDate(app.$data.sessions[i].date);
+                                app.$data.sessions[i].earnings = parseFloat(app.$data.sessions[i].earnings).toFixed(2);
+                                app.$data.sessions[i].show_up_fee = parseFloat(app.$data.sessions[i].show_up_fee).toFixed(2);
+                            }                                
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            app.$data.searching=false;
+                        });                        
+                    },
+
+                formatDate: function(value){
+                        if (value) {        
+                            console.log(value);                    
+                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                        }
+                        else{
+                            return "date format error";
+                        }
+                    },    
+            },
+
+            mounted: function(){
+                    this.getSessions();                    
+            },
+        });
+
+        
+    });
+</script>
 {%endblock head%}
 
 {%block content%}
@@ -116,35 +167,26 @@
                             Show Up | Experiment
                         </th>
                     </thead>
-
-                    {% for i in u.profile.sorted_session_day_list %}
-                        {%if i.attended or i.bumped%}
-                            <tr>
-                                <td>                                
-                                    <a href="/experimentSession/{{i.experiment_session_day.experiment_session.id}}">{{i.title}}</a>
-                                </td>
-                                <td  style="text-align: center;"> 
-                                    {% localtime on %}                              
-                                    {{i.date}}
-                                    {% endlocaltime %}
-                                </td>
-                                <td  style="text-align: center;">     
-                                    {%if i.bumped%}                           
-                                        ${{i.show_up_fee | floatformat:2}} | Bumped
-                                    {%else%}
-                                        ${{i.show_up_fee | floatformat:2}} | ${{i.earnings | floatformat:2}}
-                                    {%endif%}
-                                </td>
-                            </tr>
-                        {%endif%}
-                    {% empty %}
-                    
-                        <tr>
-                            <td>
-                                This user is not in any experiments
+                    <tbody>
+                        <tr v-for="(s,index) in sessions" v-bind:key="s.id">
+                            <td>                                
+                                <a v-bind:href='"/experimentSession/" + s.session_id'>[[s.title]]</span></a>
                             </td>
-                        </tr>                                               
-                    {% endfor %}
+                            <td  style="text-align: center;">                                                                
+                                [[s.date]]                                    
+                            </td>
+                            <td  style="text-align: center;">     
+                                <div v-if="s.bumped">
+                                    $[[s.show_up_fee]] | Bumped
+                                </div>
+                                <div v-else>
+                                    $[[s.show_up_fee]] | $[[s.earnings]]
+                                </div>                             
+                            </td>
+                        </tr>
+                    </tbody>
+                    
+                
 
                 </table>
                 

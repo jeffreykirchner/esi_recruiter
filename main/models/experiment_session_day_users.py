@@ -34,7 +34,13 @@ class experiment_session_day_users(models.Model):
     def json_subjectInfo(self):
         return{
             "id":self.id,
-            "title":self.experiment_session_day.ES.E.title,
+            "title":self.experiment_session_day.experiment_session.experiment.title,
+            "session_id":self.experiment_session_day.experiment_session.id,
+            "date":self.experiment_session_day.date,
+            "attended":self.attended,
+            "bumped":self.bumped,
+            "earnings": self.earnings,
+            "show_up_fee":self.show_up_fee,
         }
 
     def json_min(self):

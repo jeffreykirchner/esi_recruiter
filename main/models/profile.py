@@ -3,12 +3,14 @@ import logging
 import traceback
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.db.models import F
+from django.db.models import F,Q
 
 from main.models import *
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+
+import logging
 
 #user profile, extending the user model
 class profile(models.Model):
@@ -36,13 +38,14 @@ class profile(models.Model):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
-    @property
-    def sorted_session_day_list(self):
-        qs=self.user.ESDU.all().annotate(date=F('experiment_session_day__date')) \
-                               .annotate(title = F('experiment_session_day__experiment_session__experiment__title')) \
-                               .order_by('-date') \
+
+    def sorted_session_day_list_earningsOnly(self):
+        logger = logging.getLogger(__name__) 
+
+        qs=self.user.ESDU.all().filter(Q(attended=True)|Q(bumped=True)) \
+                                 .annotate(date=F('experiment_session_day__date')).order_by('-date')
                                
-        return qs
+        return  [e.json_subjectInfo() for e in qs]
 
     def json_min(self):
         return{

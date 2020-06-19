@@ -25,4 +25,4 @@ def template(request,id=None):
            
             return JsonResponse({"response" :  "some json"},safe=False)       
     else:      
-        return render(request,'staff/template.html',{"u":u })      
+        return render(request,'staff/template.html',{"u":u ,"id":id})      
