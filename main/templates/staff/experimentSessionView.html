@@ -235,8 +235,10 @@
                                 else if(i == l-1)
                                     s += " and ";                                    
 
+                                s += '<a href = "/userInfo/' + app.$data.subjectInvitations[i].id + '" target="_blank" >';
                                 s += app.$data.subjectInvitations[i].first_name + " ";
                                 s += app.$data.subjectInvitations[i].last_name; 
+                                s += "</a>";
                             }
 
                             app.$data.subjectInvitationList = s;                             

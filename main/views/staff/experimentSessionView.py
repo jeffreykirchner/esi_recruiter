@@ -68,8 +68,8 @@ def findSubjectsToInvite(data,id):
     number = int(data["number"])
 
     es = experiment_sessions.objects.get(id=id)
+
     es_genders = es.gender.all()
-    
     es_subjectTypes = es.subject_type.all()
 
     logger.info(es_genders)
@@ -77,7 +77,7 @@ def findSubjectsToInvite(data,id):
 
 
     users=User.objects.filter(profile__gender__in = es_genders,
-                              profile__subject_type__in = es_subjectTypes)    
+                              profile__subjectType__in = es_subjectTypes)    
 
     users_json = [u.profile.json_min() for u in users.all()]
 
