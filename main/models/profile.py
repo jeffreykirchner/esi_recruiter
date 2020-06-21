@@ -38,7 +38,7 @@ class profile(models.Model):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
-
+    #get a list of session days the subject has participated in or was bumped from
     def sorted_session_day_list_earningsOnly(self):
         logger = logging.getLogger(__name__) 
 
@@ -46,6 +46,26 @@ class profile(models.Model):
                                  .annotate(date=F('experiment_session_day__date')).order_by('-date')
                                
         return  [e.json_subjectInfo() for e in qs]
+    
+    #get list of institutions this subject has been in
+    def get_institution_list(self):
+        l=[]
+
+        esdus=self.user.ESDU.all()
+        for i in esdus:
+            i2 = i.experiment_session_day.experiment_session.experiment.institution.all()
+            
+            for j in i2:
+                l.append(j.json())
+
+        #remove duplicates
+        # l = list( dict.fromkeys(l) )
+
+        logger = logging.getLogger(__name__)
+        logger.info("get institution list")
+        logger.info(l)
+
+        return l
 
     def json_min(self):
         return{

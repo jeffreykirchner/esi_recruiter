@@ -71,13 +71,19 @@ def findSubjectsToInvite(data,id):
 
     es_genders = es.gender.all()
     es_subjectTypes = es.subject_type.all()
+    es_instiutionsInclude = es.institutions_include.all()
+    institutionsExclude = es.institutions_exclude.all()
+
 
     logger.info(es_genders)
     logger.info(es_subjectTypes)
 
-
     users=User.objects.filter(profile__gender__in = es_genders,
-                              profile__subjectType__in = es_subjectTypes)    
+                              profile__subjectType__in = es_subjectTypes)
+
+
+    for u in users:
+        l = u.profile.get_institution_list()
 
     users_json = [u.profile.json_min() for u in users.all()]
 

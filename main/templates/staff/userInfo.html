@@ -18,6 +18,8 @@
             el: '#root',        
             data:{
                 sessions:[{id:"0"}],
+                institutions:[],
+                institutionsList:"",
             },
 
             methods:{
@@ -26,14 +28,22 @@
                             status :"getSessions" ,                                                                                                                             
                         })
                         .then(function (response) {     
-                            app.$data.sessions = response.data.sessions;       
+                            app.$data.sessions = response.data.sessions;  
+                            app.$data.institutions = response.data.institutions;     
 
+                            //format session data
                             for(var i=0;i<app.$data.sessions.length;i++)
                             {
                                 app.$data.sessions[i].date = app.formatDate(app.$data.sessions[i].date);
                                 app.$data.sessions[i].earnings = parseFloat(app.$data.sessions[i].earnings).toFixed(2);
                                 app.$data.sessions[i].show_up_fee = parseFloat(app.$data.sessions[i].show_up_fee).toFixed(2);
-                            }                                
+                            } 
+
+                            //create institution list
+                            for(var i=0;i<app.$data.institutions.length;i++)
+                            {
+                                app.$data.institutionsList += app.$data.institutions[i];
+                            }                               
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -43,7 +53,7 @@
 
                 formatDate: function(value){
                         if (value) {        
-                            console.log(value);                    
+                            //console.log(value);                    
                             return moment(String(value)).local().format('M/D/YYYY, h:mm a');
                         }
                         else{
@@ -143,7 +153,7 @@
                             <span class="float-left">{{u.profile.chapmanID}}</span>
                         </div>
                         <div class = "col"> 
-                                                        
+                            <span class="float-right">Institutions</span>                             
                         </div>
                         <div class = "col"> 
                             

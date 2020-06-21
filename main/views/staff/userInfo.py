@@ -30,7 +30,8 @@ def userInfo(request,id=None):
         if data["status"] == "updateUser":
             pass
         elif data["status"] == "getSessions":           
-            return JsonResponse({"sessions" :  u.profile.sorted_session_day_list_earningsOnly()},safe=False)       
+            return JsonResponse({"sessions" :  u.profile.sorted_session_day_list_earningsOnly(),
+                                 "institutions": u.profile.get_institution_list()},safe=False)       
     else:      
         return render(request,'staff/userInfo.html',{"u":u,
                                                      "id":id,
