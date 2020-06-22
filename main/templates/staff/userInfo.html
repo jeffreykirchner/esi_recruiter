@@ -39,10 +39,16 @@
                                 app.$data.sessions[i].show_up_fee = parseFloat(app.$data.sessions[i].show_up_fee).toFixed(2);
                             } 
 
+                            app.$data.institutionsList="";
                             //create institution list
                             for(var i=0;i<app.$data.institutions.length;i++)
                             {
-                                app.$data.institutionsList += app.$data.institutions[i];
+                                if(i>0)
+                                {
+                                    app.$data.institutionsList += ", ";
+                                }
+
+                                app.$data.institutionsList += app.$data.institutions[i].name;
                             }                               
                         })
                         .catch(function (error) {
@@ -153,10 +159,10 @@
                             <span class="float-left">{{u.profile.chapmanID}}</span>
                         </div>
                         <div class = "col"> 
-                            <span class="float-right">Institutions</span>                             
+                            <span class="float-right">In Institutions:</span>                             
                         </div>
                         <div class = "col"> 
-                            
+                            <span v-html="institutionsList"></span> 
                         </div>               
                     </div>
                 </form>

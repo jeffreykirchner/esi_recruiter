@@ -4,9 +4,9 @@ from .genders import *
 from .accountTypes import *
 from .majors import *
 from .subject_types import *
+from .institutions import *
 from .profile import *
 from .locations import *
-from .institutions import *
 from .departments import *
 from .accounts import *
 from .experience_levels import *

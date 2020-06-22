@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator
 from django.db.models import F,Q
 
 from main.models import *
+from main.models import institutions
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -44,28 +45,32 @@ class profile(models.Model):
 
         qs=self.user.ESDU.all().filter(Q(attended=True)|Q(bumped=True)) \
                                  .annotate(date=F('experiment_session_day__date')).order_by('-date')
-                               
-        return  [e.json_subjectInfo() for e in qs]
+
+        out_str = [e.json_subjectInfo() for e in qs]    
+
+        logger.info("get session day list")
+        logger.info(out_str)
+
+        return out_str
     
     #get list of institutions this subject has been in
     def get_institution_list(self):
-        l=[]
+        l = institutions.objects.none()
 
-        esdus=self.user.ESDU.all()
+        esdus=self.user.ESDU.all().filter(attended = True)
+
         for i in esdus:
-            i2 = i.experiment_session_day.experiment_session.experiment.institution.all()
-            
-            for j in i2:
-                l.append(j.json())
-
-        #remove duplicates
-        # l = list( dict.fromkeys(l) )
+            l |= i.experiment_session_day.experiment_session.experiment.institution.all()                
 
         logger = logging.getLogger(__name__)
         logger.info("get institution list")
-        logger.info(l)
 
-        return l
+        logger.info(l.distinct().order_by("name").query)
+
+        out_str = [e.json() for e in l.distinct().order_by("name")]
+        logger.info(out_str)
+
+        return out_str
 
     def json_min(self):
         return{

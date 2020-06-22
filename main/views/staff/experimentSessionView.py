@@ -14,7 +14,7 @@ from django.forms.models import model_to_dict
 import json
 from django.conf import settings
 import logging
-from django.db.models import CharField,Q,F,Value as V
+from django.db.models import CharField,Q,F,Value as V,Subquery
 from django.contrib.auth.models import User
 import random
 
@@ -72,20 +72,29 @@ def findSubjectsToInvite(data,id):
     es_genders = es.gender.all()
     es_subjectTypes = es.subject_type.all()
     es_instiutionsInclude = es.institutions_include.all()
-    institutionsExclude = es.institutions_exclude.all()
+    es_institutionsExclude = es.institutions_exclude.all()
 
 
     logger.info(es_genders)
     logger.info(es_subjectTypes)
 
-    users=User.objects.filter(profile__gender__in = es_genders,
-                              profile__subjectType__in = es_subjectTypes)
+    users=User.objects.annotate(user_institutions = ESDU.all()) \
+                      .filter(profile__gender__in = es_genders,
+                               profile__subjectType__in = es_subjectTypes)
 
+    usersTemp = users
 
-    for u in users:
-        l = u.profile.get_institution_list()
+    #check user in excluded institions
+    # for u in users:
+    #     l = institutions.objects.none()
+    #     esdus=u.ESDU.all().filter(attended = True)
+    #     for i in esdus:
+    #         l |= i.experiment_session_day.experiment_session.experiment.institution.all()
+        
+    #     if l & es_institutionsExclude:
+    #         usersTemp.exclude(id = u.id)
 
-    users_json = [u.profile.json_min() for u in users.all()]
+    users_json = [u.profile.json_min() for u in usersTemp.all()]
 
     if number > len(users_json):
         usersSmall = users_json

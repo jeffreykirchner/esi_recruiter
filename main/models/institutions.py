@@ -20,4 +20,4 @@ class institutions(models.Model):
         return{
             "id":self.id,
             "name":self.name,
-        }
+            }
