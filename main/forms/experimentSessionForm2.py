@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,experience_levels,institutions,experiments,locations,accounts,experiment_session_days
+from main.models import genders,subject_types,institutions,experiments,locations,accounts,experiment_session_days
 
 class experimentSessionForm2(forms.ModelForm):
     location = forms.ModelChoiceField(label="Location", 

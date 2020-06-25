@@ -3,7 +3,7 @@ import logging
 import traceback
 from django.urls import reverse
 
-from . import genders,subject_types,experience_levels,institutions,experiments
+from . import genders,subject_types,institutions,experiments
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
@@ -13,12 +13,13 @@ class experiment_sessions(models.Model):
     actual_participants = models.IntegerField(default=1)
     registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(genders)
-    subject_type =  models.ManyToManyField(subject_types)   
-    experience_level = models.ForeignKey(experience_levels,on_delete=models.CASCADE,default="3")    
+    subject_type =  models.ManyToManyField(subject_types)      
     institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
     experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
     experiments_include = models.ManyToManyField(experiments, related_name='%(class)s_experiments_include',blank=True)
+    experience_min = models.IntegerField(default = 0)
+    experience_max = models.IntegerField(default = 1000)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -87,8 +88,6 @@ class experiment_sessions(models.Model):
             "gender_full":[g.json() for g in self.gender.all()],
             "subject_type" : [str(st.id) for st in self.subject_type.all()],
             "subject_type_full" : [st.json() for st in self.subject_type.all()],
-            "experience_level": self.experience_level.id,
-            "experience_level_full": self.experience_level.json(),
             "institutions_exclude" : [str(i.id) for i in self.institutions_exclude.all()],
             "institutions_exclude_full" : [i.json() for i in self.institutions_exclude.all()],
             "institutions_include" : [str(i.id) for i in self.institutions_include.all()],
@@ -98,4 +97,6 @@ class experiment_sessions(models.Model):
             "experiments_include" : [str(e.id) for e in self.experiments_include.all()],
             "experiments_include_full" : [e.json_min() for e in self.experiments_include.all()],
             "allow_delete": self.allowDelete(),
+            "experience_min":self.experience_min,
+            "experience_max":self.experience_max,
         }

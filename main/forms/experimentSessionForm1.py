@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,experience_levels,institutions,experiments,experiment_sessions
+from main.models import genders,subject_types,institutions,experiments,experiment_sessions
 
 class experimentSessionForm1(forms.ModelForm):
     actual_participants = forms.CharField(label='Number of Participants', 
@@ -23,10 +23,7 @@ class experimentSessionForm1(forms.ModelForm):
                                                                                         "v-on:change":"mainFormChange1",
                                                                                         "class":"selectpicker",
                                                                                         "size":"4"}))
-    experience_level = forms.ModelChoiceField(label="Experience Level",
-                                                    queryset=experience_levels.objects.all(),                                                      
-                                                    widget=forms.Select(attrs={"v-model":"session.experience_level",
-                                                                                "v-on:change":"mainFormChange1"}))
+
     institutions_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
                                                     queryset=institutions.objects.all().order_by("name"),
@@ -55,6 +52,16 @@ class experimentSessionForm1(forms.ModelForm):
                                                                                         "v-on:change":"mainFormChange1",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))  
+    
+    experience_min = forms.CharField(label='Minimum Experiment Experience', 
+                                            widget=forms.NumberInput(attrs={"v-model":"session.experience_min",
+                                                                            "v-on:keyup":"mainFormChange1",
+                                                                            "v-on:change":"mainFormChange1"}))
+    
+    experience_max = forms.CharField(label='Maximum Experiment Experience', 
+                                            widget=forms.NumberInput(attrs={"v-model":"session.experience_max",
+                                                                            "v-on:keyup":"mainFormChange1",
+                                                                            "v-on:change":"mainFormChange1"}))
 
     class Meta:
         model = experiment_sessions

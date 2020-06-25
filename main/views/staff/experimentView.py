@@ -11,7 +11,6 @@ from main.models import experiments, \
                         accounts, \
                         schools, \
                         institutions, \
-                        experience_levels, \
                         genders
 from main.forms import experimentForm1,experimentForm2
 from django.http import JsonResponse

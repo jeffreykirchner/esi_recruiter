@@ -22,7 +22,8 @@
                     message: null,              
                     experiment:{institution:[],
                                 gender_default:[],
-                                subject_type_default:[],
+                                experience_min_default:0,
+                                experience_max_default:1000,
                                 institutions_exclude_default:[],
                                 institutions_include_default:[],
                                 experiments_exclude_default:[],
@@ -30,8 +31,7 @@
                                 account_default_full:{str:""},
                                 title:'',
                                 school_full:{name:""},
-                                department_default_full:{name:""},
-                                experience_level_default_full:{name:""}},
+                                department_default_full:{name:""}},
                     sessions:{},                            
                     institutions_list:"",
                     include_institutions_list:"",
@@ -46,22 +46,7 @@
                     cancelModal:true,     
                 },
         
-                methods:{       
-
-                    // getExperiment: function(id) {
-
-                    //     this.$data.loading = true;
-
-                    //     axios.get('/api/experiments/' + id + '/')
-                    //         .then( (response) => {
-                    //             app.$data.experiment = response.data;
-                    //             app.$data.loading = false;
-                    //         })
-                    //         .catch( (err) => {
-                    //             app.$data.loading = false;
-                    //             console.log(err);
-                    //         })
-                    // },       
+                methods:{            
 
                     clearMainFormErrors:function(){
                         for(var item in app.$data.experiment)
@@ -436,10 +421,10 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Experience:
+                        Number of Experiments:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="experiment.experience_level_default_full.name"></span>
+                        <span v-html="experiment.experience_min_default + ' to ' + experiment.experience_max_default ">
                     </div>               
                 </div>
                 <div class = "row">
@@ -627,10 +612,10 @@
                         </div> 
                         <div class="row">    
                             <div class = "col"> 
-                                {{form2.experience_level_default | as_crispy_field }}  
+                                {{form2.experience_min_default | as_crispy_field }}
                             </div>
                             <div class = "col"> 
-                                
+                                {{form2.experience_max_default | as_crispy_field }}
                             </div>
                         </div>       
                             

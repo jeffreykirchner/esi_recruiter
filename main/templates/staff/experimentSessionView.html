@@ -50,7 +50,9 @@
                              institutions_exclude:[],
                              institutions_include:[],
                              experiments_include:[],
-                             experiments_exclude:[]},
+                             experiments_exclude:[],
+                             experience_min:0,
+                             experience_max:1000},
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
@@ -554,12 +556,10 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        {{form1.experience_level.label}}:
+                        Experience Level:
                     </div>
                     <div class="col col-md-8">
-                        <div v-if="session.experience_level_full">
-                            <span v-html="session.experience_level_full.name"></span>
-                        </div>
+                        <span v-html="session.experience_min + ' to ' + session.experience_max"></span>
                     </div>               
                 </div>
                 <div class = "row">
@@ -812,13 +812,12 @@
                         </div>
                         <div class="row">    
                             <div class = "col"> 
-                                {{form1.experience_level | as_crispy_field }}  
+                                {{form1.experience_min | as_crispy_field }}
                             </div>
                             <div class = "col"> 
-                                
+                                {{form1.experience_max | as_crispy_field }}
                             </div>
-                        </div>       
-                            
+                        </div>      
                         <div class="row mb-4">
                             <div class = "col"> 
                                 Exclude Institution Experience
@@ -846,7 +845,7 @@
                                     {{form1.experiments_include | as_crispy_field }} 
                                 </div>                                 
                             </div>
-                        </div>
+                        </div>                        
                     </form> <!-- recruitment parameters form -->                                            
                 </div>
             <div class="modal-footer">                

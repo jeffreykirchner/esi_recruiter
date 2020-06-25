@@ -35,4 +35,7 @@ class experimentForm1(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['actual_participants_default','registration_cutoff_default','gender_default','subject_type_default','experience_level_default','institutions_exclude_default','institutions_include_default','experiments_exclude_default','experiments_include_default']
+        exclude=['actual_participants_default','registration_cutoff_default',
+                 'gender_default','subject_type_default','institutions_exclude_default',
+                 'institutions_include_default','experiments_exclude_default','experiments_include_default',
+                 'experience_min_default','experience_max_default']

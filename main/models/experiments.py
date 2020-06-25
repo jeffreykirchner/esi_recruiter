@@ -2,7 +2,7 @@ from django.db import models
 import logging
 import traceback
 
-from . import schools,accounts,institutions,genders,subject_types,experience_levels,institutions
+from . import schools,accounts,institutions,genders,subject_types,institutions
 
 #info for each experiment
 class experiments(models.Model):    
@@ -21,14 +21,14 @@ class experiments(models.Model):
     notes = models.TextField(null=True)          
     
     #default recruitment parameters
-    experience_level_default = models.ForeignKey(experience_levels,on_delete=models.CASCADE)
-
     gender_default = models.ManyToManyField(genders)
     subject_type_default =  models.ManyToManyField(subject_types)  
     institutions_exclude_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_exclude_default",blank=True)
     institutions_include_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_include_default",blank=True)
     experiments_exclude_default = models.ManyToManyField("self", related_name="%(class)s_experiments_exclude_default",blank=True)
     experiments_include_default = models.ManyToManyField("self", related_name="%(class)s_experiments_include_default",blank=True)
+    experience_min_default = models.IntegerField(default = 0)
+    experience_max_default = models.IntegerField(default = 1000)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -71,8 +71,6 @@ class experiments(models.Model):
             "gender_default_full":[g.json() for g in self.gender_default.all()],
             "subject_type_default" : [str(st.id) for st in self.subject_type_default.all()],
             "subject_type_default_full" : [st.json() for st in self.subject_type_default.all()],
-            "experience_level_default": self.experience_level_default.id,
-            "experience_level_default_full": self.experience_level_default.json(),
             "institutions_exclude_default" : [str(i.id) for i in self.institutions_exclude_default.all()],
             "institutions_exclude_default_full" : [i.json() for i in self.institutions_exclude_default.all()],
             "institutions_include_default" : [str(i.id) for i in self.institutions_include_default.all()],
@@ -81,4 +79,6 @@ class experiments(models.Model):
             "experiments_exclude_default_full" : [e.json_min() for e in self.experiments_exclude_default.all()],
             "experiments_include_default" : [str(e.id) for e in self.experiments_include_default.all()],
             "experiments_include_default_full" : [e.json_min() for e in self.experiments_include_default.all()],
+            "experience_min_default":self.experience_min_default,
+            "experience_max_default":self.experience_max_default,
         }

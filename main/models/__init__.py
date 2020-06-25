@@ -9,7 +9,6 @@ from .profile import *
 from .locations import *
 from .departments import *
 from .accounts import *
-from .experience_levels import *
 from .experiments import *
 from .experiments_institutions import *
 from .experiment_sessions import *

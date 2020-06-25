@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,experience_levels,institutions,experiments
+from main.models import genders,subject_types,institutions,experiments
 
 class experimentForm2(forms.ModelForm):   
 
@@ -23,10 +23,6 @@ class experimentForm2(forms.ModelForm):
                                                                                         "v-on:change":"mainFormChange2",
                                                                                         "class":"selectpicker",
                                                                                         "size":"4"}))
-    experience_level_default = forms.ModelChoiceField(label="Experience Level",
-                                                    queryset=experience_levels.objects.all(),                                                      
-                                                    widget=forms.Select(attrs={"v-model":"experiment.experience_level_default",
-                                                                                "v-on:change":"mainFormChange2"}))
     institutions_exclude_default = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
                                                     queryset=institutions.objects.all().order_by("name"),
@@ -54,7 +50,17 @@ class experimentForm2(forms.ModelForm):
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.experiments_include_default",
                                                                                         "v-on:change":"mainFormChange2",
                                                                                         "class":"selectpicker",
-                                                                                        "size":"12"}))                                                                                                                                                                                                                                                                       
+                                                                                        "size":"12"}))        
+
+    experience_min_default = forms.CharField(label='Minimum Experiment Experience', 
+                                            widget=forms.NumberInput(attrs={"v-model":"experiment.experience_min_default",
+                                                                            "v-on:keyup":"mainFormChange2",
+                                                                            "v-on:change":"mainFormChange2"}))
+    
+    experience_max_default = forms.CharField(label='Maximum Experiment Experience', 
+                                            widget=forms.NumberInput(attrs={"v-model":"experiment.experience_max_default",
+                                                                            "v-on:keyup":"mainFormChange2",
+                                                                            "v-on:change":"mainFormChange2"}))                                                                                                                                                                                                                                                               
 
     class Meta:
         model=experiments
@@ -87,3 +93,26 @@ class experimentForm2(forms.ModelForm):
             raise forms.ValidationError('Invalid Entry')
 
         return actual_participants_default
+    
+    def clean_experience_min_default(self):
+        experience_min_default = self.data['experience_min_default']
+
+        try:
+            if int(experience_min_default) <= 0:
+                raise forms.ValidationError('Must be greater than or equal to zero')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return experience_min_default
+
+    def clean_experience_max_default(self):
+        experience_max_default = self.data['experience_max_default']
+        experience_min_default = self.data['experience_min_default']
+
+        try:
+            if int(experience_min_default) > int(experience_max_default):
+                raise forms.ValidationError('Must be greater than or equal to Minimum Experience')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return experience_max_default
