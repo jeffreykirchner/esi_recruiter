@@ -39,3 +39,14 @@ class experimentForm1(forms.ModelForm):
                  'gender_default','subject_type_default','institutions_exclude_default',
                  'institutions_include_default','experiments_exclude_default','experiments_include_default',
                  'experience_min_default','experience_max_default']
+
+    def clean_length_default(self):
+        length_default = self.data['length_default']
+
+        try:
+            if int(length_default) < 0:
+                raise forms.ValidationError('Must be greater than zero')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return length_default

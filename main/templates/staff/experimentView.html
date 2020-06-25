@@ -134,7 +134,8 @@
                                     $('#setupModalCenter').modal('toggle');
                                 }
                                 else
-                                {                                
+                                {      
+                                    app.$data.cancelModal=true;                          
                                     app.displayErrors(response.data.errors);
                                 }          
 
@@ -166,7 +167,8 @@
                                     $('#recruitmentModalCenter').modal('toggle');
                                 }
                                 else
-                                {                                
+                                {     
+                                    app.$data.cancelModal=true;                           
                                     app.displayErrors(response.data.errors);
                                 }          
 
