@@ -62,6 +62,23 @@ class experimentSessionForm1(forms.ModelForm):
                                             widget=forms.NumberInput(attrs={"v-model":"session.experience_max",
                                                                             "v-on:keyup":"mainFormChange1",
                                                                             "v-on:change":"mainFormChange1"}))
+    
+    institutions_exclude_all = forms.TypedChoiceField(label='',             
+                                         choices=(('True', 'Exclude if in all.'), ('False', 'Exclude if in at least one.')),                   
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.institutions_exclude_all",
+                                                                         "v-on:change":"mainFormChange1"}))
+
+    institutions_include_all = forms.ChoiceField(label='',             
+                                         choices=(('True', 'Include if in all.'), ('Include if in at least one.', False)),                
+                                         widget=forms.Select)   
+
+    experiments_exclude_all = forms.ChoiceField(label='',             
+                                         choices=(('True', 'Exclude if in all.'), ('False', 'Exclude if in at least one.')),                
+                                         widget=forms.Select)   
+
+    experiments_include_all = forms.ChoiceField(label='',             
+                                         choices=(('True', 'Include if in all.'), ('False', 'Include if in at least one.')),                
+                                         widget=forms.Select) 
 
     class Meta:
         model = experiment_sessions
@@ -94,3 +111,26 @@ class experimentSessionForm1(forms.ModelForm):
              raise forms.ValidationError('Invalid Entry')
 
         return actual_participants
+    
+    def clean_experience_min(self):
+        experience_min = self.data['experience_min']
+
+        try:
+            if int(experience_min) < 0:
+                raise forms.ValidationError('Must be greater than or equal to zero')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return experience_min
+
+    def clean_experience_max(self):
+        experience_max = self.data['experience_max']
+        experience_min = self.data['experience_min']
+
+        try:
+            if int(experience_min) > int(experience_max):
+                raise forms.ValidationError('Must be greater than or equal to Minimum Experience')
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')
+
+        return experience_max

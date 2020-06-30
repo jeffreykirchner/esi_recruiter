@@ -14,12 +14,24 @@ class experiment_sessions(models.Model):
     registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(genders)
     subject_type =  models.ManyToManyField(subject_types)      
+
+    #institutions to include or exclude
     institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
+
+    #experiments to include or exclude
     experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
     experiments_include = models.ManyToManyField(experiments, related_name='%(class)s_experiments_include',blank=True)
+
+    #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0)
     experience_max = models.IntegerField(default = 1000)
+
+    #wether constraints should be be all or more than one
+    institutions_exclude_all = models.BooleanField(default=True)
+    institutions_include_all = models.BooleanField(default=True)
+    experiments_exclude_all = models.BooleanField(default=True)
+    experiments_include_all = models.BooleanField(default=True)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

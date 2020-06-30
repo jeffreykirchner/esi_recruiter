@@ -60,12 +60,12 @@ class experimentForm2(forms.ModelForm):
     experience_max_default = forms.CharField(label='Maximum Experiment Experience', 
                                             widget=forms.NumberInput(attrs={"v-model":"experiment.experience_max_default",
                                                                             "v-on:keyup":"mainFormChange2",
-                                                                            "v-on:change":"mainFormChange2"}))                                                                                                                                                                                                                                                               
+                                                                            "v-on:change":"mainFormChange2"}))                                                                                                                                                                                                                                                                 
 
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['experiment_manager','title','notes','school','account_default','department_default','institution','length_default']
+        exclude=['experiment_manager','title','notes','school','account_default','department_default','institution','length_default','institutions_exclude_all','institutions_include_all','experiments_exclude_all','experiments_include_all']
 
     def clean_registration_cutoff_default(self):
         registration_cutoff_default = self.data['registration_cutoff_default']
@@ -98,7 +98,7 @@ class experimentForm2(forms.ModelForm):
         experience_min_default = self.data['experience_min_default']
 
         try:
-            if int(experience_min_default) <= 0:
+            if int(experience_min_default) < 0:
                 raise forms.ValidationError('Must be greater than or equal to zero')
         except ValueError:
             raise forms.ValidationError('Invalid Entry')
