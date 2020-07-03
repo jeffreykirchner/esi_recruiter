@@ -72,20 +72,61 @@ def findSubjectsToInvite(data,id):
 
     # es_genders = es.gender.all()
     # es_subjectTypes = es.subject_type.all()
-    # es_instiutionsInclude = es.institutions_include.all()
-    # es_institutionsExclude = es.institutions_exclude.all()
+    es_instiutionsInclude = es.institutions_include.all()
+    es_institutionsExclude = es.institutions_exclude.all()
+    es_experimentsInclude = es.institutions_include.all()
+    es_experimentsExclude = es.institutions_exclude.all()
 
+    institutions_exclude_str = ""
+    institutions_include_str = ""
+    experiments_exclude_str = ""
+    experiments_include_str = ""
+    allow_multiple_participations_str = False
+
+    #institutions exclude string
+    c =  es.institutions_exclude.all().count()
+    if c == 0:
+        institutions_exclude_str='1=1'
+    elif es.institutions_exclude_all:
+        institutions_exclude_str = 'institutions_exclude_user_count = 0'
+    else:
+         institutions_exclude_str = 'institutions_exclude_user_count < ' + str(c)
     
-    # logger.info(es_genders)
-    # logger.info(es_subjectTypes)
+    #institutions include string
+    c = es.institutions_include.all().count()
+    if c == 0:
+        institutions_include_str='1=1'
+    elif es.institutions_include_all:
+        institutions_include_str = 'institutions_include_user_count = ' + str(c)
+    else:
+        institutions_include_str = 'institutions_include_user_count > 0'
+    
+    #experiments exclude string
+    c = es.experiments_exclude.all().count()
+    if  c == 0:
+        experiments_exclude_str='1=1'
+    elif es.experiments_exclude_all:
+        experiments_exclude_str = 'experiments_exclude_user_count >= 0'
+    else:
+         experiments_exclude_str = 'experiments_exclude_user_count < ' + str(c)
 
-    # users=User.objects.annotate(user_institutions_exclude_count = Subquery(es.institutions_exclude.count())) \
-    #                   .filter(profile__gender__in = es_genders,
-    #                           profile__subjectType__in = es_subjectTypes,
-    #                           user_institutions_exclude_count = 0 )
+    #experiments include string
+    c = es.experiments_include.all().count()
+    if c == 0:
+        experiments_include_str='1=1'
+    elif es.experiments_include_all:
+        experiments_include_str = 'experiments_include_user_count >= ' +  str(c)
+    else:
+         experiments_include_str = 'experiments_include_user_count > 0'
 
-    str='''          
-     -- table of users and institutions they have been in 
+    #allow multiple participations in same experiment
+    if es.allow_multiple_participations:
+        allow_multiple_participations_str="1=1"
+    else:
+        allow_multiple_participations_str="user_participation_count = 0"
+
+    str1='''          
+               -- table of users and institutions they have been in 
 WITH user_institutions AS (SELECT DISTINCT main_institutions.id as institution_id,
 										   --main_institutions.name AS institution_name,
 										   main_experiment_session_day_users.user_id AS auth_user_id
@@ -127,8 +168,8 @@ WITH user_institutions AS (SELECT DISTINCT main_institutions.id as institution_i
 					     FROM main_experiment_sessions_gender
 			             WHERE main_experiment_sessions_gender.experiment_sessions_id = 10256),
 	
-    --table of subject types required in session
-	subject_type_include AS (SELECT subject_types_id
+     --table of subject types required in session
+	 subject_type_include AS (SELECT subject_types_id
 							 FROM main_experiment_sessions_subject_type
 							 WHERE main_experiment_sessions_subject_type.experiment_sessions_id = 10256),
 							 
@@ -145,94 +186,102 @@ WITH user_institutions AS (SELECT DISTINCT main_institutions.id as institution_i
 								WHERE main_experiment_sessions_experiments_include.experiment_sessions_id = 10256),
 	
 	--table of users and experiments they have been in	
-	user_experiments as (SELECT DISTINCT main_experiments.id as experiments_id,
+	user_experiments AS (SELECT DISTINCT main_experiments.id as experiments_id,
+										 main_experiment_sessions.id as experiment_sessions_id,
 										 main_experiment_session_day_users.user_id as user_id
 						 FROM main_experiments
 						 INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
 						 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
 						 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
 						 WHERE main_experiment_session_day_users.attended = 1 OR
-						      (main_experiment_session_day_users.confirmed = 1 AND main_experiment_session_days.date >  CURRENT_TIMESTAMP))
+						      (main_experiment_session_day_users.confirmed = 1 AND main_experiment_session_days.date >  CURRENT_TIMESTAMP)),
+	
+	--require all institions or more than one
+	sessions_includes as (SELECT experiments_include_all,experiments_exclude_all,institutions_include_all,institutions_exclude_all,experience_min,experience_max,allow_multiple_participations,experiment_id
+								FROM main_experiment_sessions
+								WHERE id = 10256
+								LIMIT 1)
 	
 SELECT auth_user.id,
 	   auth_user.last_name,
 	   auth_user.first_name,
-	   
-	   (SELECT count(*)                                                     --number of institutions required that subject is in
-	       FROM institutions_include) AS institutions_include_count,          
-		   
-	   (SELECT count(*)                                                     --number of required institutions a subject has been in
+		      
+		--number of required institutions a subject has been in
+	   (SELECT count(*)                                                    
 		   FROM institutions_include_user
 		   INNER JOIN institutions_include ON institutions_include.institution_id = institutions_include_user.institution_id
 		   WHERE institutions_include_user.auth_user_id = auth_user.id) AS institutions_include_user_count,
-		   
-	   (SELECT count(*)                                                    --number of institutions subject has participated in that they should not have
+		
+       --number of institutions subject has participated in that they should not have		
+	   (SELECT count(*)                                                   
 	      	FROM institutions_exclude_user				  
 		    WHERE institutions_exclude_user.auth_user_id = auth_user.id)  AS institutions_exclude_user_count,
 		
-	   (SELECT count(*)                                                    --return 1 of subject's gender is in the included list
+		--return 1 of subject's gender is in the included list
+	   (SELECT count(*)                                                    
 			FROM genders_include	
 			WHERE main_profile.gender_id = genders_include.genders_id) AS gender_user_count,
-			 
-	   (SELECT count(*)                                                    --return 1 of subject's subject type is in the included list
+		
+       --return 1 of subject's subject type is in the included list		
+	   (SELECT count(*)                                                   
 			FROM subject_type_include	
 			WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AS subject_type_user_count,
-			
-	   (SELECT count(*)                                                     --the number of experiments a subject has attended
+		
+	   --the number of experiments a subject has attended	
+	   (SELECT count(*)                                                     
 			FROM main_experiment_session_day_users
 			WHERE main_experiment_session_day_users.user_id = auth_user.id AND attended = 1) AS experiments_attended_count,
-			
-	   (SELECT experience_min                                               --minimum number of experiments a subject must have been in 
-			FROM main_experiment_sessions
-			WHERE main_experiment_sessions.id = 10256 ) AS experience_min,
-			
-	   (SELECT experience_max                                               --maximum number of experiments a subject could have been in
-			FROM main_experiment_sessions
-			WHERE main_experiment_sessions.id = 10256 ) AS experience_max,		
-			
-	   (SELECT count(*)                                                     --number of specific experiments required that a subject is in
-	       FROM experiments_include) AS experiments_include_count,
-		   
-	   (SELECT count(*)                                                     --number of required experiments a subject has been in
+		
+        --number of required experiments a subject has been in		
+	   (SELECT count(*)                                                     
 		   FROM user_experiments
 		   INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
 		   WHERE user_experiments.user_id = auth_user.id) AS experiments_include_user_count,
-		   
-	   (SELECT count(*)                                                     --number of excluded experiments a subject has been in
+		
+       --number of excluded experiments a subject has been in		
+	   (SELECT count(*)                                                    
 		   FROM user_experiments
 		   INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
 		   WHERE user_experiments.user_id = auth_user.id) AS experiments_exclude_user_count,  
-		   
-	   (SELECT count(*)                                                      --number of times user has been in this or confirmed for this experiment
+	
+		--number of times user has been in this or confirmed for this experiment
+	   (SELECT count(*)                                                      
 			FROM user_experiments
-			WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id = 10256) AS user_participation_count
+			WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id = sessions_includes.experiment_id) AS user_participation_count
 		 	
-FROM auth_user
+FROM auth_user, sessions_includes
 
 INNER JOIN main_profile ON main_profile.user_id = auth_user.id
 
-WHERE institutions_exclude_user_count = 0 AND
-      institutions_include_user_count = institutions_include_count AND
-	  gender_user_count > 0 AND
-	  subject_type_user_count > 0 AND
-	  experiments_attended_count >= experience_min AND
-	  experiments_attended_count <=  experience_max AND
-	  experiments_include_user_count = experiments_include_count AND
-	  experiments_exclude_user_count = 0 AND
-	  user_participation_count = 0
+WHERE '''\
+      + institutions_exclude_str + ' AND '\
+      + institutions_include_str + ' AND '\
+      + '''
+	  gender_user_count > 0 AND                                      --user's gender is on the list 
+	  subject_type_user_count > 0 AND                                --user's subject type is on the list  
+	  experiments_attended_count >= sessions_includes.experience_min AND       --minimum number of experiments subject has been in
+	  experiments_attended_count <=  sessions_includes.experience_max AND      --max number of experiments a subject has be in
+      '''\
+      + experiments_exclude_str + ' AND '\
+      + experiments_include_str + ' AND '\
+      + allow_multiple_participations_str + ' AND '\
+ 	  + '''      
+	  is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
+	  is_active = 1                                                    --acount is activated
 	 
-ORDER BY auth_user.last_name, auth_user.first_name
+--ORDER BY auth_user.last_name, auth_user.first_name
+
 
 
         '''
 
-    str = str.replace("10256","%s")
+    str1 = str1.replace("10256","%s")
 
     # logger.info(str)
 
-    users = User.objects.raw(str,[id,id,id,id,id,id,id,id])        
+    users = User.objects.raw(str1,[id,id,id,id,id,id,id]) #institutions_exclude_str,institutions_include_str,experiments_exclude_str,experiments_include_str
 
-    #logger.info(users)
+    logger.info(users)
 
 
     #check user in excluded institions

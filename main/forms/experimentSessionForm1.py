@@ -63,22 +63,30 @@ class experimentSessionForm1(forms.ModelForm):
                                                                             "v-on:keyup":"mainFormChange1",
                                                                             "v-on:change":"mainFormChange1"}))
     
-    institutions_exclude_all = forms.TypedChoiceField(label='',             
-                                         choices=(('True', 'Exclude if in all.'), ('False', 'Exclude if in at least one.')),                   
+    institutions_exclude_all = forms.TypedChoiceField(label='', 
+                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                   
                                          widget=forms.RadioSelect(attrs={"v-model":"session.institutions_exclude_all",
                                                                          "v-on:change":"mainFormChange1"}))
 
-    institutions_include_all = forms.ChoiceField(label='',             
-                                         choices=(('True', 'Include if in all.'), ('Include if in at least one.', False)),                
-                                         widget=forms.Select)   
+    institutions_include_all = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Include if in all.'), (0,'Include if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.institutions_include_all",
+                                                                         "v-on:change":"mainFormChange1"}))   
 
-    experiments_exclude_all = forms.ChoiceField(label='',             
-                                         choices=(('True', 'Exclude if in all.'), ('False', 'Exclude if in at least one.')),                
-                                         widget=forms.Select)   
+    experiments_exclude_all = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.experiments_exclude_all",
+                                                                         "v-on:change":"mainFormChange1"}))   
 
-    experiments_include_all = forms.ChoiceField(label='',             
-                                         choices=(('True', 'Include if in all.'), ('False', 'Include if in at least one.')),                
-                                         widget=forms.Select) 
+    experiments_include_all = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Include if in all.'), (0, 'Include if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.experiments_include_all",
+                                                                         "v-on:change":"mainFormChange1"}))
+
+    allow_multiple_participations = forms.TypedChoiceField(label='Allow subjects to participate more than once?',             
+                                         choices=((1, 'Yes'), (0, 'No')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.allow_multiple_participations",
+                                                                         "v-on:change":"mainFormChange1"}))
 
     class Meta:
         model = experiment_sessions

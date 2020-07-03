@@ -33,6 +33,9 @@ class experiment_sessions(models.Model):
     experiments_exclude_all = models.BooleanField(default=True)
     experiments_include_all = models.BooleanField(default=True)
 
+    #all subject to come multiple times to the same same experiment
+    allow_multiple_participations =  models.BooleanField(default=False)
+
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
@@ -111,4 +114,10 @@ class experiment_sessions(models.Model):
             "allow_delete": self.allowDelete(),
             "experience_min":self.experience_min,
             "experience_max":self.experience_max,
+            "institutions_exclude_all":1 if self.institutions_exclude_all else 0,
+            "institutions_include_all":1 if self.institutions_include_all else 0,
+            "experiments_exclude_all":1 if self.experiments_exclude_all else 0,
+            "experiments_include_all":1 if self.experiments_include_all else 0,
+            "allow_multiple_participations":1 if self.allow_multiple_participations else 0,
+
         }
