@@ -62,6 +62,11 @@ class experimentSessionForm1(forms.ModelForm):
                                             widget=forms.NumberInput(attrs={"v-model":"session.experience_max",
                                                                             "v-on:keyup":"mainFormChange1",
                                                                             "v-on:change":"mainFormChange1"}))
+
+    experience_constraint = forms.TypedChoiceField(label='Enable Experience Constraint?',             
+                                         choices=((1, 'Yes'), (0, 'No (faster)')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"session.experience_constraint",
+                                                                         "v-on:change":"mainFormChange1"}))
     
     institutions_exclude_all = forms.TypedChoiceField(label='', 
                                          choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                   

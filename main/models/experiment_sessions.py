@@ -26,6 +26,7 @@ class experiment_sessions(models.Model):
     #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0)
     experience_max = models.IntegerField(default = 1000)
+    experience_constraint  =  models.BooleanField(default=False) 
 
     #wether constraints should be be all or more than one
     institutions_exclude_all = models.BooleanField(default=True)
@@ -114,6 +115,7 @@ class experiment_sessions(models.Model):
             "allow_delete": self.allowDelete(),
             "experience_min":self.experience_min,
             "experience_max":self.experience_max,
+            "experience_constraint":1 if self.experience_constraint else 0,
             "institutions_exclude_all":1 if self.institutions_exclude_all else 0,
             "institutions_include_all":1 if self.institutions_include_all else 0,
             "experiments_exclude_all":1 if self.experiments_exclude_all else 0,
