@@ -62,6 +62,36 @@ class experimentForm2(forms.ModelForm):
                                                                             "v-on:keyup":"mainFormChange2",
                                                                             "v-on:change":"mainFormChange2"}))                                                                                                                                                                                                                                                                 
 
+    experience_constraint_default = forms.TypedChoiceField(label='Enable Experience Constraint?',             
+                                         choices=((1, 'Yes'), (0, 'No (faster)')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"experiment.experience_constraint_default",
+                                                                         "v-on:change":"mainFormChange2"}))
+    
+    institutions_exclude_all_default = forms.TypedChoiceField(label='', 
+                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                   
+                                         widget=forms.RadioSelect(attrs={"v-model":"experiment.institutions_exclude_all_default",
+                                                                         "v-on:change":"mainFormChange2"}))
+
+    institutions_include_all_default = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Include if in all.'), (0,'Include if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"experiment.institutions_include_all_default",
+                                                                         "v-on:change":"mainFormChange2"}))   
+
+    experiments_exclude_all_default = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"experiment.experiments_exclude_all_default",
+                                                                         "v-on:change":"mainFormChange2"}))   
+
+    experiments_include_all_default = forms.TypedChoiceField(label='',             
+                                         choices=((1, 'Include if in all.'), (0, 'Include if in at least one.')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"experiment.experiments_include_all_default",
+                                                                         "v-on:change":"mainFormChange2"}))
+
+    allow_multiple_participations_default = forms.TypedChoiceField(label='Allow subjects to participate more than once?',             
+                                            choices=((1, 'Yes'), (0, 'No')),                
+                                            widget=forms.RadioSelect(attrs={"v-model":"experiment.allow_multiple_participations_default",
+                                                                            "v-on:change":"mainFormChange2"}))
+
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        

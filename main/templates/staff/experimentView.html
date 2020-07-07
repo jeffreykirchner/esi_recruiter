@@ -24,6 +24,12 @@
                                 gender_default:[],
                                 experience_min_default:0,
                                 experience_max_default:1000,
+                                experience_constraint_default:0,
+                                institutions_exclude_all_default:0,
+                                institutions_include_all_default:0,
+                                experiments_exclude_all_default:0,
+                                experiments_include_all_default:0,
+                                allow_multiple_participations_default:0,
                                 institutions_exclude_default:[],
                                 institutions_include_default:[],
                                 experiments_exclude_default:[],
@@ -423,15 +429,33 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Number of Experiments:
+                        Experience Level:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="experiment.experience_min_default + ' to ' + experiment.experience_max_default ">
+                        <div v-if="experiment.experience_constraint_default">
+                            <span v-html="experiment.experience_min_default + ' to ' + experiment.experience_max_default "></span>
+                        </div>
+                        <div v-else>
+                            ---
+                        </div>
                     </div>               
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Include Institution Experience:
+                        Allow Multiple Participations:
+                    </div>
+                    <div class="col col-md-8">
+                        <div v-if="experiment.allow_multiple_participations_default">
+                           <span v-html="'Yes'"></span>
+                        </div>
+                        <div v-else>
+                           <span v-html="'No'"></span>
+                        </div>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Include Institution Experience (<span v-if="experiment.institutions_include_all_default">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_institutions_list"></span>
@@ -439,7 +463,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Exclude Institution Experience:
+                        Exclude Institution Experience (<span v-if="experiment.institutions_exclude_all_default">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_institutions_list"></span>
@@ -447,7 +471,7 @@
                 </div>
                 <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Include Experiment Experience:
+                            Include Experiment Experience (<span v-if="experiment.experiments_include_all_default">All</span><span v-else>1+</span>):
                         </div>
                         <div class="col col-md-8">
                             <span v-html="include_experiments_list"></span>
@@ -455,7 +479,7 @@
                     </div>
                     <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Exclude Experiment Experience:
+                            Exclude Experiment Experience (<span v-if="experiment.experiments_exclude_all_default">All</span><span v-else>1+</span>):
                         </div>
                         <div class="col col-md-8">    
                             <span v-html="exclude_experiments_list"></span>
@@ -614,6 +638,14 @@
                         </div> 
                         <div class="row">    
                             <div class = "col"> 
+                                {{form2.experience_constraint_default | as_crispy_field }}
+                            </div>
+                            <div class = "col"> 
+                                {{form2.allow_multiple_participations_default | as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">    
+                            <div class = "col"> 
                                 {{form2.experience_min_default | as_crispy_field }}
                             </div>
                             <div class = "col"> 
@@ -626,13 +658,17 @@
                                 Exclude Institution Experience
                                 <div class = "overflow-auto" style="height: 300px;">
                                     {{form2.institutions_exclude_default | as_crispy_field }} 
-                                </div>                                                           
+                                </div>     
+                                <br>
+                                {{form2.institutions_exclude_all_default | as_crispy_field }}                                                      
                             </div>
                             <div class = "col"> 
                                 Include Institution Experience
                                 <div class = "overflow-auto" style="height: 300px;">
                                     {{form2.institutions_include_default | as_crispy_field }}
-                                </div>                                
+                                </div>  
+                                <br>
+                                {{form2.institutions_include_all_default| as_crispy_field }}                              
                             </div>
                         </div>
                         <div class="row mb-4">
@@ -640,13 +676,17 @@
                                 Exclude Experiment Experience
                                 <div class = "overflow-auto" style="height: 300px;">
                                     {{form2.experiments_exclude_default | as_crispy_field }}
-                                </div>                                  
+                                </div>       
+                                <br>
+                                {{form2.experiments_exclude_all_default | as_crispy_field }}                           
                             </div>                            
                             <div class = "col"> 
                                 Include Experiment Experience
                                 <div class=" overflow-auto" style="height: 300px;">
                                     {{form2.experiments_include_default | as_crispy_field }}
-                                </div>                                  
+                                </div>    
+                                <br>
+                                {{form2.experiments_include_all_default | as_crispy_field }}                              
                             </div>
                         </div>
                     </form> <!-- recruitment parameters form -->                                            

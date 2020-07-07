@@ -38,7 +38,9 @@ class experimentForm1(forms.ModelForm):
         exclude=['actual_participants_default','registration_cutoff_default',
                  'gender_default','subject_type_default','institutions_exclude_default',
                  'institutions_include_default','experiments_exclude_default','experiments_include_default',
-                 'experience_min_default','experience_max_default']
+                 'experience_min_default','experience_max_default','experience_constraint_default','institutions_exclude_all_default',
+                 'institutions_include_all_default','experiments_exclude_all_default','experiments_include_all_default',
+                 'allow_multiple_participations_default']
 
     def clean_length_default(self):
         length_default = self.data['length_default']

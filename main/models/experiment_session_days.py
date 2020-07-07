@@ -73,6 +73,9 @@ class experiment_session_days(models.Model):
 
     def json_unconfirmed(self):
         return{
-            "experiment_session_days_user_unconfirmed" : [i.json_min() for i in self.experiment_session_day_users_set.all().filter(confirmed=False)],
+            "experiment_session_days_user_unconfirmed" : [i.json_min() for i in self.experiment_session_day_users_set.all() \
+                                                                                    .annotate(last_name = F('user__last_name')) \
+                                                                                    .order_by("last_name") \
+                                                                                    .filter(confirmed=False)],
             "unConfirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=False).count(),
         }

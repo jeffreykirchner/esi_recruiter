@@ -53,7 +53,12 @@
                              experiments_exclude:[],
                              experience_min:0,
                              experience_max:1000,
-                             institutions_exclude_all:0},
+                             experience_constraint:0,
+                             institutions_exclude_all:0,
+                             institutions_include_all:0,
+                             experiments_exclude_all:0,
+                             experiments_include_all:0,
+                             allow_multiple_participations:0},
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
@@ -158,11 +163,18 @@
                     updateDisplayLists2:function(list){
                         str="";
 
-                        for(var i=0;i<list.length;i++)
+                        if(list.length == 0)
                         {
-                            if(i>=1) str += " | ";
-                            str += list[i].name;
-                        }
+                            str = "---"
+                        }   
+                        else
+                        {
+                            for(var i=0;i<list.length;i++)
+                            {
+                                if(i>=1) str += " | ";
+                                str += list[i].name;
+                            }
+                        }                         
 
                         return str;
                     },
@@ -560,12 +572,30 @@
                         Experience Level:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="session.experience_min + ' to ' + session.experience_max"></span>
+                        <div v-if="session.experience_constraint">
+                           <span v-html="session.experience_min + ' to ' + session.experience_max"></span>
+                        </div>
+                        <div v-else>
+                            ---
+                        </div>
                     </div>               
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Include Institution Experience:
+                        Allow Multiple Participations:
+                    </div>
+                    <div class="col col-md-8">
+                        <div v-if="session.allow_multiple_participations">
+                           <span v-html="'Yes'"></span>
+                        </div>
+                        <div v-else>
+                           <span v-html="'No'"></span>
+                        </div>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class="col col-md-4 text-right">
+                        Include Institution Experience (<span v-if="session.institutions_include_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_institutions_list"></span>
@@ -573,7 +603,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Exclude Institution Experience:
+                        Exclude Institution Experience (<span v-if="session.institutions_exclude_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_institutions_list"></span>
@@ -581,7 +611,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Include Experiment Experience:
+                        Include Experiment Experience (<span v-if="session.experiments_include_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_experiments_list"></span>
@@ -589,7 +619,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Exclude Experiment Experience:
+                        Exclude Experiment Experience (<span v-if="session.experiments_exclude_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_experiments_list"></span>

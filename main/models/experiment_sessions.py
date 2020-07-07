@@ -59,7 +59,9 @@ class experiment_sessions(models.Model):
         for i in self.experiment.subject_type_default.all():
             self.subject_type.add(i)
 
-        self.experience_level=self.experiment.experience_level_default
+        self.experience_min=self.experiment.experience_min_default
+        self.experience_max=self.experiment.experience_max_default
+        self.experience_constraint=self.experiment.experience_constraint_default
 
         for i in self.experiment.institutions_exclude_default.all():
             self.institutions_exclude.add(i)
@@ -72,6 +74,13 @@ class experiment_sessions(models.Model):
 
         for i in self.experiment.experiments_include_default.all():
             self.experiments_include.add(i)
+
+        self.institutions_exclude_all=self.experiment.institutions_exclude_all_default
+        self.institutions_include_all=self.experiment.institutions_include_all_default
+        self.experiments_exclude_all=self.experiment.experiments_exclude_all_default
+        self.experiments_include_all=self.experiment.experiments_include_all_default
+
+        self.allow_multiple_participations=self.experiment.allow_multiple_participations_default
 
         return self
     

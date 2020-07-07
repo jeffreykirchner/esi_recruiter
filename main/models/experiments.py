@@ -27,8 +27,20 @@ class experiments(models.Model):
     institutions_include_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_include_default",blank=True)
     experiments_exclude_default = models.ManyToManyField("self", related_name="%(class)s_experiments_exclude_default",blank=True)
     experiments_include_default = models.ManyToManyField("self", related_name="%(class)s_experiments_include_default",blank=True)
+
+    #min and max number of experiments a subject could be in
     experience_min_default = models.IntegerField(default = 0)
     experience_max_default = models.IntegerField(default = 1000)
+    experience_constraint_default  =  models.BooleanField(default=False) 
+
+    #wether constraints should be be all or more than one
+    institutions_exclude_all_default = models.BooleanField(default=True)
+    institutions_include_all_default = models.BooleanField(default=True)
+    experiments_exclude_all_default = models.BooleanField(default=True)
+    experiments_include_all_default = models.BooleanField(default=True)
+
+    #all subject to come multiple times to the same same experiment
+    allow_multiple_participations_default =  models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -81,4 +93,10 @@ class experiments(models.Model):
             "experiments_include_default_full" : [e.json_min() for e in self.experiments_include_default.all()],
             "experience_min_default":self.experience_min_default,
             "experience_max_default":self.experience_max_default,
+            "experience_constraint_default":1 if self.experience_constraint_default else 0,
+            "institutions_exclude_all_default":1 if self.institutions_exclude_all_default else 0,
+            "institutions_include_all_default":1 if self.institutions_include_all_default else 0,
+            "experiments_exclude_all_default":1 if self.experiments_exclude_all_default else 0,
+            "experiments_include_all_default":1 if self.experiments_include_all_default else 0,
+            "allow_multiple_participations_default":1 if self.allow_multiple_participations_default else 0,
         }

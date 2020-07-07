@@ -19,6 +19,7 @@ from django.db.models import CharField,Q,F,Value as V,Subquery
 from django.contrib.auth.models import User
 import random
 import datetime
+from django.db.models import prefetch_related_objects
 
 #induvidual experiment view
 @login_required
@@ -267,27 +268,27 @@ def findSubjectsToInvite(data,id):
     '''
 
     str1='''          	  									
-    WITH
-	 --table of genders required in session
-	 genders_include AS (SELECT genders_id
+        WITH
+        --table of genders required in session
+        genders_include AS (SELECT genders_id
 					     FROM main_experiment_sessions_gender
 			             WHERE main_experiment_sessions_gender.experiment_sessions_id = ''' + str(id) + '''),
 	
-    ''' \
-    + user_institutions_str \
-    + institutions_include_with_str \
-    + institutions_exclude_with_str \
-    + experiments_exclude_with_str \
-    + experiments_include_with_str \
-    + user_experiments_str \
-    +'''
-	
-    --table of subject types required in session
-	subject_type_include AS (SELECT subject_types_id
-							 FROM main_experiment_sessions_subject_type
-							 WHERE main_experiment_sessions_subject_type.experiment_sessions_id = ''' + str(id) + ''')
+        ''' \
+        + user_institutions_str \
+        + institutions_include_with_str \
+        + institutions_exclude_with_str \
+        + experiments_exclude_with_str \
+        + experiments_include_with_str \
+        + user_experiments_str \
+        +'''
+        
+        --table of subject types required in session
+        subject_type_include AS (SELECT subject_types_id
+                                FROM main_experiment_sessions_subject_type
+                                WHERE main_experiment_sessions_subject_type.experiment_sessions_id = ''' + str(id) + ''')
 
-SELECT        
+        SELECT        
        '''\
        + institutions_exclude_user_count_str \
        + institutions_include_user_count_str \
@@ -300,34 +301,30 @@ SELECT
 	   auth_user.last_name,
 	   auth_user.first_name
 			 	
-FROM auth_user
+       FROM auth_user
 
-INNER JOIN main_profile ON main_profile.user_id = auth_user.id
+       INNER JOIN main_profile ON main_profile.user_id = auth_user.id
 
-WHERE '''\
-      + institutions_exclude_str \
-      + institutions_include_str \
-      + '''
-	  EXISTS(SELECT 1                                                    
+       WHERE '''\
+       + institutions_exclude_str \
+       + institutions_include_str \
+       + '''
+	   EXISTS(SELECT 1                                                    
 			FROM genders_include	
 			WHERE main_profile.gender_id = genders_include.genders_id) AND  --user's gender is on the list 
-	  EXISTS(SELECT 1                                                   
+	   EXISTS(SELECT 1                                                   
 			FROM subject_type_include	
 			WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) > 0 AND      --user's subject type is on the list  
-      '''\
-      + experiments_exclude_str \
-      + experiments_include_str \
-      + exeriments_count_select_where \
-      + allow_multiple_participations_str + ' AND '\
- 	  + '''      
-	  is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
-	  is_active = 1                                                    --acount is activated
-	 
---ORDER BY auth_user.last_name, auth_user.first_name
+       '''\
+       + experiments_exclude_str \
+       + experiments_include_str \
+       + exeriments_count_select_where \
+       + allow_multiple_participations_str + ' AND '\
+ 	   + '''      
+	   is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
+	   is_active = 1                                                    --acount is activated
 
-
-
-        '''
+       '''
 
     #str1 = str1.replace("10256","%s")
 
@@ -335,17 +332,8 @@ WHERE '''\
 
     users = User.objects.raw(str1) #institutions_exclude_str,institutions_include_str,experiments_exclude_str,experiments_include_str
 
+    #log sql statement
     logger.info(users)
-
-    #check user in excluded institions
-    # for u in users:
-    #     l = institutions.objects.none()
-    #     esdus=u.ESDU.all().filter(attended = True)
-    #     for i in esdus:
-    #         l |= i.experiment_session_day.experiment_session.experiment.institution.all()
-        
-    #     if l & es_institutionsExclude:
-    #         usersTemp.exclude(id = u.id)
 
     time_start = datetime.datetime.now()
     u_list = list(users)
@@ -359,7 +347,9 @@ WHERE '''\
         usersSmall = u_list
     else:  
         usersSmall = random.sample(u_list,number)
-    
+
+    prefetch_related_objects(usersSmall,'profile')
+
     usersSmall2 = [u.profile.json_min() for u in usersSmall]
 
     return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
