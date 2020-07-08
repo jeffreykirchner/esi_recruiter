@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 import random
 import datetime
 from django.db.models import prefetch_related_objects
+from .userSearch import lookup
 
 #induvidual experiment view
 @login_required
@@ -51,6 +52,8 @@ def experimentSessionView(request,id):
             return removeSubject(data)
         elif  data["status"] ==  "findSubjectsToInvite":
             return findSubjectsToInvite(data,id)
+        elif data["status"] == "searchForSubject":
+            return getSearchForSubject(data,id)
 
     else: #GET             
 
@@ -62,6 +65,23 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+#manually search for users to add to session
+def getSearchForSubject(data,id):
+
+    users_list = lookup(data["searchInfo"])
+
+    return JsonResponse({"status":"success","users":users_list}, safe=False)
+
+#get list of unconfirmed subjects
+# def getUnconfirmedSubjects(data,id):
+#     logger = logging.getLogger(__name__)
+#     logger.info("Show unconfirmed subjects")
+#     logger.info(data)    
+
+#     es = experiment_sessions.objects.get(id=id)
+
+#     return JsonResponse({"status":"success","sessionDays":es.json_unconfirmed()}, safe=False)
+    
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):
     logger = logging.getLogger(__name__)
@@ -72,8 +92,6 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    # es_genders = es.gender.all()
-    # es_subjectTypes = es.subject_type.all()
     es_instiutionsInclude = es.institutions_include.all()
     es_institutionsExclude = es.institutions_exclude.all()
     es_experimentsInclude = es.institutions_include.all()

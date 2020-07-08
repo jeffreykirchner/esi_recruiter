@@ -44,7 +44,9 @@
                 data:{        
                     sessionURL:'',   
                     loading: true,   
-                    message: null,              
+                    message: null,       
+                    searchResults:[],
+                    searchText:"",       
                     session:{gender:[],
                              subject_type:[],
                              institutions_exclude:[],
@@ -465,6 +467,59 @@
                                                 
                     },                  
 
+                    //search for a subject to add manually
+                    searchForSubject: function(){
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"searchForSubject",   
+                            searchInfo:app.$data.searchText,                                                                                                                         
+                        })
+                        .then(function (response) {
+                            app.$data.searchResults=JSON.parse(response.data.users);                                                              
+                        
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });                                       
+                                            
+                    },
+
+                     searchForSubject: function(){
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"searchForSubject",   
+                            searchInfo:app.$data.searchText,                                                                                                                         
+                        })
+                        .then(function (response) {
+                            app.$data.searchResults=JSON.parse(response.data.users);                                                              
+                        
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });                                       
+                                            
+                    },
+
+                    manuallyAddSubject: function(id){
+
+                        $( '#manualAdd' + id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"manuallyAddSubject",   
+                            userID:id,                                                                                                                         
+                        })
+                        .then(function (response) {
+                            app.$data.experiment_session_days=response.data.experiment_session_days;                                                            
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });                                       
+                                        
+                    },
+
                     formatDate: function(value){
                         if (value) {        
                             console.log(value);                    
@@ -716,9 +771,9 @@
                     </div>                  
                     <div class = "col col-md-8">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
+                            <input v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button">Find</button>
+                                <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()">Find</button>
                                 <button class="btn btn-outline-primary" type="button">Clear</button>
                             </div>
                         </div>                        
@@ -729,28 +784,36 @@
                 
                 <div class="row">
                     <div class = "col">
-                        <table class="table table-hover table-condensed">
-                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
+                        <table class="table table-hover table-condensed">                            
                             <thead>
-                                <th width="50%">
+                                <th width="25%">
                                     Name 
-                                </th>                                                                                   
-                                <th width="50%" style="text-align: center;">
+                                </th>  
+                                <th width="25%">
+                                    ID 
+                                </th> 
+                                <th width="25%">
+                                    Email 
+                                </th>                                                                                
+                                <th width="25%" style="text-align: center;">
                                     Control
                                 </th>
                             </thead>
                             <tbody>
-                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
                                     <td>
-                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                        <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
+                                    </td>
+                                    <td>
+                                        <span v-html="u.profile__chapmanID"></span>                                 
+                                    </td>
+                                    <td>
+                                        <span v-html="u.email"></span>                                   
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
-                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
-                                        </button>
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
-                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
-                                        </button>
+                                        <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u.id)">
+                                            Add <i class="fas fa-plus-square fa-xs"></i>  
+                                        </button>                                        
                                     </td>                                
                                 </tr>
                             </tbody>                                                                      

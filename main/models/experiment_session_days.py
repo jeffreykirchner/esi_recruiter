@@ -54,6 +54,9 @@ class experiment_session_days(models.Model):
         }
 
     def json(self):
+        u_list_c = self.experiment_session_day_users_set.all().filter(confirmed=True).order_by("user__last_name").prefetch_related('user') 
+        u_list_u= self.experiment_session_day_users_set.all().filter(confirmed=False).order_by("user__last_name").prefetch_related('user')
+
         return{
             "id":self.id,
             "location":self.location.id,
@@ -63,10 +66,8 @@ class experiment_session_days(models.Model):
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
             "canceled":str(self.canceled),
-            "experiment_session_days_user" : [i.json_min() for i in self.experiment_session_day_users_set.all() \
-                                                                        .annotate(last_name = F('user__last_name')) \
-                                                                        .order_by("last_name") \
-                                                                        .filter(confirmed=True)],
+            "experiment_session_days_user" : [i.json_min() for i in u_list_c],
+            "experiment_session_days_user_unconfirmed" : [i.json_min() for i in u_list_u],
             "confirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=True).count(),
             "unConfirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=False).count(),          
         }
