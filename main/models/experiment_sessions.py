@@ -46,6 +46,11 @@ class experiment_sessions(models.Model):
     class Meta:
         verbose_name = 'Experiment Sessions'
         verbose_name_plural = 'Experiment Sessions'
+
+    #add new user to session
+    def addUser(self,userID):
+        for esd in self.ESD.all():
+            esd.addUser(userID)        
     
     def setupRecruitment(self):
         #setup this session with defualt parameters from related experiment
@@ -100,6 +105,11 @@ class experiment_sessions(models.Model):
             "url": str(reverse('experimentSessionView',args=(self.id,))),           
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "allow_delete": self.allowDelete(),
+        }
+    
+    def json_esd(self):
+        return{          
+            "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
         }
 
     def json(self):

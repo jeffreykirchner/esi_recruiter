@@ -46,7 +46,9 @@
                     loading: true,   
                     message: null,       
                     searchResults:[],
-                    searchText:"",       
+                    searchText:"",    
+                    findButtonText:"Find",   
+                    searchResultsEmptyText:"",
                     session:{gender:[],
                              subject_type:[],
                              institutions_exclude:[],
@@ -469,14 +471,25 @@
 
                     //search for a subject to add manually
                     searchForSubject: function(){
+                        if(app.$data.findButtonText != "Find") return;
 
+                        app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                         axios.post('/experimentSession/{{id}}/', {
                             status:"searchForSubject",   
                             searchInfo:app.$data.searchText,                                                                                                                         
                         })
                         .then(function (response) {
-                            app.$data.searchResults=JSON.parse(response.data.users);                                                              
-                        
+                            app.$data.searchResults=JSON.parse(response.data.users);   
+                            app.$data.findButtonText = 'Find';  
+
+                            if(app.$data.searchResults.length > 0)
+                            {
+                                app.$data.searchResultsEmptyText="";
+                            }   
+                            else
+                            {
+                                app.$data.searchResultsEmptyText="No Users Found<br><br>";
+                            }                                                     
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -485,21 +498,10 @@
                                             
                     },
 
-                     searchForSubject: function(){
+                    clearSearchForSubject: function(){
 
-                        axios.post('/experimentSession/{{id}}/', {
-                            status:"searchForSubject",   
-                            searchInfo:app.$data.searchText,                                                                                                                         
-                        })
-                        .then(function (response) {
-                            app.$data.searchResults=JSON.parse(response.data.users);                                                              
-                        
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                            //app.$data.searching=false;                                                              
-                        });                                       
-                                            
+                        app.$data.searchResults=[];
+                        app.$data.searchText="";                                      
                     },
 
                     manuallyAddSubject: function(id){
@@ -511,7 +513,10 @@
                             userID:id,                                                                                                                         
                         })
                         .then(function (response) {
-                            app.$data.experiment_session_days=response.data.experiment_session_days;                                                            
+                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                            $('#manuallyAddSubjectsModalCenter').modal('toggle');
+                            app.$data.searchResults=[];
+                            app.$data.searchText="";                                                         
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -773,10 +778,11 @@
                         <div class="input-group mb-3">
                             <input v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()">Find</button>
-                                <button class="btn btn-outline-primary" type="button">Clear</button>
+                                <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()"><span v-html="findButtonText"></span></button>
+                                <button class="btn btn-outline-primary" type="button" v-on:click ="clearSearchForSubject()">Clear</button>
                             </div>
-                        </div>                        
+                        </div>  
+                        <div v-html="searchResultsEmptyText" style="text-align: center;color: red;"></div>                    
                     </div>
                     <div class = "col col-md-2">
                     </div>
@@ -816,6 +822,7 @@
                                         </button>                                        
                                     </td>                                
                                 </tr>
+                                
                             </tbody>                                                                      
                             
                         </table>

@@ -54,6 +54,8 @@ def experimentSessionView(request,id):
             return findSubjectsToInvite(data,id)
         elif data["status"] == "searchForSubject":
             return getSearchForSubject(data,id)
+        elif data["status"] == "manuallyAddSubject":
+            return getManuallyAddSubject(data,id)         
 
     else: #GET             
 
@@ -68,9 +70,29 @@ def experimentSessionView(request,id):
 #manually search for users to add to session
 def getSearchForSubject(data,id):
 
+    logger = logging.getLogger(__name__)
+    logger.info("Serch for subject to maually add")
+    logger.info(data)
+
     users_list = lookup(data["searchInfo"])
 
     return JsonResponse({"status":"success","users":users_list}, safe=False)
+
+#manually add a single subject
+def getManuallyAddSubject(data,id):
+
+    logger = logging.getLogger(__name__)
+    logger.info("Manually add subject")
+    logger.info(data)
+
+    userID = int(data["userID"])
+
+    es = experiment_sessions.objects.get(id=id)
+
+    es.addUser(userID)
+    es.save()
+
+    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
 
 #get list of unconfirmed subjects
 # def getUnconfirmedSubjects(data,id):
@@ -90,12 +112,27 @@ def findSubjectsToInvite(data,id):
 
     number = int(data["number"])
 
-    es = experiment_sessions.objects.get(id=id)
+    u_list = getValidUserList(id)
 
-    es_instiutionsInclude = es.institutions_include.all()
-    es_institutionsExclude = es.institutions_exclude.all()
-    es_experimentsInclude = es.institutions_include.all()
-    es_experimentsExclude = es.institutions_exclude.all()
+    logger.info("Randomly Select:" + str(number)+ " of " + str(len(u_list)))
+
+    if number > len(u_list):
+        usersSmall = u_list
+    else:  
+        usersSmall = random.sample(u_list,number)
+
+    prefetch_related_objects(usersSmall,'profile')
+
+    usersSmall2 = [u.profile.json_min() for u in usersSmall]
+
+    return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
+
+#return a list of all valid users that can participate
+def getValidUserList(id):
+    logger = logging.getLogger(__name__)
+    logger.info("Get valid user list for session " + str(id))
+
+    es = experiment_sessions.objects.get(id=id)
 
     institutions_exclude_str = ""
     institutions_include_str = ""
@@ -359,18 +396,8 @@ def findSubjectsToInvite(data,id):
     time_span = time_end-time_start
 
     logger.info("SQL Run time: " + str(time_span.total_seconds()))
-    logger.info("Randomly Select:" + str(number)+ " of " + str(len(u_list)))
 
-    if number > len(u_list):
-        usersSmall = u_list
-    else:  
-        usersSmall = random.sample(u_list,number)
-
-    prefetch_related_objects(usersSmall,'profile')
-
-    usersSmall2 = [u.profile.json_min() for u in usersSmall]
-
-    return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
+    return u_list
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):

@@ -5,7 +5,11 @@ from datetime import datetime
 from django.utils import timezone
 from django.db.models import F
 
+from django.contrib.auth.models import User
+
 from . import experiment_sessions,locations,accounts
+import main
+
 
 #one day of a session
 class experiment_session_days(models.Model):
@@ -27,6 +31,16 @@ class experiment_session_days(models.Model):
         verbose_name = 'Experiment Session Days'
         verbose_name_plural = 'Experiment Session Days'
 
+    #add user to session day
+    def addUser(self,userID):
+        esdu = main.models.experiment_session_day_users()
+
+        esdu.experiment_session_day = self
+        esdu.user = User.objects.get(id=userID)
+
+        esdu.save()
+
+    #sets up session day with defualt paraemeters
     def setup(self,es):
         self.experiment_session=es
         self.location = locations.objects.first()
