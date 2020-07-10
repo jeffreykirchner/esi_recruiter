@@ -432,27 +432,22 @@
                     },
 
                     //remove subject from a sesssion day
-                    removeSubject: function(id,uid,confirmed){
+                    removeSubject: function(userId,esduId){
 
                         if(confirm("Remove subject from session?")){
                             axios.post('/experimentSession/{{id}}/', {
                                 status:"removeSubject",   
-                                id:id, 
-                                uid:uid,                                                                                                                        
+                                userId:userId, 
+                                esduId:esduId,                                                                                                                        
                             })
                             .then(function (response) {
                                 status=response.data.status;
 
+                                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+
                                 if(status=="success")
                                 {
-                                    if(confirmed)
-                                    {
-
-                                    }
-                                    else
-                                    {
-
-                                    }
+                                   
                                    // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
                                 }
                                 else
@@ -471,7 +466,7 @@
 
                     //search for a subject to add manually
                     searchForSubject: function(){
-                        if(app.$data.findButtonText != "Find") return;
+                        //if(app.$data.findButtonText != "Find") return;
 
                         app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                         axios.post('/experimentSession/{{id}}/', {
@@ -808,7 +803,9 @@
                             <tbody>
                                 <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
                                     <td>
-                                        <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
+                                        <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
+                                            <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
+                                        </a>
                                     </td>
                                     <td>
                                         <span v-html="u.profile__chapmanID"></span>                                 
@@ -817,9 +814,15 @@
                                         <span v-html="u.email"></span>                                   
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u.id)">
-                                            Add <i class="fas fa-plus-square fa-xs"></i>  
-                                        </button>                                        
+                                        <div v-if="u.alreadyIn == 1">
+                                            <div v-if="u.valid == 0" style="text-align: center;color: red;">Aready Added</div>
+                                        </div>
+                                        <div v-else>
+                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u.id)">
+                                                Add <i class="fas fa-plus-square fa-xs"></i>  
+                                            </button>   
+                                            <div v-if="u.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
+                                        </div>                                                                             
                                     </td>                                
                                 </tr>
                                 
@@ -1060,10 +1063,13 @@
                             <tbody>
                                 <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
                                     <td>
-                                        <span v-html="index+1"></span>) <a  v-bind:href='"/userInfo/" + esdu.user.id'><span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span></a>                                    
+                                        <span v-html="index+1"></span>) 
+                                        <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                            <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                        </a>                                    
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(currentSessionDay.id,esdu.id,True)">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
@@ -1098,7 +1104,7 @@
                                         <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "">
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm" v-on:click = "">

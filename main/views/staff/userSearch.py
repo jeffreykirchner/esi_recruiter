@@ -21,7 +21,7 @@ def userSearch(request):
         if data["action"] == "getUsers":
             request.session['userSearchTerm'] = data["searchInfo"]            
 
-            users= lookup(data["searchInfo"])
+            users= lookup(data["searchInfo"],True)
 
             return JsonResponse({"users" :  users},safe=False)
         # elif data["action"] == "deleteUser":
@@ -34,7 +34,7 @@ def userSearch(request):
     else:
         return render(request,'staff/userSearch.html',{})      
 
-def lookup(value):
+def lookup(value,returnJSON):
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                       .filter(Q(last_name__icontains = value) |
                               Q(first_name__icontains = value) |
@@ -43,6 +43,8 @@ def lookup(value):
                               Q(profile__type__name__icontains = value)) \
                       .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name")
 
-    print(json.dumps(list(users),cls=DjangoJSONEncoder))
-
-    return json.dumps(list(users),cls=DjangoJSONEncoder)
+    if returnJSON:
+        #print(json.dumps(list(users),cls=DjangoJSONEncoder))
+        return json.dumps(list(users),cls=DjangoJSONEncoder)
+    else:
+        return users

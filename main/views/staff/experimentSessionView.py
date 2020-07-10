@@ -21,6 +21,7 @@ import random
 import datetime
 from django.db.models import prefetch_related_objects
 from .userSearch import lookup
+from django.core.serializers.json import DjangoJSONEncoder
 
 #induvidual experiment view
 @login_required
@@ -49,7 +50,7 @@ def experimentSessionView(request,id):
         elif data["status"] ==  "updateSessionDay":
             return updateSessionDay(data,id)
         elif data["status"] ==  "removeSubject":
-            return removeSubject(data)
+            return removeSubject(data,id)
         elif  data["status"] ==  "findSubjectsToInvite":
             return findSubjectsToInvite(data,id)
         elif data["status"] == "searchForSubject":
@@ -74,9 +75,35 @@ def getSearchForSubject(data,id):
     logger.info("Serch for subject to maually add")
     logger.info(data)
 
-    users_list = lookup(data["searchInfo"])
+    users_list = lookup(data["searchInfo"],False)
 
-    return JsonResponse({"status":"success","users":users_list}, safe=False)
+    if len(users_list)>0:
+        user_list_valid = getValidUserList(id,users_list)    
+
+    for u in users_list:
+        u['valid'] = 0
+
+        #logger.info(str(u['id']))
+        #logger.info(str(id))
+        #check that subject is not already in
+        esdu = experiment_session_day_users.objects.filter(user__id = u['id'],
+                                                           experiment_session_day__experiment_session__id = id) \
+                                                   .exists()
+
+        if esdu:
+            u['alreadyIn'] = 1
+        else:
+            u['alreadyIn'] = 0
+
+        #check if subject violates recrutment parameters
+        for uv in user_list_valid:
+            if u['id'] == uv.id:
+                u['valid'] = 1
+
+    logger.info(users_list)
+    #logger.info(user_list_valid)
+
+    return JsonResponse({"status":"success","users":json.dumps(list(users_list),cls=DjangoJSONEncoder)}, safe=False)
 
 #manually add a single subject
 def getManuallyAddSubject(data,id):
@@ -87,22 +114,18 @@ def getManuallyAddSubject(data,id):
 
     userID = int(data["userID"])
 
+    #check the subject not already in session
+    esdu = experiment_session_day_users.objects.filter(user__id = userID,
+                                                           experiment_session_day__experiment_session__id = id) \
+                                                   .exists()
+
     es = experiment_sessions.objects.get(id=id)
 
-    es.addUser(userID)
-    es.save()
+    if not esdu:
+       es.addUser(userID)
+       es.save()
 
     return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
-
-#get list of unconfirmed subjects
-# def getUnconfirmedSubjects(data,id):
-#     logger = logging.getLogger(__name__)
-#     logger.info("Show unconfirmed subjects")
-#     logger.info(data)    
-
-#     es = experiment_sessions.objects.get(id=id)
-
-#     return JsonResponse({"status":"success","sessionDays":es.json_unconfirmed()}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):
@@ -112,7 +135,7 @@ def findSubjectsToInvite(data,id):
 
     number = int(data["number"])
 
-    u_list = getValidUserList(id)
+    u_list = getValidUserList(id,[])
 
     logger.info("Randomly Select:" + str(number)+ " of " + str(len(u_list)))
 
@@ -128,7 +151,7 @@ def findSubjectsToInvite(data,id):
     return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
 
 #return a list of all valid users that can participate
-def getValidUserList(id):
+def getValidUserList(id,u_list):
     logger = logging.getLogger(__name__)
     logger.info("Get valid user list for session " + str(id))
 
@@ -181,11 +204,11 @@ def getValidUserList(id):
 
     #allow multiple participations in same experiment
     if es.allow_multiple_participations:
-        allow_multiple_participations_str="1=1"
+        allow_multiple_participations_str=""
     else:
         allow_multiple_participations_str='''NOT EXISTS(SELECT 1                                                      
 			FROM user_experiments
-			WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id =''' + str(experiment_id) + ''')'''
+			WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id =''' + str(experiment_id) + ''') AND'''
 
     institutions_include_user_count_str = ""
     institutions_exclude_user_count_str = ""
@@ -322,6 +345,19 @@ def getValidUserList(id):
 							      main_institutions.id = main_experiments_institutions.institution_id),
     '''
 
+    #list of users to search for, if empty return all valid users
+    users_to_search_for=""
+    if len(u_list) > 0:
+        #logger.info(u_list)
+        users_to_search_for = "("
+        for u in u_list:
+            if( users_to_search_for != "("):
+                users_to_search_for += " OR "
+
+            users_to_search_for += 'auth_user.id = ' + str(u['id'])
+
+        users_to_search_for += ") AND"
+
     str1='''          	  									
         WITH
         --table of genders required in session
@@ -364,17 +400,27 @@ def getValidUserList(id):
        + institutions_exclude_str \
        + institutions_include_str \
        + '''
+       --user's gender is on the list
 	   EXISTS(SELECT 1                                                    
 			FROM genders_include	
-			WHERE main_profile.gender_id = genders_include.genders_id) AND  --user's gender is on the list 
+			WHERE main_profile.gender_id = genders_include.genders_id) AND   
+
+       --user's subject type is on the list
 	   EXISTS(SELECT 1                                                   
 			FROM subject_type_include	
-			WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) > 0 AND      --user's subject type is on the list  
+			WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) > 0 AND        
+
+       --user is not already invited to session     
+       NOT EXISTS(SELECT 1
+            FROM user_experiments
+            WHERE user_experiments.experiment_sessions_id = ''' + str(id) + ''' AND user_experiments.user_id = auth_user.id) AND 
+
        '''\
        + experiments_exclude_str \
        + experiments_include_str \
        + exeriments_count_select_where \
-       + allow_multiple_participations_str + ' AND '\
+       + allow_multiple_participations_str \
+       + users_to_search_for \
  	   + '''      
 	   is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
 	   is_active = 1                                                    --acount is activated
@@ -497,7 +543,25 @@ def updateSessionDay(data,id):
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #remove subject from session day 
-def removeSubject(data):
-    esd=experiment_session_days.objects.get(id= data["id"])
-    esdu=esd.experiment_session_day_users.objects.get(id=data["uid"])
+def removeSubject(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Remove subject from session")
+    logger.info(data)
+
+    userId = data['userId']
+    esduId = data['esduId']    
+
+    esdu=experiment_session_day_users.objects.filter(user__id = userId,
+                                                     experiment_session_day__experiment_session__id = id)
+
+    logger.info(esdu)
+    #delete sessions users only if they have not earned money
+    for i in esdu:
+        if i.show_up_fee == 0 and i.earnings == 0:
+            i.delete()            
+
+    es = experiment_sessions.objects.get(id=id)
+    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+    
+
     
