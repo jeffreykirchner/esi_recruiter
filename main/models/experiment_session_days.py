@@ -25,11 +25,21 @@ class experiment_session_days(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return "ID: " + self.id
+        return "ID: " + str(self.id)
 
     class Meta:
         verbose_name = 'Experiment Session Days'
         verbose_name_plural = 'Experiment Session Days'
+
+    def getListOfUserIDs(self):
+        u_list=[]
+
+        for u in self.experiment_session_day_users_set.all():
+            u_list.append({'user':u.user,'confirmed':u.confirmed})
+
+        #u_list.sort()
+
+        return u_list
 
     #add user to session day
     def addUser(self,userID):
@@ -41,7 +51,7 @@ class experiment_session_days(models.Model):
         esdu.save()
 
     #sets up session day with defualt paraemeters
-    def setup(self,es):
+    def setup(self,es,u_list):
         self.experiment_session=es
         self.location = locations.objects.first()
         self.registration_cutoff = es.experiment.registration_cutoff_default
@@ -50,13 +60,23 @@ class experiment_session_days(models.Model):
         self.account = es.experiment.account_default    
         self.date = datetime.now(timezone.utc)
 
+        self.save()
+
+        #add list of session users if multiday
+        for u in u_list:
+            esdu = main.models.experiment_session_day_users()
+            esdu.user = u['user']
+            esdu.confirmed = u['confirmed']
+            esdu.experiment_session_day = self
+            esdu.save()
+
     #check if this session day can be deleted
     def allowDelete(self):
 
         ESDU = self.experiment_session_day_users_set.all()    
 
         for u in ESDU:
-            if u.earnings > 0 or u.show_up_fee > 0:
+            if not u.allowDelete():
                 return False
 
         return True  

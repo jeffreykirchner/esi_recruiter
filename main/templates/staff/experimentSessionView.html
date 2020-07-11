@@ -48,6 +48,7 @@
                     searchResults:[],
                     searchText:"",    
                     findButtonText:"Find",   
+                    multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
                     searchResultsEmptyText:"",
                     session:{gender:[],
                              subject_type:[],
@@ -202,17 +203,24 @@
 
                     //add a new session day
                     addSessionDay: function(){
-                        axios.post('/experimentSession/{{id}}/', {
+                        if(app.$data.multiDayButtonText.includes("Multi"))
+                        {
+                            app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                            axios.post('/experimentSession/{{id}}/', {
                                 status:"addSessionDay",                                                              
                             })
                             .then(function (response) {                                   
                                 app.$data.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                 
-                                //app.updateDisplayLists();
+                                
+                                app.$data.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
                             })
                             .catch(function (error) {
                                 console.log(error);
                                 //app.$data.searching=false;                                                              
-                            });                        
+                            });
+                        }
+                                                
                     },
 
                     //deletes a session day
@@ -319,7 +327,7 @@
                                 else
                                 {
                                     app.displayErrors(response.data.errors);
-                                }                                   
+                                }                                  
                                
                             })
                             .catch(function (error) {
@@ -435,6 +443,9 @@
                     removeSubject: function(userId,esduId){
 
                         if(confirm("Remove subject from session?")){
+
+                            $( '#removeSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+
                             axios.post('/experimentSession/{{id}}/', {
                                 status:"removeSubject",   
                                 userId:userId, 
@@ -444,6 +455,7 @@
                                 status=response.data.status;
 
                                 app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                                app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
 
                                 if(status=="success")
                                 {
@@ -466,7 +478,7 @@
 
                     //search for a subject to add manually
                     searchForSubject: function(){
-                        //if(app.$data.findButtonText != "Find") return;
+                        if(app.$data.findButtonText != "Find") return;
 
                         app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                         axios.post('/experimentSession/{{id}}/', {
@@ -522,7 +534,7 @@
 
                     formatDate: function(value){
                         if (value) {        
-                            console.log(value);                    
+                            //console.log(value);                    
                             return moment(String(value)).local().format('M/D/YYYY, h:mm a');
                         }
                         else{
@@ -701,7 +713,7 @@
                             <thead>
                                 <th width="35%">
                                     Date 
-                                    <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()">Multi Day <i class="fas fa-plus fa-xs"></i></button> 
+                                    <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
                                 </th> 
                                 <th width="35%">
                                    
@@ -771,7 +783,7 @@
                     </div>                  
                     <div class = "col col-md-8">
                         <div class="input-group mb-3">
-                            <input v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
+                            <input v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()"><span v-html="findButtonText"></span></button>
                                 <button class="btn btn-outline-primary" type="button" v-on:click ="clearSearchForSubject()">Clear</button>
@@ -1069,12 +1081,18 @@
                                         </a>                                    
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
-                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
-                                        </button>
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
-                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
-                                        </button>
+                                        <div v-if="esdu.allowDelete">
+                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                                Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                                Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <div style="text-align: center;">Subject has earnings</div>
+                                        </div>
+                                        
                                     </td>                                
                                 </tr>
                             </tbody>                                                                      
@@ -1089,10 +1107,7 @@
                             <caption style="caption-side: top;" class="caption text-center">Un-Confirmed ([[currentSessionDay.unConfirmedCount]])</caption>
                             <thead>
                                 <th width="50%">
-                                    Name
-                                    <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
-                                        Show <i class="fas fa-eye fa-xs"></i> 
-                                    </button>
+                                    Name                                    
                                 </th>                                                                                   
                                 <th width="50%" style="text-align: center;">
                                     Control
@@ -1100,15 +1115,18 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user_unconfirmed" v-bind:key="esdu.id">
-                                    <td>
-                                        <span v-html="index+1"></span>) <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>                                   
+                                    <td>                                        
+                                        <span v-html="index+1"></span>)
+                                        <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                            <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                        </a>                                                                           
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
-                                            Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                            Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                     </td>
                                 </tr>

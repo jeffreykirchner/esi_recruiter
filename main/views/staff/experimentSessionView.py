@@ -494,10 +494,21 @@ def updateRecruitmentParameters(data,id):
 
 #add a session day
 def addSessionDay(data,id):
-    esd=experiment_session_days()
+    logger = logging.getLogger(__name__)
+    logger.info("Add session day")
+    logger.info(data)
+
+    esd = experiment_session_days()
     es = experiment_sessions.objects.get(id=id)
 
-    esd.setup(es)
+    u_list = es.ESD.first().getListOfUserIDs()
+
+    #for i in id_list:
+    #    logger.info(i)
+
+    # logger.info(u_list)
+
+    esd.setup(es,u_list)
     esd.save()
 
     es.save()    
@@ -508,7 +519,11 @@ def addSessionDay(data,id):
 def removeSessionDay(data,id):
     es = experiment_sessions.objects.get(id=id)
 
-    es.ESD.get(id = data["id"]).delete()
+    esd = es.ESD.get(id = data["id"])
+
+    if esd.allowDelete():
+        esd.delete()
+
     es.save()
 
     return JsonResponse({"status":"success","sessionDays":es.json()}, safe=False)
@@ -557,7 +572,7 @@ def removeSubject(data,id):
     logger.info(esdu)
     #delete sessions users only if they have not earned money
     for i in esdu:
-        if i.show_up_fee == 0 and i.earnings == 0:
+        if i.allowDelete():
             i.delete()            
 
     es = experiment_sessions.objects.get(id=id)

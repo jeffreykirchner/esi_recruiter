@@ -131,7 +131,7 @@ def experimentView(request,id):
 
             #create experiment session day, attach to session
             esd=experiment_session_days()
-            esd.setup(es)
+            esd.setup(es,[])
             esd.save()
 
             return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False)

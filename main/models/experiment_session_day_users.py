@@ -31,6 +31,12 @@ class experiment_session_day_users(models.Model):
         verbose_name = 'Experiment Session Day Users'
         verbose_name_plural = 'Experiment Session Day Users'
     
+    def allowDelete(self):
+        if self.show_up_fee > 0 or self.earnings > 0:
+            return False
+        else:
+            return True 
+    
     def json_subjectInfo(self):
         return{
             "id":self.id,
@@ -47,5 +53,6 @@ class experiment_session_day_users(models.Model):
         return{
             "id":self.id,            
             "confirmed":self.bumped,
-            "user":self.user.profile.json_min(),         
+            "user":self.user.profile.json_min(),  
+            "allowDelete" : self.allowDelete(),       
         }
