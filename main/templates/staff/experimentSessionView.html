@@ -479,6 +479,7 @@
                     //search for a subject to add manually
                     searchForSubject: function(){
                         if(app.$data.findButtonText != "Find") return;
+                        if(app.$data.searchText == "") return;
 
                         app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                         axios.post('/experimentSession/{{id}}/', {
