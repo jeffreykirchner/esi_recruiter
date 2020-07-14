@@ -88,7 +88,8 @@ class experiment_sessions(models.Model):
         self.allow_multiple_participations=self.experiment.allow_multiple_participations_default
 
         return self
-    
+
+    #check if this session can be deleted    
     def allowDelete(self):
 
         ESD = self.ESD.all()    
@@ -107,6 +108,7 @@ class experiment_sessions(models.Model):
             "allow_delete": self.allowDelete(),
         }
     
+    #get session days attached to this session
     def json_esd(self):
         return{          
             "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],

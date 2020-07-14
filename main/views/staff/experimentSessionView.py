@@ -56,7 +56,9 @@ def experimentSessionView(request,id):
         elif data["status"] == "searchForSubject":
             return getSearchForSubject(data,id)
         elif data["status"] == "manuallyAddSubject":
-            return getManuallyAddSubject(data,id)         
+            return getManuallyAddSubject(data,id)    
+        elif data["status"] == "changeConfirmation":
+            return changeConfirmationStatus(data,id)     
 
     else: #GET             
 
@@ -68,11 +70,35 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+#change subject's confirmation status
+def changeConfirmationStatus(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Change subject's confirmation status")
+    logger.info(data)
+
+    userID = int(data["userId"])
+    newStatus = data["confirmed"]
+    esduId = data["esduId"]
+
+    esdu = experiment_session_day_users.objects.get(id = esduId)                                  
+
+    
+    if newStatus == "confirm":
+        esdu.confirmed = True
+    else:
+        if esdu.allowConfirm():
+            esdu.confirmed = False
+    
+    esdu.save()
+
+    es = experiment_sessions.objects.get(id=id)
+    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+
 #manually search for users to add to session
 def getSearchForSubject(data,id):
 
     logger = logging.getLogger(__name__)
-    logger.info("Serch for subject to maually add")
+    logger.info("Search for subject to maually add")
     logger.info(data)
 
     users_list = lookup(data["searchInfo"],False)

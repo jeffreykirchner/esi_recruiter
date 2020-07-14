@@ -2,8 +2,9 @@ from django.db import models
 import logging
 import traceback
 import uuid
+from django.utils.safestring import mark_safe
 
-from . import experiment_session_days,experiment_sessions
+from . import experiment_session_days,experiment_sessions,experiment_session_day_users
 
 from django.contrib.auth.models import User
 
@@ -31,16 +32,28 @@ class experiment_session_day_users(models.Model):
         verbose_name = 'Experiment Session Day Users'
         verbose_name_plural = 'Experiment Session Day Users'
     
-    def allowDelete(self):
+    #check if session day user can be deleted
+    def allowConfirm(self):
         if self.show_up_fee > 0 or self.earnings > 0:
             return False
         else:
             return True 
     
+    def allowDelete(self):       
+
+        esdu=experiment_session_day_users.objects.filter(user__id = self.user.id,
+                                                         experiment_session_day__experiment_session__id = self.experiment_session_day.experiment_session.id)
+
+        for i in esdu:
+            if i.show_up_fee > 0 or i.earnings > 0:
+                return False 
+
+        return True 
+
     def json_subjectInfo(self):
         return{
             "id":self.id,
-            "title":self.experiment_session_day.experiment_session.experiment.title,
+            "title":mark_safe(self.experiment_session_day.experiment_session.experiment.title),
             "session_id":self.experiment_session_day.experiment_session.id,
             "date":self.experiment_session_day.date,
             "attended":self.attended,
@@ -54,5 +67,6 @@ class experiment_session_day_users(models.Model):
             "id":self.id,            
             "confirmed":self.bumped,
             "user":self.user.profile.json_min(),  
-            "allowDelete" : self.allowDelete(),       
+            "allowDelete" : self.allowDelete(),
+            "allowConfirm" : self.allowConfirm(),       
         }

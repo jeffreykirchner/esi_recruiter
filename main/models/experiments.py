@@ -1,6 +1,7 @@
 from django.db import models
 import logging
 import traceback
+from django.utils.safestring import mark_safe
 
 from . import schools,accounts,institutions,genders,subject_types,institutions
 
@@ -46,7 +47,7 @@ class experiments(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return str(self.title)
+        return mark_safe(str(self.title))
     
     class Meta:
         verbose_name = 'Experiment'
@@ -55,7 +56,7 @@ class experiments(models.Model):
     def json_min(self):
         return{
             "id":self.id,
-            "name":self.title,
+            "name": mark_safe(self.title),
         }
     
     def json_sessions(self):
@@ -67,7 +68,7 @@ class experiments(models.Model):
     def json(self):
         return{
             "id":self.id,
-            "title":self.title,
+            "title":  mark_safe(self.title),
             "experiment_manager":self.experiment_manager,
             "registration_cutoff_default":self.registration_cutoff_default,
             "actual_participants_default":self.actual_participants_default,
@@ -100,3 +101,12 @@ class experiments(models.Model):
             "experiments_include_all_default":1 if self.experiments_include_all_default else 0,
             "allow_multiple_participations_default":1 if self.allow_multiple_participations_default else 0,
         }
+
+#proxy model returns link to experiemnts
+class hrefExperiments(experiments): 
+    class Meta:
+        proxy = True
+
+    def __str__(self):
+        return mark_safe('<a href=\"/experiment/' + str(self.id) + '\" target=_blank  >' + str(self.title) + '</a>')
+    

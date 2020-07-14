@@ -186,7 +186,7 @@
                     <tbody>
                         <tr v-for="(s,index) in sessions" v-bind:key="s.id">
                             <td>                                
-                                <a v-bind:href='"/experimentSession/" + s.session_id'>[[s.title]]</span></a>
+                                <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
                             </td>
                             <td  style="text-align: center;">                                                                
                                 [[s.date]]                                    

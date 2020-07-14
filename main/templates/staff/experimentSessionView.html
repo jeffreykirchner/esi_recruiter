@@ -476,6 +476,41 @@
                                                 
                     },                  
 
+                    //change a subject's confirmation status
+                    confirmSubject: function(userId,esduId,confirmed){                       
+
+                        $( '#confirmSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"changeConfirmation",   
+                            userId:userId, 
+                            esduId:esduId,  
+                            confirmed:confirmed,                                                                                                                      
+                        })
+                        .then(function (response) {
+                            status=response.data.status;
+
+                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                            app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+
+                            if(status=="success")
+                            {
+                                
+                                // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                            }
+                            else
+                            {
+                                app.displayErrors(response.data.errors);
+                            }                                   
+                            
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });                      
+                                                
+                    },
+
                     //search for a subject to add manually
                     searchForSubject: function(){
                         if(app.$data.findButtonText != "Find") return;
@@ -506,12 +541,14 @@
                                             
                     },
 
+                    //clear search results
                     clearSearchForSubject: function(){
 
                         app.$data.searchResults=[];
                         app.$data.searchText="";                                      
                     },
 
+                    //manually add subject to sessoin
                     manuallyAddSubject: function(id){
 
                         $( '#manualAdd' + id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
@@ -589,7 +626,7 @@
     <div class="col col-md-12">
         <div class="card">
             <div class="card-header">
-                Experiment Session: <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment.title}}</a>
+                Experiment Session: <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a>
             </div>
     
             <div class="card-body">
@@ -1082,17 +1119,26 @@
                                         </a>                                    
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <div v-if="esdu.allowDelete">
+                                        <span v-if="esdu.allowDelete">
                                             <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                                 Remove <i class="fas fa-user-minus fa-xs"></i>  
                                             </button>
-                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                        </span>
+                                        <span v-else>
+                                            <button type="button" class="btn btn-light btn-sm">
+                                                Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                            </button>
+                                        </span>
+                                        <span v-if="esdu.allowConfirm">    
+                                            <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')">
                                                 Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
                                             </button>
-                                        </div>
-                                        <div v-else>
-                                            <div style="text-align: center;">Subject has earnings</div>
-                                        </div>
+                                        </span>
+                                        <span v-else>
+                                            <button type="button" class="btn btn-light btn-sm">
+                                                Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                            </button>
+                                        </span>                                        
                                         
                                     </td>                                
                                 </tr>
@@ -1126,7 +1172,7 @@
                                         <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "">
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                     </td>
