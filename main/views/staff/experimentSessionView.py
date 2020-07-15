@@ -568,6 +568,8 @@ def updateSessionDay(data,id):
     for field in data["formData"]:           
         form_data_dict[field["name"]] = field["value"]
 
+
+
     form = experimentSessionForm2(form_data_dict,instance=esd)   
 
     logger.info("here")

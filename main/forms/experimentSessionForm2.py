@@ -1,5 +1,9 @@
 from django import forms
 from main.models import genders,subject_types,institutions,experiments,locations,accounts,experiment_session_days
+from datetime import datetime,timezone
+import pytz
+from django.utils.timezone import make_aware
+import logging
 
 class experimentSessionForm2(forms.ModelForm):
     location = forms.ModelChoiceField(label="Location", 
@@ -7,8 +11,9 @@ class experimentSessionForm2(forms.ModelForm):
                                         widget = forms.Select(attrs={"v-model":"currentSessionDay.location",
                                                                      "v-on:change":"mainFormChange2"}))                                                               
     date = forms.DateTimeField(label="Date and Time",
-                               input_formats=['%m/%d/%Y %I:%M %p'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM AM/PM'},                                                                                                           
+                               localize=True,
+                               input_formats=['%m/%d/%Y %I:%M %p %z'],
+                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
                                widget = forms.DateTimeInput(attrs={"v-model":"currentSessionDay.date",                                                                 
                                                                    "v-on:change":"mainFormChange2"}))
     length = forms.CharField(label='Length in Minutes',
@@ -31,3 +36,20 @@ class experimentSessionForm2(forms.ModelForm):
     class Meta:
         model = experiment_session_days
         exclude=['experiment_session']
+    
+    #convert to date to utc time zone
+    def clean_date(self):
+        logger = logging.getLogger(__name__)
+        logger.info("Clean Date in session form")
+        
+        date = self.data['date']
+
+        logger.info(date)
+
+        try:
+            date_time_obj = datetime.strptime(date, '%m/%d/%Y %I:%M %p %z')
+            logger.info(date_time_obj)
+        except ValueError:
+            raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
+
+        return date_time_obj

@@ -74,6 +74,7 @@
                                         canceled:0,
                                         date_raw:"",
                                         date:"",
+                                        date_local:"",
                                         account:0,
                                         id:0,
                                         length:0,
@@ -94,7 +95,7 @@
                     subjectsCaption1:"Confirmed",
                     options: {
                         // https://momentjs.com/docs/#/displaying/
-                        format: 'MM/D/YYYY h:mm A',
+                        format: 'MM/DD/YYYY hh:mm a ZZ',
                         useCurrent: true,
                         showClear: false,
                         showClose: true,
@@ -307,6 +308,10 @@
 
                         var formData =  $("#mainForm2").serializeArray();
 
+                        //tz = moment.tz(formData[1].value)
+
+                        //formData[1].value = moment.tz(formData[1].value, tz ).utc().format();
+
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"updateSessionDay",   
                                 id:app.$data.currentSessionDay.id, 
@@ -386,6 +391,7 @@
                         app.$data.cancelModal=true;
                         app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
                         app.$data.currentSessionDayIndex=id;
+                        app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw);
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
                         app.$data.buttonText2="Update";
                         $('#setupModalCenter').modal('show');
@@ -573,7 +579,7 @@
                     formatDate: function(value){
                         if (value) {        
                             //console.log(value);                    
-                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                            return moment(String(value)).local().format('MM/DD/YYYY hh:mm a ZZ');
                         }
                         else{
                             return "date format error";
@@ -1055,7 +1061,7 @@
                                     <div>
                                         <!-- <input type="text" name="date" required="required" id="id_date" class="form-control"> -->
                                         <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
-                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date" :config="options" v-on:change="mainFormChange2"></date-picker>
+                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2"></date-picker>
                                     </div>
                                 </div>
                             </div>
