@@ -43,7 +43,7 @@ class profile(models.Model):
     def sorted_session_day_list_earningsOnly(self):
         logger = logging.getLogger(__name__) 
 
-        qs=self.user.ESDU.all().filter(Q(attended=True)|Q(bumped=True)) \
+        qs=self.user.ESDU.filter(Q(attended=True)|Q(bumped=True)) \
                                  .annotate(date=F('experiment_session_day__date')).order_by('-date')
 
         out_str = [e.json_subjectInfo() for e in qs]    
@@ -57,7 +57,7 @@ class profile(models.Model):
     def get_institution_list(self):
         l = institutions.objects.none()
 
-        esdus=self.user.ESDU.all().filter(attended = True)
+        esdus=self.user.ESDU.filter(attended = True)
 
         for i in esdus:
             l |= i.experiment_session_day.experiment_session.experiment.institution.all()                

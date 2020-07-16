@@ -88,8 +88,8 @@ class experiment_session_days(models.Model):
         }
 
     def json(self):
-        u_list_c = self.experiment_session_day_users_set.all().filter(confirmed=True).order_by("user__last_name").prefetch_related('user') 
-        u_list_u= self.experiment_session_day_users_set.all().filter(confirmed=False).order_by("user__last_name").prefetch_related('user')
+        u_list_c = self.experiment_session_day_users_set.filter(confirmed=True).order_by("user__last_name").prefetch_related('user') 
+        u_list_u= self.experiment_session_day_users_set.filter(confirmed=False).order_by("user__last_name").prefetch_related('user')
 
         return{
             "id":self.id,
@@ -102,8 +102,8 @@ class experiment_session_days(models.Model):
             "canceled":str(self.canceled),
             "experiment_session_days_user" : [i.json_min() for i in u_list_c],
             "experiment_session_days_user_unconfirmed" : [i.json_min() for i in u_list_u],
-            "confirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=True).count(),
-            "unConfirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=False).count(),          
+            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
+            "unConfirmedCount": self.experiment_session_day_users_set.filter(confirmed=False).count(),          
         }
 
     def json_unconfirmed(self):

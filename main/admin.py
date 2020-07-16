@@ -1,7 +1,10 @@
 from django.contrib import admin
+from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
+from main.forms import parametersForm
+
 
 # Register your models here.
 from main.models import *
@@ -14,7 +17,18 @@ admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
 
+class parametersadmin(admin.ModelAdmin):
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      form = parametersForm
 
+      actions = []
+
+admin.site.register(parameters, parametersadmin)
 
 class UserAdmin(admin.ModelAdmin):
 
