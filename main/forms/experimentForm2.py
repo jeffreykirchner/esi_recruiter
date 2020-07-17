@@ -95,7 +95,7 @@ class experimentForm2(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['experiment_manager','title','notes','school','account_default','department_default','institution','length_default','institutions_exclude_all','institutions_include_all','experiments_exclude_all','experiments_include_all']
+        exclude=['experiment_manager','showUpFee','title','notes','school','account_default','department_default','institution','length_default','institutions_exclude_all','institutions_include_all','experiments_exclude_all','experiments_include_all']
 
     def clean_registration_cutoff_default(self):
         registration_cutoff_default = self.data['registration_cutoff_default']

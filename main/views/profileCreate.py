@@ -40,6 +40,8 @@ def profileCreate(request):
     #migrate_session_users2()  #***
     #migrate_session_users3()  #***
 
+    #migrate_parameters() #***
+
     token=""
     status="update"            #either filling out the form or 
     if request.method == 'POST':

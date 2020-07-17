@@ -25,6 +25,12 @@ class experimentForm1(forms.ModelForm):
                                             queryset=accounts.objects.all(),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
                                                                        "v-on:change":"mainFormChange1"}))
+
+    showUpFee = forms.CharField(label='Show-up Fee ($)', 
+                                            widget=forms.NumberInput(attrs={"v-model":"experiment.showUpFee",
+                                                                            "v-on:keyup":"mainFormChange1",
+                                                                            "v-on:change":"mainFormChange1"}))
+
     institution = forms.ModelMultipleChoiceField(label="",
                                                  queryset=institutions.objects.all().order_by("name"),
                                                  widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.institution",

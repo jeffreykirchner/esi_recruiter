@@ -10,6 +10,8 @@ from django.utils.timezone import make_aware
 import datetime
 from django.conf import settings
 import pytz
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 
 from main.models import institutions,\
                                 departments,\
@@ -21,7 +23,8 @@ from main.models import institutions,\
                                 experiment_session_day_users,\
                                 experiments_institutions, \
                                 schools, \
-                                majors
+                                majors, \
+                                parameters
                         
 
 #migrate old data base over to new database
@@ -133,8 +136,7 @@ def migrate_experiments():
                                 actual_participants_default=c[4],
                                 notes=c[5],
                                 account_default_id=c[8],
-                                school_id=c[6],
-                                experience_level_default_id=1,
+                                school_id=c[6],                                
                                 length_default=c[7],
                                 ) for c in cursor.fetchall())
 
@@ -486,7 +488,10 @@ def migrate_sessions():
         cursor.execute('''SELECT sessions.id,
                                  experiment_id,
                                  CASE WHEN registration_cutoff IS NULL THEN 0 ELSE registration_cutoff END AS registration_cutoff,
-                                 CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants                                
+                                 CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants,
+                                 CASE WHEN NOT on_time_bonus REGEXP '^[0-9]+(\.[0-9]+)?$'  
+                                        THEN 0
+                                        ELSE on_time_bonus END AS on_time_bonus                               
                         FROM sessions 
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id
                         WHERE EXISTS(SELECT id
@@ -494,12 +499,12 @@ def migrate_sessions():
                                         WHERE experiment_id=id)''')
         
         experiment_sessions.objects.all().delete()        
-
         
         objs = (experiment_sessions(id=c[0],
                                     experiment_id=c[1],
                                     registration_cutoff = c[2],    
-                                    actual_participants=c[3]
+                                    actual_participants=c[3],
+                                    showUpFee_legacy = c[4]
                                 ) for c in cursor.fetchall())
 
         batch_size=150
@@ -516,7 +521,24 @@ def migrate_sessions():
                 experiment_sessions.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
+
+        #copy show up fees into experiment
+        print("show up fees")
+
+        e_list=experiments.objects.all().prefetch_related('ES') 
+       
+        for e in e_list:
+                if e.ES.first():
+                        
+                        e.showUpFee =  e.ES.first().showUpFee_legacy                        
+                else:
+                        e.showUpFee = 0
+                
+                print("show up fee " + str(e.id) + " " + str(e.showUpFee))
+                e.save()
         
+       # e_list.update()
+                                
         migrate_locations()
 
         print("session day")
@@ -781,4 +803,26 @@ def migrate_session_users3():
         #         sud.save()
         #         print(sud.id)
 
+def migrate_parameters():
+        print("migrate parameters")
 
+        parameters.objects.all().delete()
+
+        cursor = connections['old'].cursor()
+        cursor.execute('''select body from boilerplates where id = 1 limit 1''')
+
+        p = parameters()
+        p.id=1
+
+        for c in cursor.fetchall():
+                #invitationText = c[0]
+                p.invitationText = c[0]
+
+        
+        cursor = connections['old'].cursor()
+        cursor.execute('''select value from ui_templates where id = 3 limit 1''')
+
+        for c in cursor.fetchall():
+                p.consentForm = c[0]
+        
+        p.save()

@@ -8,6 +8,7 @@ from . import genders,subject_types,institutions,experiments
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
+    showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10,null = True) 
 
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)

@@ -59,6 +59,8 @@ def experimentSessionView(request,id):
             return getManuallyAddSubject(data,id)    
         elif data["status"] == "changeConfirmation":
             return changeConfirmationStatus(data,id)     
+        elif data["status"] == "inviteSubjects":
+            return inviteSubjects(data,id)
 
     else: #GET             
 
@@ -69,6 +71,40 @@ def experimentSessionView(request,id):
                        'form3':recruitForm(),                                    
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
+
+def inviteSubjects(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Invite subjects")
+    logger.info(data)
+
+    subjectInvitations = data["subjectInvitations"]
+
+    es = experiment_sessions.objects.get(id=id)
+
+    for i in subjectInvitations:
+        es.addUser(i['id'])
+
+    es.save()
+
+    # for i in es.ESD.all():
+    #     objs = (experiment_session_day_users(user_id = c['id'],
+    #                                     experiment_session_day = i,                                        
+    #             ) for c in subjectInvitations)
+    
+    # batch_size=50
+
+    # counter=0
+
+    # while True:
+    #     batch = list(islice(objs, batch_size))
+
+    #     if not batch:
+    #             break
+
+    #     experiment_session_day_users.objects.bulk_create(batch, batch_size)
+    #     counter+=batch_size
+
+    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
 
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):

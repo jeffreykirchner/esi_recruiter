@@ -19,7 +19,8 @@ class experiments(models.Model):
     registration_cutoff_default = models.IntegerField()
     actual_participants_default = models.IntegerField()
     length_default = models.IntegerField()
-    notes = models.TextField(null=True)          
+    notes = models.TextField(null=True)   
+    showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)        
     
     #default recruitment parameters
     gender_default = models.ManyToManyField(genders)
@@ -75,6 +76,7 @@ class experiments(models.Model):
             "length_default":self.length_default,
             "notes":self.notes,
             "school":self.school.id,
+            "showUpFee":self.showUpFee,
             "school_full":self.school.json(),
             "account_default":self.account_default.id,
             "account_default_full":self.account_default.json(),            

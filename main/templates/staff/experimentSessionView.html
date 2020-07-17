@@ -49,6 +49,7 @@
                     searchText:"",    
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
+                    inviteButtonText:"<i class='fas fa-envelope fa-xs'></i> Invite",
                     searchResultsEmptyText:"",
                     session:{gender:[],
                              subject_type:[],
@@ -242,8 +243,34 @@
                         }
                     },
 
+                    //invite subjects
+                    inviteSubjects: function(){
+                        if(!app.$data.inviteButtonText.includes("Invite")) return;
+
+                        app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"inviteSubjects",    
+                            subjectInvitations:app.$data.subjectInvitations,                                                     
+                        })
+                        .then(function (response) {                                   
+                             
+
+                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                            $('#inviteSubjectsModalCenter').modal('toggle');
+                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";
+                            
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                                                                        
+                        }); 
+                    },
+
                     //find subjects to invite
                     findSubjectsToInvite: function(){
+
+                        if(app.$data.subjectInvitationList.includes('class')) return;
+
                         app.$data.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
                         axios.post('/experimentSession/{{id}}/', {
@@ -933,8 +960,8 @@
                 </div>                            
             </div>
             <div class="modal-footer">                
-                <button type="button" class="btn btn-success" v-on:click = "">
-                    <i class="fas fa-envelope fa-xs"></i> Invite
+                <button v-on:click="inviteSubjects()" type="button" class="btn btn-success">
+                    <span v-html="inviteButtonText"></span>
                 </button>
             </div>
         </div>

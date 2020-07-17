@@ -14,5 +14,8 @@ from .experiments_institutions import *
 from .experiment_sessions import *
 from .experiment_session_days import *
 from .experiment_session_day_users import *
-from .db_migrations import *
 from .parameters import *
+
+#should be last
+from .db_migrations import *   
+

@@ -4,7 +4,10 @@ from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
 from main.forms import parametersForm
+from django.contrib.admin import AdminSite
+from django.utils.translation import ugettext_lazy
 
+admin.site.site_header = 'ESI Recruiter Administration'
 
 # Register your models here.
 from main.models import *

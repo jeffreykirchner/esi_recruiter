@@ -95,7 +95,7 @@ class experimentSessionForm1(forms.ModelForm):
 
     class Meta:
         model = experiment_sessions
-        exclude=['experiment']
+        exclude=['experiment','showUpFee_legacy']
 
     def clean_registration_cutoff(self):
         registration_cutoff = self.data['registration_cutoff']
