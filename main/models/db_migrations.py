@@ -736,17 +736,82 @@ def migrate_session_users2():
                                   COALESCE(confirmed,0),
                                   COALESCE(is_multi_session_invitation,0),
                                   student_id,
-                                  session_id                             
-                            FROM sessions_students 
+                                  session_id                         
+                            FROM sessions_students ss_main
                             WHERE EXISTS(SELECT id 
                                        FROM sessions 
                                        WHERE session_id = id) AND 
-                                EXISTS(SELECT id 
+                                  EXISTS(SELECT id 
                                        FROM students 
-                                       WHERE student_id = id)
+                                       WHERE student_id = id) AND
+                                  NOT EXISTS(SELECT id as this_id,
+                                                    student_id,
+                                                    session_id
+                                        FROM sessions_students ss_local
+                                        WHERE ss_local.id != ss_main.id AND
+                                              ss_local.student_id = ss_main.student_id AND
+                                              ss_local.session_id = ss_main.session_id)                                                 
                                        ''')        
 
         experiment_session_day_users.objects.all().delete()                                 
+
+        objs = (experiment_session_day_users(show_up_fee=c[0],
+                                                earnings=c[1],                                               
+                                                attended=c[2],
+                                                bumped=c[3],                                                
+                                                confirmed=c[4],                                         
+                                                multi_day_legacy = c[5],
+                                                user_id=c[6],
+                                                experiment_session_legacy_id = c[7]) for c in cursor.fetchall())
+        
+        print("data loaded")
+
+        batch_size=75        
+
+        counter=0
+
+        while True:
+                batch = list(islice(objs, batch_size))
+                if not batch:
+                        break
+                experiment_session_day_users.objects.bulk_create(batch,batch_size)
+
+                counter+=batch_size
+                print(counter)
+
+def migrate_session_users4():
+        print("handle duplicate sessions day users")
+
+        cursor = connections['old'].cursor()
+        cursor.execute('''
+        SELECT CASE WHEN NOT ontime_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'  
+                                        THEN 0
+                                        ELSE COALESCE(ontime_earnings,0) END,
+                                  CASE WHEN NOT participation_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'
+                                        THEN 0
+                                        ELSE COALESCE(participation_earnings,0) END,                                  
+                                  COALESCE(attended,0),
+                                  COALESCE(bumped,0),                                  
+                                  COALESCE(confirmed,0),
+                                  COALESCE(is_multi_session_invitation,0),
+                                  student_id,
+                                  session_id                         
+                            FROM sessions_students ss_main
+                            WHERE EXISTS(SELECT id 
+                                       FROM sessions 
+                                       WHERE session_id = id) AND 
+                                  EXISTS(SELECT id 
+                                       FROM students 
+                                       WHERE student_id = id) AND
+                                  EXISTS(SELECT id as this_id,
+                                                    student_id,
+                                                    session_id
+                                        FROM sessions_students ss_local
+                                        WHERE ss_local.id != ss_main.id AND
+                                              ss_local.student_id = ss_main.student_id AND
+                                              ss_local.session_id = ss_main.session_id)  AND
+                                  (ontime_earnings > 0 OR participation_earnings > 0)                                                
+                                       ''')                                       
 
         objs = (experiment_session_day_users(show_up_fee=c[0],
                                                 earnings=c[1],                                               

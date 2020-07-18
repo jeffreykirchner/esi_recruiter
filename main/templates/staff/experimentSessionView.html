@@ -254,11 +254,25 @@
                             subjectInvitations:app.$data.subjectInvitations,                                                     
                         })
                         .then(function (response) {                                   
-                             
 
-                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                            $('#inviteSubjectsModalCenter').modal('toggle');
-                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";
+                            status = response.data.status
+                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;
+                            app.$data.subjectInvitations = [];                    
+                            app.$data.subjectInvitationCount = 0;               
+                            app.$data.subjectInvitationList = ""; 
+
+                            if(status != 'success')
+                            {
+                                u = response.data.user;
+                                app.$data.subjectInvitationList = 'Failed to add user: ';
+                                app.$data.subjectInvitationList += '<a href = "/userInfo/' + u.id + '" target="_blank" >'; 
+                                app.$data.subjectInvitationList += u.last_name + ", " + u.first_name + "</a>"
+                            }                             
+                            else
+                            {                                                   
+                                $('#inviteSubjectsModalCenter').modal('toggle');                                
+                            }        
+                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                   
                             
                         })
                         .catch(function (error) {

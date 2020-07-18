@@ -8,7 +8,8 @@ from main.models import experiment_session_days, \
                         experiment_session_day_users, \
                         experiment_sessions, \
                         institutions, \
-                        experiments
+                        experiments, \
+                        parameters
 from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -22,6 +23,9 @@ import datetime
 from django.db.models import prefetch_related_objects
 from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db import IntegrityError
+from django.conf import settings
+from django.core.mail import send_mass_mail
 
 #induvidual experiment view
 @login_required
@@ -81,8 +85,31 @@ def inviteSubjects(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
+    status = "success"
+    userFails = []
+    userSuccesses = []
+
+    #add users to session
     for i in subjectInvitations:
-        es.addUser(i['id'])
+        try:
+            es.addUser(i['id'])
+            userSuccesses.append(i)
+        except IntegrityError:
+            userFails.append(i)
+            status = "fail"
+    
+    #send emails
+    p = parameters.objects.get(id=1)
+    message = p.invitationText
+    message_list = []
+    from_email = settings.EMAIL_HOST_USER
+    subject = "Chapman ESI Experiment Invitation"
+
+    message_list = [(subject, message,from_email, i['email']) for i in userSuccesses]
+
+    logger.info(message_list)
+
+    emailCount = send_mass_mail(message_list, fail_silently=False)
 
     es.save()
 
@@ -104,7 +131,7 @@ def inviteSubjects(data,id):
     #     experiment_session_day_users.objects.bulk_create(batch, batch_size)
     #     counter+=batch_size
 
-    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+    return JsonResponse({"status":status,"user":i,"es_min":es.json_esd()}, safe=False)
 
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):

@@ -29,6 +29,9 @@ class experiment_session_day_users(models.Model):
         return "ID:" + str(self.id)
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'experiment_session_day'], name='unique_ESDU')
+        ]        
         verbose_name = 'Experiment Session Day Users'
         verbose_name_plural = 'Experiment Session Day Users'
     
