@@ -101,12 +101,14 @@ def inviteSubjects(data,id):
     #send emails
     p = parameters.objects.get(id=1)
     message = p.invitationText
-    message_list = []
+    message_list = ()
     from_email = settings.EMAIL_HOST_USER
     subject = "Chapman ESI Experiment Invitation"
 
-    message_list = [(subject, message,from_email, i['email']) for i in userSuccesses]
+    for i in userSuccesses:
+        message_list += ((subject, message,from_email,[i['email']]),)
 
+    #message_list = ((subject, "test",from_email, "asdf@asdf.com"),(subject, "test",from_email, "asdf@asdf.com"))
     logger.info(message_list)
 
     emailCount = send_mass_mail(message_list, fail_silently=False)
