@@ -51,7 +51,25 @@ class experiment_sessions(models.Model):
     #add new user to session
     def addUser(self,userID):
         for esd in self.ESD.all():
-            esd.addUser(userID)        
+            esd.addUser(userID)  
+
+    #get a string of sessions day dates
+    def getSessionDayDateString(self):
+        tempS = ""
+
+        for i in self.ESD.all():
+            if tempS != "":
+                tempS += ", "
+        
+            tempS += i.getDateString()
+        
+        return tempS
+
+    #get a string of sessions day lengths
+    def getSessionDayLengthString(self):
+        tempS = ""
+
+        return tempS      
     
     def setupRecruitment(self):
         #setup this session with defualt parameters from related experiment

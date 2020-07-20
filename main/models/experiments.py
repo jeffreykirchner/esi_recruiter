@@ -54,6 +54,9 @@ class experiments(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
     
+    def getShowUpFeeString(self):
+        return f'{self.showUpFee:0.2f}'
+
     def json_min(self):
         return{
             "id":self.id,
@@ -103,6 +106,7 @@ class experiments(models.Model):
             "experiments_include_all_default":1 if self.experiments_include_all_default else 0,
             "allow_multiple_participations_default":1 if self.allow_multiple_participations_default else 0,
         }
+
 
 #proxy model returns link to experiemnts
 class hrefExperiments(experiments): 

@@ -101,12 +101,18 @@ def inviteSubjects(data,id):
     #send emails
     p = parameters.objects.get(id=1)
     message = p.invitationText
+    message = message.replace("[confirmation link]","http://www.google.com/")
+    message = message.replace("[session length]",es.getSessionDayLengthString())
+    message = message.replace("[session date and time]",es.getSessionDayDateString())
+    message = message.replace("[on time bonus]","$" + es.experiment.getShowUpFeeString())
+
     message_list = ()
     from_email = settings.EMAIL_HOST_USER
     subject = "Chapman ESI Experiment Invitation"
 
     for i in userSuccesses:
-        message_list += ((subject, message,from_email,[i['email']]),)
+        #message_list += ((subject, message,from_email,[i['email']]),)
+        message_list += ((subject, message,from_email,["jkirchner@gmail.com"]),)
 
     #message_list = ((subject, "test",from_email, "asdf@asdf.com"),(subject, "test",from_email, "asdf@asdf.com"))
     logger.info(message_list)

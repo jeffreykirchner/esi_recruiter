@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from . import experiment_sessions,locations,accounts
 import main
 
+from pytz import timezone
+
 
 #one day of a session
 class experiment_session_days(models.Model):
@@ -81,6 +83,10 @@ class experiment_session_days(models.Model):
 
         return True  
 
+    def getDateString(self):
+        return  self.date.astimezone(timezone('US/Pacific')).strftime("%#m/%#d/%Y %#I:%M %p")
+
+
     def json_min(self):
         return{
             "id":self.id,
@@ -94,7 +100,7 @@ class experiment_session_days(models.Model):
         return{
             "id":self.id,
             "location":self.location.id,
-            "date":self.date.strftime("%#m/%#d/%Y %#I:%M %p"),
+            "date":self.getDateString(),
             "date_raw":self.date,
             "length":self.length,
             "account":self.account.id,
@@ -105,7 +111,7 @@ class experiment_session_days(models.Model):
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "unConfirmedCount": self.experiment_session_day_users_set.filter(confirmed=False).count(),          
         }
-
+        
     def json_unconfirmed(self):
         return{
             "experiment_session_days_user_unconfirmed" : [i.json_min() for i in self.experiment_session_day_users_set.all() \

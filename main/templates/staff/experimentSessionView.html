@@ -298,11 +298,13 @@
                             var l = app.$data.subjectInvitations.length
 
                             for (var i = 0; i < l; i++) {
-                                
-                                if(i  >0 && i != l-1)
-                                    s += ", ";
-                                else if(i == l-1)
-                                    s += " and ";                                    
+                                if (l > 1)
+                                {
+                                    if(i  > 0 && i != l-1)
+                                        s += ", ";
+                                    else if(i == l-1)
+                                        s += " and "; 
+                                }                                                                  
 
                                 s += '<a href = "/userInfo/' + app.$data.subjectInvitations[i].id + '" target="_blank" >';
                                 s += app.$data.subjectInvitations[i].first_name + " ";
@@ -473,7 +475,13 @@
                     },
 
                     //fire when hide invite subjects  model, cancel action if nessicary
-                    hideInviteSubjects:function(){                        
+                    hideInviteSubjects:function(){   
+
+                        app.$data.subjectInvitations = [];                    
+                        app.$data.subjectInvitationCount = 0;               
+                        app.$data.subjectInvitationList = "";    
+                        
+                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";
                     },
 
                     // fire when invite subjects subjects model is shown
@@ -649,6 +657,7 @@
                     $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
                     $('#subjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
                     $('#id_date').on("dp.hide",this.mainFormChange2);
+                    $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
                 },                 
         
             });
