@@ -26,6 +26,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
 from django.conf import settings
 from django.core.mail import send_mass_mail
+from smtplib import SMTPException
 
 #induvidual experiment view
 @login_required
@@ -85,6 +86,9 @@ def inviteSubjects(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
+    if len(subjectInvitations) == 0 :
+         return JsonResponse({"status":"fail","emailCount":0,"user":[],"es_min":es.json_esd()}, safe=False)
+    
     status = "success"
     userFails = []
     userSuccesses = []
@@ -99,6 +103,21 @@ def inviteSubjects(data,id):
             status = "fail"
     
     #send emails
+    mailResult = sendSessionInvitations(userSuccesses,id)
+
+    if(mailResult["errorMessage"] != ""):
+        status = "fail"
+
+    es.save()
+
+    return JsonResponse({"status":status,"mailResult":mailResult,"userFails":userFails,"es_min":es.json_esd()}, safe=False)
+
+def sendSessionInvitations(subjectList,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Send session invitations")
+
+    es = experiment_sessions.objects.get(id=id)
+
     p = parameters.objects.get(id=1)
     message = p.invitationText
     message = message.replace("[confirmation link]","http://www.google.com/")
@@ -110,37 +129,21 @@ def inviteSubjects(data,id):
     from_email = settings.EMAIL_HOST_USER
     subject = "Chapman ESI Experiment Invitation"
 
-    for i in userSuccesses:
-        #message_list += ((subject, message,from_email,[i['email']]),)
-        message_list += ((subject, message,from_email,["jkirchner@gmail.com"]),)
+    for i in subjectList:
+        message_list += ((subject, message,from_email,[i['email']]),)
+        #message_list += ((subject, message,from_email,["jkirchner@gmail.com"]),)   #use for test emails
 
-    #message_list = ((subject, "test",from_email, "asdf@asdf.com"),(subject, "test",from_email, "asdf@asdf.com"))
     logger.info(message_list)
 
-    emailCount = send_mass_mail(message_list, fail_silently=False)
+    errorMessage = ""
+    mailCount=0
+    try:
+        mailCount = send_mass_mail(message_list, fail_silently=False)
+    except SMTPException as e:
+        logger.info('There was an error sending email: ' + str(e)) 
+        errorMessage = str(e)
 
-    es.save()
-
-    # for i in es.ESD.all():
-    #     objs = (experiment_session_day_users(user_id = c['id'],
-    #                                     experiment_session_day = i,                                        
-    #             ) for c in subjectInvitations)
-    
-    # batch_size=50
-
-    # counter=0
-
-    # while True:
-    #     batch = list(islice(objs, batch_size))
-
-    #     if not batch:
-    #             break
-
-    #     experiment_session_day_users.objects.bulk_create(batch, batch_size)
-    #     counter+=batch_size
-
-    return JsonResponse({"status":status,"user":i,"es_min":es.json_esd()}, safe=False)
-
+    return {"mailCount":mailCount,"errorMessage":errorMessage}
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):
     logger = logging.getLogger(__name__)
@@ -209,20 +212,27 @@ def getManuallyAddSubject(data,id):
     logger.info("Manually add subject")
     logger.info(data)
 
-    userID = int(data["userID"])
+    u = data["user"]
+
+    status = "success"
 
     #check the subject not already in session
-    esdu = experiment_session_day_users.objects.filter(user__id = userID,
+    esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
                                                            experiment_session_day__experiment_session__id = id) \
                                                    .exists()
 
     es = experiment_sessions.objects.get(id=id)
 
-    if not esdu:
-       es.addUser(userID)
-       es.save()
+    mailResult = {}
 
-    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+    if not esdu:
+       es.addUser(u["id"])
+       es.save()
+       mailResult = sendSessionInvitations([u],id)
+    else:
+        status = "fail"    
+
+    return JsonResponse({"status":status,"mailResult":mailResult,"user":u,"es_min":es.json_esd()}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):

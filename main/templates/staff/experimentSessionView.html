@@ -46,7 +46,8 @@
                     loading: true,   
                     message: null,       
                     searchResults:[],
-                    searchText:"",    
+                    searchText:"",
+                    searchAddResult:"",    
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
                     inviteButtonText:"<i class='fas fa-envelope fa-xs'></i> Invite",
@@ -263,16 +264,28 @@
 
                             if(status != 'success')
                             {
-                                u = response.data.user;
-                                app.$data.subjectInvitationList = 'Failed to add user: ';
-                                app.$data.subjectInvitationList += '<a href = "/userInfo/' + u.id + '" target="_blank" >'; 
-                                app.$data.subjectInvitationList += u.last_name + ", " + u.first_name + "</a>"
+                                userFails = response.data.userFails;
+
+                                for (var i = 0; i < userFails.length; i++)
+                                {
+                                    app.$data.subjectInvitationList += 'Failed to add user to session: ';
+                                    app.$data.subjectInvitationList += '<a href = "/userInfo/' + userFails[i].id + '" target="_blank" >'; 
+                                    app.$data.subjectInvitationList += userFails[i].last_name + ", " + userFails[i].first_name + "</a><br>"
+                                }
+                                
+                                if(response.data.mailResult.errorMessage != "")
+                                {
+                                    app.$data.subjectInvitationList += "<br>Email Send Error:<br>"
+                                    app.$data.subjectInvitationList += response.data.mailResult.errorMessage + "<br><br>";
+                                }                                
                             }                             
                             else
-                            {                                                   
-                                $('#inviteSubjectsModalCenter').modal('toggle');                                
-                            }        
-                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                   
+                            {      
+                                                                            
+                                //$('#inviteSubjectsModalCenter').modal('toggle');                                
+                            }      
+                            app.$data.subjectInvitationList +=  response.data.mailResult.mailCount + " invitations sent.";  
+                            app.$data.inviteButtonText="";                   
                             
                         })
                         .catch(function (error) {
@@ -312,13 +325,20 @@
                                 s += "</a>";
                             }
 
-                            app.$data.subjectInvitationList = s;                             
+                            app.$data.subjectInvitationList = s;  
+                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                           
                             //app.updateDisplayLists();
                         })
                         .catch(function (error) {
                             console.log(error);                                                                                        
                         }); 
                     },
+
+                    //clear subjects to invite
+                    clearSubjectsToInvite: function(){
+                        app.$data.subjectInvitationList ="";
+                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite"; 
+                        },
 
                     //cancel a session day (not in use)
                     cancelSessionDay: function(id){                        
@@ -485,13 +505,17 @@
                     },
 
                     // fire when invite subjects subjects model is shown
-                    showManuallyAddSubjects:function(id){                        
+                    showManuallyAddSubjects:function(id){    
+                        app.$data.searchAddResult="";   
+                        app.$data.searchResults=[];
+                        app.$data.searchText=""; 
+                        app.$data.searchAddResult = "";          
                         $('#manuallyAddSubjectsModalCenter').modal('show');
                         // app.clearMainFormErrors();
                     },
 
                     //fire when hide invite subjects  model, cancel action if nessicary
-                    hideManuallyAddSubjects:function(){                        
+                    hideManuallyAddSubjects:function(){                     
                     },
 
                     //remove subject from a sesssion day
@@ -604,19 +628,42 @@
                     },
 
                     //manually add subject to sessoin
-                    manuallyAddSubject: function(id){
+                    manuallyAddSubject: function(u){
 
-                        $( '#manualAdd' + id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+                        $( '#manualAdd' + u.id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
                         axios.post('/experimentSession/{{id}}/', {
                             status:"manuallyAddSubject",   
-                            userID:id,                                                                                                                         
+                            user:u,                                                                                                                         
                         })
                         .then(function (response) {
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                            $('#manuallyAddSubjectsModalCenter').modal('toggle');
+                            //$('#manuallyAddSubjectsModalCenter').modal('toggle');
                             app.$data.searchResults=[];
-                            app.$data.searchText="";                                                         
+                            app.$data.searchText="";   
+                            app.$data.searchAddResult = "";
+
+                            status = response.data.status
+                            
+                            if(status != 'success')
+                            {
+                                user = response.data.user;
+                                
+                                app.$data.searchAddResult = 'Failed to add user to session: ';
+                                app.$data.searchAddResult += '<a href = "/userInfo/' + user.id + '" target="_blank" >'; 
+                                app.$data.searchAddResult += user[i].last_name + ", " + user.first_name + "</a><br>"
+                                                                                             
+                            }
+                            else if(response.data.mailResult.errorMessage != "")
+                            {
+                                app.$data.searchAddResult += "<br>Email Send Error:<br>"
+                                app.$data.searchAddResult += response.data.mailResult.errorMessage + "<br><br>";
+                            }                            
+                            else
+                            {                                               
+                                app.$data.searchAddResult = "Invitation sent.";                                 
+                            }      
+                            
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -921,10 +968,10 @@
                                     </td>                               
                                     <td style="text-align: center;">
                                         <div v-if="u.alreadyIn == 1">
-                                            <div v-if="u.valid == 0" style="text-align: center;color: red;">Aready Added</div>
+                                            <div style="text-align: center;color: red;">Aready Added</div>
                                         </div>
                                         <div v-else>
-                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u.id)">
+                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u)">
                                                 Add <i class="fas fa-plus-square fa-xs"></i>  
                                             </button>   
                                             <div v-if="u.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
@@ -935,6 +982,8 @@
                             </tbody>                                                                      
                             
                         </table>
+                        <div v-html = "searchAddResult">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -967,7 +1016,7 @@
                                 <input v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
                                     <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find</button>
-                                    <button class="btn btn-outline-primary" type="button">Clear</button>
+                                    <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear</button>
                                 </div>
                             </div>
                         </form>

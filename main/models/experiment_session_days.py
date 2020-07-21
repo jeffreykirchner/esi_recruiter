@@ -7,7 +7,7 @@ from django.db.models import F
 
 from django.contrib.auth.models import User
 
-from . import experiment_sessions,locations,accounts
+from . import experiment_sessions,locations,accounts,parameters
 import main
 
 from pytz import timezone
@@ -52,7 +52,7 @@ class experiment_session_days(models.Model):
 
         esdu.save()
 
-    #sets up session day with defualt paraemeters
+    #sets up session day with defualt parameters
     def setup(self,es,u_list):
         self.experiment_session=es
         self.location = locations.objects.first()
@@ -84,7 +84,8 @@ class experiment_session_days(models.Model):
         return True  
 
     def getDateString(self):
-        return  self.date.astimezone(timezone('US/Pacific')).strftime("%#m/%#d/%Y %#I:%M %p")
+        p = parameters.parameters.objects.get(id=1)
+        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
 
     def json_min(self):
