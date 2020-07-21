@@ -8,6 +8,8 @@ class parameters(models.Model):
     labManager = models.ForeignKey(User,on_delete=models.CASCADE,null=True) 
     invitationText = models.CharField(max_length = 10000)
     consentForm = models.CharField(max_length = 50000)
+    subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")
+    defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
