@@ -57,9 +57,15 @@ class experiment_sessions(models.Model):
     def getSessionDayDateString(self):
         tempS = ""
 
-        for i in self.ESD.all():
+        ESD_list = list(self.ESD.all().order_by("date"))
+        ESD_list_length=len(ESD_list)
+
+        for i in ESD_list:
             if tempS != "":
-                tempS += ", "
+                if ESD_list.index(i) == ESD_list_length-1:
+                     tempS += " and "
+                else:
+                    tempS += ", "
         
             tempS += i.getDateString()
         
@@ -68,6 +74,18 @@ class experiment_sessions(models.Model):
     #get a string of sessions day lengths
     def getSessionDayLengthString(self):
         tempS = ""
+
+        ESD_list = list(self.ESD.all().order_by("date"))
+        ESD_list_length=len(ESD_list)
+
+        for i in ESD_list:
+            if tempS != "":
+                if ESD_list.index(i) == ESD_list_length-1:
+                     tempS += " and "
+                else:
+                    tempS += ", "
+        
+            tempS += i.getLengthString()
 
         return tempS      
     

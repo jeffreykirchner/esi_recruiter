@@ -595,6 +595,8 @@
                         if(app.$data.findButtonText != "Find") return;
                         if(app.$data.searchText == "") return;
 
+                        app.$data.searchAddResult = "";
+
                         app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                         axios.post('/experimentSession/{{id}}/', {
                             status:"searchForSubject",   
@@ -651,7 +653,7 @@
                                 
                                 app.$data.searchAddResult = 'Failed to add user to session: ';
                                 app.$data.searchAddResult += '<a href = "/userInfo/' + user.id + '" target="_blank" >'; 
-                                app.$data.searchAddResult += user[i].last_name + ", " + user.first_name + "</a><br>"
+                                app.$data.searchAddResult += user.last_name + ", " + user.first_name + "</a><br>"
                                                                                              
                             }
                             else if(response.data.mailResult.errorMessage != "")

@@ -118,8 +118,8 @@ def sendSessionInvitations(subjectList,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    p = parameters.objects.get(id=1)
-    message = p.invitationText
+    #p = parameters.objects.get(id=1)
+    message = es.experiment.invitationText
     message = message.replace("[confirmation link]","http://www.google.com/")
     message = message.replace("[session length]",es.getSessionDayLengthString())
     message = message.replace("[session date and time]",es.getSessionDayDateString())

@@ -6,10 +6,13 @@ from django.contrib.auth.models import User
 #gloabal parameters for site
 class parameters(models.Model):
     labManager = models.ForeignKey(User,on_delete=models.CASCADE,null=True) 
-    invitationText = models.CharField(max_length = 10000)
-    consentForm = models.CharField(max_length = 50000)
     subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")
     defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)
+    invitationText = models.CharField(max_length = 10000,default = "")
+    invitationTextMultiDay = models.CharField(max_length = 10000,default = "")
+    consentForm = models.CharField(max_length = 50000,default ="")
+    
+   
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -23,5 +26,10 @@ class parameters(models.Model):
     
     def json(self):
         return{
-            "id":self.id,
+            "labManager":self.labManager.last_name + ", " + self.labManager.first_name,
+            "subjectTimeZone":self.subjectTimeZone,
+            "defaultShowUpFee":str(self.defaultShowUpFee),
+            "invitationText":self.invitationText,
+            "invitationTextMultiDay":self.invitationTextMultiDay,
+            "consentForm":self.consentForm,
         }

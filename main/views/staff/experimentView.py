@@ -11,7 +11,8 @@ from main.models import experiments, \
                         accounts, \
                         schools, \
                         institutions, \
-                        genders
+                        genders, \
+                        parameters
 from main.forms import experimentForm1,experimentForm2
 from django.http import JsonResponse
 from django.core import serializers
@@ -43,13 +44,12 @@ def experimentView(request,id):
         
         if data["status"] == "get":
 
-            # i_json = []
-            #e_json = e.json()
-
-            # for i in institutions.objects.all():
-            #     i_json.append(i.json())
+            p = parameters.objects.get(id=1)
             
-            return JsonResponse({"experiment" :  e.json(),"sessions":e.json_sessions()}, safe=False)
+            return JsonResponse({"experiment" :  e.json(),
+                                 "sessions" : e.json_sessions(),
+                                 "parameters" : p.json()}, safe=False)
+
         elif data["status"] == "update1":
 
             #print("Form Data:")

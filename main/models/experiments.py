@@ -20,7 +20,8 @@ class experiments(models.Model):
     actual_participants_default = models.IntegerField()
     length_default = models.IntegerField()
     notes = models.TextField(null=True)   
-    showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)        
+    showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
+    invitationText = models.CharField(max_length = 10000,default = "")        
     
     #default recruitment parameters
     gender_default = models.ManyToManyField(genders)
@@ -78,6 +79,7 @@ class experiments(models.Model):
             "actual_participants_default":self.actual_participants_default,
             "length_default":self.length_default,
             "notes":self.notes,
+            "invitationText":self.invitationText,
             "school":self.school.id,
             "showUpFee":self.showUpFee,
             "school_full":self.school.json(),

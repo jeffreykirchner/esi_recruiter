@@ -60,7 +60,7 @@ class experiment_session_days(models.Model):
         self.actual_participants = es.experiment.actual_participants_default
         self.length=es.experiment.length_default
         self.account = es.experiment.account_default    
-        self.date = datetime.now(timezone.utc)
+        self.date = datetime.now()
 
         self.save()
 
@@ -86,6 +86,10 @@ class experiment_session_days(models.Model):
     def getDateString(self):
         p = parameters.parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+
+    def getLengthString(self):
+       
+        return str(self.length) + " minutes"
 
 
     def json_min(self):

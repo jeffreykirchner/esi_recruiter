@@ -36,9 +36,11 @@
                                 experiments_include_default:[],
                                 account_default_full:{str:""},
                                 title:'',
+                                invitationText:'',
                                 school_full:{name:""},
                                 department_default_full:{name:""}},
-                    sessions:{},                            
+                    sessions:{},  
+                    parameters:{},                          
                     institutions_list:"",
                     include_institutions_list:"",
                     exclude_institutions_list:"",
@@ -62,6 +64,7 @@
                         }
                     },
 
+                    //update recruitment display lists
                     updateDisplayLists:function(errors){
                         var e = app.$data.experiment;
 
@@ -75,6 +78,7 @@
                         app.$data.experiment.showUpFee =  parseFloat(app.$data.experiment.showUpFee).toFixed(2); 
                     },
 
+                    //update recruitment display lists
                     updateDisplayLists2:function(list){
                         str="";
 
@@ -87,6 +91,7 @@
                         return str;
                     },
 
+                    //get experiment info from server
                     getExperiment: function(){
                         axios.post('/experiment/{{id}}/', {
                                 status:"get",                                                              
@@ -94,7 +99,8 @@
                             .then(function (response) {                                   
                                 // app.$data.institutions= response.data.institutions; 
                                 app.$data.experiment =  response.data.experiment;     
-                                app.$data.sessions = response.data.sessions.experiment_sessions;                                                     
+                                app.$data.sessions = response.data.sessions.experiment_sessions;      
+                                app.$data.parameters = response.data.parameters;                                          
                                 app.$data.loading=false; 
                                 app.updateDisplayLists();
                             })
@@ -104,6 +110,7 @@
                             });                        
                     },
 
+                    //display form errors
                     displayErrors:function(errors){
                         for(var e in errors)
                         {
@@ -120,6 +127,7 @@
                         }
                     },                   
 
+                    //update experiment parameters
                     updateExperiment1: function(){
 
                         app.$data.cancelModal=false;  
@@ -154,6 +162,7 @@
                             });                        
                     },
 
+                    //update recruitment parameters
                     updateExperiment2: function(){   
 
                         app.$data.cancelModal=false;
@@ -187,6 +196,7 @@
                             });                        
                     },
 
+                    //add new session to experiment
                     addSession: function(){
                         axios.post('/experiment/{{id}}/', {
                                 status :"add" ,                                                                                                                              
@@ -202,6 +212,7 @@
                             });
                     },
 
+                    //remove session from experiment
                     removeSession: function(sid){
                         if(confirm("Delete session?")){
                             axios.post('/experiment/{{id}}/', {
@@ -219,6 +230,7 @@
                         }
                     },
 
+                    //format date to human readable
                     formatDate: function(value){
                         if (value) {
                             //return value;
@@ -230,6 +242,7 @@
                         }
                     },
 
+                    //check if date is today
                     checkToday: function(value1){
                         if(moment(value1).format("YYYY/MM/DD")== moment().format("YYYY/MM/DD"))
                         {
@@ -242,10 +255,12 @@
                         
                     },
 
+                    //put * notification on update button on change
                     mainFormChange1:function(){
                         app.$data.buttonText1="Update *";
                     },
 
+                    //put * notification on update button on change
                     mainFormChange2:function(){
                         app.$data.buttonText2="Update *";
                     },                   
@@ -280,10 +295,19 @@
                         if(app.$data.cancelModal)
                         {
                             Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
-                            app.$data.experimentBeforeEdit=null;
+                            app.$data.experiment.experimentBeforeEdit=null;
                         }
                     },
                     
+                    //fill parameters with default single day
+                    fillWithSingleDayInvitation:function(){
+                       app.$data.experiment.invitationText = app.$data.parameters.invitationText;
+                    },
+
+                    //fill parameters with default single day
+                    fillWithMultiDayInvitation:function(){
+                        app.$data.experiment.invitationText = app.$data.parameters.invitationTextMultiDay;
+                    },
                 },
         
                 mounted: function(){
@@ -380,6 +404,14 @@
                     </div>
                     <div class="col col-md-8">                        
                         <textarea class="form-control" rows="5" v-model="experiment.notes" readonly="true"></textarea>
+                    </div>               
+                </div>
+                <div class = "row row mt-2">
+                    <div class="col col-md-4 text-right">
+                        {{form1.invitationText.label}}:
+                    </div>
+                    <div class="col col-md-8">                        
+                        <textarea class="form-control" rows="5" v-model="experiment.invitationText" readonly="true"></textarea>
                     </div>               
                 </div>
                 <div class = "row mt-2">
@@ -604,7 +636,18 @@
                                  {{form1.institution | as_crispy_field }} 
                             </div>                                                                                                              
                         </div>            
-                    </div>                                                                     
+                    </div> 
+                    <div class="row mt-3">
+                        <div class = "col" >                         
+                            {{form1.invitationText | as_crispy_field }}
+                            <button type="button" class="btn btn-primary" v-on:click = "fillWithSingleDayInvitation()">
+                               Single Day Default Invitation <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-primary" v-on:click = "fillWithMultiDayInvitation()">
+                                Multi-Day Default Invitation <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                            </button>
+                        </div>                                    
+                    </div>                                                                    
                 </form>  <!-- main form -->                                                   
             </div>
             <div class="modal-footer">                

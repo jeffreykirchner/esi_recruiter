@@ -16,8 +16,11 @@ class parametersForm(forms.ModelForm):
     defaultShowUpFee = forms.CharField(label='Default Show-up Fee ($)',
                                        widget=forms.NumberInput(attrs={}))
 
-    invitationText = forms.CharField(label='Default Recruitment Email',
-                                     widget=forms.Textarea(attrs={"rows":"10", "cols":"125"}))
+    invitationText = forms.CharField(label='Default Recruitment Email, Single Day',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+
+    invitationTextMultiDay = forms.CharField(label='Default Recruitment Email, Multiple Days',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
                                      widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))
