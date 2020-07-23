@@ -66,6 +66,8 @@ def experimentSessionView(request,id):
             return changeConfirmationStatus(data,id)     
         elif data["status"] == "inviteSubjects":
             return inviteSubjects(data,id)
+        elif data["status"] == "showUnconfirmedSubjects":
+            return showUnconfirmedSubjects(data,id)         
 
     else: #GET             
 
@@ -77,6 +79,16 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+def showUnconfirmedSubjects(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Show Unconfirmed Subjects")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
+
+#invite subjects based on recruitment parameters
 def inviteSubjects(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Invite subjects")
@@ -87,7 +99,7 @@ def inviteSubjects(data,id):
     es = experiment_sessions.objects.get(id=id)
 
     if len(subjectInvitations) == 0 :
-         return JsonResponse({"status":"fail","emailCount":0,"user":[],"es_min":es.json_esd()}, safe=False)
+         return JsonResponse({"status":"fail","emailCount":0,"user":[],"es_min":es.json_esd(True)}, safe=False)
     
     status = "success"
     userFails = []
@@ -110,8 +122,9 @@ def inviteSubjects(data,id):
 
     es.save()
 
-    return JsonResponse({"status":status,"mailResult":mailResult,"userFails":userFails,"es_min":es.json_esd()}, safe=False)
+    return JsonResponse({"status":status,"mailResult":mailResult,"userFails":userFails,"es_min":es.json_esd(True)}, safe=False)
 
+#send email invititions to join session
 def sendSessionInvitations(subjectList,id):
     logger = logging.getLogger(__name__)
     logger.info("Send session invitations")
@@ -163,7 +176,7 @@ def changeConfirmationStatus(data,id):
     esdu.save()
 
     es = experiment_sessions.objects.get(id=id)
-    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+    return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
 
 #manually search for users to add to session
 def getSearchForSubject(data,id):
@@ -229,7 +242,7 @@ def getManuallyAddSubject(data,id):
     else:
         status = "fail"    
 
-    return JsonResponse({"status":status,"mailResult":mailResult,"user":u,"es_min":es.json_esd()}, safe=False)
+    return JsonResponse({"status":status,"mailResult":mailResult,"user":u,"es_min":es.json_esd(True)}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):
@@ -693,7 +706,7 @@ def removeSubject(data,id):
             i.delete()            
 
     es = experiment_sessions.objects.get(id=id)
-    return JsonResponse({"status":"success","es_min":es.json_esd()}, safe=False)
+    return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
     
 
     

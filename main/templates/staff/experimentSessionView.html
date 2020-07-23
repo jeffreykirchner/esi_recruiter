@@ -52,6 +52,7 @@
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
                     inviteButtonText:"<i class='fas fa-envelope fa-xs'></i> Invite",
+                    showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                     searchResultsEmptyText:"",
                     session:{gender:[],
                              subject_type:[],
@@ -677,6 +678,28 @@
                                         
                     },
 
+                    //show unconfirmed
+                    showUnconfirmedSubjects: function(u){
+
+                        app.$data.showUnconfirmedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"showUnconfirmedSubjects",   
+                                                                                                                                                     
+                        })
+                        .then(function (response) {
+                            app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;                             
+                            app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+                                 
+                            app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });                                       
+                                        
+                        },
+
                     formatDate: function(value){
                         if (value) {        
                             //console.log(value);                    
@@ -1275,8 +1298,8 @@
                             <thead>
                                 <th width="50%">
                                     Name   
-                                    <button id="showUnconfirmed" type="button" class="btn btn-primary btn-sm">
-                                        Show <i class="fa fa-eye fa-xs"></i> 
+                                    <button id="showUnconfirmed" type="button" class="btn btn-primary btn-sm" v-on:click ="showUnconfirmedSubjects()">
+                                        <span v-html="showUnconfirmedButtonText"></span>
                                     </button>                                 
                                 </th>                                                                                   
                                 <th width="50%" style="text-align: center;">

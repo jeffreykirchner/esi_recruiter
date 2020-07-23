@@ -160,9 +160,9 @@ class experiment_sessions(models.Model):
         }
     
     #get session days attached to this session
-    def json_esd(self):
+    def json_esd(self,getUnConfirmed):
         return{          
-            "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "experiment_session_days" : [esd.json(getUnConfirmed) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
         }
 
@@ -175,7 +175,7 @@ class experiment_sessions(models.Model):
             "experiment":self.experiment.id,
             "actual_participants":self.actual_participants,
             "registration_cutoff":self.registration_cutoff,
-            "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             #"experiment_session_days" : [esd.json() for esd in days_list],
             "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],

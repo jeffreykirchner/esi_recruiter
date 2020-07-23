@@ -91,21 +91,47 @@ class experiment_session_days(models.Model):
        
         return str(self.length) + " minutes"
 
-
     def json_min(self):
+        confirmedCount = self.experiment_session_day_users_set.filter(confirmed=True).count()
+        totalCount = self.experiment_session_day_users_set.count()               
+                       
+
         return{
             "id":self.id,
             "date":self.date,
+            "confirmedCount": confirmedCount,
+            "totalCount": totalCount,
         }
 
-    def json(self):
+    def json(self,getUnconfirmed):
+
+        logger = logging.getLogger(__name__)
+        logger.info("Experiment Session Days JSON")
+        logger.info("Get un-confirmed: " + str(getUnconfirmed))
+
         u_list_c = self.experiment_session_day_users_set.\
                        filter(confirmed=True).\
                        select_related('user').\
                        order_by('user__last_name','user__first_name')
 
-        u_list_u = self.experiment_session_day_users_set.filter(confirmed=False)                      
-                       
+        u_list_u = self.experiment_session_day_users_set.\
+                       filter(confirmed=False).\
+                       select_related('user').\
+                       order_by('user__last_name','user__first_name')      
+
+        u_list_u_json =[]
+
+        if getUnconfirmed:  
+                     
+            u_list_u_json = [{"id":i.id,            
+                "confirmed":i.bumped,
+                "user":{"id" : i.user.id,
+                        "first_name":i.user.first_name,   
+                        "last_name":i.user.last_name,},  
+                "allowDelete" : i.allowDelete(),
+                "allowConfirm" : i.allowConfirm(),}
+                    for i in u_list_u]           
+
         return{
             "id":self.id,
             "location":self.location.id,
@@ -124,7 +150,7 @@ class experiment_session_days(models.Model):
                                                         "allowConfirm" : i.allowConfirm(),}
                                                             for i in u_list_c],
 
-            "experiment_session_days_user_unconfirmed" : [],
+            "experiment_session_days_user_unconfirmed" : u_list_u_json,
             "confirmedCount": len(u_list_c),
             "unConfirmedCount": len(u_list_u),          
         }
