@@ -119,11 +119,7 @@ def sendSessionInvitations(subjectList,id):
     es = experiment_sessions.objects.get(id=id)
 
     #p = parameters.objects.get(id=1)
-    message = es.experiment.invitationText
-    message = message.replace("[confirmation link]","http://www.google.com/")
-    message = message.replace("[session length]",es.getSessionDayLengthString())
-    message = message.replace("[session date and time]",es.getSessionDayDateString())
-    message = message.replace("[on time bonus]","$" + es.experiment.getShowUpFeeString())
+    message = es.getInvitationEmail()
 
     message_list = ()
     from_email = settings.EMAIL_HOST_USER
@@ -144,6 +140,7 @@ def sendSessionInvitations(subjectList,id):
         errorMessage = str(e)
 
     return {"mailCount":mailCount,"errorMessage":errorMessage}
+
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):
     logger = logging.getLogger(__name__)
@@ -423,7 +420,7 @@ def getValidUserList(id,u_list):
     #if ee_c > 0 or ei_c > 0:
 
     user_experiments_str = '''
-        --table of users and experiments they have been in	
+        --table of users and experiments they have been in or commited to be in
 	    user_experiments AS (SELECT DISTINCT main_experiments.id as experiments_id,
 										 main_experiment_sessions.id as experiment_sessions_id,
 										 main_experiment_session_day_users.user_id as user_id
@@ -433,7 +430,17 @@ def getValidUserList(id,u_list):
 						 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
 						 WHERE main_experiment_session_day_users.attended = 1 OR
 						      (main_experiment_session_day_users.confirmed = 1 AND main_experiment_session_days.date >  CURRENT_TIMESTAMP)),
-        '''                              
+        '''
+
+    user_current_sesion_str = '''
+        ---table of users that have been invited to the current session
+        user_current_sesion AS (SELECT DISTINCT main_experiment_sessions.id as experiment_sessions_id,
+                                    main_experiment_session_day_users.user_id as user_id
+                            FROM main_experiment_sessions
+                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+                            INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+                            WHERE main_experiment_sessions.id = ''' + str(id) + '''),
+    '''                              
 
     if ii_c > 0 or ie_c > 0:
         user_institutions_str ='''
@@ -479,6 +486,7 @@ def getValidUserList(id,u_list):
         + experiments_exclude_with_str \
         + experiments_include_with_str \
         + user_experiments_str \
+        + user_current_sesion_str\
         +'''
         
         --table of subject types required in session
@@ -519,8 +527,8 @@ def getValidUserList(id,u_list):
 
        --user is not already invited to session     
        NOT EXISTS(SELECT 1
-            FROM user_experiments
-            WHERE user_experiments.experiment_sessions_id = ''' + str(id) + ''' AND user_experiments.user_id = auth_user.id) AND 
+            FROM user_current_sesion
+            WHERE user_current_sesion.user_id = auth_user.id) AND 
 
        '''\
        + experiments_exclude_str \

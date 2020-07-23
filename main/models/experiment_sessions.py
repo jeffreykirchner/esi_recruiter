@@ -48,6 +48,19 @@ class experiment_sessions(models.Model):
         verbose_name = 'Experiment Sessions'
         verbose_name_plural = 'Experiment Sessions'
 
+    #build an invitional email given the experiment session
+    def getInvitationEmail(self):
+       
+        message = ""
+
+        message = self.experiment.invitationText
+        message = message.replace("[confirmation link]","http://www.google.com/")
+        message = message.replace("[session length]",self.getSessionDayLengthString())
+        message = message.replace("[session date and time]",self.getSessionDayDateString())
+        message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
+
+        return message
+
     #add new user to session
     def addUser(self,userID):
         for esd in self.ESD.all():
@@ -88,10 +101,10 @@ class experiment_sessions(models.Model):
             tempS += i.getLengthString()
 
         return tempS      
-    
-    def setupRecruitment(self):
-        #setup this session with defualt parameters from related experiment
 
+    #setup this session with defualt parameters from related experiment
+    def setupRecruitment(self):
+        
         self.actual_participants = self.experiment.actual_participants_default
         self.registration_cutoff = self.experiment.registration_cutoff_default
 
@@ -137,6 +150,7 @@ class experiment_sessions(models.Model):
 
         return True
 
+    #get some of the json object
     def json_min(self):
         return{
             "id":self.id,
@@ -149,15 +163,20 @@ class experiment_sessions(models.Model):
     def json_esd(self):
         return{          
             "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "invitationText" : self.getInvitationEmail(),
         }
 
+    #get full json object
     def json(self):
+        #days_list = self.ESD.order_by("-date").prefetch_related('experiment_session_day_users_set')
+
         return{
             "id":self.id,            
             "experiment":self.experiment.id,
             "actual_participants":self.actual_participants,
             "registration_cutoff":self.registration_cutoff,
             "experiment_session_days" : [esd.json() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            #"experiment_session_days" : [esd.json() for esd in days_list],
             "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],
             "subject_type" : [str(st.id) for st in self.subject_type.all()],
@@ -179,5 +198,6 @@ class experiment_sessions(models.Model):
             "experiments_exclude_all":1 if self.experiments_exclude_all else 0,
             "experiments_include_all":1 if self.experiments_include_all else 0,
             "allow_multiple_participations":1 if self.allow_multiple_participations else 0,
+            "invitationText" : self.getInvitationEmail(),
 
         }

@@ -45,6 +45,7 @@
                     sessionURL:'',   
                     loading: true,   
                     message: null,       
+                    showLoadingSpinner : true,
                     searchResults:[],
                     searchText:"",
                     searchAddResult:"",    
@@ -65,7 +66,8 @@
                              institutions_include_all:0,
                              experiments_exclude_all:0,
                              experiments_include_all:0,
-                             allow_multiple_participations:0},
+                             allow_multiple_participations:0,
+                             invitationText:""},
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
@@ -192,11 +194,12 @@
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"get",                                                              
                             })
-                            .then(function (response) {                                   
+                            .then(function (response) {                                                                   
                                 app.$data.session= response.data.session; 
                                 // app.$data.experiment =  response.data.experiment;                                                            
                                 // app.$data.loading=false; 
                                 app.updateDisplayLists();
+                                app.$data.showLoadingSpinner=false;
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -857,6 +860,7 @@
                                 <th width="35%">
                                     Date 
                                     <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
+                                    <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
                                 <th width="35%">
                                    
@@ -936,8 +940,12 @@
                     </div>
                     <div class = "col col-md-2">
                     </div>
-                </div>               
-                
+                </div>   
+                <div class="row">
+                    <div class = "col">
+                        <textarea  v-model="session.invitationText" id="invitationText1" rows="5" cols="100%" disabled></textarea>
+                    </div>
+                </div>                
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">                            
@@ -1026,7 +1034,12 @@
                     <div class = "col col-md-3">
                     </div>
                 </div>   
-                <hr>
+                <div class="row">
+                    <div class = "col">
+                        <textarea  v-model="session.invitationText" id="invitationText1" rows="5" cols="100%" disabled></textarea>
+                    </div>
+                </div>
+                <hr>                
                 <div class="row">
                     <div class="col">
                         <span v-html="subjectInvitationList"></span>
@@ -1261,7 +1274,10 @@
                             <caption style="caption-side: top;" class="caption text-center">Un-Confirmed ([[currentSessionDay.unConfirmedCount]])</caption>
                             <thead>
                                 <th width="50%">
-                                    Name                                    
+                                    Name   
+                                    <button id="showUnconfirmed" type="button" class="btn btn-primary btn-sm">
+                                        Show <i class="fa fa-eye fa-xs"></i> 
+                                    </button>                                 
                                 </th>                                                                                   
                                 <th width="50%" style="text-align: center;">
                                     Control
@@ -1287,11 +1303,8 @@
                             </tbody>
                         </table> 
                     </div>
-                </div>
+                </div>                   
                     
-                    
-                    
-                   
             </div>
             <!-- <div class="modal-footer">                
                 <button type="button" class="btn btn-primary" v-on:click = "">

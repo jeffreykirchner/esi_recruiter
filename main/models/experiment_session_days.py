@@ -4,6 +4,7 @@ import traceback
 from datetime import datetime
 from django.utils import timezone
 from django.db.models import F
+from django.db.models import Q
 
 from django.contrib.auth.models import User
 
@@ -75,13 +76,12 @@ class experiment_session_days(models.Model):
     #check if this session day can be deleted
     def allowDelete(self):
 
-        ESDU = self.experiment_session_day_users_set.all()    
+        ESDU = self.experiment_session_day_users_set.filter(Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))
 
-        for u in ESDU:
-            if not u.allowDelete():
-                return False
-
-        return True  
+        if len(ESDU) > 0:
+            return False
+        else:
+            return True  
 
     def getDateString(self):
         p = parameters.parameters.objects.get(id=1)
@@ -99,9 +99,13 @@ class experiment_session_days(models.Model):
         }
 
     def json(self):
-        u_list_c = self.experiment_session_day_users_set.filter(confirmed=True).order_by("user__last_name").prefetch_related('user') 
-        u_list_u= self.experiment_session_day_users_set.filter(confirmed=False).order_by("user__last_name").prefetch_related('user')
+        u_list_c = self.experiment_session_day_users_set.\
+                       filter(confirmed=True).\
+                       select_related('user').\
+                       order_by('user__last_name','user__first_name')
 
+        u_list_u = self.experiment_session_day_users_set.filter(confirmed=False)                      
+                       
         return{
             "id":self.id,
             "location":self.location.id,
@@ -111,17 +115,36 @@ class experiment_session_days(models.Model):
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
             "canceled":str(self.canceled),
-            "experiment_session_days_user" : [i.json_min() for i in u_list_c],
-            "experiment_session_days_user_unconfirmed" : [i.json_min() for i in u_list_u],
-            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
-            "unConfirmedCount": self.experiment_session_day_users_set.filter(confirmed=False).count(),          
+            "experiment_session_days_user" : [{"id":i.id,            
+                                                        "confirmed":i.bumped,
+                                                        "user":{"id" : i.user.id,
+                                                                "first_name":i.user.first_name,   
+                                                                "last_name":i.user.last_name,},  
+                                                        "allowDelete" : i.allowDelete(),
+                                                        "allowConfirm" : i.allowConfirm(),}
+                                                            for i in u_list_c],
+
+            "experiment_session_days_user_unconfirmed" : [],
+            "confirmedCount": len(u_list_c),
+            "unConfirmedCount": len(u_list_u),          
         }
         
     def json_unconfirmed(self):
-        return{
-            "experiment_session_days_user_unconfirmed" : [i.json_min() for i in self.experiment_session_day_users_set.all() \
-                                                                                    .annotate(last_name = F('user__last_name')) \
-                                                                                    .order_by("last_name") \
-                                                                                    .filter(confirmed=False)],
-            "unConfirmedCount": self.experiment_session_day_users_set.all().filter(confirmed=False).count(),
+        u_list_u = self.experiment_session_day_users_set.\
+                       filter(confirmed=False).\
+                       select_related('user').\
+                       order_by('user__last_name','user__first_name')
+
+        return{            
+
+            "experiment_session_days_user_unconfirmed" : [{"id":i.id,            
+                                                          "confirmed":i.bumped,
+                                                          "user":{"id" : i.user.id,
+                                                                  "first_name":i.user.first_name,   
+                                                                  "last_name":i.user.last_name,},  
+                                                          "allowDelete" : i.allowDelete(),
+                                                          "allowConfirm" : i.allowConfirm(),}
+                                                             for i in u_list_u],
+
+            "unConfirmedCount": len(u_list_u),
         }
