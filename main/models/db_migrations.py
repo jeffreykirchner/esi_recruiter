@@ -883,11 +883,17 @@ def migrate_parameters():
                 #invitationText = c[0]
                 p.invitationText = c[0]
 
-        
+        cursor = connections['old'].cursor()
+        cursor.execute('''select body from boilerplates where id = 3 limit 1''')
+
+        for c in cursor.fetchall():
+                #invitationText = c[0]
+                p.cancelationText = c[0]             
+
         cursor = connections['old'].cursor()
         cursor.execute('''select value from ui_templates where id = 3 limit 1''')
 
         for c in cursor.fetchall():
                 p.consentForm = c[0]
-        
+ 
         p.save()

@@ -28,14 +28,14 @@ class experimentSessionForm2(forms.ModelForm):
                                        choices=((1,"Yes"),(0,"No")),                                                   
                                        widget = forms.RadioSelect(attrs={"v-model":"currentSessionDay.auto_reminder",
                                                                                 "v-on:change":"mainFormChange2"}))  
-    canceled = forms.TypedChoiceField(label="Cancel Session",   
-                                      choices=((1,"Yes"),(0,"No")),                                                                                
-                                      widget = forms.RadioSelect(attrs={"v-model":"currentSessionDay.canceled",
-                                                                        "v-on:change":"mainFormChange2"}))
+    # canceled = forms.TypedChoiceField(label="Cancel Session",   
+    #                                   choices=((1,"Yes"),(0,"No")),                                                                                
+    #                                   widget = forms.RadioSelect(attrs={"v-model":"currentSessionDay.canceled",
+    #                                                                     "v-on:change":"mainFormChange2"}))
 
     class Meta:
         model = experiment_session_days
-        exclude=['experiment_session','showUpFee_legacy']
+        exclude=['experiment_session','showUpFee_legacy','canceled']
     
     #convert to date to utc time zone
     def clean_date(self):

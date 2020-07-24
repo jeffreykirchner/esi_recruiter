@@ -21,6 +21,9 @@ class parametersForm(forms.ModelForm):
 
     invitationTextMultiDay = forms.CharField(label='Default Recruitment Email, Multiple Days',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+
+    cancelationText = forms.CharField(label='Cancelation Email',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
                                      widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))

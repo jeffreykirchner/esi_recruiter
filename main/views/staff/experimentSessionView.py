@@ -79,6 +79,17 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+#cancel session
+def cancelSession(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Cancel Session")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    return JsonResponse({"status":"success","es_min":es.json_esd(False)}, safe=False)
+
+#show unconfirmed subjects
 def showUnconfirmedSubjects(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Show Unconfirmed Subjects")
@@ -670,11 +681,7 @@ def updateSessionDay(data,id):
     for field in data["formData"]:           
         form_data_dict[field["name"]] = field["value"]
 
-
-
     form = experimentSessionForm2(form_data_dict,instance=esd)   
-
-    logger.info("here")
 
     if form.is_valid():
         esd.save()

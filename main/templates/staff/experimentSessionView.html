@@ -345,10 +345,10 @@
                         },
 
                     //cancel a session day (not in use)
-                    cancelSessionDay: function(id){                        
+                    cancelSessionDay: function(){                        
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"cancelSessionDay",   
-                                id:id,                                                           
+                                //id:id,                                                           
                             })
                             .then(function (response) {                                   
                                 //app.$data.session= response.data.session;                                 
@@ -690,7 +690,7 @@
                         .then(function (response) {
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;                             
                             app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
-                                 
+
                             app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
                         })
                         .catch(function (error) {
@@ -868,6 +868,7 @@
                     <div class="col col-md-8">                        
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
+                        <button class="btn btn-danger btn-sm" type="button" v-on:click = "cancelSessionDay()">Cancel Session <i class="fa fa-ban fa-xs"></i></button>
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -885,8 +886,8 @@
                                     <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
-                                <th width="35%">
-                                   
+                                <th width="35%" style="text-align: center;">
+                                    Confirmed/Invited
                                 </th>                                                      
                                 <th width="30%" style="text-align: center;">
                                     Control
@@ -895,11 +896,11 @@
                             <tbody id="sessionList">                       
                                 <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
                                     <td>
-                                        <span v-html="formatDate(sd.date_raw)"></span>                                       
+                                        <span v-html="formatDate(sd.date_raw)"></span>
+                                        <span v-if="checkToday(sd.date_raw)"> (Today)</span>                                       
                                     </td>
                                     <td style="text-align: center;">                                        
-                                        <div v-if="checkToday(sd.date_raw)">Today</div>
-                                        <div v-else></div>                                        
+                                        <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                
                                     </td>                               
                                     <td style="text-align: center;">                                       
                                               
@@ -1215,9 +1216,7 @@
                             <div class = "col"> 
                                 {{form2.auto_reminder | as_crispy_field }}  
                             </div>
-                            <div class = "col"> 
-                                {{form2.canceled | as_crispy_field }}  
-                            </div>
+
                         </div>
                     </form> <!-- recruitment parameters form -->                                            
                 </div>

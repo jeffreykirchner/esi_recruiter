@@ -547,8 +547,8 @@
                                 <th width="35%">
                                     Day(s) <button class="btn btn-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
                                 </th> 
-                                <th width="35%">
-                                   
+                                <th width="35%" style="text-align: center;">
+                                   Confirmed/Invited
                                 </th>                                                      
                                 <th width="30%" style="text-align: center;">
                                     Control
@@ -558,15 +558,18 @@
                                 <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
                                     <td>
                                         <span v-for="(d,index) in s.experiment_session_days">
-                                            <!-- <span v-if="index>0"> | </span>                                             -->
-                                            <div v-html="formatDate(d.date)"></div>                                                                                                                                   
+                                            <div>
+                                                <span v-html="formatDate(d.date)"></span>  
+                                                <span v-if="checkToday(d.date)"> (Today)</span>
+                                            </div>                                                                                                                                                                             
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
                                         <span v-for="(d,index) in s.experiment_session_days">
-                                            <div v-if="checkToday(d.date)">Today</div>
-                                            <div v-else="checkToday(d.date)"></div>
-                                        </span>
+                                            <!-- <span v-if="index>0"> | </span>                                             -->
+                                            <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>  
+                                                                                                                                                                             
+                                        </span>                                        
                                     </td>                               
                                     <td style="text-align: center;">                                        
                                             <div>                                                
