@@ -491,7 +491,8 @@ def migrate_sessions():
                                  CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants,
                                  CASE WHEN NOT on_time_bonus REGEXP '^[0-9]+(\.[0-9]+)?$'  
                                         THEN 0
-                                        ELSE on_time_bonus END AS on_time_bonus                               
+                                        ELSE on_time_bonus END AS on_time_bonus,
+                                 cancelled                                  
                         FROM sessions 
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id
                         WHERE EXISTS(SELECT id
@@ -504,7 +505,8 @@ def migrate_sessions():
                                     experiment_id=c[1],
                                     registration_cutoff = c[2],    
                                     actual_participants=c[3],
-                                    showUpFee_legacy = c[4]
+                                    showUpFee_legacy = c[4],
+                                    canceled = c[5]
                                 ) for c in cursor.fetchall())
 
         batch_size=150
@@ -557,8 +559,7 @@ def migrate_sessions():
                                  CASE WHEN NOT EXISTS(SELECT id
                                                       FROM accounts
                                                       WHERE account_number=id) THEN 1 ELSE account_number END AS account_number,
-                                 auto_reminder,
-                                 cancelled                                 
+                                 auto_reminder                             
                         FROM sessions
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id 
                         WHERE EXISTS(SELECT id
@@ -570,8 +571,7 @@ def migrate_sessions():
                                         date=make_aware(c[3],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],
-                                        auto_reminder = c[6],
-                                        canceled = c[7]
+                                        auto_reminder = c[6]
                                         ) for c in cursor.fetchall())       
 
         

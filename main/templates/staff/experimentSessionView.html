@@ -53,6 +53,7 @@
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
                     inviteButtonText:"<i class='fas fa-envelope fa-xs'></i> Invite",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
+                    cancelSessionButtonText:'Cancel Session <i class="fa fa-ban fa-xs"></i>',
                     searchResultsEmptyText:"",
                     session:{gender:[],
                              subject_type:[],
@@ -72,6 +73,7 @@
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
+                    subjectCancelationList:"",                 //visable list of subject cancelations
                     currentSessionDayIndex:0,
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
@@ -201,6 +203,11 @@
                                 // app.$data.loading=false; 
                                 app.updateDisplayLists();
                                 app.$data.showLoadingSpinner=false;
+
+                                if(app.$data.session.canceled)
+                                {
+                                    app.$data.cancelSessionButtonText = "*** CANCELED ***";
+                                }
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -341,18 +348,37 @@
                     //clear subjects to invite
                     clearSubjectsToInvite: function(){
                         app.$data.subjectInvitationList ="";
-                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite"; 
+                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                         
                         },
 
                     //cancel a session day (not in use)
-                    cancelSessionDay: function(){                        
+                    cancelSessionDay: function(){      
+                        if( app.$data.session.canceled) return;
+                        if(app.$data.subjectCancelationList=='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>') return;
+                        //if(app.$data.cancelSessionButtonText == "*** CANCELED ***" ) return;
+
+                        app.$data.subjectCancelationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+
                         axios.post('/experimentSession/{{id}}/', {
-                                status:"cancelSessionDay",   
+                                status:"cancelSession",   
                                 //id:id,                                                           
                             })
                             .then(function (response) {                                   
-                                //app.$data.session= response.data.session;                                 
-                                //app.updateDisplayLists();
+                                app.$data.session = response.data.session;
+
+                                app.$data.cancelSessionButtonText='*** CANCELED ***';
+
+                                app.$data.subjectCancelationList = "";
+
+                                if(response.data.mailResult.errorMessage != "")
+                                {
+                                    app.$data.subjectCancelationList += "<br>Email Send Error:<br>"
+                                    app.$data.subjectCancelationList += response.data.mailResult.errorMessage + "<br><br>";
+                                }
+                                else
+                                {
+                                    app.$data.subjectCancelationList +=  response.data.mailResult.mailCount + " cancelations sent.";                                     
+                                }
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -508,6 +534,45 @@
                         app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";
                     },
 
+                    // fire when cancel session model is shown
+                    showCancelSession:function(id){ 
+
+                        app.$data.subjectCancelationList = "";
+
+                        l="";
+                        s="Emails will be sent to the subjects that have confirmed: <br><br>"
+                        c1=app.$data.session.experiment_session_days.length;
+                        u1 = app.$data.session.experiment_session_days[c1-1].experiment_session_days_user
+
+                        for(i=0;i<u1.length;i++)
+                        {
+                            u2 = u1[i].user;
+
+                            if (u1.length > 1)
+                                {
+                                    if(i  > 0 && i != u1.length-1)
+                                        s += ", ";
+                                    else if(i == u1.length-1)
+                                        s += " and "; 
+                                }                                                                  
+
+                                s += '<a href = "/userInfo/' +u2.id + '" target="_blank" >';
+                                s += u2.first_name + " ";
+                                s += u2.last_name; 
+                                s += "</a>";
+                        }
+
+                        app.$data.subjectCancelationList = s;
+                        $('#cancelSessionModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                    //fire when hide cancel session  model, cancel action if nessicary
+                    hideCancelSession:function(){   
+
+                        
+                    },
+
                     // fire when invite subjects subjects model is shown
                     showManuallyAddSubjects:function(id){    
                         app.$data.searchAddResult="";   
@@ -519,7 +584,10 @@
                     },
 
                     //fire when hide invite subjects  model, cancel action if nessicary
-                    hideManuallyAddSubjects:function(){                     
+                    hideManuallyAddSubjects:function(){       
+                        app.$data.searchResults=[];
+                        app.$data.searchText="";  
+                        app.$data.findButtonText="Find";             
                     },
 
                     //remove subject from a sesssion day
@@ -607,17 +675,30 @@
                             searchInfo:app.$data.searchText,                                                                                                                         
                         })
                         .then(function (response) {
-                            app.$data.searchResults=JSON.parse(response.data.users);   
-                            app.$data.findButtonText = 'Find';  
 
-                            if(app.$data.searchResults.length > 0)
+                               
+                            app.$data.findButtonText = 'Find';  
+                            status = response.data.status;
+
+                            if (status == "success")
                             {
-                                app.$data.searchResultsEmptyText="";
-                            }   
+                                app.$data.searchResults=JSON.parse(response.data.users);
+
+                                if(app.$data.searchResults.length > 0)
+                                {
+                                    app.$data.searchResultsEmptyText="";
+                                }   
+                                else
+                                {
+                                    app.$data.searchResultsEmptyText="No Users Found<br><br>";
+                                } 
+                            }
                             else
                             {
-                                app.$data.searchResultsEmptyText="No Users Found<br><br>";
-                            }                                                     
+                                app.$data.searchResultsEmptyText=response.data.message + "<br><br>";
+                            }
+
+                                                                                
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -630,7 +711,8 @@
                     clearSearchForSubject: function(){
 
                         app.$data.searchResults=[];
-                        app.$data.searchText="";                                      
+                        app.$data.searchText="";  
+                        app.$data.findButtonText="Find";                                    
                     },
 
                     //manually add subject to sessoin
@@ -733,6 +815,9 @@
                     $('#subjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
                     $('#id_date').on("dp.hide",this.mainFormChange2);
                     $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
+                    $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
+                    $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
+                    
                 },                 
         
             });
@@ -868,7 +953,7 @@
                     <div class="col col-md-8">                        
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
-                        <button class="btn btn-danger btn-sm" type="button" v-on:click = "cancelSessionDay()">Cancel Session <i class="fa fa-ban fa-xs"></i></button>
+                        <button class="btn btn-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -938,6 +1023,45 @@
     </div>
 </div>
 
+<!-- cancel session modal -->
+<div class="modal" id="cancelSessionModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cancel Session</h5>                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">   
+                   
+                <div class="row">
+                    <div class = "col">
+                        <textarea  v-model="session.cancelationText" id="cancelationText1" rows="5" cols="100%" disabled></textarea>
+                    </div>
+                </div>
+                <hr>                
+                <div class="row">
+                    <div class="col">
+                        <span v-html="subjectCancelationList"></span>
+                    </div>
+                </div>                
+
+            </div>
+            <div class="modal-footer">   
+                <div v-if="session.canceled == false">           
+                    <button type="button" class="btn btn-danger" v-on:click = "cancelSessionDay()">
+                        Cancel Session <i class="fa fa-ban fa-xs"></i>
+                    </button>
+                </div>
+                <div v-else>
+                    <div style="color: red;">This session has been canceled.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- manually add subjects to sesssion modal-->
 <div class="modal" id="manuallyAddSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -1001,7 +1125,10 @@
                                         <span v-html="u.email"></span>                                   
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <div v-if="u.alreadyIn == 1">
+                                        <div v-if="session.canceled">
+                                            <div style="text-align: center;color: red;">Session Canceled</div>
+                                        </div>
+                                        <div v-else-if="u.alreadyIn == 1">
                                             <div style="text-align: center;color: red;">Aready Added</div>
                                         </div>
                                         <div v-else>
@@ -1070,10 +1197,15 @@
                     </div>
                 </div>                            
             </div>
-            <div class="modal-footer">                
-                <button v-on:click="inviteSubjects()" type="button" class="btn btn-success">
-                    <span v-html="inviteButtonText"></span>
-                </button>
+            <div class="modal-footer">
+                <div v-if="session.canceled">
+                    <div style="text-align: center;color: red;">Session Canceled</div>
+                </div>
+                <div v-else>
+                    <button v-on:click="inviteSubjects()" type="button" class="btn btn-success">
+                        <span v-html="inviteButtonText"></span>
+                    </button>
+                </div>               
             </div>
         </div>
     </div>

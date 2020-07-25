@@ -42,6 +42,7 @@ class experiment_session_day_users(models.Model):
         else:
             return True 
     
+    # check if session user can be deleted
     def allowDelete(self):       
 
         esdu=experiment_session_day_users.objects.filter(user__id = self.user.id,

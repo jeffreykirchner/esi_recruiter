@@ -67,7 +67,9 @@ def experimentSessionView(request,id):
         elif data["status"] == "inviteSubjects":
             return inviteSubjects(data,id)
         elif data["status"] == "showUnconfirmedSubjects":
-            return showUnconfirmedSubjects(data,id)         
+            return showUnconfirmedSubjects(data,id)    
+        elif data["status"] == "cancelSession":
+            return cancelSession(data,id)     
 
     else: #GET             
 
@@ -84,10 +86,24 @@ def cancelSession(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Cancel Session")
     logger.info(data)
-
+    
     es = experiment_sessions.objects.get(id=id)
 
-    return JsonResponse({"status":"success","es_min":es.json_esd(False)}, safe=False)
+    es.canceled = True
+
+    esd =  es.ESD.order_by("date").first()
+    logger.info(esd.date)
+
+    emailList = []
+    
+    for i in esd.experiment_session_day_users_set.filter(confirmed=True).select_related('user'):
+        emailList.append({"email":i.user.email})
+
+    mailResult = sendSessionMassEmail(emailList,id,"Chapman ESI Experiment CANCELED", es.getCancelationEmail())
+
+    es.save()
+
+    return JsonResponse({"status":"success","session" :  es.json(),"mailResult":mailResult}, safe=False)
 
 #show unconfirmed subjects
 def showUnconfirmedSubjects(data,id):
@@ -109,8 +125,10 @@ def inviteSubjects(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    if len(subjectInvitations) == 0 :
-         return JsonResponse({"status":"fail","emailCount":0,"user":[],"es_min":es.json_esd(True)}, safe=False)
+    logger.info(es.canceled)
+
+    if len(subjectInvitations) == 0 or es.canceled:
+        return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
     
     status = "success"
     userFails = []
@@ -126,7 +144,7 @@ def inviteSubjects(data,id):
             status = "fail"
     
     #send emails
-    mailResult = sendSessionInvitations(userSuccesses,id)
+    mailResult = sendSessionMassEmail(userSuccesses,id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
 
     if(mailResult["errorMessage"] != ""):
         status = "fail"
@@ -136,22 +154,23 @@ def inviteSubjects(data,id):
     return JsonResponse({"status":status,"mailResult":mailResult,"userFails":userFails,"es_min":es.json_esd(True)}, safe=False)
 
 #send email invititions to join session
-def sendSessionInvitations(subjectList,id):
+def sendSessionMassEmail(subjectList,id,subject,message):
     logger = logging.getLogger(__name__)
     logger.info("Send session invitations")
 
     es = experiment_sessions.objects.get(id=id)
 
     #p = parameters.objects.get(id=1)
-    message = es.getInvitationEmail()
+    #message = es.getInvitationEmail()
 
     message_list = ()
-    from_email = settings.EMAIL_HOST_USER
-    subject = "Chapman ESI Experiment Invitation"
+    from_email = settings.EMAIL_HOST_USER    
 
     for i in subjectList:
-        message_list += ((subject, message,from_email,[i['email']]),)
-        #message_list += ((subject, message,from_email,["jkirchner@gmail.com"]),)   #use for test emails
+        if settings.DEBUG:
+            message_list += ((subject, message,from_email,["TestSubject" + str(random.randrange(1, 20)) + "@esirecruiter.net"]),)   #use for test emails
+        else:
+            message_list += ((subject, message,from_email,[i['email']]),)        
 
     logger.info(message_list)
 
@@ -198,6 +217,9 @@ def getSearchForSubject(data,id):
 
     users_list = lookup(data["searchInfo"],False)
 
+    if len(users_list)>=1000:
+        return JsonResponse({"status":"fail","message":"Error: Narrow your search"}, safe=False)
+
     if len(users_list)>0:
         user_list_valid = getValidUserList(id,users_list)    
 
@@ -233,6 +255,11 @@ def getManuallyAddSubject(data,id):
     logger.info("Manually add subject")
     logger.info(data)
 
+    es = experiment_sessions.objects.get(id=id)
+
+    if es.canceled:
+        return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"user":"","es_min":es.json_esd(False)}, safe=False)
+
     u = data["user"]
 
     status = "success"
@@ -240,16 +267,14 @@ def getManuallyAddSubject(data,id):
     #check the subject not already in session
     esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
                                                            experiment_session_day__experiment_session__id = id) \
-                                                   .exists()
-
-    es = experiment_sessions.objects.get(id=id)
+                                                   .exists()    
 
     mailResult = {}
 
     if not esdu:
        es.addUser(u["id"])
        es.save()
-       mailResult = sendSessionInvitations([u],id)
+       mailResult = sendSessionMassEmail([u],id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
     else:
         status = "fail"    
 

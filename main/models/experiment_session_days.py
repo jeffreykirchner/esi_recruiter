@@ -21,8 +21,7 @@ class experiment_session_days(models.Model):
     date = models.DateTimeField(default=datetime.now)
     length = models.IntegerField(default=60)    
     account = models.ForeignKey(accounts,on_delete=models.CASCADE)
-    auto_reminder=models.SmallIntegerField (default=1)
-    canceled=models.SmallIntegerField(default=0)
+    auto_reminder=models.SmallIntegerField (default=1)    
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -83,10 +82,12 @@ class experiment_session_days(models.Model):
         else:
             return True  
 
+    #get user readable string of session dates
     def getDateString(self):
         p = parameters.parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
+    #get user readable string of session lengths in mintues
     def getLengthString(self):
        
         return str(self.length) + " minutes"
@@ -140,7 +141,6 @@ class experiment_session_days(models.Model):
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
-            "canceled":str(self.canceled),
             "experiment_session_days_user" : [{"id":i.id,            
                                                         "confirmed":i.bumped,
                                                         "user":{"id" : i.user.id,
@@ -155,22 +155,22 @@ class experiment_session_days(models.Model):
             "unConfirmedCount": len(u_list_u),          
         }
         
-    def json_unconfirmed(self):
-        u_list_u = self.experiment_session_day_users_set.\
-                       filter(confirmed=False).\
-                       select_related('user').\
-                       order_by('user__last_name','user__first_name')
+    # def json_unconfirmed(self):
+    #     u_list_u = self.experiment_session_day_users_set.\
+    #                    filter(confirmed=False).\
+    #                    select_related('user').\
+    #                    order_by('user__last_name','user__first_name')
 
-        return{            
+    #     return{            
 
-            "experiment_session_days_user_unconfirmed" : [{"id":i.id,            
-                                                          "confirmed":i.bumped,
-                                                          "user":{"id" : i.user.id,
-                                                                  "first_name":i.user.first_name,   
-                                                                  "last_name":i.user.last_name,},  
-                                                          "allowDelete" : i.allowDelete(),
-                                                          "allowConfirm" : i.allowConfirm(),}
-                                                             for i in u_list_u],
+    #         "experiment_session_days_user_unconfirmed" : [{"id":i.id,            
+    #                                                       "confirmed":i.bumped,
+    #                                                       "user":{"id" : i.user.id,
+    #                                                               "first_name":i.user.first_name,   
+    #                                                               "last_name":i.user.last_name,},  
+    #                                                       "allowDelete" : i.allowDelete(),
+    #                                                       "allowConfirm" : i.allowConfirm(),}
+    #                                                          for i in u_list_u],
 
-            "unConfirmedCount": len(u_list_u),
-        }
+    #         "unConfirmedCount": len(u_list_u),
+    #     }

@@ -3,12 +3,13 @@ import logging
 import traceback
 from django.urls import reverse
 
-from . import genders,subject_types,institutions,experiments
+from . import genders,subject_types,institutions,experiments,parameters
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
     showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10,null = True) 
+    canceled=models.BooleanField(default=False)
 
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)
@@ -58,6 +59,17 @@ class experiment_sessions(models.Model):
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
         message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
+
+        return message
+    
+    #build a cancelation email for this experiment session
+    def getCancelationEmail(self):
+        p = parameters.parameters.objects.get(id=1)
+
+        message = ""
+
+        message = p.cancelationText
+        message = message.replace("[session date and time]",self.getSessionDayDateString())
 
         return message
 
@@ -173,6 +185,7 @@ class experiment_sessions(models.Model):
         return{
             "id":self.id,            
             "experiment":self.experiment.id,
+            "canceled":self.canceled,
             "actual_participants":self.actual_participants,
             "registration_cutoff":self.registration_cutoff,
             "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
@@ -199,5 +212,5 @@ class experiment_sessions(models.Model):
             "experiments_include_all":1 if self.experiments_include_all else 0,
             "allow_multiple_participations":1 if self.allow_multiple_participations else 0,
             "invitationText" : self.getInvitationEmail(),
-
+            "cancelationText" : self.getCancelationEmail(),
         }
