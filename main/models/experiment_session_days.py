@@ -2,9 +2,11 @@ from django.db import models
 import logging
 import traceback
 from datetime import datetime
+from datetime import timedelta  
 from django.utils import timezone
 from django.db.models import F
 from django.db.models import Q
+import pytz
 
 from django.contrib.auth.models import User
 
@@ -87,6 +89,29 @@ class experiment_session_days(models.Model):
         p = parameters.parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
+    #get a list of session who's room and time overlap this one
+    def getRoomOverlap(self):
+        startTime = self.date
+        endTime = self.date + timedelta(minutes = self.length)
+
+        esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+                                                         .exclude(id=self.id)
+
+        esd_list = []
+
+        for i in esd:
+            endTime_this = i.date + timedelta(minutes = i.length)
+            
+            if (startTime >= i.date and startTime <= endTime_this) or\
+               (endTime >= i.date and endTime <= endTime_this) or\
+               (startTime>=i.date and endTime <= endTime_this) or\
+               (startTime<=i.date and endTime >= endTime_this) :
+
+               esd_list.append(i)
+       
+
+        return [i.json_min() for i in esd_list]
+
     #get user readable string of session lengths in mintues
     def getLengthString(self):
        
@@ -100,6 +125,8 @@ class experiment_session_days(models.Model):
         return{
             "id":self.id,
             "date":self.date,
+            "name":self.experiment_session.experiment.title,
+            "session_id":self.experiment_session.id,
             "confirmedCount": confirmedCount,
             "totalCount": totalCount,
         }
@@ -152,7 +179,8 @@ class experiment_session_days(models.Model):
 
             "experiment_session_days_user_unconfirmed" : u_list_u_json,
             "confirmedCount": len(u_list_c),
-            "unConfirmedCount": len(u_list_u),          
+            "unConfirmedCount": len(u_list_u),  
+            "roomOverlap":self.getRoomOverlap(),        
         }
         
     # def json_unconfirmed(self):

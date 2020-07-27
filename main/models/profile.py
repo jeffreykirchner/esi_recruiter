@@ -8,8 +8,12 @@ from django.db.models import F,Q
 from main.models import *
 from main.models import institutions
 
+import main
+
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+
+from datetime import date
 
 import logging
 
@@ -48,15 +52,46 @@ class profile(models.Model):
 
         out_str = [e.json_subjectInfo() for e in qs]    
 
-        logger.info("get session day list")
+        logger.info("get attended session day list")
         logger.info(out_str)
 
         return out_str
     
+    def sorted_session_day_list_upcoming(self):
+        logger = logging.getLogger(__name__) 
+
+        t = date.today()
+
+        qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
+                         .annotate(session_id=F('experiment_session_day__experiment_session__id'))\
+                         .filter(confirmed=True,date__gte = t)\
+                         .order_by('-date')
+
+        out_str = [e.json_subjectInfo() for e in qs]
+      
+
+        logger.info("get upcoming session day list")
+        logger.info(out_str)
+
+        return out_str
+    
+    def sorted_session_day_list_full(self):
+        logger = logging.getLogger(__name__) 
+    
+        qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
+                         .order_by('-date')
+
+        out_str = [e.json_subjectInfo() for e in qs]      
+
+        logger.info("get full invitation history")
+        logger.info(out_str)
+
+        return out_str
+
     #get list of institutions this subject has been in
     def get_institution_list(self):
         l = institutions.objects.none()
-
+        out_str=[]
         esdus=self.user.ESDU.filter(attended = True)
 
         for i in esdus:
@@ -65,9 +100,9 @@ class profile(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("get institution list")
 
-        logger.info(l.distinct().order_by("name").query)
+        if len(l)>0:          
+            out_str = [e.json() for e in l.distinct().order_by("name")]
 
-        out_str = [e.json() for e in l.distinct().order_by("name")]
         logger.info(out_str)
 
         return out_str

@@ -3,6 +3,8 @@ import logging
 import traceback
 import uuid
 from django.utils.safestring import mark_safe
+from datetime import datetime
+import pytz
 
 from . import experiment_session_days,experiment_sessions,experiment_session_day_users
 
@@ -54,6 +56,7 @@ class experiment_session_day_users(models.Model):
 
         return True 
 
+    #get json info on session user
     def json_subjectInfo(self):
         return{
             "id":self.id,
@@ -64,7 +67,17 @@ class experiment_session_day_users(models.Model):
             "bumped":self.bumped,
             "earnings": self.earnings,
             "show_up_fee":self.show_up_fee,
+            "confirmed":self.confirmed,
+            "multiDay":self.getNoShow(),
+            "noShow":True if self.confirmed and
+                             not self.attended and
+                             not self.bumped and
+                             datetime.now(pytz.UTC) > self.experiment_session_day.date else False,
         }
+    
+    #get now show status for session user
+    def getNoShow(self):
+        return True if self.experiment_session_day.experiment_session.ESD.count() > 1 else False
 
     def json_min(self):
         return{

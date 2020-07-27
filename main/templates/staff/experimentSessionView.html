@@ -982,7 +982,14 @@
                                 <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
                                     <td>
                                         <span v-html="formatDate(sd.date_raw)"></span>
-                                        <span v-if="checkToday(sd.date_raw)"> (Today)</span>                                       
+                                        <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
+
+                                        <!-- room date time overlap -->
+                                        <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
+                                            <a  v-bind:href='"/experimentSession/" + i.session_id' target="_blank">
+                                               <div style="color: red;"> Overlaping Session: [[i.name]]</div>
+                                            </a>
+                                        </div>                                   
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                
