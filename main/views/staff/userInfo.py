@@ -27,10 +27,12 @@ def userInfo(request,id=None):
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["status"] == "updateUser":
-            pass
+        if data["status"] == "getInvitations":
+            return JsonResponse({"invitations" :  u.profile.sorted_session_day_list_full(),
+                                },safe=False)
         elif data["status"] == "getSessions":           
-            return JsonResponse({"sessions" :  u.profile.sorted_session_day_list_earningsOnly(),
+            return JsonResponse({"session_day_attended" :  u.profile.sorted_session_day_list_earningsOnly(),
+                                 "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(),
                                  "institutions": u.profile.get_institution_list()},safe=False)       
     else:      
         return render(request,'staff/userInfo.html',{"u":u,

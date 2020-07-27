@@ -17,27 +17,40 @@
             delimiters: ["[[", "]]"],
             el: '#root',        
             data:{
-                sessions:[{id:"0"}],
+                session_day_attended:[{id:"0"}],
+                session_day_upcoming:[{id:"0"}],
+                invitations:[{id:"0"}],
                 institutions:[],
                 institutionsList:"",
+                showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
+                noInvitationsFoundText:'',
             },
 
             methods:{
+                //get attended and upcoming sessions
                 getSessions:function(){
                     axios.post('/userInfo/{{id}}/', {
                             status :"getSessions" ,                                                                                                                             
                         })
                         .then(function (response) {     
-                            app.$data.sessions = response.data.sessions;  
+                            app.$data.session_day_attended = response.data.session_day_attended;
+                            app.$data.session_day_upcoming = response.data.session_day_upcoming;  
                             app.$data.institutions = response.data.institutions;     
 
                             //format session data
-                            for(var i=0;i<app.$data.sessions.length;i++)
+                            for(var i=0;i<app.$data.session_day_attended.length;i++)
                             {
-                                app.$data.sessions[i].date = app.formatDate(app.$data.sessions[i].date);
-                                app.$data.sessions[i].earnings = parseFloat(app.$data.sessions[i].earnings).toFixed(2);
-                                app.$data.sessions[i].show_up_fee = parseFloat(app.$data.sessions[i].show_up_fee).toFixed(2);
+                                app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date);
+                                app.$data.session_day_attended[i].earnings = parseFloat(app.$data.session_day_attended[i].earnings).toFixed(2);
+                                app.$data.session_day_attended[i].show_up_fee = parseFloat(app.$data.session_day_attended[i].show_up_fee).toFixed(2);
                             } 
+
+                            for(var i=0;i<app.$data.session_day_upcoming.length;i++)
+                            {
+                                app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date);
+                                app.$data.session_day_upcoming[i].earnings = parseFloat(app.$data.session_day_upcoming[i].earnings).toFixed(2);
+                                app.$data.session_day_upcoming[i].show_up_fee = parseFloat(app.$data.session_day_upcoming[i].show_up_fee).toFixed(2);
+                            }
 
                             app.$data.institutionsList="";
                             //create institution list
@@ -56,6 +69,31 @@
                             app.$data.searching=false;
                         });                        
                     },
+
+                // show the full invitation list
+                showInvitations: function(value){
+                    app.$data.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+
+                    axios.post('/userInfo/{{id}}/', {
+                            status :"getInvitations",                                                                                                                        
+                        })
+                        .then(function (response) {     
+                            app.$data.invitations = response.data.invitations;
+                            app.$data.noInvitationsFoundText = "No invitations found"
+
+                            for(var i=0;i<app.$data.invitations.length;i++)
+                            {
+                                app.$data.invitations[i].date = app.formatDate(app.$data.invitations[i].date);
+                                app.$data.invitations[i].earnings = parseFloat(app.$data.invitations[i].earnings).toFixed(2);
+                                app.$data.invitations[i].show_up_fee = parseFloat(app.$data.invitations[i].show_up_fee).toFixed(2);
+                            }
+
+                            app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                            
+                        }); 
+                },
 
                 formatDate: function(value){
                         if (value) {        
@@ -167,7 +205,52 @@
                     </div>
                 </form>
                 <br>
+                <br>
+                <!-- upcoming table -->
+                <table class="table table-hover table-condensed">
+                    <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
 
+                    <thead>
+                        <th width="35%">
+                            Experiment
+                        </th> 
+                        <th width="30%" style="text-align: center;">
+                            Date
+                        </th>                                                      
+                        <th width="35%" style="text-align: center;">
+                            Earnings<br>
+                            Show Up | Experiment
+                        </th>
+                    </thead>
+                    <tbody>                        
+                        <tr v-for="(s,index) in session_day_upcoming" v-bind:key="s.id">
+                            <td>                                
+                                <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
+                            </td>
+                            <td  style="text-align: center;">                                                                
+                                [[s.date]]
+                                <div v-if="s.multiDay">(Multi-day)</div>                                    
+                            </td>
+                            <td  style="text-align: center;">     
+                                <div v-if="s.bumped">
+                                    $[[s.show_up_fee]] | Bumped
+                                </div>
+                                <div v-else>
+                                    $[[s.show_up_fee]] | $[[s.earnings]]
+                                </div>                             
+                            </td>
+                        </tr>                        
+                    </tbody>
+                    <tfoot v-if="session_day_attended.length === 0">
+                        <tr>
+                            <td>The subject in not in any upcoming experiments</td>
+                        </tr>
+                    </tfoot>                                    
+                </table>
+                <br>
+                <hr>
+                <br>
+                <!-- attended table -->
                 <table class="table table-hover table-condensed">
                     <caption style="caption-side:top;text-align: center;">Experiments Attended</caption>
 
@@ -183,13 +266,14 @@
                             Show Up | Experiment
                         </th>
                     </thead>
-                    <tbody>
-                        <tr v-for="(s,index) in sessions" v-bind:key="s.id">
+                    <tbody>                        
+                        <tr v-for="(s,index) in session_day_attended" v-bind:key="s.id">
                             <td>                                
                                 <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
                             </td>
                             <td  style="text-align: center;">                                                                
-                                [[s.date]]                                    
+                                [[s.date]]
+                                <div v-if="s.multiDay">(Multi-day)</div>                                    
                             </td>
                             <td  style="text-align: center;">     
                                 <div v-if="s.bumped">
@@ -199,13 +283,59 @@
                                     $[[s.show_up_fee]] | $[[s.earnings]]
                                 </div>                             
                             </td>
-                        </tr>
+                        </tr>                        
                     </tbody>
-                    
-                
-
+                    <tfoot v-if="session_day_attended.length === 0">
+                        <tr>
+                            <td>The subject has not attened any experiments</td>
+                        </tr>
+                    </tfoot>                                    
                 </table>
-                
+                <br>     
+                <hr>
+                <br>           
+                <!-- invitation table -->
+                <table class="table table-hover table-condensed">
+                    <caption style="caption-side:top;text-align: center;">Full Invitation List</caption>
+
+                    <thead>
+                        <th width="35%">
+                            Experiment
+
+                            <button id="showInvitations" type="button" class="btn btn-primary btn-sm" v-on:click ="showInvitations()">
+                                <span v-html="showInvitationsText"></span>
+                            </button> 
+                        </th> 
+                        <th width="30%" style="text-align: center;">
+                            Date
+                        </th>                                                      
+                        <th width="35%" style="text-align: center;">
+                            Status
+                        </th>
+                    </thead>
+                    <tbody>                        
+                        <tr v-for="(s,index) in invitations" v-bind:key="s.id">
+                            <td>                                
+                                <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
+                            </td>
+                            <td  style="text-align: center;">                                                                
+                                [[s.date]]
+                                <div v-if="s.multiDay">(Multi-day)</div>                                    
+                            </td>
+                            <td  style="text-align: center;">  
+                                <div v-if="s.noShow" style="color: red;">No Show</div>   
+                                <div v-else-if="s.bumped">Bumped</div>
+                                <div v-else-if="s.attended">Attended</div>
+                                <div v-else-if="s.confirmed">Confirmed</div>                                                               
+                            </td>
+                        </tr>                        
+                    </tbody>
+                    <tfoot v-if="session_day_attended.length === 0">
+                        <tr>
+                            <td>[[noInvitationsFoundText]]</td>
+                        </tr>
+                    </tfoot>                                    
+                </table>
             </div>                    
         </div>                
     </div>
