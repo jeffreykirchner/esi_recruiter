@@ -261,6 +261,7 @@ def getManuallyAddSubject(data,id):
         return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"user":"","es_min":es.json_esd(False)}, safe=False)
 
     u = data["user"]
+    sendInvitation = data["sendInvitation"]
 
     status = "success"
 
@@ -269,12 +270,15 @@ def getManuallyAddSubject(data,id):
                                                            experiment_session_day__experiment_session__id = id) \
                                                    .exists()    
 
-    mailResult = {}
+    mailResult =  {"mailCount":0,"errorMessage":""}
 
     if not esdu:
        es.addUser(u["id"])
        es.save()
-       mailResult = sendSessionMassEmail([u],id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
+       if sendInvitation:
+           mailResult = sendSessionMassEmail([u],id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
+       else:
+           mailResult =  {"mailCount":0,"errorMessage":""}    
     else:
         status = "fail"    
 

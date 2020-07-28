@@ -75,6 +75,7 @@
                     subjectInvitationList:"",                  //visable list of subject invitations
                     subjectCancelationList:"",                 //visable list of subject cancelations
                     currentSessionDayIndex:0,
+                    manualAddSendInvitation:true,              //send an invitation when manually adding subjets
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
                                         auto_reminder:1,
@@ -722,7 +723,8 @@
 
                         axios.post('/experimentSession/{{id}}/', {
                             status:"manuallyAddSubject",   
-                            user:u,                                                                                                                         
+                            user:u,
+                            sendInvitation:app.$data.manualAddSendInvitation,                                                                                                                      
                         })
                         .then(function (response) {
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
@@ -747,9 +749,13 @@
                                 app.$data.searchAddResult += "<br>Email Send Error:<br>"
                                 app.$data.searchAddResult += response.data.mailResult.errorMessage + "<br><br>";
                             }                            
+                            else if(response.data.mailResult.mailCount == 0)
+                            {
+                                app.$data.searchAddResult = "Subject added, no invitation was sent.";
+                            }
                             else
                             {                                               
-                                app.$data.searchAddResult = "Invitation sent.";                                 
+                                app.$data.searchAddResult = "Subject added, an invitation was sent.";                                 
                             }      
                             
                         })
@@ -1081,9 +1087,9 @@
             </div>
             <div class="modal-body">   
                 <div class="row">
-                    <div class = "col col-md-2">
+                    <div class = "col col-md-3">
                     </div>                  
-                    <div class = "col col-md-8">
+                    <div class = "col col-md-6">
                         <div class="input-group mb-3">
                             <input v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
                             <div class="input-group-append">
@@ -1093,13 +1099,17 @@
                         </div>  
                         <div v-html="searchResultsEmptyText" style="text-align: center;color: red;"></div>                    
                     </div>
-                    <div class = "col col-md-2">
+                    <div class = "col col-md-3">
+                        <div class="form-check">
+                            <input v-model="manualAddSendInvitation" class="form-check-input" type="checkbox">
+                            <label class="form-check-label" for="manualAddSendInvitation">
+                                Send Invitation
+                            </label>
+                        </div>
                     </div>
                 </div>   
                 <div class="row">
-                    <div class = "col">
-                        <textarea  v-model="session.invitationText" id="invitationText1" rows="5" cols="100%" disabled></textarea>
-                    </div>
+                   
                 </div>                
                 <div class="row">
                     <div class = "col">
