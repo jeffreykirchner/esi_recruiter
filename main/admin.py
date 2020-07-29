@@ -6,10 +6,7 @@ from django.contrib import messages
 from main.forms import parametersForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
-
-admin.site.site_header = 'ESI Recruiter Administration'
-
-# Register your models here.
+from django.conf import settings
 from main.models import *
 
 admin.site.register(accounts)
@@ -19,6 +16,8 @@ admin.site.register(genders)
 admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
+
+admin.site.site_header = settings.ADMIN_SITE_HEADER
 
 class parametersadmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):

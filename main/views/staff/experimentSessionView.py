@@ -70,6 +70,8 @@ def experimentSessionView(request,id):
             return showUnconfirmedSubjects(data,id)    
         elif data["status"] == "cancelSession":
             return cancelSession(data,id)     
+        elif data["status"] == "sendMessage":
+            return sendMessage(data,id)    
 
     else: #GET             
 
@@ -80,6 +82,12 @@ def experimentSessionView(request,id):
                        'form3':recruitForm(),                                    
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
+
+#send message to all confirmed subjects
+def sendMessage(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Send Message")
+    logger.info(data)
 
 #cancel session
 def cancelSession(data,id):
@@ -94,12 +102,15 @@ def cancelSession(data,id):
     esd =  es.ESD.order_by("date").first()
     logger.info(esd.date)
 
+    p = parameters.objects.get(id=1)
+    subjectText = p.cancelationTextSubject
+
     emailList = []
     
-    for i in esd.experiment_session_day_users_set.filter(confirmed=True).select_related('user'):
-        emailList.append({"email":i.user.email})
+    for i in es.getConfirmedEmailList():
+        emailList.append({"email":i['user_email']})
 
-    mailResult = sendSessionMassEmail(emailList,id,"Chapman ESI Experiment CANCELED", es.getCancelationEmail())
+    mailResult = sendSessionMassEmail(emailList,id,subjectText, es.getCancelationEmail())
 
     es.save()
 
@@ -134,6 +145,14 @@ def inviteSubjects(data,id):
     userFails = []
     userSuccesses = []
 
+    p = parameters.objects.get(id=1)
+    subjectText = ""
+
+    if es.ESD.count() == 1:
+        subjectText = p.invitationTextSubject
+    else:
+        subjectText = p.invitationTextMultiDaySubject
+
     #add users to session
     for i in subjectInvitations:
         try:
@@ -144,7 +163,7 @@ def inviteSubjects(data,id):
             status = "fail"
     
     #send emails
-    mailResult = sendSessionMassEmail(userSuccesses,id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
+    mailResult = sendSessionMassEmail(userSuccesses, id, subjectText, es.getInvitationEmail())
 
     if(mailResult["errorMessage"] != ""):
         status = "fail"
@@ -272,11 +291,19 @@ def getManuallyAddSubject(data,id):
 
     mailResult =  {"mailCount":0,"errorMessage":""}
 
+    p = parameters.objects.get(id=1)
+    subjectText = ""
+
+    if es.ESD.count() == 1:
+        subjectText = p.invitationTextSubject
+    else:
+        subjectText = p.invitationTextMultiDaySubject
+
     if not esdu:
        es.addUser(u["id"])
        es.save()
        if sendInvitation:
-           mailResult = sendSessionMassEmail([u],id,"Chapman ESI Experiment Invitation", es.getInvitationEmail())
+           mailResult = sendSessionMassEmail([u],id, subjectText, es.getInvitationEmail())
        else:
            mailResult =  {"mailCount":0,"errorMessage":""}    
     else:

@@ -51,10 +51,14 @@
                     searchAddResult:"",    
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
-                    inviteButtonText:"<i class='fas fa-envelope fa-xs'></i> Invite",
+                    inviteButtonText:"Invite <i class='fas fa-envelope fa-xs'></i>",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                     cancelSessionButtonText:'Cancel Session <i class="fa fa-ban fa-xs"></i>',
                     searchResultsEmptyText:"",
+                    sendMessageSubject:"",               //subject of send message     
+                    sendMessageText:"",                  //text of send message     
+                    emailMessageList:"",                 //emails for send message    
+                    sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
                     session:{gender:[],
                              subject_type:[],
                              institutions_exclude:[],
@@ -69,7 +73,8 @@
                              experiments_exclude_all:0,
                              experiments_include_all:0,
                              allow_multiple_participations:0,
-                             invitationText:""},
+                             invitationText:"",
+                             confirmedEmailList:[]},
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
@@ -172,6 +177,22 @@
                         app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
+
+                        app.$data.emailMessageList="";
+
+                        for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
+                        {
+                            v = app.$data.session.confirmedEmailList[i];
+
+                            if(app.$data.emailMessageList != "")
+                            {
+                                app.$data.emailMessageList += ", ";
+                            }
+                           
+                            app.$data.emailMessageList += '<a href = "/userInfo/' + v.user_id + '" target="_blank" >';
+                            app.$data.emailMessageList += v.user_email; 
+                            app.$data.emailMessageList += "</a>";
+                        }
                     },
 
                     updateDisplayLists2:function(list){
@@ -270,6 +291,7 @@
 
                             status = response.data.status
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;
+                            
                             app.$data.subjectInvitations = [];                    
                             app.$data.subjectInvitationCount = 0;               
                             app.$data.subjectInvitationList = ""; 
@@ -338,7 +360,7 @@
                             }
 
                             app.$data.subjectInvitationList = s;  
-                            app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                           
+                            app.$data.inviteButtonText="Invite <i class='fas fa-envelope fa-xs'></i>";                           
                             //app.updateDisplayLists();
                         })
                         .catch(function (error) {
@@ -543,11 +565,11 @@
                         l="";
                         s="Emails will be sent to the subjects that have confirmed: <br><br>"
                         c1=app.$data.session.experiment_session_days.length;
-                        u1 = app.$data.session.experiment_session_days[c1-1].experiment_session_days_user
+                        u1 = app.$data.session.confirmedEmailList
 
                         for(i=0;i<u1.length;i++)
                         {
-                            u2 = u1[i].user;
+                            //u2 = u1[i].user;
 
                             if (u1.length > 1)
                                 {
@@ -557,9 +579,9 @@
                                         s += " and "; 
                                 }                                                                  
 
-                                s += '<a href = "/userInfo/' +u2.id + '" target="_blank" >';
-                                s += u2.first_name + " ";
-                                s += u2.last_name; 
+                                s += '<a href = "/userInfo/' +u1[i].user_id + '" target="_blank" >';
+                                s += u1[i].user_first_name + " ";
+                                s += u1[i].user_last_name; 
                                 s += "</a>";
                         }
 
@@ -589,6 +611,63 @@
                         app.$data.searchResults=[];
                         app.$data.searchText="";  
                         app.$data.findButtonText="Find";             
+                    },
+
+                                        // fire when invite subjects subjects model is shown
+                    showSendMessage:function(id){    
+                        // app.$data.searchAddResult="";   
+                        // app.$data.searchResults=[];
+                        // app.$data.searchText=""; 
+                        // app.$data.searchAddResult = "";          
+                        $('#sendMessageModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                    //fire when hide invite subjects  model, cancel action if nessicary
+                    hideSendMessage:function(){       
+                        // app.$data.searchResults=[];
+                        // app.$data.searchText="";  
+                        // app.$data.findButtonText="Find";             
+                    },
+
+                    sendEmailMessage:function(){
+
+                        if(app.$data.sendMessageSubject == "" )
+                        {
+                            return;
+                        }
+
+                        if(app.$data.sendMessageText == "" )
+                        {
+                            return;
+                        }
+
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"sendMessage", 
+                                subject:app.$data.sendMessageSubject,
+                                subject:app.$data.sendMessageText,                                                                                                                                              
+                            })
+                            .then(function (response) {
+                                status=response.data.status;
+
+                                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                                app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+
+                                if(status=="success")
+                                {
+                                   
+                                   // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                                }
+                                else
+                                {
+                                    app.displayErrors(response.data.errors);
+                                }                                   
+                               
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });
                     },
 
                     //remove subject from a sesssion day
@@ -643,6 +722,8 @@
                             status=response.data.status;
 
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                            app.$data.session.confirmedEmailList = response.data.es_min.confirmedEmailList;
+
                             app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
 
                             if(status=="success")
@@ -653,7 +734,9 @@
                             else
                             {
                                 app.displayErrors(response.data.errors);
-                            }                                   
+                            }            
+
+                            app.updateDisplayLists();                       
                             
                         })
                         .catch(function (error) {
@@ -823,7 +906,7 @@
                     $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
                     $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
-                    
+                    $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
                 },                 
         
             });
@@ -958,6 +1041,7 @@
                     </div>
                     <div class="col col-md-8">                        
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                         <button class="btn btn-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
                     </div>               
@@ -1032,6 +1116,50 @@
                 </div>
 
             </div>      
+        </div>
+    </div>
+</div>
+
+<!-- send message to all confirmed subjects -->
+<div class="modal" id="sendMessageModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Send Message</h5>                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">   
+                <div class="row">
+                    <div class = "col">
+                        <div class="form-group">
+                            <label for="sendMessageSubject">Subject</label>
+                            <input type="email" class="form-control" v-model="sendMessageSubject" id="sendMessageSubject" width="100%">
+                          </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class = "col">                      
+                        <div class="form-group">
+                            <label for="sendMessageText">Message</label>
+                            <textarea class="form-control" v-model="sendMessageText" id="sendMessageText" rows="3" cols="100%"></textarea>
+                          </div>
+                    </div>
+                </div>
+                <hr>                
+                <div class="row">
+                    <div class="col">
+                        <span v-html="emailMessageList"></span>
+                    </div>
+                </div>                
+
+            </div>
+            <div class="modal-footer">                            
+                <button type="button" class="btn btn-success" v-on:click = "sendEmailMessage()">
+                    <span v-html="sendMessageButtonText"></span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

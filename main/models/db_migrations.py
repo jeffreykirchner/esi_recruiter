@@ -873,8 +873,9 @@ def migrate_parameters():
 
         parameters.objects.all().delete()
 
+        #invitation text
         cursor = connections['old'].cursor()
-        cursor.execute('''select body from boilerplates where id = 1 limit 1''')
+        cursor.execute('''select body,subject from boilerplates where id = 1 limit 1''')
 
         p = parameters()
         p.id=1
@@ -882,14 +883,18 @@ def migrate_parameters():
         for c in cursor.fetchall():
                 #invitationText = c[0]
                 p.invitationText = c[0]
+                p.invitationTextSubject = c[1]
 
+        #cancelation text
         cursor = connections['old'].cursor()
-        cursor.execute('''select body from boilerplates where id = 3 limit 1''')
+        cursor.execute('''select body,subject from boilerplates where id = 3 limit 1''')
 
         for c in cursor.fetchall():
                 #invitationText = c[0]
-                p.cancelationText = c[0]             
+                p.cancelationText = c[0]    
+                p.cancelationTextSubject = c[1]         
 
+        #consent form
         cursor = connections['old'].cursor()
         cursor.execute('''select value from ui_templates where id = 3 limit 1''')
 

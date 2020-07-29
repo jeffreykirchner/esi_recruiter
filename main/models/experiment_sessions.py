@@ -2,6 +2,9 @@ from django.db import models
 import logging
 import traceback
 from django.urls import reverse
+import main
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 from . import genders,subject_types,institutions,experiments,parameters
 
@@ -48,6 +51,22 @@ class experiment_sessions(models.Model):
     class Meta:
         verbose_name = 'Experiment Sessions'
         verbose_name_plural = 'Experiment Sessions'
+
+    #get list of confirmed user emails
+    def getConfirmedEmailList(self):
+
+        l = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id)\
+                                                .filter(confirmed = True)\
+                                                .select_related('user')\
+                                                .values('user__email','user__id','user__first_name','user__last_name')\
+                                                .order_by('user__email')\
+                                                .distinct()   
+
+
+        return [{"user_email": i['user__email'],
+                 "user_id":i['user__id'],
+                 "user_last_name":i['user__first_name'],
+                 "user_first_name":i['user__last_name'],} for i in l ]
 
     #build an invitional email given the experiment session
     def getInvitationEmail(self):
@@ -176,6 +195,7 @@ class experiment_sessions(models.Model):
         return{          
             "experiment_session_days" : [esd.json(getUnConfirmed) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
+            "confirmedEmailList" : self.getConfirmedEmailList(),
         }
 
     #get full json object
@@ -213,4 +233,5 @@ class experiment_sessions(models.Model):
             "allow_multiple_participations":1 if self.allow_multiple_participations else 0,
             "invitationText" : self.getInvitationEmail(),
             "cancelationText" : self.getCancelationEmail(),
+            "confirmedEmailList" : self.getConfirmedEmailList(),
         }

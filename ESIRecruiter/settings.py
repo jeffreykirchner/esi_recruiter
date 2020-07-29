@@ -85,6 +85,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#head text of admin site
+ADMIN_SITE_HEADER = 'ESI Recruiter Administration'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
