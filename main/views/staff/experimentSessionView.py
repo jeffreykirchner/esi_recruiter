@@ -9,7 +9,8 @@ from main.models import experiment_session_days, \
                         experiment_sessions, \
                         institutions, \
                         experiments, \
-                        parameters
+                        parameters,\
+                        experiment_session_messages
 from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -71,7 +72,9 @@ def experimentSessionView(request,id):
         elif data["status"] == "cancelSession":
             return cancelSession(data,id)     
         elif data["status"] == "sendMessage":
-            return sendMessage(data,id)    
+            return sendMessage(data,id)   
+        elif data["status"] == "showMessages":
+            return showMessages(data,id) 
 
     else: #GET             
 
@@ -83,11 +86,55 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+#show all messages sent to confirmed users
+def showMessages(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Show Messages")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    messageList = [i.json() for i in es.experiment_session_messages_set.all()]
+
+    return JsonResponse({"messageList" : messageList }, safe=False)
+
+
 #send message to all confirmed subjects
 def sendMessage(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Send Message")
     logger.info(data)
+
+    subjectText =  data["subject"]
+    messageText = data["text"]
+
+    es = experiment_sessions.objects.get(id=id)
+
+    emailList = []
+    userPkList = []
+    
+    for i in es.getConfirmedEmailList():
+        emailList.append({"email":i['user_email']})
+        userPkList.append(i['user_id'])
+
+    mailResult = sendSessionMassEmail(emailList,id,subjectText, messageText)
+
+    logger.info(userPkList)
+
+    #store message result
+    m = experiment_session_messages()
+    m.experiment_session = es
+    m.subjectText = subjectText
+    m.messageText = messageText
+    m.mailResultSentCount = mailResult['mailCount']
+    m.mailResultErrorText = mailResult['errorMessage']
+    m.save()
+    m.users.add(*userPkList)
+    m.save()
+
+    messageCount=es.experiment_session_messages_set.count()
+
+    return JsonResponse({"mailResult":mailResult,"messageCount":messageCount}, safe=False)
 
 #cancel session
 def cancelSession(data,id):

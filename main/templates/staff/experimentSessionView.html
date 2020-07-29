@@ -51,7 +51,7 @@
                     searchAddResult:"",    
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
-                    inviteButtonText:"Invite <i class='fas fa-envelope fa-xs'></i>",
+                    inviteButtonText:"Invite <i class='fa fa-users fa-xs'></i>",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                     cancelSessionButtonText:'Cancel Session <i class="fa fa-ban fa-xs"></i>',
                     searchResultsEmptyText:"",
@@ -74,6 +74,7 @@
                              experiments_include_all:0,
                              allow_multiple_participations:0,
                              invitationText:"",
+                             messageCount:"",
                              confirmedEmailList:[]},
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
@@ -81,6 +82,8 @@
                     subjectCancelationList:"",                 //visable list of subject cancelations
                     currentSessionDayIndex:0,
                     manualAddSendInvitation:true,              //send an invitation when manually adding subjets
+                    messageList:[],                            //list of email messages sent to users   
+                    showMessageListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show message list            
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
                                         auto_reminder:1,
@@ -177,22 +180,7 @@
                         app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
-
-                        app.$data.emailMessageList="";
-
-                        for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
-                        {
-                            v = app.$data.session.confirmedEmailList[i];
-
-                            if(app.$data.emailMessageList != "")
-                            {
-                                app.$data.emailMessageList += ", ";
-                            }
-                           
-                            app.$data.emailMessageList += '<a href = "/userInfo/' + v.user_id + '" target="_blank" >';
-                            app.$data.emailMessageList += v.user_email; 
-                            app.$data.emailMessageList += "</a>";
-                        }
+                        
                     },
 
                     updateDisplayLists2:function(list){
@@ -360,7 +348,7 @@
                             }
 
                             app.$data.subjectInvitationList = s;  
-                            app.$data.inviteButtonText="Invite <i class='fas fa-envelope fa-xs'></i>";                           
+                            app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";                           
                             //app.updateDisplayLists();
                         })
                         .catch(function (error) {
@@ -371,7 +359,7 @@
                     //clear subjects to invite
                     clearSubjectsToInvite: function(){
                         app.$data.subjectInvitationList ="";
-                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";                         
+                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";                         
                         },
 
                     //cancel a session day (not in use)
@@ -554,7 +542,7 @@
                         app.$data.subjectInvitationCount = 0;               
                         app.$data.subjectInvitationList = "";    
                         
-                        app.$data.inviteButtonText="<i class='fas fa-envelope fa-xs'></i> Invite";
+                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";
                     },
 
                     // fire when cancel session model is shown
@@ -615,54 +603,74 @@
 
                                         // fire when invite subjects subjects model is shown
                     showSendMessage:function(id){    
-                        // app.$data.searchAddResult="";   
-                        // app.$data.searchResults=[];
-                        // app.$data.searchText=""; 
-                        // app.$data.searchAddResult = "";          
+    
+                        app.$data.emailMessageList="";
+
+                        for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
+                        {
+                            v = app.$data.session.confirmedEmailList[i];
+
+                            if(app.$data.emailMessageList != "")
+                            {
+                                app.$data.emailMessageList += ", ";
+                            }
+                           
+                            app.$data.emailMessageList += '<a href = "/userInfo/' + v.user_id + '" target="_blank" >';
+                            app.$data.emailMessageList += v.user_email; 
+                            app.$data.emailMessageList += "</a>";
+                        }
+
                         $('#sendMessageModalCenter').modal('show');
                         // app.clearMainFormErrors();
                     },
 
                     //fire when hide invite subjects  model, cancel action if nessicary
                     hideSendMessage:function(){       
-                        // app.$data.searchResults=[];
-                        // app.$data.searchText="";  
-                        // app.$data.findButtonText="Find";             
+                        app.$data.sendMessageText="";      
+                        app.$data.emailMessageList="";    
+                        app.$data.sendMessageSubject=""; 
+                        app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
                     },
 
+                    //send an email to all of the confirmed subjects
                     sendEmailMessage:function(){
 
                         if(app.$data.sendMessageSubject == "" )
                         {
+                            confirm("Add a subject to your message.");
                             return;
                         }
 
                         if(app.$data.sendMessageText == "" )
                         {
+                            confirm("Your message is empty.");
                             return;
                         }
+
+                        if(app.$data.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        app.$data.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                         axios.post('/experimentSession/{{id}}/', {
                                 status:"sendMessage", 
                                 subject:app.$data.sendMessageSubject,
-                                subject:app.$data.sendMessageText,                                                                                                                                              
+                                text:app.$data.sendMessageText,                                                                                                                                              
                             })
                             .then(function (response) {
-                                status=response.data.status;
+                                //status=response.data.status;
 
-                                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                                app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
-
-                                if(status=="success")
+                                if(response.data.mailResult.errorMessage != "")
                                 {
-                                   
-                                   // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                                    app.$data.emailMessageList = "<br>Email Send Error:<br>"
+                                    app.$data.emailMessageList += response.data.mailResult.errorMessage + "<br><br>";
                                 }
                                 else
                                 {
-                                    app.displayErrors(response.data.errors);
-                                }                                   
-                               
+                                    app.$data.emailMessageList =  response.data.mailResult.mailCount + " messages sent.";                                     
+                                }   
+
+                                app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              
+                                app.$data.session.messageCount = response.data.messageCount;
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -871,6 +879,51 @@
                                         
                         },
 
+                    //show messages
+                    showMessages:function(){
+
+                        app.$data.showMessageListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('/experimentSession/{{id}}/', {
+                            status:"showMessages",                                                                                                    
+                        })
+                        .then(function (response) {
+                            app.$data.messageList = response.data.messageList;     
+
+                            for(i=0;i<app.$data.messageList.length;i++)
+                            {
+                                m=app.$data.messageList[i];
+                                m.date_raw=app.formatDate(m.date_raw)
+
+                                emailMessageList="";
+
+                                for(j=0;j<m.users.length;j++)
+                                {                                            
+                                        if (j >= 1)
+                                        {
+                                            if(j != m.users.length-1)
+                                                emailMessageList += ", ";
+                                            else
+                                                emailMessageList += " and "; 
+                                        }                                                                  
+
+                                        emailMessageList += '<a href = "/userInfo/' + m.users[j].id + '" target="_blank" >';
+                                        emailMessageList += m.users[j].first_name + " ";
+                                        emailMessageList += m.users[j].last_name; 
+                                        emailMessageList += "</a>";                                   
+                                }
+
+                                m.emailMessageList = emailMessageList;
+                            }                        
+                            
+                            app.$data.showMessageListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            //app.$data.searching=false;                                                              
+                        });
+                    },
+
                     formatDate: function(value){
                         if (value) {        
                             //console.log(value);                    
@@ -1040,7 +1093,7 @@
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button>
                     </div>
                     <div class="col col-md-8">                        
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fas fa-envelope fa-xs"></i></button>
+                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fa fa-users"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                         <button class="btn btn-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
@@ -1054,7 +1107,7 @@
                 <div class="row">                   
                     <div class="col col-md-10 offset-md-1">
                         <table class="table table-hover table-condensed">
-                            <caption style="caption-side:top;text-align: center;">Day(s)</caption>
+                            <caption style="caption-side:top;text-align: center;">Session Day(s)</caption>
                             <thead>
                                 <th width="35%">
                                     Date 
@@ -1072,12 +1125,12 @@
                                 <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
                                     <td>
                                         <span v-html="formatDate(sd.date_raw)"></span>
-                                        <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
+                                        <span v-if="checkToday(sd.date_raw)" v-html="'(Today)'"></span> 
 
                                         <!-- room date time overlap -->
                                         <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
                                             <a  v-bind:href='"/experimentSession/" + i.session_id' target="_blank">
-                                               <div style="color: red;"> Overlaping Session: [[i.name]]</div>
+                                               <span style="color: red;" v-html="'Overlaping Session: '+ i.name"></span><br>
                                             </a>
                                         </div>                                   
                                     </td>
@@ -1114,7 +1167,44 @@
                         </table>
                     </div>
                 </div>
-
+                <br>
+                <br>
+                <br>
+                <!-- messages table -->
+                <div class="row">
+                    <div class="col col-md-10 offset-md-1">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side:top;text-align: center;">Messages (<span v-html="session.messageCount"></span>)</caption>
+                            <thead>
+                                <th width="50%">
+                                    Messsage 
+                                    <button class="btn btn-primary btn-sm" type="button" v-on:click = "showMessages()"><span v-html="showMessageListButtonText"></span></button> 
+                                    
+                                </th> 
+                                <th width="40%" style="text-align: center;">
+                                    Subjects
+                                </th>                                                      
+                                <th width="15%" style="text-align: center;">
+                                    Date
+                                </th>
+                            </thead>
+                            <tbody id="messgeList">                       
+                                <tr v-for="(m,index) in messageList" v-bind:key="m.id">                                                                          
+                                    <td>                                        
+                                        <div v-html="'Subject: ' + m.subjectText"></div> 
+                                        <div v-html="m.messageText"></div>                                                                           
+                                    </td>
+                                    <td style="text-align: center;">                                        
+                                        <div v-html="m.emailMessageList"></div>                                                                                
+                                    </td>                               
+                                    <td style="text-align: center;">                                       
+                                        <span v-html="m.date_raw"></span>                                                                                                                                          
+                                    </td>                            
+                                </tr>                        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>      
         </div>
     </div>

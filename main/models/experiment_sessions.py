@@ -234,4 +234,5 @@ class experiment_sessions(models.Model):
             "invitationText" : self.getInvitationEmail(),
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
+            "messageCount": self.experiment_session_messages_set.count(),
         }

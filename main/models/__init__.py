@@ -15,6 +15,7 @@ from .experiment_sessions import *
 from .experiment_session_days import *
 from .experiment_session_day_users import *
 from .parameters import *
+from .experiment_session_messages import *
 
 #should be last
 from .db_migrations import *   
