@@ -235,4 +235,5 @@ class experiment_sessions(models.Model):
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
             "messageCount": self.experiment_session_messages_set.count(),
+            "invitationCount": self.experiment_session_invitations_set.count(),
         }

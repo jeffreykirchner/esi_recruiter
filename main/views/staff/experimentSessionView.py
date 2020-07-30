@@ -10,7 +10,8 @@ from main.models import experiment_session_days, \
                         institutions, \
                         experiments, \
                         parameters,\
-                        experiment_session_messages
+                        experiment_session_messages,\
+                        experiment_session_invitations
 from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -75,6 +76,8 @@ def experimentSessionView(request,id):
             return sendMessage(data,id)   
         elif data["status"] == "showMessages":
             return showMessages(data,id) 
+        elif data["status"] == "showInvitations":
+            return showInvitations(data,id)            
 
     else: #GET             
 
@@ -85,6 +88,18 @@ def experimentSessionView(request,id):
                        'form3':recruitForm(),                                    
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
+
+#show all messages sent to confirmed users
+def showInvitations(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Show Invitations")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    invitationList = [i.json() for i in es.experiment_session_invitations_set.all()]
+
+    return JsonResponse({"invitationList" : invitationList }, safe=False)
 
 #show all messages sent to confirmed users
 def showMessages(data,id):
@@ -188,9 +203,10 @@ def inviteSubjects(data,id):
     if len(subjectInvitations) == 0 or es.canceled:
         return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
     
-    status = "success"
-    userFails = []
-    userSuccesses = []
+    status = "success" 
+    userFails = []              #list of users failed to add
+    userSuccesses = []          #list of users add
+    userPkList = []             #list of primary keys of added users
 
     p = parameters.objects.get(id=1)
     subjectText = ""
@@ -200,24 +216,44 @@ def inviteSubjects(data,id):
     else:
         subjectText = p.invitationTextMultiDaySubject
 
+    messageText = es.getInvitationEmail()
+
     #add users to session
     for i in subjectInvitations:
         try:
             es.addUser(i['id'])
             userSuccesses.append(i)
+            userPkList.append(i['id'])
         except IntegrityError:
             userFails.append(i)
             status = "fail"
     
     #send emails
-    mailResult = sendSessionMassEmail(userSuccesses, id, subjectText, es.getInvitationEmail())
+    mailResult = sendSessionMassEmail(userSuccesses, id, subjectText, messageText)
 
     if(mailResult["errorMessage"] != ""):
         status = "fail"
 
     es.save()
 
-    return JsonResponse({"status":status,"mailResult":mailResult,"userFails":userFails,"es_min":es.json_esd(True)}, safe=False)
+    #store invitation
+    m = experiment_session_invitations()
+    m.experiment_session = es
+    m.subjectText = subjectText
+    m.messageText = messageText
+    m.mailResultSentCount = mailResult['mailCount']
+    m.mailResultErrorText = mailResult['errorMessage']
+    m.save()
+    m.users.add(*userPkList)
+    m.save()
+
+    invitationCount=es.experiment_session_invitations_set.count()
+
+    return JsonResponse({"status":status,
+                         "mailResult":mailResult,
+                         "userFails":userFails,
+                         "invitationCount":invitationCount,
+                         "es_min":es.json_esd(True)}, safe=False)
 
 #send email invititions to join session
 def sendSessionMassEmail(subjectList,id,subject,message):

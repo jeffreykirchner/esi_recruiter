@@ -4,7 +4,7 @@ import logging
 from . import experiment_sessions
 from django.contrib.auth.models import User
 
-class experiment_session_messages(models.Model):
+class experiment_session_invitations(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE)
     users = models.ManyToManyField(User)
 
@@ -21,8 +21,8 @@ class experiment_session_messages(models.Model):
         return "ID: " + str(self.id)
 
     class Meta:                
-        verbose_name = 'Experiment Session Messages'
-        verbose_name_plural = 'Experiment Session Messages'
+        verbose_name = 'Experiment Session Invitations'
+        verbose_name_plural = 'Experiment Session Invitations'
     
     def json(self):
         return{
