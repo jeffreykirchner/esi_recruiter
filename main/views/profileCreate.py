@@ -51,14 +51,14 @@ def profileCreate(request):
         if form.is_valid():          
 
             #deactivate user until email is validated
-            u = profileCreateUser(form.cleaned_data['email'].lower(),
-                                    form.cleaned_data['email'].lower(),
+            u = profileCreateUser(form.cleaned_data['email'].lower().strip(),
+                                    form.cleaned_data['email'].lower().strip(),
                                     form.cleaned_data['password1'],
-                                    form.cleaned_data['first_name'],
-                                    form.cleaned_data['last_name'],
-                                    form.cleaned_data['chapman_id'],
+                                    form.cleaned_data['first_name'].strip(),
+                                    form.cleaned_data['last_name'].strip(),
+                                    form.cleaned_data['chapman_id'].strip(),
                                     form.cleaned_data['gender'],
-                                    form.cleaned_data['phone'],
+                                    form.cleaned_data['phone'].strip(),
                                     form.cleaned_data['major'],
                                     form.cleaned_data['subjectType'],
                                     form.cleaned_data['studentWorker'],
