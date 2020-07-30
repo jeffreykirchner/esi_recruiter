@@ -291,8 +291,8 @@ def migrate_subjects1():
 
         cursor = connections['old'].cursor()
         cursor.execute('''select id,                                
-                                COALESCE(first_name,"Not Listed"),
-                                COALESCE(last_name,"Not Listed"),
+                                COALESCE(TRIM(first_name),"Not Listed"),
+                                COALESCE(TRIM(last_name),"Not Listed"),
                                 CASE WHEN email IS NULL OR
                                           TRIM(email) = "" OR
                                           EXISTS(SELECT id
@@ -379,8 +379,8 @@ def migrate_subjects2():
 
         cursor2 = connections['old'].cursor()
         cursor2.execute('''select id,
-                        COALESCE(chapman_id,"Not Listed"),                       
-                        COALESCE(phone,"0"),                                
+                        COALESCE(TRIM(chapman_id),"Not Listed"),                       
+                        COALESCE(TRIM(phone),"0"),                                
                         CASE WHEN gender = "Female" THEN 1 ELSE 2 END,
                         CASE WHEN grade = "Graduate" THEN 2 ELSE 1 END,
                         CASE WHEN NOT EXISTS(SELECT id
@@ -617,8 +617,7 @@ def migrate_sessions():
                                         date=make_aware(c[8],pytz.timezone("america/los_angeles")),
                                         length=c[4],                                                               
                                         account_id=c[5],
-                                        auto_reminder = c[6],
-                                        canceled = c[7]
+                                        auto_reminder = c[6]
                                         ) for c in cursor.fetchall())       
 
         
@@ -842,8 +841,8 @@ def migrate_session_users3():
         
         print("session user day to session day")
 
-        cursor = connections['default'].cursor()
-        cursor.execute('''                                
+        cursorMSU31 = connections['default'].cursor()
+        cursorMSU31.execute('''                                
                           UPDATE main_experiment_session_day_users		    		                
                                 SET experiment_session_day_id = 
                                         (SELECT id 
@@ -874,31 +873,31 @@ def migrate_parameters():
         parameters.objects.all().delete()
 
         #invitation text
-        cursor = connections['old'].cursor()
-        cursor.execute('''select body,subject from boilerplates where id = 1 limit 1''')
+        cursorMP1 = connections['old'].cursor()
+        cursorMP1.execute('''select body,subject from boilerplates where id = 1 limit 1''')
 
         p = parameters()
         p.id=1
 
-        for c in cursor.fetchall():
+        for c in cursorMP1.fetchall():
                 #invitationText = c[0]
                 p.invitationText = c[0]
                 p.invitationTextSubject = c[1]
 
         #cancelation text
-        cursor = connections['old'].cursor()
-        cursor.execute('''select body,subject from boilerplates where id = 3 limit 1''')
+        cursorMP2 = connections['old'].cursor()
+        cursorMP2.execute('''select body,subject from boilerplates where id = 3 limit 1''')
 
-        for c in cursor.fetchall():
+        for c in cursorMP2.fetchall():
                 #invitationText = c[0]
                 p.cancelationText = c[0]    
                 p.cancelationTextSubject = c[1]         
 
         #consent form
-        cursor = connections['old'].cursor()
-        cursor.execute('''select value from ui_templates where id = 3 limit 1''')
+        cursorMP3 = connections['old'].cursor()
+        cursorMP3.execute('''select value from ui_templates where id = 3 limit 1''')
 
-        for c in cursor.fetchall():
+        for c in cursorMP3.fetchall():
                 p.consentForm = c[0]
  
         p.save()
