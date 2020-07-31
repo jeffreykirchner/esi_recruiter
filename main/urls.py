@@ -22,6 +22,7 @@ urlpatterns = [
     path('userInfo/<id>/',views.userInfo,name='userInfo'),
     path('experiment/<id>/',views.experimentView,name='experimentView'),
     path('experimentSession/<id>/',views.experimentSessionView,name='experimentSessionView'),
+    path('experimentSessionRun/<id>/',views.experimentSessionRunView,name='experimentSessionRunView'),
 
     #subject
 ]
