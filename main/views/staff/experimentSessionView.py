@@ -11,7 +11,8 @@ from main.models import experiment_session_days, \
                         experiments, \
                         parameters,\
                         experiment_session_messages,\
-                        experiment_session_invitations
+                        experiment_session_invitations,\
+                        recruitmentParameters
 from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -112,7 +113,6 @@ def showMessages(data,id):
     messageList = [i.json() for i in es.experiment_session_messages_set.all()]
 
     return JsonResponse({"messageList" : messageList }, safe=False)
-
 
 #send message to all confirmed subjects
 def sendMessage(data,id):
@@ -237,12 +237,18 @@ def inviteSubjects(data,id):
     es.save()
 
     #store invitation
+    recruitmentParams = recruitmentParameters()
+    recruitmentParams.setup(es)
+    recruitmentParams.save()
+
     m = experiment_session_invitations()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
     m.mailResultSentCount = mailResult['mailCount']
-    m.mailResultErrorText = mailResult['errorMessage']
+    m.mailResultErrorText = mailResult['errorMessage']  
+    m.recruitmentParams = recruitmentParams
+
     m.save()
     m.users.add(*userPkList)
     m.save()

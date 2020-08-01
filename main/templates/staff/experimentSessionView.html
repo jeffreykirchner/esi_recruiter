@@ -1029,8 +1029,8 @@
 
 {%block content%}    
 
-<div class="row justify-content-md-center">
-    <div class="col col-md-12">
+<div class="row justify-content-xl-center">
+    <div class="col col-xl">
         <div class="card">
             <div class="card-header">
                 Experiment Session: <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a>
@@ -1154,7 +1154,7 @@
                    
                 <!-- session day table -->
                 <div class="row">                   
-                    <div class="col col-md-10 offset-md-1">
+                    <div class="col col-md-12">
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Session Day(s)</caption>
                             <thead>
@@ -1221,7 +1221,7 @@
                 <br>
                 <!-- invitations table -->
                 <div class="row">
-                    <div class="col col-md-10 offset-md-1">
+                    <div class="col col-md-12">
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Invitations (<span v-html="session.invitationCount"></span>)</caption>
                             <thead>
@@ -1241,7 +1241,10 @@
                                     <td>                                        
                                         <div v-html="'Subject: ' + m.subjectText"></div> 
                                         <br>
-                                        <div v-html="m.messageText"></div>                                                                           
+                                        <div v-html="m.messageText"></div>  
+                                        <br>
+                                        <div v-html="'Parameters:'"></div>
+                                        <div v-html="m.recruitmentParams"></div>                                                                          
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <div v-html="m.emailMessageList"></div>                                                                                
@@ -1265,7 +1268,7 @@
                 <br>
                 <!-- messages table -->
                 <div class="row">
-                    <div class="col col-md-10 offset-md-1">
+                    <div class="col col-md-12">
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Messages (<span v-html="session.messageCount"></span>)</caption>
                             <thead>

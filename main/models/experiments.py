@@ -16,16 +16,18 @@ class experiments(models.Model):
 
     title = models.CharField(max_length = 300)
     experiment_manager = models.CharField(max_length = 300)
-    registration_cutoff_default = models.IntegerField()
-    actual_participants_default = models.IntegerField()
+
     length_default = models.IntegerField()
     notes = models.TextField(null=True)   
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
     invitationText = models.CharField(max_length = 10000,default = "")        
     
     #default recruitment parameters
+    registration_cutoff_default = models.IntegerField()
+    actual_participants_default = models.IntegerField()
     gender_default = models.ManyToManyField(genders)
     subject_type_default =  models.ManyToManyField(subject_types)  
+    
     institutions_exclude_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_exclude_default",blank=True)
     institutions_include_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_include_default",blank=True)
     experiments_exclude_default = models.ManyToManyField("self", related_name="%(class)s_experiments_exclude_default",blank=True)
