@@ -78,6 +78,17 @@ class experiment_session_day_users(models.Model):
     #get now show status for session user
     def getNoShow(self):
         return True if self.experiment_session_day.experiment_session.ESD.count() > 1 else False
+    
+    def json_runInfo(self):
+        return{"id":self.id,            
+                "attended":self.attended,
+                "bumped":self.bumped,
+                "show_up_fee":self.show_up_fee,
+                "earnings":self.earnings,
+                "user":{"id" : self.user.id,
+                        "first_name":self.user.first_name,   
+                        "last_name":self.user.last_name,},                 
+                }
 
     def json_min(self):
         return{

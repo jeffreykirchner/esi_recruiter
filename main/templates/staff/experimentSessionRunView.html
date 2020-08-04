@@ -5,7 +5,9 @@
     <title>User Info</title>
 
     <script type="text/javascript">
-      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    $(document).ready(function(){             
+            
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
 
         var app = new Vue({
@@ -13,47 +15,213 @@
             delimiters: ['[[', ']]'],
             el: '#root',        
             data:{
-                sessions:[],
+                sessionDay:{
+                    confirmedCount:"",
+                    experiment_session_days_user:[],
+                },
+                dateText:'<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>',
             },
 
             methods:{
-                getUser:function(){
+                //get the session day json info
+                getSession:function(){
                     axios.post('/experimentSessionRun/{{id}}/', {
-                                    status :"getUser" ,                                                                                                                             
-                                })
-                                .then(function (response) {     
-                                                                                    
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    app.$data.searching=false;
-                                });                        
-                            },
+                            action :"getSession" ,                                                                                                                             
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay= response.data.sessionDay;          
+                            app.$data.dateText = app.formatDate(app.$data.sessionDay.date_raw);      
+                            app.$data.dateText += " | " + app.$data.sessionDay.length + " Minutes";
+                            app.$data.dateText += " | " + app.$data.sessionDay.location.name;    
+                            
+                            for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                            {
+                                app.updateSessionUserButton(app.$data.sessionDay.experiment_session_days_user[i]);
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });                        
+                    },
+                
+                //set subject to attended
+                attendSubject:function(esduID,id){
+                    app.$data.sessionDay.experiment_session_days_user[id].buttonText = '<i class="fas fa-spinner fa-spin"></i>'
+                    
+                   // esdu.buttonText = '<i class="fas fa-spinner fa-spin"></i>'
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"attendSubject" ,   
+                            id:esduID,                                                                                                                          
+                        })
+                        .then(function (response) {                                 
+
+                           app.$data.sessionDay = response.data.sessionDay;  
+
+                           for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                           {
+                                app.updateSessionUserButton(app.$data.sessionDay.experiment_session_days_user[i]);
+                           }                        
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });                        
+                    },
+
+                //set subject to bumped
+                bumpSubject:function(esduID,id){
+                    app.$data.sessionDay.experiment_session_days_user[id].buttonText = '<i class="fas fa-spinner fa-spin"></i>'
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"bumpSubject" ,   
+                            id:esduID,                                                                                                                          
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay = response.data.sessionDay;  
+
+                           for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                           {
+                                app.updateSessionUserButton(app.$data.sessionDay.experiment_session_days_user[i]);
+                           }                                        
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });                        
+                    },
+                
+                //set subject to no show
+                noShowSubject:function(esduID,id){
+                    app.$data.sessionDay.experiment_session_days_user[id].buttonText = '<i class="fas fa-spinner fa-spin"></i>'
+                    
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"noShowSubject" , 
+                            id:esduID,                                                                                                                            
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay = response.data.sessionDay;  
+
+                            for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                            {
+                                app.updateSessionUserButton(app.$data.sessionDay.experiment_session_days_user[i]);
+                            }                                        
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });                        
+                    },
+                
+                //update single user
+                updateSessionUserButton:function(u){
+
+                    if(u.attended)
+                    {
+                        u.buttonText = '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump';
+                    }
+                    else if (u.bumped)
+                    {
+                        u.buttonText = '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show';
+                    }
+                    else
+                    {
+                        u.buttonText = '<i class="fa fa-arrow-left" aria-hidden="true"></i> Attend';
+                    }
+
+                },
+                
+                //format date to human readable
+                formatDate: function(value){
+                    if (value) {        
+                        //console.log(value);                    
+                        return moment(String(value)).local().format('MM/DD/YYYY hh:mm a');
+                    }
+                    else{
+                        return "date format error";
+                    }
+                },
             },
 
             mounted: function(){
-                    this.getUser();                    
+                    this.getSession();                    
             },
         });
 
-
+    });
     </script>
 {%endblock head%}
 
 {%block content%}
-<div class="row justify-content-lg-center">
-    <div class="col col-lg-10">
+<div class="row justify-content-xl-center">
+    <div class="col col-xl-12">
         <div class="card">                  
             <div class="card-header">
-              Run Session Day
-                {%if user.is_superuser%}
-                <span class="float-right">
-                    <!-- buttons here -->
-                </span>
-                {%endif%}                                                 
+              Run Session Day : <a href="{% url 'experimentView' sessionDay.experiment_session.experiment.id %}">{{sessionDay.experiment_session.experiment}}</a> | 
+                                <a href="{% url 'experimentSessionView' sessionDay.experiment_session.id %}">Session Info</a> |
+                                <span v-html="dateText"></span>
             </div>
             <div class="card-body">               
-             
+            
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[sessionDay.confirmedCount]])</caption>
+                            <thead>
+                                <th width="20%">
+                                    Name 
+                                </th>
+                                <th width=20%  style="text-align: center;">  
+                                    Earnings($)
+                                </th> 
+                                <th width=20%  style="text-align: center;">  
+                                    Show-up Fee($)
+                                </th>   
+                                <th width=20%  style="text-align: center;">  
+                                    Status
+                                </th>                                                                             
+                                <th width="20%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                    <td>
+                                        <span v-html="index+1"></span>) 
+                                        <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                            <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                        </a>                                    
+                                    </td> 
+                                    <td style="text-align: center;">
+                                        <span v-html="esdu.earnings"></span>                                                                           
+                                    </td>                                    
+                                    <td style="text-align: center;">
+                                        <span v-html="esdu.show_up_fee"></span>                                                                           
+                                    </td>
+                                    <td style="text-align: center;">                                       
+                                        <div v-if="esdu.attended">Attended</div>
+                                        <div v-else-if="esdu.bumped">Bumped</div>
+                                        <div v-else>No Show</div>                                                                           
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div v-if="esdu.attended">
+                                            <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "bumpSubject(esdu.id,index)">
+                                                <span v-html='esdu.buttonText'></span> 
+                                            </button>
+                                        </div>
+                                        <div v-else-if="esdu.bumped">
+                                            <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "noShowSubject(esdu.id,index)">
+                                                <span v-html='esdu.buttonText'></span>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
+                                                <span v-html='esdu.buttonText'></span>
+                                            </button>
+                                        </div>                                       
+                                    </td>                                
+                                </tr>
+                            </tbody>                                                                      
+                            
+                        </table>
+                    </div>
+                </div>
                 
                 
             </div>                    

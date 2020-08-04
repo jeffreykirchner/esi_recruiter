@@ -1188,8 +1188,9 @@
                                     </td>                               
                                     <td style="text-align: center;">                                       
                                               
-                                            <!-- <a v-bind:href="">Run</a> |  -->         
+                                        <a  v-bind:href='"/experimentSessionRun/" + sd.id'>        
                                         Run
+                                        </a>
                                         <br>                                
                                         <div v-if="session.experiment_session_days.length == 1">                                            
                                             <div>

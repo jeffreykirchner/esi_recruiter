@@ -131,6 +131,26 @@ class experiment_session_days(models.Model):
             "totalCount": totalCount,
         }
 
+    #info to send to session run page
+    def json_runInfo(self):       
+
+        return{
+            "id":self.id,
+            "location":self.location.json(),
+            "date":self.getDateString(),
+            "date_raw":self.date,
+            "length":self.length,
+            "experiment_session_days_user" : self.json_runInfoUserList() ,
+            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
+        }
+    
+    def json_runInfoUserList(self):
+        u_list_c = self.experiment_session_day_users_set.\
+                       filter(confirmed=True).\
+                       order_by('user__last_name','user__first_name')
+        
+        return [i.json_runInfo() for i in u_list_c]
+
     def json(self,getUnconfirmed):
 
         logger = logging.getLogger(__name__)
@@ -169,13 +189,13 @@ class experiment_session_days(models.Model):
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
             "experiment_session_days_user" : [{"id":i.id,            
-                                                        "confirmed":i.bumped,
-                                                        "user":{"id" : i.user.id,
-                                                                "first_name":i.user.first_name,   
-                                                                "last_name":i.user.last_name,},  
-                                                        "allowDelete" : i.allowDelete(),
-                                                        "allowConfirm" : i.allowConfirm(),}
-                                                            for i in u_list_c],
+                                                "confirmed":i.bumped,
+                                                "user":{"id" : i.user.id,
+                                                        "first_name":i.user.first_name,   
+                                                        "last_name":i.user.last_name,},  
+                                                "allowDelete" : i.allowDelete(),
+                                                "allowConfirm" : i.allowConfirm(),}
+                                                    for i in u_list_c],
 
             "experiment_session_days_user_unconfirmed" : u_list_u_json,
             "confirmedCount": len(u_list_c),
