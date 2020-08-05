@@ -142,6 +142,7 @@ class experiment_session_days(models.Model):
             "length":self.length,
             "experiment_session_days_user" : self.json_runInfoUserList() ,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
+            "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
         }
     
     def json_runInfoUserList(self):
