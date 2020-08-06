@@ -110,8 +110,8 @@ class profile(models.Model):
     def json_min(self):
         return{
             "id":self.user.id,                        
-            "first_name":self.user.first_name,   
-            "last_name":self.user.last_name, 
+            "first_name":self.user.first_name.capitalize(),   
+            "last_name":self.user.last_name.capitalize(), 
             "email":self.user.email,
             "chapmanID":self.chapmanID,                 
         }
@@ -119,8 +119,8 @@ class profile(models.Model):
     def json(self):
         return{
             "id":self.user.id,                        
-            "first_name":self.user.first_name,   
-            "last_name":self.user.last_name, 
+            "first_name":self.user.first_name.capitalize(),   
+            "last_name":self.user.last_name.capitalize(), 
             "email":self.user.email,
             "chapmanID":self.chapmanID, 
             "type":self.type.json(),  
