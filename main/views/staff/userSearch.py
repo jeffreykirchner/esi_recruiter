@@ -10,6 +10,7 @@ from django.db.models import CharField,Q,F,Value as V
 from django.db.models.functions import Lower,Concat
 from django.urls import reverse
 from main import views
+import logging
 
 @login_required
 @user_is_staff
@@ -19,11 +20,23 @@ def userSearch(request):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getUsers":
+            logger = logging.getLogger(__name__)
+            logger.info("User Search")
+            logger.info(data)
+
             request.session['userSearchTerm'] = data["searchInfo"]            
 
-            users= lookup(data["searchInfo"],True)
+            users = lookup(data["searchInfo"],False)
 
-            return JsonResponse({"users" :  users},safe=False)
+            errorMessage=""
+
+            logger.info(len(users))
+
+            if(len(users) >= 1000):
+                errorMessage = "Narrow your search"
+                users=[]          
+
+            return JsonResponse({"users" :  json.dumps(users,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
         # elif data["action"] == "deleteUser":
         #     uid = data["uid"]
         #     u=User.objects.get(id=uid)
@@ -35,6 +48,10 @@ def userSearch(request):
         return render(request,'staff/userSearch.html',{})      
 
 def lookup(value,returnJSON):
+    logger = logging.getLogger(__name__)
+    logger.info("User Lookup")
+    logger.info(value)
+
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                       .filter(Q(last_name__icontains = value) |
                               Q(first_name__icontains = value) |
@@ -43,8 +60,16 @@ def lookup(value,returnJSON):
                               Q(profile__type__name__icontains = value)) \
                       .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name")
 
+    u_list = list(users)
+
+    logger.info(str(len(u_list)) + " results found.")
+
+    for u in u_list:
+        u['first_name'] = u['first_name'].capitalize()
+        u['last_name'] = u['last_name'].capitalize()
+
     if returnJSON:
         #print(json.dumps(list(users),cls=DjangoJSONEncoder))
-        return json.dumps(list(users),cls=DjangoJSONEncoder)
+        return json.dumps(u_list,cls=DjangoJSONEncoder)
     else:
-        return users
+        return u_list

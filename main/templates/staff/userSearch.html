@@ -15,26 +15,43 @@
                     baseURL:'{{request.get_full_path}}',                                                                                                                 
                     users:[],      
                     searchInfo:"", 
-                    warningText:""                                           ,
+                    warningText:"",
+                    searchButtonText:'Search <i class="fas fa-search"></i>',
                 },
 
                 methods:{
                     getUsers: function(){
+                        if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
                         axios.post('{{request.get_full_path}}', {                            
                             action:"getUsers",
                             searchInfo:app.$data.searchInfo,                                
                         })
                         .then(function (response) {
-                           app.$data.users=JSON.parse(response.data.users);
+                          
                            
-                           if(app.$data.users.length == 0)
+                           if(response.data.errorMessage != "")
                            {
-                              app.$data.warningText="No users found."
+                                app.$data.warningText = "Error: " + response.data.errorMessage;
+                                app.$data.users = [];
                            }
                            else
                            {
-                              app.$data.warningText="";
-                           }
+                                app.$data.users=JSON.parse(response.data.users);
+
+                                if(app.$data.users.length == 0)
+                                {
+                                    app.$data.warningText="No users found."
+                                }
+                                else
+                                {
+                                    app.$data.warningText="";
+                                }
+                           }                           
+
+                           app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
 
                         })
                         .catch(function (error) {
@@ -77,7 +94,9 @@
                             <div class="input-group mb-3">
                                 <input  v-on:keyup.enter="getUsers()" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="button" v-on:click = "getUsers()">Search</button>
+                                    <button class="btn btn-outline-primary" type="button" v-on:click = "getUsers()">
+                                        <span v-html="searchButtonText"></span>
+                                    </button>
                                 </div>
                             </div>
                         </center>
