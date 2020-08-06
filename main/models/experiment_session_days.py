@@ -20,10 +20,12 @@ from pytz import timezone
 class experiment_session_days(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,related_name='ESD')
     location = models.ForeignKey(locations,on_delete=models.CASCADE)
-    date = models.DateTimeField(default=datetime.now)
-    length = models.IntegerField(default=60)    
     account = models.ForeignKey(accounts,on_delete=models.CASCADE)
-    auto_reminder=models.SmallIntegerField (default=1)    
+
+    date = models.DateTimeField(default=datetime.now)                   #date and time of session 
+    length = models.IntegerField(default=60)                            #length of session in minutes     
+    auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
+    complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -143,6 +145,7 @@ class experiment_session_days(models.Model):
             "experiment_session_days_user" : self.json_runInfoUserList() ,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
+            "complete":self.complete,
         }
     
     def json_runInfoUserList(self):

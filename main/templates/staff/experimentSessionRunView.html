@@ -18,7 +18,8 @@
                 sessionDay:{
                     confirmedCount:"",
                     experiment_session_days_user:[],    
-                    defaultShowUpFee : ""   ,             
+                    defaultShowUpFee : "",      
+                    complete:true,       
                 },
                 bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
                 noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -28,6 +29,8 @@
                 saveButtonText: 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>',
                 fillShowUpFeeButtonText : "Fill show-up fee: $",
                 completeSessionButtonText : 'Complete Session <i class="fas fa-check"></i>',
+                openSessionButtonText : 'Re-Open Session <i class="fas fa-book-open"></i>',
+                bumpAllButtonText : 'Bump All <i class="fas fa-user-slash"></i>',
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
             },
@@ -103,14 +106,16 @@
                         });                        
                     },
                 
+                //save the current payouts
                 savePayouts:function(){
+                    app.$data.saveButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
                     axios.post('/experimentSessionRun/{{id}}/', {
-                            action :"savePayouts" ,                                                                                                                             
+                            action :"savePayouts" ,  
+                            payoutList : app.getPayoutlist(),                                                                                                                           
                         })
                         .then(function (response) {     
                             app.$data.sessionDay= response.data.sessionDay;      
-
-                                                            
                             app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>';
                         })
                         .catch(function (error) {
@@ -120,14 +125,18 @@
 
                 //finsh session, prevents further editing
                 completeSession:function(){
+
+                    app.$data.completeSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.openSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
                     axios.post('/experimentSessionRun/{{id}}/', {
                             action :"completeSession" ,                                                                                                                             
                         })
                         .then(function (response) {     
-                            app.$data.sessionDay= response.data.sessionDay;      
-
-                                                            
-                           
+                            app.$data.sessionDay = response.data.sessionDay;     
+                            
+                            app.$data.completeSessionButtonText = 'Complete Session <i class="fas fa-check"></i>';
+                            app.$data.openSessionButtonText = 'Re-Open Session <i class="fas fa-book-open"></i>';
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -136,7 +145,7 @@
 
                 //fill subjects with default show up fee from experiments model
                 fillWithDefaultShowUpFee:function(){
-                    fillShowUpFeeButtonText = '<i class="fas fa-spinner fa-spin"></i>'
+                    app.$data.fillShowUpFeeButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                     axios.post('/experimentSessionRun/{{id}}/', {
                             action :"fillDefaultShowUpFee" ,                                                                                                                             
@@ -144,13 +153,19 @@
                         .then(function (response) {     
                             app.$data.sessionDay = response.data.sessionDay;    
 
-                            fillShowUpFeeButtonText : "Fill show-up fee: $" + app.$data.sessionDay.defaultShowUpFee;
+                            app.$data.fillShowUpFeeButtonText = "Fill show-up fee: $" + app.$data.sessionDay.defaultShowUpFee;
                         })
                         .catch(function (error) {
                             console.log(error);                                   
                         });
                 },
 
+                //run when key pressed in payouts box
+                payoutsKeyUp:function(userId,localId){
+                    app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
+                },
+
+                //when user changes the payouts, auto save
                 payoutsChange:function(userId,localId){
                    app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
                    
@@ -163,23 +178,11 @@
                    {
                       app.$data.updatePayoutsRequired = false;
                       app.$data.updatingPayoutsInProgress = true;
-                   }
-
-                   payoutList=[];
-
-                   for(var i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
-                   {
-                       tempU = app.$data.sessionDay.experiment_session_days_user[i];
-                       tempV = {"id":tempU.id,
-                                "earnings":tempU.earnings,
-                                "showUpFee":tempU.show_up_fee,
-                                }
-                        payoutList.push(tempV);
-                   }
+                   }                  
                    
                    axios.post('/experimentSessionRun/{{id}}/', {
-                            action :"backgroundSave" , 
-                            payoutList : payoutList  ,                                                                                                                    
+                            action :"backgroundSave", 
+                            payoutList : app.getPayoutlist(),                                                                                                                    
                         })
                         .then(function (response) {     
                             status = response.data.status;    
@@ -200,7 +203,40 @@
                         .catch(function (error) {
                             console.log(error);                                   
                         });
-                },                
+                },   
+
+                //return a list of the payouts entered by the user
+                getPayoutlist:function(){
+                    payoutList=[];
+
+                    for(var i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                    {
+                        tempU = app.$data.sessionDay.experiment_session_days_user[i];
+                        tempV = {"id":tempU.id,
+                                "earnings":tempU.earnings,
+                                "showUpFee":tempU.show_up_fee,
+                                }
+                        payoutList.push(tempV);
+                    }
+
+                    return payoutList;
+                },             
+
+                //bump all present users
+                bumpAll:function(){
+                    app.$data.bumpAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"bumpAll"                                                                                                                            
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay= response.data.sessionDay;      
+                            app.$data.bumpAllButtonText = 'Bump All <i class="fas fa-user-slash"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });
+                },
 
                 //format date to human readable
                 formatDate: function(value){
@@ -265,14 +301,24 @@
                                     </td> 
                                     <td style="text-align: center;">
                                         <div v-if='esdu.attended'>
-                                            <input type="number" class="form-control" style="text-align: center;" v-model="esdu.earnings" v-on:change="payoutsChange(esdu.id,index)">
-                                                  
+                                            <div v-if='sessionDay.complete'>
+                                                <span v-html="esdu.earnings"></span>
+                                            </div>
+                                            <div v-else>
+                                                <input type="number" style="text-align: center;" v-model="esdu.earnings"
+                                                    v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
+                                            </div>
                                         </div>                                                                                                                  
                                     </td>                                    
                                     <td style="text-align: center;">
                                         <div v-if='esdu.attended || esdu.bumped'>
-                                            <input type="number" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee" v-on:change="payoutsChange(esdu.id,index)">
-                                                  
+                                            <div v-if='sessionDay.complete'>
+                                                <span v-html="esdu.show_up_fee"></span>
+                                            </div>
+                                            <div v-else>
+                                                <input type="number" style="text-align: center;" v-model="esdu.show_up_fee"
+                                                   v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
+                                            </div>                                           
                                         </div>                                        
                                     </td>
                                     <td style="text-align: center;">                                       
@@ -281,24 +327,28 @@
                                         <div v-else>No Show</div>                                                                           
                                     </td>
                                     <td style="text-align: center;">
-                                        <div v-if = "esdu.waiting">
-                                            <span v-html='waitButtonText'></span>
-                                        </div>
-                                        <div v-else-if="esdu.attended">
-                                            <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "bumpSubject(esdu.id,index)">
-                                                <span v-html='bumpButtonText'></span> 
-                                            </button>
-                                        </div>
-                                        <div v-else-if="esdu.bumped">
-                                            <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "noShowSubject(esdu.id,index)">
-                                                <span v-html='noShowButtonText'></span>
-                                            </button>
-                                        </div>
-                                        <div v-else>
-                                            <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
-                                                <span v-html='attendButtonText'></span>
-                                            </button>
-                                        </div>                                       
+                                        <div v-if='sessionDay.complete === false'>  
+                                            <div v-if = "esdu.waiting">
+                                                <span v-html='waitButtonText'></span>
+                                            </div>
+                                            <div v-else-if="esdu.attended">
+                                                <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-primary btn-sm"
+                                                        v-on:click = "bumpSubject(esdu.id,index)">
+                                                    <span v-html='bumpButtonText'></span> 
+                                                </button>
+                                            </div>
+                                            <div v-else-if="esdu.bumped">
+                                                <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-primary btn-sm"
+                                                        v-on:click = "noShowSubject(esdu.id,index)">
+                                                    <span v-html='noShowButtonText'></span>
+                                                </button>
+                                            </div>
+                                            <div v-else>
+                                                <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
+                                                    <span v-html='attendButtonText'></span>
+                                                </button>
+                                            </div>
+                                        </div>                                                                               
                                     </td>                                
                                 </tr>
                             </tbody>                                                                      
@@ -306,18 +356,38 @@
                                 <tr>
                                     <td style="text-align: center;">
                                         <button type="button" class="btn btn-primary btn-sm" v-on:click = "completeSession()">
-                                            <span v-html='completeSessionButtonText'></span>
+                                            <div v-if="sessionDay.complete">
+                                                <span v-html='openSessionButtonText'></span>
+                                            </div>
+                                            <div v-else>
+                                                <span v-html='completeSessionButtonText'></span>
+                                            </div>
+                                            
                                         </button>                                      
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "saveEarnings()">
-                                            <span v-html='saveButtonText'></span> 
-                                        </button>                                        
+                                        <div v-if='sessionDay.complete === false'>
+                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "savePayouts()">
+                                                <span v-html='saveButtonText'></span> 
+                                            </button>
+                                        </div>                                                                                
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "savePayouts()">
-                                            <span v-html='fillShowUpFeeButtonText'></span> 
-                                        </button>                                        
+                                        <div v-if='sessionDay.complete === false'>
+                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()">
+                                                <span v-html='fillShowUpFeeButtonText'></span> 
+                                            </button>
+                                        </div>                                                                                
+                                    </td>
+                                    <td style="text-align: center;">
+
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div v-if='sessionDay.complete === false'>
+                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "bumpAll()">
+                                                <span v-html='bumpAllButtonText'></span> 
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             </tfoot>

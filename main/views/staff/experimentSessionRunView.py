@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from decimal import *
+from django.db.models import Q
 
 from main.models import experiment_session_days,experiment_session_day_users
 
@@ -61,9 +62,10 @@ def backgroundSave(data,id):
     for p in payoutList:
         #logger.info(p)
         esdu  = experiment_session_day_users.objects.get(id = p['id'])
+
         try:
-            esdu.earnings = Decimal(p['earnings'])
-            esdu.show_up_fee = Decimal(p['showUpFee'])
+            esdu.earnings = max(0,Decimal(p['earnings']))
+            esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
             esdu.save()
         except (ValueError, DecimalException):
             logger.info("Background Save Error : ")
@@ -82,6 +84,24 @@ def savePayouts(data,id):
     logger.info("Save Payouts")
     logger.info(data)
 
+    payoutList = data['payoutList']
+
+    for p in payoutList:
+        #logger.info(p)
+        esdu  = experiment_session_day_users.objects.get(id = p['id'])
+
+        try:
+            esdu.earnings = max(0,Decimal(p['earnings']))
+            esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+
+            esdu.save()
+        except (ValueError, DecimalException):
+            logger.info("Background Save Error : ")
+            logger.info(p)
+            esdu.earnings = 0
+            esdu.show_up_fee = 0
+            esdu.save()
+
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
@@ -94,6 +114,9 @@ def completeSession(data,id):
 
     esd = experiment_session_days.objects.get(id=id)
 
+    esd.complete = not esd.complete
+    esd.save()
+    
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
@@ -103,6 +126,12 @@ def fillDefaultShowUpFee(data,id):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
+
+    showUpFee = esd.experiment_session.experiment.showUpFee
+
+    for u in esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)):
+        u.show_up_fee = showUpFee
+        u.save()
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
