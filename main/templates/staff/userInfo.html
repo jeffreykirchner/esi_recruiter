@@ -121,7 +121,7 @@
     <div class="col col-lg-10">
         <div class="card">                  
             <div class="card-header">
-                Subject Information: {{u.last_name}}, {{u.first_name}}     
+                Subject Information: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
                 {%if user.is_superuser%}
                 <span class="float-right">
                     <a href="/admin/main/profile/{{u.profile.id}}/change">
