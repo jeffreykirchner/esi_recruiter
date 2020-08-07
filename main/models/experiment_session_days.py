@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.db.models import F
 from django.db.models import Q
 import pytz
+from django.db.models.functions import Lower
 
 from django.contrib.auth.models import User
 
@@ -151,7 +152,7 @@ class experiment_session_days(models.Model):
     def json_runInfoUserList(self):
         u_list_c = self.experiment_session_day_users_set.\
                        filter(confirmed=True).\
-                       order_by('user__last_name','user__first_name')
+                       order_by(Lower('user__last_name'),Lower('user__first_name'))
         
         return [i.json_runInfo() for i in u_list_c]
 
@@ -164,12 +165,12 @@ class experiment_session_days(models.Model):
         u_list_c = self.experiment_session_day_users_set.\
                        filter(confirmed=True).\
                        select_related('user').\
-                       order_by('user__last_name','user__first_name')
+                       order_by(Lower('user__last_name'),Lower('user__first_name'))
 
         u_list_u = self.experiment_session_day_users_set.\
                        filter(confirmed=False).\
                        select_related('user').\
-                       order_by('user__last_name','user__first_name')      
+                       order_by(Lower('user__last_name'),Lower('user__first_name'))      
 
         u_list_u_json =[]
 
@@ -178,8 +179,8 @@ class experiment_session_days(models.Model):
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
                 "user":{"id" : i.user.id,
-                        "first_name":i.user.first_name,   
-                        "last_name":i.user.last_name,},  
+                        "first_name":i.user.first_name.capitalize(),   
+                        "last_name":i.user.last_name.capitalize(),},  
                 "allowDelete" : i.allowDelete(),
                 "allowConfirm" : i.allowConfirm(),}
                     for i in u_list_u]           
@@ -195,8 +196,8 @@ class experiment_session_days(models.Model):
             "experiment_session_days_user" : [{"id":i.id,            
                                                 "confirmed":i.bumped,
                                                 "user":{"id" : i.user.id,
-                                                        "first_name":i.user.first_name,   
-                                                        "last_name":i.user.last_name,},  
+                                                        "first_name":i.user.first_name.capitalize(),   
+                                                        "last_name":i.user.last_name.capitalize(),},  
                                                 "allowDelete" : i.allowDelete(),
                                                 "allowConfirm" : i.allowConfirm(),}
                                                     for i in u_list_c],

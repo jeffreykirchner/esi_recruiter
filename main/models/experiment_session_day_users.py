@@ -87,8 +87,8 @@ class experiment_session_day_users(models.Model):
                 "earnings":f'{self.earnings:.2f}',
                 "waiting":False,
                 "user":{"id" : self.user.id,
-                        "first_name":self.user.first_name,   
-                        "last_name":self.user.last_name,},                 
+                        "first_name":self.user.first_name.capitalize(),   
+                        "last_name":self.user.last_name.capitalize(),},                 
                 }
 
     def json_min(self):

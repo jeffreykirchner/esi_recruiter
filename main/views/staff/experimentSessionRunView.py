@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import logging
 from decimal import *
 from django.db.models import Q
+import random
 
 from main.models import experiment_session_days,experiment_session_day_users
 
@@ -37,12 +38,17 @@ def experimentSessionRunView(request,id=None):
             return fillDefaultShowUpFee(data,id)
         elif data["action"] == "backgroundSave":
             return backgroundSave(data,id)
+        elif data["action"] == "bumpAll":
+            return bumpAll(data,id)
+        elif data["action"] == "autoBump":
+            return autoBump(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:      
         esd = experiment_session_days.objects.get(id=id)
         return render(request,'staff/experimentSessionRunView.html',{"sessionDay":esd ,"id":id})  
 
+#return the session info to the client
 def getSession(data,id):    
     logger = logging.getLogger(__name__)
     logger.info("Get Session Day")
@@ -52,6 +58,44 @@ def getSession(data,id):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
+def autoBump(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Auto Bump")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+
+    esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
+
+    attendedCount = esdu_attended.count()
+    bumpsNeeded = attendedCount - esd.experiment_session.actual_participants
+
+    if bumpsNeeded > 0:
+        randomSample = random.sample(list(esdu_attended), bumpsNeeded)
+        
+        for u in randomSample:
+            u.attended = False
+            u.bumped = True
+            u.save()    
+    
+    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+
+#bump all subjects marked as attended
+def bumpAll(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Bump All")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+
+    for u in esd.experiment_session_day_users_set.filter(attended=True):
+        u.attended = False
+        u.bumped = True
+        u.save()
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+
+#save the payouts when user changes them
 def backgroundSave(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Background Save")
@@ -116,7 +160,7 @@ def completeSession(data,id):
 
     esd.complete = not esd.complete
     esd.save()
-    
+
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
