@@ -2,8 +2,6 @@
 {% load crispy_forms_tags %}
 
 {%block head%}
-    <title>User Info</title>
-
     <script type="text/javascript">
     $(document).ready(function(){             
             
@@ -17,6 +15,9 @@
             data:{
                 sessionDay:{
                     confirmedCount:"",
+                    attendingCount:"",
+                    bumpCount:"",
+                    requiredCount:"",
                     experiment_session_days_user:[],    
                     defaultShowUpFee : "",      
                     complete:true,       
@@ -32,6 +33,9 @@
                 openSessionButtonText : 'Re-Open Session <i class="fas fa-book-open"></i>',
                 bumpAllButtonText : 'Bump All <i class="fas fa-user-slash"></i>',
                 autoBumpButtonText : 'Auto Bump <i class="fa fa-random" aria-hidden="true"></i>',
+                printPayoutsButtonText : 'Print Payouts <i class="fas fa-print"></i>',
+                printBumpsButtonText : 'Print Bumps <i class="fas fa-print"></i>',
+                paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
             },
@@ -56,6 +60,36 @@
                             console.log(error);                                   
                         });                        
                     },
+
+                payPalExport:function(){
+                    app.$data.paypalExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                   
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                             action :"payPalExport" ,                                                                                                                                                      
+                         })
+                         .then(function (response) {      
+                            
+                            // let csvContent = "data:text/csv;charset=utf-8,";
+                            // csvContent = response
+
+                            console.log(response)
+
+                            var downloadLink = document.createElement("a");
+                            var blob = new Blob(["\ufeff", response.data]);
+                            var url = URL.createObjectURL(blob);
+                            downloadLink.href = url;
+                            downloadLink.download = "data.csv";
+
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+
+                            app.$data.paypalExportButtonText = 'Paypal Export <i class="fab fa-paypal"></i>';                  
+                         })
+                         .catch(function (error) {
+                             console.log(error);                                   
+                         });
+                },
 
                 //randomly bump excess subjects
                 autobump:function(){
@@ -258,6 +292,28 @@
                         });
                 },
 
+                //print payouts
+                printPayouts:function(){
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        confirm("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+
+                    window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/payouts/', '_blank');
+                },
+
+                //print bumps
+                printBumps:function(){
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {  
+                        confirm("Save payouts before continuing.") ;                      
+                        return;                        
+                    }
+
+                    window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/bumps/', '_blank');
+                },
+
                 //format date to human readable
                 formatDate: function(value){
                     if (value) {        
@@ -293,7 +349,11 @@
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">
-                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[sessionDay.confirmedCount]])</caption>
+                            <caption style="caption-side: top;" class="caption text-center">Subjects Confirmed: [[sessionDay.confirmedCount]] | 
+                                                                                            Attending: [[sessionDay.attendingCount]] | 
+                                                                                            Needed: [[sessionDay.requiredCount]] | 
+                                                                                            Bumped: [[sessionDay.bumpCount]]
+                            </caption>
                             <thead>
                                 <th width="20%">
                                     Name 
@@ -414,6 +474,29 @@
                                         </div>
                                     </td>
                                 </tr>
+                                
+                                <tr>
+                                    <td>                                        
+                                    </td>
+                                    <td style="text-align: center;">                                        
+                                        <button type="button" class="btn btn-link btn-sm" v-on:click="printPayouts()">
+                                            <span v-html='printPayoutsButtonText'></span> 
+                                        </button>                                                                               
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-link btn-sm" v-on:click = "printBumps()">
+                                            <span v-html='printBumpsButtonText'></span> 
+                                        </button>                                        
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "payPalExport()">
+                                            <span v-html='paypalExportButtonText'></span> 
+                                        </button>                                        
+                                    </td>
+                                    <td>                                        
+                                    </td>
+                                </tr>                               
+                                
                             </tfoot>
                         </table>
                     </div>

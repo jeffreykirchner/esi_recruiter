@@ -143,10 +143,13 @@ class experiment_session_days(models.Model):
             "date":self.getDateString(),
             "date_raw":self.date,
             "length":self.length,
-            "experiment_session_days_user" : self.json_runInfoUserList() ,
-            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
+            "experiment_session_days_user" : self.json_runInfoUserList(),            
             "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
             "complete":self.complete,
+            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
+            "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
+            "requiredCount" : self.experiment_session.actual_participants,
+            "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
         }
     
     def json_runInfoUserList(self):

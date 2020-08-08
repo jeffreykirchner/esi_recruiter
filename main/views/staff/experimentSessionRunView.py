@@ -6,8 +6,10 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from decimal import *
-from django.db.models import Q
+from django.db.models import Q,F
 import random
+import csv
+from django.http import HttpResponse
 
 from main.models import experiment_session_days,experiment_session_day_users
 
@@ -42,6 +44,8 @@ def experimentSessionRunView(request,id=None):
             return bumpAll(data,id)
         elif data["action"] == "autoBump":
             return autoBump(data,id)
+        elif data["action"] == "payPalExport":
+            return getPayPalExport(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:      
@@ -58,6 +62,26 @@ def getSession(data,id):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
+
+def getPayPalExport(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Pay Pal Export")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+    esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(response)
+
+    for u in esdu:
+        writer.writerow(u.csv_payPal())  
+    
+    return response
+
+#automatically randomly bump exccess subjects
 def autoBump(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Auto Bump")

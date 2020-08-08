@@ -120,7 +120,7 @@ class profile(models.Model):
         return{
             "id":self.user.id,                        
             "first_name":self.user.first_name.capitalize(),   
-            "last_name":self.user.last_name.capitalize(), 
+            "last_name":self.user.last_name, 
             "email":self.user.email,
             "chapmanID":self.chapmanID, 
             "type":self.type.json(),  

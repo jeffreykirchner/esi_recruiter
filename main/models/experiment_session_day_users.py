@@ -79,6 +79,26 @@ class experiment_session_day_users(models.Model):
     def getNoShow(self):
         return True if self.experiment_session_day.experiment_session.ESD.count() > 1 else False
     
+    #return a list of values for a paypal csv mass pay file
+    def csv_payPal(self):
+
+        totalEarnings = 0
+
+        if self.attended:
+            totalEarnings = self.earnings + self.show_up_fee
+        else:
+            totalEarnings = self.show_up_fee
+
+        s=[]
+
+        s.append(self.user.email)
+        s.append(totalEarnings)
+        s.append("USD")
+        s.append(self.user.profile.chapmanID)
+        s.append("Session Day ID: " + str(self.experiment_session_day.id))
+
+        return s
+
     def json_runInfo(self):
         return{"id":self.id,            
                 "attended":self.attended,
