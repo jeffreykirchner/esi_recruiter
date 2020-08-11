@@ -492,7 +492,7 @@ def migrate_sessions():
                                  CASE WHEN NOT on_time_bonus REGEXP '^[0-9]+(\.[0-9]+)?$'  
                                         THEN 0
                                         ELSE on_time_bonus END AS on_time_bonus,
-                                 cancelled                                  
+                                 cancelled                                                                  
                         FROM sessions 
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id
                         WHERE EXISTS(SELECT id
@@ -559,19 +559,21 @@ def migrate_sessions():
                                  CASE WHEN NOT EXISTS(SELECT id
                                                       FROM accounts
                                                       WHERE account_number=id) THEN 1 ELSE account_number END AS account_number,
-                                 auto_reminder                             
+                                 auto_reminder,
+                                 opened                             
                         FROM sessions
                         INNER JOIN experiments ON sessions.experiment_id=experiments.id 
                         WHERE EXISTS(SELECT id
                                         FROM experiments 
                                         WHERE experiment_id=id)''')
 
-        objs = (experiment_session_days(experiment_session_id=c[0],
-                                        location_id=c[2],
-                                        date=make_aware(c[3],pytz.timezone("america/los_angeles")),
-                                        length=c[4],                                                               
-                                        account_id=c[5],
-                                        auto_reminder = c[6]
+        objs = (experiment_session_days(experiment_session_id = c[0],
+                                        location_id = c[2],
+                                        date = make_aware(c[3],pytz.timezone("america/los_angeles")),
+                                        length = c[4],                                                               
+                                        account_id = c[5],
+                                        auto_reminder = c[6],
+                                        complete = not c[7]
                                         ) for c in cursor.fetchall())       
 
         

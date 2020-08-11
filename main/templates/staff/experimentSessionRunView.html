@@ -20,7 +20,7 @@
                     requiredCount:"",
                     experiment_session_days_user:[],    
                     defaultShowUpFee : "",      
-                    complete:true,       
+                    complete:true,                           
                 },
                 bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
                 noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -38,6 +38,7 @@
                 paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
+                payoutTotal:"",                            //total paid to subjects
             },
 
             methods:{
@@ -47,7 +48,8 @@
                             action :"getSession" ,                                                                                                                             
                         })
                         .then(function (response) {     
-                            app.$data.sessionDay= response.data.sessionDay;       
+                            app.$data.sessionDay= response.data.sessionDay; 
+                            app.calcPayoutTotal();      
 
                             app.$data.dateText = app.formatDate(app.$data.sessionDay.date_raw);      
                             app.$data.dateText += " | " + app.$data.sessionDay.length + " Minutes";
@@ -180,6 +182,12 @@
                 //finsh session, prevents further editing
                 completeSession:function(){
 
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        confirm("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+
                     app.$data.completeSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                     app.$data.openSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -196,6 +204,23 @@
                             console.log(error);                                   
                         });
                 },
+
+                //calc payout total of visible subjects
+                calcPayoutTotal:function(){
+                            var s = 0;
+
+                            for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+                            {
+                                u = app.$data.sessionDay.experiment_session_days_user[i];
+
+                                if(u.show)
+                                {
+                                    s += parseFloat(u.payout);                              
+                                }
+                            }
+
+                            app.$data.payoutTotal = s.toFixed(2);
+                        },
 
                 //fill subjects with default show up fee from experiments model
                 fillWithDefaultShowUpFee:function(){
@@ -358,61 +383,61 @@
                                 <th width="20%">
                                     Name 
                                 </th>
-                                <th width="20%">
+                                <th width="10%">
                                     ID Number 
                                 </th>
-                                <th width=15%  style="text-align: center;">  
+                                <th width=20%  style="text-align: center;">  
                                     Earnings($)
                                 </th> 
-                                <th width=15%  style="text-align: center;">  
+                                <th width=20%  style="text-align: center;">  
                                     Show-up Fee($)
                                 </th>   
                                 <th width=15%  style="text-align: center;">  
                                     Status
                                 </th>                                                                             
-                                <th width="20%" style="text-align: center;">
+                                <th width="15%" style="text-align: center;">
                                     Control
                                 </th>
                             </thead>
                             <tbody>
                                 <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
-                                    <td>
+                                    <td class="align-middle">
                                         <span v-html="index+1"></span>) 
                                         <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                         </a>                                    
                                     </td>
-                                    <td>                                       
+                                    <td  class="align-middle">                                       
                                         <span v-html="esdu.user.chapmanID"></span>                                    
                                     </td> 
-                                    <td style="text-align: center;">
+                                    <td class="align-middle" style="text-align: center;">
                                         <div v-if='esdu.attended'>
                                             <div v-if='sessionDay.complete'>
-                                                <span v-html="esdu.earnings"></span>
+                                                $<span v-html="esdu.earnings"></span>
                                             </div>
                                             <div v-else>
-                                                <input type="number" style="text-align: center;" v-model="esdu.earnings"
+                                                <input type="number" class="form-control" style="text-align: center;" v-model="esdu.earnings"
                                                     v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
                                             </div>
                                         </div>                                                                                                                  
                                     </td>                                    
-                                    <td style="text-align: center;">
+                                    <td class="align-middle" style="text-align: center;">
                                         <div v-if='esdu.attended || esdu.bumped'>
                                             <div v-if='sessionDay.complete'>
-                                                <span v-html="esdu.show_up_fee"></span>
+                                                $<span v-html="esdu.show_up_fee"></span>
                                             </div>
                                             <div v-else>
-                                                <input type="number" style="text-align: center;" v-model="esdu.show_up_fee"
+                                                <input type="number" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
                                                    v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
                                             </div>                                           
                                         </div>                                        
                                     </td>
-                                    <td style="text-align: center;">                                       
+                                    <td class="align-middle" style="text-align: center;">                                       
                                         <div v-if="esdu.attended">Attended</div>
                                         <div v-else-if="esdu.bumped">Bumped</div>
                                         <div v-else>No Show</div>                                                                           
                                     </td>
-                                    <td style="text-align: center;">
+                                    <td class="align-middle" style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>  
                                             <div v-if = "esdu.waiting">
                                                 <span v-html='waitButtonText'></span>
@@ -440,8 +465,8 @@
                             </tbody>                                                                      
                             <tfoot>
                                 <tr>
-                                    <td style="text-align: center;">
-                                                                             
+                                    <td>
+                                        Payout Total: $[[payoutTotal]]                                      
                                     </td>
                                     <td>                                        
                                     </td>
