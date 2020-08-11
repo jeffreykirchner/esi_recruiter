@@ -42,28 +42,54 @@
                     delimiters: ['[[', ']]'],
                     el: '#root',        
                     data:{
-                        sessionDay:{
-                                   
-                        },
-
+                        sessionDayUsers:[],
+                        payGroup:"{{payGroup}}",
+                        payoutTotal:"",
                     },
         
                     methods:{
                         //get the session day json info
-                        getSession:function(){
-                            axios.post('/experimentSessionRun/{{id}}/', {
-                                    action :"getSession" ,                                                                                                                             
-                                })
-                                .then(function (response) {     
-                                    app.$data.sessionDay= response.data.sessionDay;              
-                                   
-        
-                                })
-                                .catch(function (error) {
-                                    console.log(error);                                   
-                                });                        
-                            },    
+                        getSession:function(payGroup){                           
 
+                            axios.post('/experimentSessionPayouts/{{id}}/'+payGroup+'/', {
+                                action : "getSession" ,  
+                                payGroup : payGroup,                                                                                                                           
+                            })
+                            .then(function (response) {     
+                                app.$data.sessionDayUsers = response.data.sessionDayUsers;   
+                                app.$data.payGroup = payGroup;
+                                
+                                app.calcPayoutTotal();
+                            })
+                            .catch(function (error) {
+                                console.log(error);                                   
+                            });                        
+                        },  
+
+                        //hide subject from list and payout total
+                        hideSubject:function(id,localIndex){
+                            u = app.$data.sessionDayUsers[localIndex];
+                            u.show=false;
+
+                            app.calcPayoutTotal();
+                        },
+
+                        //calc payout total of visible subjects
+                        calcPayoutTotal:function(){
+                            var s = 0;
+
+                            for(i=0;i<app.$data.sessionDayUsers.length;i++)
+                            {
+                                u = app.$data.sessionDayUsers[i];
+
+                                if(u.show)
+                                {
+                                    s += parseFloat(u.payout);                              
+                                }
+                            }
+
+                            app.$data.payoutTotal = s.toFixed(2);
+                        },
         
                         //format date to human readable
                         formatDate: function(value){
@@ -78,7 +104,7 @@
                     },
         
                     mounted: function(){
-                            this.getSession();                    
+                            this.getSession("{{payGroup}}");                    
                     },
                 });
         
@@ -86,9 +112,111 @@
             </script>        
     </head>
     <body style="font-size:16px"> 
-        <div class="container mt-4" id="root">                    
-            {%block content%}
-            {%endblock content%}
+
+        <div class="container mt-4" id="root">
+            <div class="row">
+                <div class="col">
+                    <h4>                    
+                        <div v-if="payGroup === 'bumps'">
+                            Session Bumps
+                        </div>
+                        <div v-else>
+                            Session Attendees
+                        </div>
+                    </h4>                    
+                </div>               
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Experiment ({{sessionDay.experiment_session.experiment.id}}):
+                </div>
+                <div class = "col-sm-8 float-left">
+                    {{sessionDay.experiment_session.experiment.title}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Manager:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    {{sessionDay.experiment_session.experiment.experiment_manager}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Date:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    {{sessionDay.date}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Payout Total:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    $[[payoutTotal]]
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col">
+                    <table class="table table-condensed">
+                        <thead>      
+                            <th width="5%">
+                            </th>                  
+                            <th width="15%">
+                                ID Number
+                            </th>
+                            <th width=25%  style="text-align: center;">  
+                                Name
+                            </th> 
+                            <th width=15%  style="text-align: center;">  
+                                Payout
+                            </th>   
+                            <th width=40%  style="text-align: center;">  
+                                Signature
+                            </th>                                                                                                  
+                        </thead>
+                        <tbody>
+                            <tr v-for="(esdu,index) in sessionDayUsers" v-bind:key="esdu.id" v-if="esdu.show">                                 
+                                <td>
+                                    <button type="button" class="btn btn-outline-danger btn-sm d-print-none" v-on:click = "hideSubject(esdu.id,index)">                                
+                                        <i class="fa fa-eye-slash" aria-hidden="true"></i> 
+                                    </button>                                                                         
+                                </td>                                 
+                                <td >                                       
+                                    <span v-html="esdu.user.chapmanID"></span>                                                                      
+                                </td> 
+                                <td>
+                                    <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span> 
+                                </td>  
+                                <td style="text-align: center;">
+                                    $<span v-html="esdu.payout"></span>
+                                </td>
+                                <td>
+
+                                </td> 
+                                                             
+                                                                                     
+                            </tr>
+                        </tbody> 
+                    </table>
+                </div>
+                
+            </div>
+            <div class="row mt-4 d-print-none">
+                <div class = "col-sm-6 float-center">                                    
+                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="getSession('payouts')">
+                        Show Attendees
+                    </button>    
+                    
+                    <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('bumps')">
+                        Show Bumps 
+                    </button>                                        
+                </div>
+                                
+            </div>
+            
         </div>        
     </body>
 </html>

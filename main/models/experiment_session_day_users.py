@@ -100,15 +100,28 @@ class experiment_session_day_users(models.Model):
         return s
 
     def json_runInfo(self):
+
+        tempPayout=0
+
+        if self.attended:
+            tempPayout = self.earnings+self.show_up_fee
+        elif self.bumped:
+            tempPayout = self.show_up_fee
+        else:
+            tempPayout = 0
+
         return{"id":self.id,            
                 "attended":self.attended,
                 "bumped":self.bumped,
                 "show_up_fee":f'{self.show_up_fee:.2f}',
                 "earnings":f'{self.earnings:.2f}',
+                "payout":  f'{tempPayout:.2f}',
                 "waiting":False,
+                "show":True,
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
-                        "last_name":self.user.last_name.capitalize(),},                 
+                        "last_name":self.user.last_name.capitalize(),
+                        "chapmanID":self.user.profile.chapmanID},                 
                 }
 
     def json_min(self):
