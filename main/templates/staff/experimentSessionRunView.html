@@ -358,13 +358,16 @@
                                 <th width="20%">
                                     Name 
                                 </th>
-                                <th width=20%  style="text-align: center;">  
+                                <th width="20%">
+                                    ID Number 
+                                </th>
+                                <th width=15%  style="text-align: center;">  
                                     Earnings($)
                                 </th> 
-                                <th width=20%  style="text-align: center;">  
+                                <th width=15%  style="text-align: center;">  
                                     Show-up Fee($)
                                 </th>   
-                                <th width=20%  style="text-align: center;">  
+                                <th width=15%  style="text-align: center;">  
                                     Status
                                 </th>                                                                             
                                 <th width="20%" style="text-align: center;">
@@ -378,6 +381,9 @@
                                         <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                         </a>                                    
+                                    </td>
+                                    <td>                                       
+                                        <span v-html="esdu.user.chapmanID"></span>                                    
                                     </td> 
                                     <td style="text-align: center;">
                                         <div v-if='esdu.attended'>
@@ -412,19 +418,19 @@
                                                 <span v-html='waitButtonText'></span>
                                             </div>
                                             <div v-else-if="esdu.attended">
-                                                <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-primary btn-sm"
+                                                <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
                                                         v-on:click = "bumpSubject(esdu.id,index)">
                                                     <span v-html='bumpButtonText'></span> 
                                                 </button>
                                             </div>
                                             <div v-else-if="esdu.bumped">
-                                                <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-primary btn-sm"
+                                                <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
                                                         v-on:click = "noShowSubject(esdu.id,index)">
                                                     <span v-html='noShowButtonText'></span>
                                                 </button>
                                             </div>
                                             <div v-else>
-                                                <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
+                                                <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
                                                     <span v-html='attendButtonText'></span>
                                                 </button>
                                             </div>
@@ -435,40 +441,34 @@
                             <tfoot>
                                 <tr>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "completeSession()">
-                                            <div v-if="sessionDay.complete">
-                                                <span v-html='openSessionButtonText'></span>
-                                            </div>
-                                            <div v-else>
-                                                <span v-html='completeSessionButtonText'></span>
-                                            </div>
-                                            
-                                        </button>                                      
+                                                                             
+                                    </td>
+                                    <td>                                        
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "savePayouts()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()">
                                                 <span v-html='saveButtonText'></span> 
                                             </button>
                                         </div>                                                                                
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()">
                                                 <span v-html='fillShowUpFeeButtonText'></span> 
                                             </button>
                                         </div>                                                                                
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "autobump()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()">
                                                 <span v-html='autoBumpButtonText'></span> 
                                             </button>
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-primary btn-sm" v-on:click = "bumpAll()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()">
                                                 <span v-html='bumpAllButtonText'></span> 
                                             </button>
                                         </div>
@@ -476,6 +476,17 @@
                                 </tr>
                                 
                                 <tr>
+                                    <td> 
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()">
+                                            <div v-if="sessionDay.complete">
+                                                <span v-html='openSessionButtonText'></span>
+                                            </div>
+                                            <div v-else>
+                                                <span v-html='completeSessionButtonText'></span>
+                                            </div>
+                                            
+                                        </button>                                     
+                                    </td>
                                     <td>                                        
                                     </td>
                                     <td style="text-align: center;">                                        
@@ -489,7 +500,7 @@
                                         </button>                                        
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-primary btn-sm" v-on:click = "payPalExport()">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()">
                                             <span v-html='paypalExportButtonText'></span> 
                                         </button>                                        
                                     </td>
