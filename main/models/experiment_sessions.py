@@ -13,10 +13,10 @@ class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
     showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10,null = True) 
     canceled=models.BooleanField(default=False)
-    actual_participants = models.IntegerField(default=1)
-
+    
     #recruitment parameters    
     registration_cutoff = models.IntegerField(default=1)    
+    actual_participants = models.IntegerField(default=1)
     gender = models.ManyToManyField(genders)
     subject_type =  models.ManyToManyField(subject_types)      
 
@@ -135,38 +135,40 @@ class experiment_sessions(models.Model):
 
     #setup this session with defualt parameters from related experiment
     def setupRecruitment(self):
-        
-        self.actual_participants = self.experiment.actual_participants_default
-        self.registration_cutoff = self.experiment.registration_cutoff_default
 
-        for i in self.experiment.gender_default.all():
+        p = self.experiment.recruitmentParamsDefault
+        
+        self.actual_participants = p.actual_participants
+        self.registration_cutoff = p.registration_cutoff
+
+        for i in p.gender.all():
             self.gender.add(i)
         
-        for i in self.experiment.subject_type_default.all():
+        for i in p.subject_type.all():
             self.subject_type.add(i)
 
-        self.experience_min=self.experiment.experience_min_default
-        self.experience_max=self.experiment.experience_max_default
-        self.experience_constraint=self.experiment.experience_constraint_default
+        self.experience_min=p.experience_min
+        self.experience_max=p.experience_max
+        self.experience_constraint=p.experience_constraint
 
-        for i in self.experiment.institutions_exclude_default.all():
+        for i in p.institutions_exclude.all():
             self.institutions_exclude.add(i)
         
-        for i in self.experiment.institutions_include_default.all():
+        for i in p.institutions_include.all():
             self.institutions_include.add(i)
 
-        for i in self.experiment.experiments_exclude_default.all():
+        for i in p.experiments_exclude.all():
             self.experiments_exclude.add(i)
 
-        for i in self.experiment.experiments_include_default.all():
+        for i in p.experiments_include.all():
             self.experiments_include.add(i)
 
-        self.institutions_exclude_all=self.experiment.institutions_exclude_all_default
-        self.institutions_include_all=self.experiment.institutions_include_all_default
-        self.experiments_exclude_all=self.experiment.experiments_exclude_all_default
-        self.experiments_include_all=self.experiment.experiments_include_all_default
+        self.institutions_exclude_all=p.institutions_exclude_all
+        self.institutions_include_all=p.institutions_include_all
+        self.experiments_exclude_all=p.experiments_exclude_all
+        self.experiments_include_all=p.experiments_include_all
 
-        self.allow_multiple_participations=self.experiment.allow_multiple_participations_default
+        self.allow_multiple_participations=p.allow_multiple_participations
 
         return self
 

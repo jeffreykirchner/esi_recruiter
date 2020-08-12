@@ -61,8 +61,6 @@ class experiment_session_days(models.Model):
     def setup(self,es,u_list):
         self.experiment_session=es
         self.location = locations.objects.first()
-        self.registration_cutoff = es.experiment.registration_cutoff_default
-        self.actual_participants = es.experiment.actual_participants_default
         self.length=es.experiment.length_default
         self.account = es.experiment.account_default    
         self.date = datetime.now()

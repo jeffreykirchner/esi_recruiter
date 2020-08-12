@@ -46,12 +46,7 @@ class experimentForm1(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['actual_participants_default','registration_cutoff_default',
-                 'gender_default','subject_type_default','institutions_exclude_default',
-                 'institutions_include_default','experiments_exclude_default','experiments_include_default',
-                 'experience_min_default','experience_max_default','experience_constraint_default','institutions_exclude_all_default',
-                 'institutions_include_all_default','experiments_exclude_all_default','experiments_include_all_default',
-                 'allow_multiple_participations_default']
+        exclude=['actual_participants_legacy','registration_cutoff_legacy','recruitmentParamsDefault']
 
     def clean_length_default(self):
         length_default = self.data['length_default']

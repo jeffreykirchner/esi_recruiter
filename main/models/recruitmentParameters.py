@@ -2,7 +2,7 @@
 from django.db import models
 import logging
 
-from . import genders,subject_types,institutions,experiments,experiment_sessions
+from . import genders,subject_types,institutions
 
 class recruitmentParameters(models.Model):
 
@@ -17,8 +17,8 @@ class recruitmentParameters(models.Model):
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
 
     #experiments to include or exclude
-    experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
-    experiments_include = models.ManyToManyField(experiments, related_name='%(class)s_experiments_include',blank=True)
+    experiments_exclude = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_exclude',blank=True)
+    experiments_include = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_include',blank=True)
 
     #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0,null=True)
@@ -73,6 +73,7 @@ class recruitmentParameters(models.Model):
 
         self.save()
 
+    #display string for 
     def json_displayString(self):
         s=""
 
@@ -150,11 +151,17 @@ class recruitmentParameters(models.Model):
             "id":self.id,
             "actual_participants":self.actual_participants,
             "registration_cutoff":self.registration_cutoff,
+            "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],
+            "subject_type" : [str(st.id) for st in self.subject_type.all()],
             "subject_type_full" : [st.json() for st in self.subject_type.all()],
+            "institutions_exclude" : [str(i.id) for i in self.institutions_exclude.all()],
             "institutions_exclude_full" : [i.json() for i in self.institutions_exclude.all()],
+            "institutions_include" : [str(i.id) for i in self.institutions_include.all()],
             "institutions_include_full" : [i.json() for i in self.institutions_include.all()],
+            "experiments_exclude" : [str(e.id) for e in self.experiments_exclude.all()],
             "experiments_exclude_full" : [e.json_min() for e in self.experiments_exclude.all()],
+            "experiments_include" : [str(e.id) for e in self.experiments_include.all()],
             "experiments_include_full" : [e.json_min() for e in self.experiments_include.all()],
             "experience_min":self.experience_min,
             "experience_max":self.experience_max,

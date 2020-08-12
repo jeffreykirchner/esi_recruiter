@@ -24,7 +24,8 @@ from main.models import institutions,\
                                 experiments_institutions, \
                                 schools, \
                                 majors, \
-                                parameters
+                                parameters, \
+                                recruitmentParameters
                         
 
 #migrate old data base over to new database
@@ -86,9 +87,24 @@ def migrate_schools():
                 school=schools(id=id,name=name)
                 school.save()
 
-def migrate_experiments():
+def migrate_recruitment_parameters():
+        print("Experiment recruitment parameters")
 
-        print("data loading")
+        recruitmentParameters.objects.all().delete()
+
+        for e in experiments.objects.all():
+                p=recruitmentParameters()
+                p.actual_participants = e.actual_participants_legacy
+                p.registration_cutoff = e.registration_cutoff_legacy
+
+                p.save()
+
+                e.recruitmentParamsDefault = p
+                e.save()
+
+def migrate_experiments():      
+
+        print("Experiment data loading")
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT experiment.id,
                                  COALESCE(title,"No Title"),
@@ -132,8 +148,8 @@ def migrate_experiments():
         objs = (experiments(id=c[0],
                                 title=c[1],
                                 experiment_manager=c[2],
-                                registration_cutoff_default=c[3],
-                                actual_participants_default=c[4],
+                                registration_cutoff_legacy=c[3],
+                                actual_participants_legacy=c[4],
                                 notes=c[5],
                                 account_default_id=c[8],
                                 school_id=c[6],                                

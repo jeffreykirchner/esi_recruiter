@@ -19,25 +19,30 @@
                     experimentURL:'',   
                     loading: true,   
                     message: null,              
-                    experiment:{institution:[],
-                                gender_default:[],
-                                experience_min_default:0,
-                                experience_max_default:1000,
-                                experience_constraint_default:0,
-                                institutions_exclude_all_default:0,
-                                institutions_include_all_default:0,
-                                experiments_exclude_all_default:0,
-                                experiments_include_all_default:0,
-                                allow_multiple_participations_default:0,
-                                institutions_exclude_default:[],
-                                institutions_include_default:[],
-                                experiments_exclude_default:[],
-                                experiments_include_default:[],
+                    experiment:{institution:[],                                               
                                 account_default_full:{str:""},
                                 title:'',
                                 invitationText:'',
                                 school_full:{name:""},
-                                department_default_full:{name:""}},
+                                department_default_full:{name:""}
+                        },
+                    recruitmentParams:{
+                            gender:[],
+                            actual_participants:0,
+                            registration_cutoff:0,
+                            experience_min:0,
+                            experience_max:1000,
+                            experience_constraint:false,
+                            institutions_exclude_all:0,
+                            institutions_include_all:0,
+                            experiments_exclude_all:0,
+                            experiments_include_all:0,
+                            allow_multiple_participations:false,
+                            institutions_exclude:[],
+                            institutions_include:[],
+                            experiments_exclude:[],
+                            experiments_include:[],
+                        },                    
                     sessions:{},  
                     parameters:{},                          
                     institutions_list:"",
@@ -65,15 +70,15 @@
 
                     //update recruitment display lists
                     updateDisplayLists:function(errors){
-                        var e = app.$data.experiment;
+                        var e = app.$data.recruitmentParams;
 
-                        app.$data.institutions_list=app.updateDisplayLists2(e.institution_full);
-                        app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_default_full);
-                        app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_default_full);
-                        app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_default_full);
-                        app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_default_full);
-                        app.$data.genders_list=app.updateDisplayLists2(e.gender_default_full);
-                        app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_default_full);
+                        app.$data.institutions_list=app.updateDisplayLists2(app.$data.experiment.institution_full);
+                        app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
+                        app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
+                        app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
+                        app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
+                        app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
+                        app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
                         app.$data.experiment.showUpFee =  parseFloat(app.$data.experiment.showUpFee).toFixed(2); 
                     },
 
@@ -99,7 +104,8 @@
                                 // app.$data.institutions= response.data.institutions; 
                                 app.$data.experiment =  response.data.experiment;     
                                 app.$data.sessions = response.data.sessions.experiment_sessions;      
-                                app.$data.parameters = response.data.parameters;                                          
+                                app.$data.parameters = response.data.parameters;  
+                                app.$data.recruitmentParams = response.data.recruitmentParams;                                        
                                 app.$data.loading=false; 
                                 app.updateDisplayLists();
                             })
@@ -177,7 +183,7 @@
 
                                 if(status=="success")
                                 {                           
-                                    app.$data.experiment =  response.data.experiment;  
+                                    app.$data.recruitmentParams = response.data.recruitmentParams;  
                                     app.updateDisplayLists();      
                                     $('#recruitmentModalCenter').modal('toggle');
                                 }
@@ -386,7 +392,7 @@
                         {{form1.showUpFee.label}}:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="experiment.showUpFee"></span>
+                        $<span v-html="experiment.showUpFee"></span>
                     </div>               
                 </div>
                 <div class = "row">
@@ -456,7 +462,7 @@
                         Number of Participants:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="experiment.actual_participants_default"></span>
+                        <span v-html="recruitmentParams.actual_participants"></span>
                     </div>               
                 </div>
                 <div class = "row">
@@ -464,7 +470,7 @@
                         Registration Cutoff:
                     </div>
                     <div class="col col-md-8">
-                        <span v-html="experiment.registration_cutoff_default"></span>
+                        <span v-html="recruitmentParams.registration_cutoff"></span>
                     </div>               
                 </div>
                 <div class = "row">
@@ -472,8 +478,8 @@
                         Experience Level:
                     </div>
                     <div class="col col-md-8">
-                        <div v-if="experiment.experience_constraint_default">
-                            <span v-html="experiment.experience_min_default + ' to ' + experiment.experience_max_default "></span>
+                        <div v-if="recruitmentParams.experience_constraint">
+                            <span v-html="recruitmentParams.experience_min + ' to ' + recruitmentParams.experience_max"></span>
                         </div>
                         <div v-else>
                             ---
@@ -485,7 +491,7 @@
                         Allow Multiple Participations:
                     </div>
                     <div class="col col-md-8">
-                        <div v-if="experiment.allow_multiple_participations_default">
+                        <div v-if="recruitmentParams.allow_multiple_participations">
                            <span v-html="'Yes'"></span>
                         </div>
                         <div v-else>
@@ -495,7 +501,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Include Institution Experience (<span v-if="experiment.institutions_include_all_default">All</span><span v-else>1+</span>):
+                        Include Institution Experience (<span v-if="recruitmentParams.institutions_include_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">
                         <span v-html="include_institutions_list"></span>
@@ -503,7 +509,7 @@
                 </div>
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        Exclude Institution Experience (<span v-if="experiment.institutions_exclude_all_default">All</span><span v-else>1+</span>):
+                        Exclude Institution Experience (<span v-if="recruitmentParams.institutions_exclude_all">All</span><span v-else>1+</span>):
                     </div>
                     <div class="col col-md-8">    
                         <span v-html="exclude_institutions_list"></span>
@@ -511,7 +517,7 @@
                 </div>
                 <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Include Experiment Experience (<span v-if="experiment.experiments_include_all_default">All</span><span v-else>1+</span>):
+                            Include Experiment Experience (<span v-if="recruitmentParams.experiments_include_all">All</span><span v-else>1+</span>):
                         </div>
                         <div class="col col-md-8">
                             <span v-html="include_experiments_list"></span>
@@ -519,7 +525,7 @@
                     </div>
                     <div class = "row">
                         <div class="col col-md-4 text-right">
-                            Exclude Experiment Experience (<span v-if="experiment.experiments_exclude_all_default">All</span><span v-else>1+</span>):
+                            Exclude Experiment Experience (<span v-if="recruitmentParams.experiments_exclude_all">All</span><span v-else>1+</span>):
                         </div>
                         <div class="col col-md-8">    
                             <span v-html="exclude_experiments_list"></span>
@@ -676,34 +682,34 @@
                         <!-- recruitment parameters -->
                         <div class="row">
                             <div class = "col"> 
-                                {{form2.gender_default | as_crispy_field }}                            
+                                {{form2.gender | as_crispy_field }}                            
                             </div>
                             <div class = "col"> 
-                                {{form2.subject_type_default | as_crispy_field }}
+                                {{form2.subject_type | as_crispy_field }}
                             </div>
                         </div>
                         <div class="row">
                             <div class = "col"> 
-                                {{form2.actual_participants_default | as_crispy_field }}
+                                {{form2.actual_participants | as_crispy_field }}
                             </div>
                             <div class = "col">  
-                                {{form2.registration_cutoff_default | as_crispy_field }}
+                                {{form2.registration_cutoff | as_crispy_field }}
                             </div>                            
                         </div> 
                         <div class="row">    
                             <div class = "col"> 
-                                {{form2.experience_constraint_default | as_crispy_field }}
+                                {{form2.experience_constraint | as_crispy_field }}
                             </div>
                             <div class = "col"> 
-                                {{form2.allow_multiple_participations_default | as_crispy_field }}
+                                {{form2.allow_multiple_participations | as_crispy_field }}
                             </div>
                         </div>
                         <div class="row">    
                             <div class = "col"> 
-                                {{form2.experience_min_default | as_crispy_field }}
+                                {{form2.experience_min | as_crispy_field }}
                             </div>
                             <div class = "col"> 
-                                {{form2.experience_max_default | as_crispy_field }}
+                                {{form2.experience_max | as_crispy_field }}
                             </div>
                         </div>       
                             
@@ -711,36 +717,36 @@
                             <div class = "col"> 
                                 Exclude Institution Experience
                                 <div class = "overflow-auto" style="height: 300px;">
-                                    {{form2.institutions_exclude_default | as_crispy_field }} 
+                                    {{form2.institutions_exclude | as_crispy_field }} 
                                 </div>     
                                 <br>
-                                {{form2.institutions_exclude_all_default | as_crispy_field }}                                                      
+                                {{form2.institutions_exclude_all | as_crispy_field }}                                                      
                             </div>
                             <div class = "col"> 
                                 Include Institution Experience
                                 <div class = "overflow-auto" style="height: 300px;">
-                                    {{form2.institutions_include_default | as_crispy_field }}
+                                    {{form2.institutions_include | as_crispy_field }}
                                 </div>  
                                 <br>
-                                {{form2.institutions_include_all_default| as_crispy_field }}                              
+                                {{form2.institutions_include_all| as_crispy_field }}                              
                             </div>
                         </div>
                         <div class="row mb-4">
                             <div class = "col"> 
                                 Exclude Experiment Experience
                                 <div class = "overflow-auto" style="height: 300px;">
-                                    {{form2.experiments_exclude_default | as_crispy_field }}
+                                    {{form2.experiments_exclude | as_crispy_field }}
                                 </div>       
                                 <br>
-                                {{form2.experiments_exclude_all_default | as_crispy_field }}                           
+                                {{form2.experiments_exclude_all | as_crispy_field }}                           
                             </div>                            
                             <div class = "col"> 
                                 Include Experiment Experience
                                 <div class=" overflow-auto" style="height: 300px;">
-                                    {{form2.experiments_include_default | as_crispy_field }}
+                                    {{form2.experiments_include | as_crispy_field }}
                                 </div>    
                                 <br>
-                                {{form2.experiments_include_all_default | as_crispy_field }}                              
+                                {{form2.experiments_include_all | as_crispy_field }}                              
                             </div>
                         </div>
                     </form> <!-- recruitment parameters form -->                                            

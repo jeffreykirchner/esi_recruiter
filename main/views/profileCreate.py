@@ -31,6 +31,7 @@ def profileCreate(request):
     #migrate_subjects2()
    
     #migrate_experiments() #***
+    #migrate_recruitment_parameters() #***
     #migrate_locations()
     #migrate_experiments_institutions()
     #migrate_sessions()

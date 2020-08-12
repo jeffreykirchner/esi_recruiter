@@ -13,13 +13,14 @@ from main.models import experiments, \
                         institutions, \
                         genders, \
                         parameters
-from main.forms import experimentForm1,experimentForm2
+from main.forms import experimentForm1,recruitmentParametersForm
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
 import json
 from django.db.models import prefetch_related_objects
 from django.urls import reverse
+import logging
 
 #induvidual experiment view
 @login_required
@@ -48,6 +49,7 @@ def experimentView(request,id):
             
             return JsonResponse({"experiment" :  e.json(),
                                  "sessions" : e.json_sessions(),
+                                 "recruitmentParams":e.recruitmentParamsDefault.json(),
                                  "parameters" : p.json()}, safe=False)
 
         elif data["status"] == "update1":
@@ -78,6 +80,10 @@ def experimentView(request,id):
                 print("invalid form1")
                 return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)                   
         elif data["status"] == "update2":   
+            logger = logging.getLogger(__name__)
+            logger.info("Update default recruitment parameters")
+            logger.info(data)
+
             form_data_dict = {} 
 
             genderList=[]
@@ -88,35 +94,36 @@ def experimentView(request,id):
             experimentsIncludeList=[]
 
             for field in data["formData"]:            
-                if field["name"] == "gender_default":                 
+                if field["name"] == "gender":                 
                     genderList.append(field["value"])
-                elif field["name"] == "subject_type_default":                 
+                elif field["name"] == "subject_type":                 
                     subjectTypeList.append(field["value"])
-                elif field["name"] == "institutions_exclude_default":                 
+                elif field["name"] == "institutions_exclude":                 
                     institutionsExcludeList.append(field["value"])
-                elif field["name"] == "institutions_include_default":                 
+                elif field["name"] == "institutions_include":                 
                     institutionsIncludeList.append(field["value"])
-                elif field["name"] == "experiments_exclude_default":                 
+                elif field["name"] == "experiments_exclude":                 
                     experimentsExcludeList.append(field["value"])
-                elif field["name"] == "experiments_include_default":                 
+                elif field["name"] == "experiments_include":                 
                     experimentsIncludeList.append(field["value"])
                 else:
                     form_data_dict[field["name"]] = field["value"]
 
-            form_data_dict["gender_default"]=genderList
-            form_data_dict["subject_type_default"]=subjectTypeList
-            form_data_dict["institutions_exclude_default"]=institutionsExcludeList
-            form_data_dict["institutions_include_default"]=institutionsIncludeList
-            form_data_dict["experiments_exclude_default"]=experimentsExcludeList
-            form_data_dict["experiments_include_default"]=experimentsIncludeList
+            form_data_dict["gender"]=genderList
+            form_data_dict["subject_type"]=subjectTypeList
+            form_data_dict["institutions_exclude"]=institutionsExcludeList
+            form_data_dict["institutions_include"]=institutionsIncludeList
+            form_data_dict["experiments_exclude"]=experimentsExcludeList
+            form_data_dict["experiments_include"]=experimentsIncludeList
 
             #print(form_data_dict)
-            form = experimentForm2(form_data_dict,instance=e)
+            form = recruitmentParametersForm(form_data_dict,instance=e.recruitmentParamsDefault)
 
             if form.is_valid():
                 #print("valid form")                                
-                e=form.save()                               
-                return JsonResponse({"experiment" : e.json(),"status":"success"}, safe=False)
+                form.save()    
+                                           
+                return JsonResponse({"recruitmentParams":e.recruitmentParamsDefault.json(),"status":"success"}, safe=False)
             else:
                 print("invalid form2")
                 return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
@@ -147,7 +154,7 @@ def experimentView(request,id):
         return render(request,
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
-                       'form2':experimentForm2(),                      
+                       'form2':recruitmentParametersForm(),                      
                        'id': id})
         
 
