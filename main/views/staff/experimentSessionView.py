@@ -13,7 +13,7 @@ from main.models import experiment_session_days, \
                         experiment_session_messages,\
                         experiment_session_invitations,\
                         recruitmentParameters
-from main.forms import experimentSessionForm1,experimentSessionForm2,recruitForm
+from main.forms import recruitmentParametersForm,experimentSessionForm2,recruitForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
@@ -48,7 +48,7 @@ def experimentSessionView(request,id):
             raise Http404('Experiment Not Found')               
 
         if data["status"] == "get":            
-            return JsonResponse({"session" :  es.json()}, safe=False)
+            return getSesssion(data,id)
         elif data["status"] == "updateRecruitmentParameters":
             return updateRecruitmentParameters(data,id)                     
         elif data["status"] ==  "addSessionDay":
@@ -84,11 +84,22 @@ def experimentSessionView(request,id):
 
         return render(request,
                       'staff/experimentSessionView.html',
-                      {'form1':experimentSessionForm1(),    
-                       'form2':experimentSessionForm2(),    
-                       'form3':recruitForm(),                                    
+                      {'form1':recruitmentParametersForm(),    
+                       'form2':experimentSessionForm2(),                                                               
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
+
+def getSesssion(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("get session")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+    
+    logger.info(es.recruitmentParams)
+
+    return JsonResponse({"session" :  es.json(),
+                         "recruitmentParams":es.recruitmentParams.json()}, safe=False)
 
 #show all messages sent to confirmed users
 def showInvitations(data,id):
@@ -645,8 +656,10 @@ def getValidUserList(id,u_list):
         WITH
         --table of genders required in session
         genders_include AS (SELECT genders_id
-					     FROM main_experiment_sessions_gender
-			             WHERE main_experiment_sessions_gender.experiment_sessions_id = ''' + str(id) + '''),
+                            FROM main_recruitmentparameters_gender
+                            JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_gender.recruitmentparameters_id
+                            JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                            WHERE main_experiment_sessions.id ''' + str(id) + '''),
 	
         ''' \
         + user_institutions_str \
@@ -766,12 +779,12 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["experiments_include"]=experimentsIncludeList                       
 
     #print(form_data_dict)
-    form = experimentSessionForm1(form_data_dict,instance=es)
+    form = recruitmentParametersForm(form_data_dict,instance=es.recruitmentParams)
 
     if form.is_valid():
         #print("valid form")                
-        e=form.save()               
-        return JsonResponse({"session" : e.json(),"status":"success"}, safe=False)
+        form.save()               
+        return JsonResponse({"recruitmentParams":es.recruitmentParams.json(),"status":"success"}, safe=False)
     else:
         print("invalid form1")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
@@ -801,6 +814,10 @@ def addSessionDay(data,id):
 
 #remove a session day
 def removeSessionDay(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Remove session day")
+    logger.info(data)
+
     es = experiment_sessions.objects.get(id=id)
 
     esd = es.ESD.get(id = data["id"])

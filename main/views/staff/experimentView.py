@@ -143,9 +143,17 @@ def experimentView(request,id):
 
             return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False)
         elif data["status"] == "remove":
+            logger = logging.getLogger(__name__)
+            logger.info("Remove session")
+            logger.info(data)
+
             es=experiment_sessions.objects.get(id=data["sid"])
 
+            logger.info("Recruitment Parameters ID:")
+            logger.info(es.recruitmentParams)
+
             if es.allowDelete():
+                es.recruitmentParams.delete()
                 es.delete()
 
             return JsonResponse({"sessions" : e.json_sessions()}, safe=False)

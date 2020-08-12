@@ -88,10 +88,13 @@ def migrate_schools():
                 school.save()
 
 def migrate_recruitment_parameters():
-        print("Experiment recruitment parameters")
+        print("Start of experiments")       
 
         recruitmentParameters.objects.all().delete()
 
+        migrate_experiments()
+
+        print("Experiment recruitment parameters")
         for e in experiments.objects.all():
                 p=recruitmentParameters()
                 p.actual_participants = e.actual_participants_legacy
@@ -101,6 +104,16 @@ def migrate_recruitment_parameters():
 
                 e.recruitmentParamsDefault = p
                 e.save()
+
+        print("Session recruitment parameters")
+        
+        for es in experiment_sessions.objects.all():
+                p = es.experiment.recruitmentParamsDefault
+                p.pk = None
+                p.save()
+
+                es.recruitmentParams = p
+                es.save()
 
 def migrate_experiments():      
 
@@ -502,9 +515,7 @@ def migrate_sessions():
 
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT sessions.id,
-                                 experiment_id,
-                                 CASE WHEN registration_cutoff IS NULL THEN 0 ELSE registration_cutoff END AS registration_cutoff,
-                                 CASE WHEN actual_participants IS NULL THEN 0 ELSE actual_participants END AS actual_participants,
+                                 experiment_id,                                
                                  CASE WHEN NOT on_time_bonus REGEXP '^[0-9]+(\.[0-9]+)?$'  
                                         THEN 0
                                         ELSE on_time_bonus END AS on_time_bonus,
@@ -518,11 +529,9 @@ def migrate_sessions():
         experiment_sessions.objects.all().delete()        
         
         objs = (experiment_sessions(id=c[0],
-                                    experiment_id=c[1],
-                                    registration_cutoff = c[2],    
-                                    actual_participants=c[3],
-                                    showUpFee_legacy = c[4],
-                                    canceled = c[5]
+                                    experiment_id=c[1],                                    
+                                    showUpFee_legacy = c[2],
+                                    canceled = c[3]
                                 ) for c in cursor.fetchall())
 
         batch_size=150
@@ -552,7 +561,7 @@ def migrate_sessions():
                 else:
                         e.showUpFee = 0
                 
-                print("show up fee " + str(e.id) + " " + str(e.showUpFee))
+                #print("show up fee " + str(e.id) + " " + str(e.showUpFee))
                 e.save()
         
        # e_list.update()

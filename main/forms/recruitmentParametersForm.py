@@ -1,96 +1,96 @@
 from django import forms
-from main.models import genders,subject_types,institutions,experiments,recruitmentParameters
+from main.models import genders,subject_types,institutions,experiments,recruitmentParameters,hrefExperiments
 
 class recruitmentParametersForm(forms.ModelForm):   
 
     actual_participants = forms.CharField(label='Number of Participants', 
                                                   widget=forms.NumberInput(attrs={"v-model":"recruitmentParams.actual_participants",
-                                                                                  "v-on:keyup":"mainFormChange2",
-                                                                                  "v-on:change":"mainFormChange2"}))
+                                                                                  "v-on:keyup":"recruitmentFormChange",
+                                                                                  "v-on:change":"recruitmentFormChange"}))
     registration_cutoff = forms.CharField(label='Registration Cutoff',
                                                   widget=forms.NumberInput(attrs={"v-model":"recruitmentParams.registration_cutoff",
-                                                                                  "v-on:keyup":"mainFormChange2",
-                                                                                  "v-on:change":"mainFormChange2"}))  
+                                                                                  "v-on:keyup":"recruitmentFormChange",
+                                                                                  "v-on:change":"recruitmentFormChange"}))  
     gender = forms.ModelMultipleChoiceField(label="Gender(s)", 
                                                     queryset=genders.objects.all(),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.gender",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"4"}))                                                               
     subject_type = forms.ModelMultipleChoiceField(label="Subject Type(s)",
                                                     queryset=subject_types.objects.all(),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.subject_type",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"4"}))
     institutions_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
                                                     queryset=institutions.objects.all().order_by("name"),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.institutions_exclude",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     institutions_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
                                                     queryset=institutions.objects.all().order_by("name"),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.institutions_include",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     experiments_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=experiments.objects.all().order_by("title"),
+                                                    queryset=hrefExperiments.objects.all().order_by("title"),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.experiments_exclude",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"12"}))
     experiments_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=experiments.objects.all().order_by("title"),
+                                                    queryset=hrefExperiments.objects.all().order_by("title"),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.experiments_include",
-                                                                                        "v-on:change":"mainFormChange2",
+                                                                                        "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"12"}))        
 
     experience_min = forms.CharField(label='Minimum Experiment Experience', 
                                             widget=forms.NumberInput(attrs={"v-model":"recruitmentParams.experience_min",
-                                                                            "v-on:keyup":"mainFormChange2",
-                                                                            "v-on:change":"mainFormChange2"}))
+                                                                            "v-on:keyup":"recruitmentFormChange",
+                                                                            "v-on:change":"recruitmentFormChange"}))
     
     experience_max = forms.CharField(label='Maximum Experiment Experience', 
                                             widget=forms.NumberInput(attrs={"v-model":"recruitmentParams.experience_max",
-                                                                            "v-on:keyup":"mainFormChange2",
-                                                                            "v-on:change":"mainFormChange2"}))                                                                                                                                                                                                                                                                 
+                                                                            "v-on:keyup":"recruitmentFormChange",
+                                                                            "v-on:change":"recruitmentFormChange"}))                                                                                                                                                                                                                                                                 
 
     experience_constraint = forms.TypedChoiceField(label='Enable Experience Constraint?',             
                                          choices=((1, 'Yes'), (0, 'No (faster)')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.experience_constraint",
-                                                                         "v-on:change":"mainFormChange2"}))
+                                                                         "v-on:change":"recruitmentFormChange"}))
     
     institutions_exclude_all = forms.TypedChoiceField(label='', 
                                          choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                   
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.institutions_exclude_all",
-                                                                         "v-on:change":"mainFormChange2"}))
+                                                                         "v-on:change":"recruitmentFormChange"}))
 
     institutions_include_all = forms.TypedChoiceField(label='',             
                                          choices=((1, 'Include if in all.'), (0,'Include if in at least one.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.institutions_include_all",
-                                                                         "v-on:change":"mainFormChange2"}))   
+                                                                         "v-on:change":"recruitmentFormChange"}))   
 
     experiments_exclude_all = forms.TypedChoiceField(label='',             
                                          choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.experiments_exclude_all",
-                                                                         "v-on:change":"mainFormChange2"}))   
+                                                                         "v-on:change":"recruitmentFormChange"}))   
 
     experiments_include_all = forms.TypedChoiceField(label='',             
                                          choices=((1, 'Include if in all.'), (0, 'Include if in at least one.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.experiments_include_all",
-                                                                         "v-on:change":"mainFormChange2"}))
+                                                                         "v-on:change":"recruitmentFormChange"}))
 
     allow_multiple_participations = forms.TypedChoiceField(label='Allow subjects to participate more than once?',             
                                             choices=((1, 'Yes'), (0, 'No')),                
                                             widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.allow_multiple_participations",
-                                                                            "v-on:change":"mainFormChange2"}))
+                                                                            "v-on:change":"recruitmentFormChange"}))
 
     class Meta:
         model=recruitmentParameters

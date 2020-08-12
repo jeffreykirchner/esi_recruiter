@@ -24,31 +24,6 @@ class experiments(models.Model):
     notes = models.TextField(null=True)   
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
     invitationText = models.CharField(max_length = 10000,default = "")        
-    
-    # #default recruitment parameters
-    # registration_cutoff_default = models.IntegerField()
-    # actual_participants_default = models.IntegerField()
-    # gender_default = models.ManyToManyField(genders)
-    # subject_type_default =  models.ManyToManyField(subject_types)  
-    
-    # institutions_exclude_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_exclude_default",blank=True)
-    # institutions_include_default = models.ManyToManyField(institutions, related_name="%(class)s_institutions_include_default",blank=True)
-    # experiments_exclude_default = models.ManyToManyField("self", related_name="%(class)s_experiments_exclude_default",blank=True)
-    # experiments_include_default = models.ManyToManyField("self", related_name="%(class)s_experiments_include_default",blank=True)
-
-    # #min and max number of experiments a subject could be in
-    # experience_min_default = models.IntegerField(default = 0)
-    # experience_max_default = models.IntegerField(default = 1000)
-    # experience_constraint_default  =  models.BooleanField(default=False) 
-
-    # #wether constraints should be be all or more than one
-    # institutions_exclude_all_default = models.BooleanField(default=True)
-    # institutions_include_all_default = models.BooleanField(default=True)
-    # experiments_exclude_all_default = models.BooleanField(default=True)
-    # experiments_include_all_default = models.BooleanField(default=True)
-
-    # #all subject to come multiple times to the same same experiment
-    # allow_multiple_participations_default =  models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -80,8 +55,6 @@ class experiments(models.Model):
             "id":self.id,
             "title":  mark_safe(self.title),
             "experiment_manager":self.experiment_manager,
-            # "registration_cutoff_default":self.registration_cutoff_default,
-            # "actual_participants_default":self.actual_participants_default,
             "length_default":self.length_default,
             "notes":self.notes,
             "invitationText":self.invitationText,
@@ -92,27 +65,6 @@ class experiments(models.Model):
             "account_default_full":self.account_default.json(),            
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
-                 
-            # "gender_default":[str(g.id) for g in self.gender_default.all()],
-            # "gender_default_full":[g.json() for g in self.gender_default.all()],
-            # "subject_type_default" : [str(st.id) for st in self.subject_type_default.all()],
-            # "subject_type_default_full" : [st.json() for st in self.subject_type_default.all()],
-            # "institutions_exclude_default" : [str(i.id) for i in self.institutions_exclude_default.all()],
-            # "institutions_exclude_default_full" : [i.json() for i in self.institutions_exclude_default.all()],
-            # "institutions_include_default" : [str(i.id) for i in self.institutions_include_default.all()],
-            # "institutions_include_default_full" : [i.json() for i in self.institutions_include_default.all()],
-            # "experiments_exclude_default" : [str(e.id) for e in self.experiments_exclude_default.all()],
-            # "experiments_exclude_default_full" : [e.json_min() for e in self.experiments_exclude_default.all()],
-            # "experiments_include_default" : [str(e.id) for e in self.experiments_include_default.all()],
-            # "experiments_include_default_full" : [e.json_min() for e in self.experiments_include_default.all()],
-            # "experience_min_default":self.experience_min_default,
-            # "experience_max_default":self.experience_max_default,
-            # "experience_constraint_default":1 if self.experience_constraint_default else 0,
-            # "institutions_exclude_all_default":1 if self.institutions_exclude_all_default else 0,
-            # "institutions_include_all_default":1 if self.institutions_include_all_default else 0,
-            # "experiments_exclude_all_default":1 if self.experiments_exclude_all_default else 0,
-            # "experiments_include_all_default":1 if self.experiments_include_all_default else 0,
-            # "allow_multiple_participations_default":1 if self.allow_multiple_participations_default else 0,
         }
 
 
