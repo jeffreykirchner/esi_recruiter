@@ -249,7 +249,7 @@ def inviteSubjects(data,id):
 
     #store invitation
     recruitmentParams = recruitmentParameters()
-    recruitmentParams.setup(es)
+    recruitmentParams.setup(es.recruitmentParams)
     recruitmentParams.save()
 
     m = experiment_session_invitations()
@@ -440,6 +440,7 @@ def getValidUserList(id,u_list):
     logger.info("Get valid user list for session " + str(id))
 
     es = experiment_sessions.objects.get(id=id)
+    es_p = es.recruitmentParams
 
     institutions_exclude_str = ""
     institutions_include_str = ""
@@ -448,46 +449,46 @@ def getValidUserList(id,u_list):
     allow_multiple_participations_str = False
 
     experiment_id = es.experiment.id
-    es.experience_min
+    #es.experience_min
 
     #institutions exclude string
-    ie_c =  es.institutions_exclude.all().count()
+    ie_c =  es_p.institutions_exclude.all().count()
     if ie_c == 0:
         institutions_exclude_str=''
-    elif es.institutions_exclude_all:
+    elif es_p.institutions_exclude_all:
         institutions_exclude_str = 'institutions_exclude_user_count < ' + str(ie_c) + ' AND '
     else:
         institutions_exclude_str = 'institutions_exclude_user_count = 0 AND '
    
     #institutions include string
-    ii_c = es.institutions_include.all().count()
+    ii_c = es_p.institutions_include.all().count()
     if ii_c == 0:
         institutions_include_str=''
-    elif es.institutions_include_all:
+    elif es_p.institutions_include_all:
         institutions_include_str = 'institutions_include_user_count = ' + str(ii_c) + ' AND '        
     else:
         institutions_include_str = 'institutions_include_user_count > 0 AND'
     
     #experiments exclude string
-    ee_c = es.experiments_exclude.all().count()
+    ee_c = es_p.experiments_exclude.all().count()
     if  ee_c == 0:
         experiments_exclude_str=''
-    elif es.experiments_exclude_all:
+    elif es_p.experiments_exclude_all:
        experiments_exclude_str = 'experiments_exclude_user_count < ' + str(ee_c) + ' AND '
     else:
         experiments_exclude_str = 'experiments_exclude_user_count = 0 AND '
 
     #experiments include string
-    ei_c = es.experiments_include.all().count()
+    ei_c = es_p.experiments_include.all().count()
     if ei_c == 0:
         experiments_include_str=''
-    elif es.experiments_include_all:
+    elif es_p.experiments_include_all:
         experiments_include_str = 'experiments_include_user_count = ' +  str(ei_c) + ' AND '
     else:
         experiments_include_str = 'experiments_include_user_count > 0 AND '
 
     #allow multiple participations in same experiment
-    if es.allow_multiple_participations:
+    if es_p.allow_multiple_participations:
         allow_multiple_participations_str=""
     else:
         allow_multiple_participations_str='''NOT EXISTS(SELECT 1                                                      
@@ -510,22 +511,23 @@ def getValidUserList(id,u_list):
         --number of required institutions a subject has been in
 	    (SELECT count(*)                                                    
 		   FROM institutions_include_user
-		   INNER JOIN institutions_include ON institutions_include.institution_id = institutions_include_user.institution_id
+		   INNER JOIN institutions_include ON institutions_include.institutions_id = institutions_include_user.institution_id
 		   WHERE institutions_include_user.auth_user_id = auth_user.id) AS institutions_include_user_count,
         '''
 
         institutions_include_with_str = '''
         --institutions that a subject should have done already
-	    institutions_include AS (SELECT main_institutions.id AS institution_id
-								FROM main_institutions
-								INNER JOIN main_experiment_sessions_institutions_include ON main_institutions.id = main_experiment_sessions_institutions_include.institutions_id
-								WHERE main_experiment_sessions_institutions_include.experiment_sessions_id = ''' + str(id) + '''),
+	    institutions_include AS (SELECT institutions_id
+                                    FROM main_recruitmentparameters_institutions_include
+                                    JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_include.recruitmentparameters_id
+                                    JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
         --table of users that have at least some of the correct institution experience
 	    institutions_include_user AS (SELECT user_institutions.auth_user_id,
 										   user_institutions.institution_id
 				                    FROM user_institutions
-				                    INNER JOIN institutions_include ON institutions_include.institution_id = user_institutions.institution_id),
+				                    INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions.institution_id),
         '''
     
     if ie_c > 0:
@@ -537,15 +539,16 @@ def getValidUserList(id,u_list):
        ''' 
        institutions_exclude_with_str = '''
         --institutions that should subject should not have done already
-        institutions_exclude AS (SELECT main_institutions.id AS institution_id
-								FROM main_institutions
-								INNER JOIN main_experiment_sessions_institutions_exclude ON main_institutions.id = main_experiment_sessions_institutions_exclude.institutions_id
-								WHERE main_experiment_sessions_institutions_exclude.experiment_sessions_id = ''' + str(id) + '''), 
+        institutions_exclude AS (SELECT institutions_id
+                                    FROM main_recruitmentparameters_institutions_exclude
+                                    JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
+                                    JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
 
         --table of users that should be excluded based on past history
 	    institutions_exclude_user AS (SELECT user_institutions.auth_user_id
 				                    FROM user_institutions
-				                    INNER JOIN institutions_exclude ON institutions_exclude.institution_id = user_institutions.institution_id),
+				                    INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id),
        '''
 
     if ei_c > 0:
@@ -559,10 +562,11 @@ def getValidUserList(id,u_list):
 
         experiments_include_with_str = '''
         --experiments that a subject should have done already
-	    experiments_include AS (SELECT main_experiments.id AS experiments_id
-								FROM main_experiments
-								INNER JOIN main_experiment_sessions_experiments_include ON main_experiments.id = main_experiment_sessions_experiments_include.experiments_id
-								WHERE main_experiment_sessions_experiments_include.experiment_sessions_id = ''' + str(id) + '''),
+	    experiments_include AS (SELECT experiments_id
+                                    FROM main_recruitmentparameters_experiments_include
+                                    JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_include.recruitmentparameters_id
+                                    JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         '''
     if ee_c > 0:
         experiments_exclude_user_count_str = '''
@@ -575,17 +579,18 @@ def getValidUserList(id,u_list):
 
         experiments_exclude_with_str = '''
         --experiments that should subject should not have done already
-        experiments_exclude AS (SELECT main_experiments.id AS experiments_id
-								FROM main_experiments
-								INNER JOIN main_experiment_sessions_experiments_exclude ON main_experiments.id = main_experiment_sessions_experiments_exclude.experiments_id
-								WHERE main_experiment_sessions_experiments_exclude.experiment_sessions_id = ''' + str(id) + '''),
+        experiments_exclude AS (SELECT experiments_id
+                                FROM main_recruitmentparameters_experiments_exclude
+                                JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
+                                JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         '''
 
     exeriments_count_select_str =""
     exeriments_count_select_where=""
 
 
-    if es.experience_constraint:
+    if es_p.experience_constraint:
         exeriments_count_select_str ='''
             --the number of experiments a subject has attended	
         (SELECT count(*)                                                     
@@ -593,8 +598,8 @@ def getValidUserList(id,u_list):
                 WHERE main_experiment_session_day_users.user_id = auth_user.id AND attended = 1) AS experiments_attended_count,
         '''
         exeriments_count_select_where ='''
-        experiments_attended_count >= ''' + str(es.experience_min) + ''' AND       --minimum number of experiments subject has been in
-        experiments_attended_count <=  ''' + str(es.experience_max) + ''' AND      --max number of experiments a subject has be in
+        experiments_attended_count >= ''' + str(es_p.experience_min) + ''' AND       --minimum number of experiments subject has been in
+        experiments_attended_count <=  ''' + str(es_p.experience_max) + ''' AND      --max number of experiments a subject has be in
         '''
 
     #if ee_c > 0 or ei_c > 0:
@@ -659,7 +664,7 @@ def getValidUserList(id,u_list):
                             FROM main_recruitmentparameters_gender
                             JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_gender.recruitmentparameters_id
                             JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
-                            WHERE main_experiment_sessions.id ''' + str(id) + '''),
+                            WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 	
         ''' \
         + user_institutions_str \
@@ -673,8 +678,10 @@ def getValidUserList(id,u_list):
         
         --table of subject types required in session
         subject_type_include AS (SELECT subject_types_id
-                                FROM main_experiment_sessions_subject_type
-                                WHERE main_experiment_sessions_subject_type.experiment_sessions_id = ''' + str(id) + ''')
+                                    FROM main_recruitmentparameters_subject_type
+                                    JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_subject_type.recruitmentparameters_id
+                                    JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    WHERE main_experiment_sessions.id = ''' + str(id) + ''')
 
         SELECT        
        '''\
@@ -823,6 +830,7 @@ def removeSessionDay(data,id):
     esd = es.ESD.get(id = data["id"])
 
     if esd.allowDelete():
+        esd.experiment_session_day_users_set.all().delete()
         esd.delete()
 
     es.save()
