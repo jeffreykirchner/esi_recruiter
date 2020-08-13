@@ -8,9 +8,9 @@ from django.db.models import F
 from django.db.models import Q
 import pytz
 from django.db.models.functions import Lower
-
+import json
 from django.contrib.auth.models import User
-
+from django.core.serializers.json import DjangoJSONEncoder
 from . import experiment_sessions,locations,accounts,parameters
 import main
 
@@ -146,7 +146,7 @@ class experiment_session_days(models.Model):
             "complete":self.complete,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
-            "requiredCount" : self.experiment_session.actual_participants,
+            "requiredCount" : self.experiment_session.recruitmentParams.actual_participants,
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
         }
     
@@ -176,15 +176,31 @@ class experiment_session_days(models.Model):
         u_list_u_json =[]
 
         if getUnconfirmed:  
-                     
+
+            #get list of valid users        
+            u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]                   
+
+            user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False) 
+
+            logger.info("Valid List")
+            logger.info(user_list_valid)       
+
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
                 "user":{"id" : i.user.id,
                         "first_name":i.user.first_name.capitalize(),   
                         "last_name":i.user.last_name.capitalize(),},  
                 "allowDelete" : i.allowDelete(),
-                "allowConfirm" : i.allowConfirm(),}
-                    for i in u_list_u]           
+                "allowConfirm" : i.allowConfirm(),
+                "valid" :  0}
+                    for i in u_list_u]
+
+            #mark users that do not violate recruitment parameters
+            for u in u_list_u_json:
+                for uv in user_list_valid:
+                    if u['user']['id'] == uv.id:
+                        u['valid'] = 1
+                        break
 
         return{
             "id":self.id,

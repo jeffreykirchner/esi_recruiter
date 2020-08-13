@@ -534,7 +534,8 @@
                     },
 
                     //fire when view setup model closes, cancel action if nessicary
-                    hideShowSubjects:function(){                        
+                    hideShowSubjects:function(){    
+                        app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';                    
                     },
 
                     // fire when invite subjects subjects model is shown
@@ -1007,7 +1008,7 @@
                     //attach modal close events to vue
                     $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
                     $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
-                    $('#subjectsModalCenter').on("hidden.bs.modal", this.hideRecruitSubjects);
+                    $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
                     $('#id_date').on("dp.hide",this.mainFormChange2);
                     $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
                     $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
@@ -1101,7 +1102,7 @@
                         Allow Multiple Participations:
                     </div>
                     <div class="col col-md-8">
-                        <div v-if="session.allow_multiple_participations">
+                        <div v-if="recruitmentParams.allow_multiple_participations">
                            <span v-html="'Yes'"></span>
                         </div>
                         <div v-else>
@@ -1714,7 +1715,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">                    
+            <div class="modal-body">  
+                <!-- confirmed   -->
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">
@@ -1765,6 +1767,7 @@
                     </div>
                 </div>
                 <br>
+                <!-- un confirmed -->
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">
@@ -1795,6 +1798,7 @@
                                         <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
+                                        <div v-if="esdu.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
                                     </td>
                                 </tr>
                             </tbody>
