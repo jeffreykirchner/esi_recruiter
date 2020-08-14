@@ -75,7 +75,7 @@ class experiment_session_day_users(models.Model):
                              datetime.now(pytz.UTC) > self.experiment_session_day.date else False,
         }
     
-    #get now show status for session user
+    #get multiday status of session
     def getMultiDay(self):
         return True if self.experiment_session_day.experiment_session.ESD.count() > 1 else False
     
