@@ -13,7 +13,7 @@ from main.models import experiment_session_days, \
                         experiment_session_messages,\
                         experiment_session_invitations,\
                         recruitmentParameters
-from main.forms import recruitmentParametersForm,experimentSessionForm2,recruitForm
+from main.forms import recruitmentParametersForm,experimentSessionForm2
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
