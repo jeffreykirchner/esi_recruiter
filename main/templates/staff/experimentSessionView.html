@@ -488,7 +488,7 @@
                         app.clearMainFormErrors();
                     },
 
-                     //fire when edit experiment model hides, cancel action if nessicary
+                    //fire when edit experiment model hides, cancel action if nessicary
                     hideEditRecruitment:function(){
                         if(app.$data.cancelModal)
                         {
@@ -496,6 +496,12 @@
                             app.$data.sessionBeforeEdit=null;
                             app.$data.buttonText1="Update";
                         }
+                    },
+
+                    //fire when the run session button is pressed
+                    runSession:function(id)
+                    {
+                        window.open('/experimentSessionRun/' + id,"_self");
                     },
 
                     // fire when edit setup model is shown, save copy for cancel
@@ -1144,13 +1150,13 @@
                 </div>
                 <div class = "row mt-2">
                     <div class="col col-md-4 text-right">
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button>
                     </div>
                     <div class="col col-md-8">                        
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fa fa-users"></i></button>
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
-                        <button class="btn btn-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fa fa-users"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
+                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -1165,7 +1171,7 @@
                             <thead>
                                 <th width="35%">
                                     Date 
-                                    <button class="btn btn-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
+                                    <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
                                 <th width="35%" style="text-align: center;">
@@ -1192,30 +1198,27 @@
                                         <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                
                                     </td>                               
                                     <td style="text-align: center;">                                       
-                                              
-                                        <a  v-bind:href='"/experimentSessionRun/" + sd.id'>        
-                                        Run
-                                        </a>
-                                        <br>                                
-                                        <div v-if="session.experiment_session_days.length == 1">                                            
-                                            <div>
-                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
-                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
-                                            </div>
-                                            <!-- <div style="padding-top: 5px;">                                                
-                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button>
-                                            </div> -->
+                                        <div>
+                                            <button style="width:80px;" class="btn btn-link btn-sm" type="button" v-on:click = "runSession(sd.id)"> Run <i class="fas fa-running fa-xs"></i></i></button>
                                         </div>
-                                        <div v-else>
-                                            <div>
-                                                <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
-                                                <button style="width:90px;" class="btn btn-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
-                                            </div>
+                                        <div>
+                                            <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
+                                            <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                        </div>                               
+                                        <div v-if="session.experiment_session_days.length > 1">                                            
+                                            
                                             <div style="padding-top: 5px;">                                                
-                                                <!-- <button style="width:80px;" class="btn btn-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button> |  -->
-                                                <button style="width:80px;" class="btn btn-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)"> Remove <i class="fas fa-times fa-xs"></i></button>
-                                            </div>                                           
-                                        </div>                                                                                                                                                                                    
+                                                <!-- <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button> |  -->
+                                                <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                            </div>
+                                        </div>
+                                        <!-- <div v-else>
+                                            <div>
+                                                <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
+                                                <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
+                                            </div>
+                                                                                       
+                                        </div>                                                                                                                                                                                     -->
                                     </td>                            
                                 </tr>                        
                             </tbody>
@@ -1233,7 +1236,7 @@
                             <thead>
                                 <th width="50%">
                                     Messsage 
-                                    <button class="btn btn-primary btn-sm" type="button" v-on:click = "showInvitations()"><span v-html="showInvitationListButtonText"></span></button>                                    
+                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInvitations()"><span v-html="showInvitationListButtonText"></span></button>                                    
                                 </th> 
                                 <th width="40%" style="text-align: center;">
                                     Subjects
@@ -1280,7 +1283,7 @@
                             <thead>
                                 <th width="50%">
                                     Messsage 
-                                    <button class="btn btn-primary btn-sm" type="button" v-on:click = "showMessages()"><span v-html="showMessageListButtonText"></span></button> 
+                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showMessages()"><span v-html="showMessageListButtonText"></span></button> 
                                     
                                 </th> 
                                 <th width="40%" style="text-align: center;">
@@ -1355,7 +1358,7 @@
 
             </div>
             <div class="modal-footer">                            
-                <button type="button" class="btn btn-success" v-on:click = "sendEmailMessage()">
+                <button type="button" class="btn btn-outline-success" v-on:click = "sendEmailMessage()">
                     <span v-html="sendMessageButtonText"></span>
                 </button>
             </div>
@@ -1390,7 +1393,7 @@
             </div>
             <div class="modal-footer">   
                 <div v-if="session.canceled == false">           
-                    <button type="button" class="btn btn-danger" v-on:click = "cancelSessionDay()">
+                    <button type="button" class="btn btn-outline-danger" v-on:click = "cancelSessionDay()">
                         Cancel Session <i class="fa fa-ban fa-xs"></i>
                     </button>
                 </div>
@@ -1476,7 +1479,7 @@
                                             <div style="text-align: center;color: red;">Aready Added</div>
                                         </div>
                                         <div v-else>
-                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-success btn-sm" v-on:click = "manuallyAddSubject(u)">
+                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)">
                                                 Add <i class="fas fa-plus-square fa-xs"></i>  
                                             </button>   
                                             <div v-if="u.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
@@ -1493,7 +1496,7 @@
                 </div>
             </div>
             <!-- <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "">
+                <button type="button" class="btn btn-outline-primary" v-on:click = "">
                     <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
                 </button>
             </div> -->
@@ -1546,7 +1549,7 @@
                     <div style="text-align: center;color: red;">Session Canceled</div>
                 </div>
                 <div v-else>
-                    <button v-on:click="inviteSubjects()" type="button" class="btn btn-success">
+                    <button v-on:click="inviteSubjects()" type="button" class="btn btn-outline-success">
                         <span v-html="inviteButtonText"></span>
                     </button>
                 </div>               
@@ -1639,7 +1642,7 @@
                     </form> <!-- recruitment parameters form -->                                            
                 </div>
             <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "updateSession1()">
+                <button type="button" class="btn btn-outline-primary" v-on:click = "updateSession1()">
                     <i class="fas fa-sign-in-alt"></i> [[buttonText1]]
                 </button>
             </div>
@@ -1697,7 +1700,7 @@
                     </form> <!-- recruitment parameters form -->                                            
                 </div>
             <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "updateSessionDay()">
+                <button type="button" class="btn btn-outline-primary" v-on:click = "updateSessionDay()">
                     <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
                 </button>
             </div>
@@ -1739,7 +1742,7 @@
                                     </td>                               
                                     <td style="text-align: center;">
                                         <span v-if="esdu.allowDelete">
-                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                                 Remove <i class="fas fa-user-minus fa-xs"></i>  
                                             </button>
                                         </span>
@@ -1749,7 +1752,7 @@
                                             </button>
                                         </span>
                                         <span v-if="esdu.allowConfirm">    
-                                            <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')">
+                                            <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')">
                                                 Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
                                             </button>
                                         </span>
@@ -1775,7 +1778,7 @@
                             <thead>
                                 <th width="50%">
                                     Name   
-                                    <button id="showUnconfirmed" type="button" class="btn btn-primary btn-sm" v-on:click ="showUnconfirmedSubjects()">
+                                    <button id="showUnconfirmed" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showUnconfirmedSubjects()">
                                         <span v-html="showUnconfirmedButtonText"></span>
                                     </button>                                 
                                 </th>                                                                                   
@@ -1792,10 +1795,10 @@
                                         </a>                                                                           
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
-                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')">
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                         <div v-if="esdu.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
@@ -1808,7 +1811,7 @@
                     
             </div>
             <!-- <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "">
+                <button type="button" class="btn btn-outline-primary" v-on:click = "">
                     <i class="fas fa-sign-in-alt"></i> [[buttonText3]]
                 </button>
             </div> -->
