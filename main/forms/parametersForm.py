@@ -40,6 +40,12 @@ class parametersForm(forms.ModelForm):
     subjectTimeZone = forms.ChoiceField(label="Subject Timezone",
                                         choices=[(tz, tz) for tz in pytz.all_timezones])
     
+    noShowCutoff = forms.CharField(label='No-Show Count Cutoff',
+                                       widget=forms.NumberInput(attrs={"step":"1","min":"1"}))
+
+    noShowCutoffWindow = forms.CharField(label='No-Show Count Window (Days)',
+                                       widget=forms.NumberInput(attrs={"step":"1","min":"1"}))
+
     class Meta:
         model=parameters
         fields = ('__all__')

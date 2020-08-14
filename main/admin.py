@@ -59,9 +59,23 @@ class UserAdmin(admin.ModelAdmin):
       list_filter = ('is_staff', 'is_active')
 
 @admin.register(profile)
-class ProfileAdmin(admin.ModelAdmin):      
+class ProfileAdmin(admin.ModelAdmin):
+      def clear_blackBalls(self, request, queryset):
+
+            updated = queryset.exclude(user__is_staff = 1).update(blackballed=0)
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      clear_blackBalls.short_description = "Remove blackballs"
+
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
+      actions = [clear_blackBalls]
+      list_display = ['__str__','studentWorker','blackballed']
+      list_filter = ('blackballed', 'studentWorker')
 
 
 admin.site.unregister(User)

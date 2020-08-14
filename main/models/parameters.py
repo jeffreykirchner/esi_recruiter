@@ -9,6 +9,9 @@ class parameters(models.Model):
     subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")           #time zone the lab is in
     defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)     #money paid to subjects for coming regardless of performance
     
+    noShowCutoff = models.IntegerField(default = 3)                                         #if subject hits count in window they will not be invited
+    noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured
+
     invitationTextSubject = models.CharField(max_length = 1000,default = "")               #email subject text for the single day invitation
     invitationText = models.CharField(max_length = 10000,default = "")                     #email text for the single day invitation
     
@@ -18,7 +21,9 @@ class parameters(models.Model):
     cancelationTextSubject = models.CharField(max_length = 1000,default = "")              #email subject text when an experiment is canceled
     cancelationText = models.CharField(max_length = 10000,default = "")                    #email text when an experiment is canceled
     
-    consentForm = models.CharField(max_length = 50000,default ="")                         #consent for subject must agree to before participation 
+    consentForm = models.CharField(max_length = 50000, default ="")                         #consent for subject must agree to before participation 
+
+    
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -38,4 +43,6 @@ class parameters(models.Model):
             "invitationText":self.invitationText,
             "invitationTextMultiDay":self.invitationTextMultiDay,
             "consentForm":self.consentForm,
+            "noShowCutoff":str(self.noShowCutoff),
+            "noShowCutoffWindow":(self.noShowCutoffWindow),
         }

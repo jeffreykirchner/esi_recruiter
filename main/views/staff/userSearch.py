@@ -58,7 +58,7 @@ def lookup(value,returnJSON,activeOnly):
                               Q(email__icontains = value) |
                               Q(profile__chapmanID__icontains = value) |
                               Q(profile__type__name__icontains = value)) \
-                      .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active")
+                      .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active","profile__blackballed")
 
 
     if activeOnly:

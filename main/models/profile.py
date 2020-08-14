@@ -20,18 +20,18 @@ import logging
 #user profile, extending the user model
 class profile(models.Model):
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    type =  models.ForeignKey(accountTypes,on_delete=models.CASCADE,default=2)             #subject or staff
-    school = models.ForeignKey(schools,on_delete=models.CASCADE,default=1)                 #Chapman University ETC
-    major = models.ForeignKey(majors,on_delete=models.CASCADE,default=1)                   #Economics ETC
-    gender = models.ForeignKey(genders,on_delete=models.CASCADE,default=1)
-    subjectType = models.ForeignKey(subject_types,on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
+    user = models.OneToOneField(User,verbose_name="User", on_delete=models.CASCADE)
+    type =  models.ForeignKey(accountTypes,verbose_name="Account Type",on_delete=models.CASCADE,default=2)             #subject or staff
+    school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                 #Chapman University ETC
+    major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                   #Economics ETC
+    gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
+    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
 
-    chapmanID = models.CharField(max_length = 100,default="00000000")    
-    emailConfirmed =  models.CharField(max_length = 100,default="no")    
-    blackballed = models.BooleanField(default=False)
-    phone = models.CharField(max_length = 100,default="")
-    studentWorker = models.BooleanField(default=False)
+    chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")    
+    emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")    
+    blackballed = models.BooleanField(verbose_name="Blackballed",default=False)
+    phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")
+    studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

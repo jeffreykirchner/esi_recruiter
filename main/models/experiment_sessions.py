@@ -6,9 +6,9 @@ import main
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
-import datetime
+from datetime import datetime, timedelta,timezone
 
-from . import genders,subject_types,institutions,experiments,parameters,recruitmentParameters
+from . import genders,subject_types,institutions,experiments,parameters,recruitmentParameters,parameters
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
@@ -17,34 +17,6 @@ class experiment_sessions(models.Model):
     canceled=models.BooleanField(default=False)
 
     recruitmentParams = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)
-    
-    # #recruitment parameters    
-    # registration_cutoff = models.IntegerField(default=1)    
-    # actual_participants = models.IntegerField(default=1)
-    # gender = models.ManyToManyField(genders)
-    # subject_type =  models.ManyToManyField(subject_types)      
-
-    # #institutions to include or exclude
-    # institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
-    # institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
-
-    # #experiments to include or exclude
-    # experiments_exclude = models.ManyToManyField(experiments, related_name='%(class)s_experiments_exclude',blank=True)
-    # experiments_include = models.ManyToManyField(experiments, related_name='%(class)s_experiments_include',blank=True)
-
-    # #range, in number of experiments, the subject has been in
-    # experience_min = models.IntegerField(default = 0)
-    # experience_max = models.IntegerField(default = 1000)
-    # experience_constraint  =  models.BooleanField(default=False) 
-
-    # #wether constraints should be be all or more than one
-    # institutions_exclude_all = models.BooleanField(default=True)
-    # institutions_include_all = models.BooleanField(default=True)
-    # experiments_exclude_all = models.BooleanField(default=True)
-    # experiments_include_all = models.BooleanField(default=True)
-
-    # #all subject to come multiple times to the same same experiment
-    # allow_multiple_participations =  models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -203,6 +175,7 @@ class experiment_sessions(models.Model):
         es = self
         es_p = es.recruitmentParams
         id =  self.id
+        p = parameters.parameters.objects.get(id=1)
 
         institutions_exclude_str = ""
         institutions_include_str = ""
@@ -257,6 +230,8 @@ class experiment_sessions(models.Model):
                 FROM user_experiments
                 WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id =''' + str(experiment_id) + ''') AND'''
 
+        
+
         institutions_include_user_count_str = ""
         institutions_exclude_user_count_str = ""
         institutions_include_with_str = ""
@@ -267,14 +242,15 @@ class experiment_sessions(models.Model):
         experiments_exclude_with_str = ""
         user_experiments_str = ""
         user_institutions_str= ""
+        no_show_str = ""
 
         if ii_c > 0:
             institutions_include_user_count_str = '''
             --number of required institutions a subject has been in
             (SELECT count(*)                                                    
-            FROM institutions_include_user
-            INNER JOIN institutions_include ON institutions_include.institutions_id = institutions_include_user.institution_id
-            WHERE institutions_include_user.auth_user_id = auth_user.id) AS institutions_include_user_count,
+                FROM institutions_include_user
+                INNER JOIN institutions_include ON institutions_include.institutions_id = institutions_include_user.institution_id
+                WHERE institutions_include_user.auth_user_id = auth_user.id) AS institutions_include_user_count,
             '''
 
             institutions_include_with_str = '''
@@ -317,9 +293,9 @@ class experiment_sessions(models.Model):
             experiments_include_user_count_str = '''
             --number of required experiments a subject has been in		
             (SELECT count(*)                                                     
-            FROM user_experiments
-            INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
-            WHERE user_experiments.user_id = auth_user.id) AS experiments_include_user_count,
+                FROM user_experiments
+                INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
+                WHERE user_experiments.user_id = auth_user.id) AS experiments_include_user_count,
             '''
 
             experiments_include_with_str = '''
@@ -334,9 +310,9 @@ class experiment_sessions(models.Model):
             experiments_exclude_user_count_str = '''
             --number of excluded experiments a subject has been in		
             (SELECT count(*)                                                    
-            FROM user_experiments
-            INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
-            WHERE user_experiments.user_id = auth_user.id) AS experiments_exclude_user_count, 
+                FROM user_experiments
+                INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
+                WHERE user_experiments.user_id = auth_user.id) AS experiments_exclude_user_count, 
             '''
 
             experiments_exclude_with_str = '''
@@ -387,7 +363,22 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                                 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
-        '''                              
+        '''  
+
+        d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
+
+        no_show_str ='''
+            ---table of users who have no shows over the rolling window
+            now_shows AS (SELECT auth_user.id as id
+                        FROM auth_user
+                        JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+                        JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+                        WHERE main_experiment_session_day_users.confirmed = 1 AND 
+                            main_experiment_session_day_users.attended = 0 AND 
+                            main_experiment_session_day_users.bumped = 0 AND 
+                            main_experiment_session_days.date >= "''' + str(d) + '''" AND
+                            main_experiment_session_days.date <= CURRENT_TIMESTAMP),
+        '''                            
 
         if ii_c > 0 or ie_c > 0:
             user_institutions_str ='''
@@ -447,6 +438,7 @@ class experiment_sessions(models.Model):
             + experiments_include_with_str \
             + user_experiments_str \
             + user_current_sesion_str\
+            + no_show_str\
             +'''
             
             --table of subject types required in session
@@ -467,7 +459,10 @@ class experiment_sessions(models.Model):
         
         auth_user.id,
         auth_user.last_name,
-        auth_user.first_name
+        auth_user.first_name,
+        (SELECT count(*)          --number of user no shows
+                FROM now_shows
+                WHERE auth_user.id = now_shows.id) AS now_show_count 
                     
         FROM auth_user
 
@@ -478,14 +473,17 @@ class experiment_sessions(models.Model):
         + institutions_include_str \
         + '''
         --user's gender is on the list
-        EXISTS(SELECT 1                                                    
+        EXISTS(SELECT 1/0                                                   
                 FROM genders_include	
                 WHERE main_profile.gender_id = genders_include.genders_id) AND   
 
         --user's subject type is on the list
-        EXISTS(SELECT 1                                                   
+        EXISTS(SELECT 1/0                                                   
                 FROM subject_type_include	
-                WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) > 0 AND        
+                WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND
+
+        --check user for no show violation
+        now_show_count < ''' + str(p.noShowCutoff) + ''' AND
 
         '''\
         + user_not_in_session_already \
@@ -496,7 +494,8 @@ class experiment_sessions(models.Model):
         + users_to_search_for \
         + '''      
         is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
-        is_active = 1                                                    --acount is activated
+        is_active = 1  AND                                               --acount is activated
+        blackballed = 0                                                  --subject has not been blackballed  
 
         '''
 
@@ -509,9 +508,9 @@ class experiment_sessions(models.Model):
         #log sql statement
         logger.info(users)
 
-        time_start = datetime.datetime.now()
+        time_start = datetime.now()
         u_list = list(users)
-        time_end = datetime.datetime.now()
+        time_end = datetime.now()
         time_span = time_end-time_start
 
         logger.info("SQL Run time: " + str(time_span.total_seconds()))
