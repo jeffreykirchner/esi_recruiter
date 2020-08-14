@@ -68,7 +68,7 @@ class experiment_session_day_users(models.Model):
             "earnings": self.earnings,
             "show_up_fee":self.show_up_fee,
             "confirmed":self.confirmed,
-            "multiDay":self.getNoShow(),
+            "multiDay":self.getMultiDay(),
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and
@@ -76,7 +76,7 @@ class experiment_session_day_users(models.Model):
         }
     
     #get now show status for session user
-    def getNoShow(self):
+    def getMultiDay(self):
         return True if self.experiment_session_day.experiment_session.ESD.count() > 1 else False
     
     #return a list of values for a paypal csv mass pay file
