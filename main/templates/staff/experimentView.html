@@ -303,7 +303,13 @@
                             app.$data.experiment.experimentBeforeEdit=null;
                         }
                     },
-                    
+
+                    //fire when the edit session button is pressed
+                    editSession:function(id)
+                    {
+                        window.open('/experimentSession/' + id,"_self");
+                    },
+
                     //fill parameters with default single day
                     fillWithSingleDayInvitation:function(){
                        app.$data.experiment.invitationText = app.$data.parameters.invitationText;
@@ -340,7 +346,7 @@
                 <!-- Experiment parameters                -->
                 <div class = "row">
                     <div class="col col-md-4 text-right">
-                        <!-- <button class="btn btn-primary btn-sm" type="button" data-toggle="modal" data-target="#setupModalCenter"><i class="fas fa-pen fa-xs"></i></button> <u>Experiment Parameters</u>  -->                      
+                        <!-- <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="modal" data-target="#setupModalCenter"><i class="fas fa-pen fa-xs"></i></button> <u>Experiment Parameters</u>  -->                      
                         <u>Experiment Parameters</u>
                     </div>
                     <div class="col col-md-8">
@@ -424,7 +430,7 @@
                             
                     </div>
                     <div class="col col-md-8">                        
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
                     </div>               
                 </div>                
                 <!-- end experiment parameters -->
@@ -536,7 +542,7 @@
 
                     </div>
                     <div class="col col-md-8">
-                        <button class="btn btn-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -550,7 +556,7 @@
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
                                 <th width="35%">
-                                    Day(s) <button class="btn btn-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
+                                    Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
                                 </th> 
                                 <th width="35%" style="text-align: center;">
                                    Confirmed/Invited
@@ -577,11 +583,11 @@
                                         </span>                                        
                                     </td>                               
                                     <td style="text-align: center;">                                        
-                                            <div>                                                
-                                                <a v-bind:href="s.url" target = _blank>View</a>
-                                                 <span v-if="s.allow_delete">
-                                                    | <button class="btn btn-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>
-                                                 </span>                                                   
+                                            <div>    
+                                                <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">Edit <i class="fas fa-edit fa-xs"></i></button>
+                                                <span v-if="s.allow_delete">
+                                                   | <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>
+                                                </span>                                                   
                                             </div>                                                                                                                                         
                                         </span>
                                     </td>                            
@@ -648,10 +654,10 @@
                     <div class="row mt-3">
                         <div class = "col" >                         
                             {{form1.invitationText | as_crispy_field }}
-                            <button type="button" class="btn btn-primary" v-on:click = "fillWithSingleDayInvitation()">
+                            <button type="button" class="btn btn-outline-primary" v-on:click = "fillWithSingleDayInvitation()">
                                Single Day Default Invitation <i class="fa fa-arrow-up" aria-hidden="true"></i>
                             </button>
-                            <button type="button" class="btn btn-primary" v-on:click = "fillWithMultiDayInvitation()">
+                            <button type="button" class="btn btn-outline-primary" v-on:click = "fillWithMultiDayInvitation()">
                                 Multi-Day Default Invitation <i class="fa fa-arrow-up" aria-hidden="true"></i>
                             </button>
                         </div>                                    
@@ -659,7 +665,7 @@
                 </form>  <!-- main form -->                                                   
             </div>
             <div class="modal-footer">                
-            <button type="button" class="btn btn-primary" v-on:click = "updateExperiment1()">
+            <button type="button" class="btn btn-outline-primary" v-on:click = "updateExperiment1()">
                 <i class="fas fa-sign-in-alt"></i> [[buttonText1]]
             </button>
             </div>
@@ -752,7 +758,7 @@
                     </form> <!-- recruitment parameters form -->                                            
                 </div>
             <div class="modal-footer">                
-                <button type="button" class="btn btn-primary" v-on:click = "updateExperiment2()">
+                <button type="button" class="btn btn-outline-primary" v-on:click = "updateExperiment2()">
                     <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
                 </button>
             </div>
