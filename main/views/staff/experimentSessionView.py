@@ -334,7 +334,7 @@ def getSearchForSubject(data,id):
     logger.info("Search for subject to maually add")
     logger.info(data)
 
-    users_list = lookup(data["searchInfo"],False)
+    users_list = lookup(data["searchInfo"],False,True)
 
     es = experiment_sessions.objects.get(id=id)
 

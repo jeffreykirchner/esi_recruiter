@@ -185,7 +185,7 @@
                             <span class="float-right">Blackballed:</span>                            
                         </div>
                         <div class = "col"> 
-                            <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
+                            <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
                         </div>               
                     </div>
                     <div class = "row">
@@ -194,13 +194,27 @@
                         </div>
                         <div class = "col"> 
                             <span class="float-left">{{u.profile.chapmanID}}</span>
+                        </div>   
+                        <div class = "col"> 
+                            <span class="float-right">Active:</span>                             
                         </div>
+                        <div class = "col"> 
+                            <span class="float-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+                        </div>                                    
+                    </div>
+                    <div class = "row">
+                        <div class = "col"> 
+                                                      
+                        </div>
+                        <div class = "col"> 
+                            
+                        </div> 
                         <div class = "col"> 
                             <span class="float-right">In Institutions:</span>                             
                         </div>
                         <div class = "col"> 
                             <span v-html="institutionsList"></span> 
-                        </div>               
+                        </div>
                     </div>
                 </form>
                 <br>
