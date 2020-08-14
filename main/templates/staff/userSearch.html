@@ -1,4 +1,5 @@
 {%extends "base.html"%}
+{% load humanize %}
 
 {%block head%}
 
@@ -16,6 +17,7 @@
                     searchInfo:"", 
                     warningText:"",
                     searchButtonText:'Search <i class="fas fa-search"></i>',
+                    activeOnly:true,
                 },
 
                 methods:{
@@ -26,10 +28,10 @@
 
                         axios.post('{{request.get_full_path}}', {                            
                             action:"getUsers",
-                            searchInfo:app.$data.searchInfo,                                
+                            searchInfo:app.$data.searchInfo,
+                            activeOnly:app.$data.activeOnly,                                
                         })
-                        .then(function (response) {
-                          
+                        .then(function (response) {                          
                            
                            if(response.data.errorMessage != "")
                            {
@@ -83,11 +85,12 @@
     <div class="col col-lg-10">
         <div class="card">                  
             <div class="card-header">
-                Search Users                                                       
+                Search Users 
+                <span class="float-right">Active Users: {{activeCount|intcomma}}</span>                                                  
             </div>
             <div class="card-body">
                 
-                <div class="row">
+                <div class="row align-items-center">
                     <div class="col col-lg-6 offset-lg-3">
                         <center>
                             <div class="input-group mb-3">
@@ -99,6 +102,14 @@
                                 </div>
                             </div>
                         </center>
+                    </div>
+                    <div class="col col-lg-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="activeOnly">
+                            <label class="form-check-label" for="defaultCheck1">
+                                Active Only
+                            </label>
+                        </div>
                     </div>                   
                 </div>
                

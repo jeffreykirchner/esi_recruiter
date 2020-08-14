@@ -25,18 +25,17 @@ def userSearch(request):
             logger.info(data)
 
             request.session['userSearchTerm'] = data["searchInfo"]            
+            activeOnly = data["activeOnly"] 
 
-            users = lookup(data["searchInfo"],False)
+            users = lookup(data["searchInfo"],False,activeOnly)            
 
             errorMessage=""
-
-            logger.info(len(users))
 
             if(len(users) >= 1000):
                 errorMessage = "Narrow your search"
                 users=[]          
 
-            return JsonResponse({"users" :  json.dumps(users,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
+            return JsonResponse({"users" : json.dumps(users,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
         # elif data["action"] == "deleteUser":
         #     uid = data["uid"]
         #     u=User.objects.get(id=uid)
@@ -45,9 +44,10 @@ def userSearch(request):
         #     users= lookup(request.session['userSearchTerm'])
         #     return JsonResponse({"users" :  users},safe=False)
     else:
-        return render(request,'staff/userSearch.html',{})      
+        activeCount = User.objects.filter(is_active = True,profile__subjectType__id = 1).count()
+        return render(request,'staff/userSearch.html',{"activeCount":activeCount})      
 
-def lookup(value,returnJSON):
+def lookup(value,returnJSON,activeOnly):
     logger = logging.getLogger(__name__)
     logger.info("User Lookup")
     logger.info(value)
@@ -58,7 +58,11 @@ def lookup(value,returnJSON):
                               Q(email__icontains = value) |
                               Q(profile__chapmanID__icontains = value) |
                               Q(profile__type__name__icontains = value)) \
-                      .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name")
+                      .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active")
+
+
+    if activeOnly:
+        users = users.filter(is_active = True)
 
     u_list = list(users)
 
