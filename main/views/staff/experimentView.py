@@ -116,6 +116,8 @@ def updateForm1(data,id):
     logger.info("Update experiment parameters")
     logger.info(data)
 
+    e = experiments.objects.get(id=id)
+
     form_data_dict = {} 
     institutionList=[]               
 

@@ -120,7 +120,7 @@ def migrate_experiments():
         print("Experiment data loading")
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT experiment.id,
-                                 COALESCE(title,"No Title"),
+                                 COALESCE(TRIM(title),"No Title"),
                                  COALESCE(experiment_manager,"No Manager"),
                                  COALESCE(registration_cutoff,0),
                                  COALESCE(actual_participants,actual_participants,0),

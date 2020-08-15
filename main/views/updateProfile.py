@@ -23,7 +23,7 @@ def updateProfile(request):
         if request.method == 'POST':
             form = profileFormUpdate(request.POST,user=request.user)
 
-            print(request.POST)
+            #print(request.POST)
 
             if form.is_valid():                           
 
@@ -32,16 +32,16 @@ def updateProfile(request):
                 if u.email != form.cleaned_data['email'].lower():
                     emailVerificationRequired=True
                 
-                u.first_name=form.cleaned_data['first_name']
-                u.last_name=form.cleaned_data['last_name']
-                u.email=form.cleaned_data['email'].lower()
+                u.first_name=form.cleaned_data['first_name'].strip()
+                u.last_name=form.cleaned_data['last_name'].strip()
+                u.email=form.cleaned_data['email'].lower().strip()
                 u.username=u.email
 
-                u.profile.chapmanID=form.cleaned_data['chapman_id']
+                u.profile.chapmanID=form.cleaned_data['chapman_id'].strip()
                 u.profile.gender=form.cleaned_data['gender']
                 u.profile.subjecType = form.cleaned_data['subjectType']
                 u.profile.studentWorker = form.cleaned_data['studentWorker']
-                u.profile.phone = form.cleaned_data['phone']
+                u.profile.phone = form.cleaned_data['phone'].strip()
                 u.profile.major = form.cleaned_data['major']
 
                 if form.cleaned_data['password1']:

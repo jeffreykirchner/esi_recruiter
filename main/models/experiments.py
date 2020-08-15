@@ -21,7 +21,7 @@ class experiments(models.Model):
     experiment_manager = models.CharField(max_length = 300)
 
     length_default = models.IntegerField()
-    notes = models.TextField(null=True)   
+    notes = models.TextField(default="")   
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
     invitationText = models.CharField(max_length = 10000,default = "")        
 
@@ -35,6 +35,12 @@ class experiments(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
     
+    #called when model form method is used
+    def clean(self):
+        for field in self._meta.fields:
+            if isinstance(field, (models.CharField, models.TextField)):
+                setattr(self, field.name, getattr(self, field.name).strip())
+
     def getShowUpFeeString(self):
         return f'{self.showUpFee:0.2f}'
 
