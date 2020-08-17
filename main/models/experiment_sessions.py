@@ -226,7 +226,7 @@ class experiment_sessions(models.Model):
         if es_p.allow_multiple_participations:
             allow_multiple_participations_str=""
         else:
-            allow_multiple_participations_str='''NOT EXISTS(SELECT 1                                                      
+            allow_multiple_participations_str='''NOT EXISTS(SELECT 1                                                   
                 FROM user_experiments
                 WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id =''' + str(experiment_id) + ''') AND'''
 
@@ -373,11 +373,13 @@ class experiment_sessions(models.Model):
                         FROM auth_user
                         JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
                         JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+                        JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
                         WHERE main_experiment_session_day_users.confirmed = 1 AND 
                             main_experiment_session_day_users.attended = 0 AND 
                             main_experiment_session_day_users.bumped = 0 AND 
                             main_experiment_session_days.date >= "''' + str(d) + '''" AND
-                            main_experiment_session_days.date <= CURRENT_TIMESTAMP),
+                            main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
+                            main_experiment_sessions.canceled = 0),
         '''                            
 
         if ii_c > 0 or ie_c > 0:
@@ -459,10 +461,10 @@ class experiment_sessions(models.Model):
         
         auth_user.id,
         auth_user.last_name,
-        auth_user.first_name,
-        (SELECT count(*)          --number of user no shows
-                FROM now_shows
-                WHERE auth_user.id = now_shows.id) AS now_show_count 
+        auth_user.first_name
+        --(SELECT count(*)          --number of user no shows
+        --        FROM now_shows
+         --       WHERE auth_user.id = now_shows.id) AS now_show_count 
                     
         FROM auth_user
 
@@ -473,17 +475,19 @@ class experiment_sessions(models.Model):
         + institutions_include_str \
         + '''
         --user's gender is on the list
-        EXISTS(SELECT 1/0                                                   
+        EXISTS(SELECT 1                                                   
                 FROM genders_include	
                 WHERE main_profile.gender_id = genders_include.genders_id) AND   
 
         --user's subject type is on the list
-        EXISTS(SELECT 1/0                                                   
+        EXISTS(SELECT 1                                                   
                 FROM subject_type_include	
                 WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND
-
+        
         --check user for no show violation
-        now_show_count < ''' + str(p.noShowCutoff) + ''' AND
+        NOT EXISTS(SELECT 1
+                FROM now_shows
+                WHERE auth_user.id = now_shows.id) AND
 
         '''\
         + user_not_in_session_already \
@@ -496,7 +500,6 @@ class experiment_sessions(models.Model):
         is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
         is_active = 1  AND                                               --acount is activated
         blackballed = 0                                                  --subject has not been blackballed  
-
         '''
 
         #str1 = str1.replace("10256","%s")
