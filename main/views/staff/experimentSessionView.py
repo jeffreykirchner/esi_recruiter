@@ -89,6 +89,7 @@ def experimentSessionView(request,id):
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
 
+#get session info the show screen at load
 def getSesssion(data,id):
     logger = logging.getLogger(__name__)
     logger.info("get session")
@@ -272,10 +273,10 @@ def inviteSubjects(data,id):
                          "invitationCount":invitationCount,
                          "es_min":es.json_esd(True)}, safe=False)
 
-#send email invititions to join session
+#send mass email to session
 def sendSessionMassEmail(subjectList,id,subject,message):
     logger = logging.getLogger(__name__)
-    logger.info("Send session invitations")
+    logger.info("Send mass email to session")
 
     es = experiment_sessions.objects.get(id=id)
 
@@ -438,7 +439,6 @@ def findSubjectsToInvite(data,id):
     usersSmall2 = [u.profile.json_min() for u in usersSmall]
 
     return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
-
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):

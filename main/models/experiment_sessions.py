@@ -115,44 +115,46 @@ class experiment_sessions(models.Model):
         p = self.experiment.recruitmentParamsDefault
 
         tempP = recruitmentParameters()
+        tempP.setup(p)
         tempP.save()
 
         self.recruitmentParams = tempP
         self.recruitmentParams.save()
+        self.save()
         
-        self.recruitmentParams.actual_participants = p.actual_participants
-        self.recruitmentParams.registration_cutoff = p.registration_cutoff
+        # self.recruitmentParams.actual_participants = p.actual_participants
+        # self.recruitmentParams.registration_cutoff = p.registration_cutoff
 
-        for i in p.gender.all():
-            self.recruitmentParams.gender.add(i)
+        # for i in p.gender.all():
+        #     self.recruitmentParams.gender.add(i)
         
-        for i in p.subject_type.all():
-            self.recruitmentParams.subject_type.add(i)
+        # for i in p.subject_type.all():
+        #     self.recruitmentParams.subject_type.add(i)
 
-        self.recruitmentParams.experience_min=p.experience_min
-        self.recruitmentParams.experience_max=p.experience_max
-        self.recruitmentParams.experience_constraint=p.experience_constraint
+        # self.recruitmentParams.experience_min=p.experience_min
+        # self.recruitmentParams.experience_max=p.experience_max
+        # self.recruitmentParams.experience_constraint=p.experience_constraint
 
-        for i in p.institutions_exclude.all():
-            self.recruitmentParams.institutions_exclude.add(i)
+        # for i in p.institutions_exclude.all():
+        #     self.recruitmentParams.institutions_exclude.add(i)
         
-        for i in p.institutions_include.all():
-            self.recruitmentParams.institutions_include.add(i)
+        # for i in p.institutions_include.all():
+        #     self.recruitmentParams.institutions_include.add(i)
 
-        for i in p.experiments_exclude.all():
-            self.recruitmentParams.experiments_exclude.add(i)
+        # for i in p.experiments_exclude.all():
+        #     self.recruitmentParams.experiments_exclude.add(i)
 
-        for i in p.experiments_include.all():
-            self.recruitmentParams.experiments_include.add(i)
+        # for i in p.experiments_include.all():
+        #     self.recruitmentParams.experiments_include.add(i)
 
-        self.recruitmentParams.institutions_exclude_all=p.institutions_exclude_all
-        self.recruitmentParams.institutions_include_all=p.institutions_include_all
-        self.recruitmentParams.experiments_exclude_all=p.experiments_exclude_all
-        self.recruitmentParams.experiments_include_all=p.experiments_include_all
+        # self.recruitmentParams.institutions_exclude_all=p.institutions_exclude_all
+        # self.recruitmentParams.institutions_include_all=p.institutions_include_all
+        # self.recruitmentParams.experiments_exclude_all=p.experiments_exclude_all
+        # self.recruitmentParams.experiments_include_all=p.experiments_include_all
 
-        self.recruitmentParams.allow_multiple_participations=p.allow_multiple_participations
+        # self.recruitmentParams.allow_multiple_participations=p.allow_multiple_participations
 
-        self.recruitmentParams.save()
+        #self.recruitmentParams.save()
 
         return self
 
