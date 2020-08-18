@@ -1,5 +1,6 @@
 from django import forms
 from main.models import genders,subject_types,institutions,experiments,recruitmentParameters,hrefExperiments
+from django.db.models.functions import Lower
 
 class recruitmentParametersForm(forms.ModelForm):   
 
@@ -25,28 +26,28 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                         "size":"4"}))
     institutions_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=institutions.objects.all().order_by("name"),
+                                                    queryset=institutions.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.institutions_exclude",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     institutions_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=institutions.objects.all().order_by("name"),
+                                                    queryset=institutions.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.institutions_include",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     experiments_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=hrefExperiments.objects.all().order_by("title"),
+                                                    queryset=hrefExperiments.objects.all().order_by(Lower("title")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.experiments_exclude",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"12"}))
     experiments_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=hrefExperiments.objects.all().order_by("title"),
+                                                    queryset=hrefExperiments.objects.all().order_by(Lower("title")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.experiments_include",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
