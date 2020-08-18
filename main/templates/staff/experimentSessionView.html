@@ -53,7 +53,8 @@
                     inviteButtonText:"Invite <i class='fa fa-users fa-xs'></i>",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                     cancelSessionButtonText:'Cancel Session <i class="fa fa-ban fa-xs"></i>',
-                    searchResultsEmptyText:"",
+                    searchResultsEmptyText:"",           //show when no results found from manual add
+                    inviteResultsEmptyText:"",           //show when no subject fround for invitiation
                     sendMessageSubject:"",               //subject of send message     
                     sendMessageText:"",                  //text of send message     
                     emailMessageList:"",                 //emails for send message    
@@ -311,7 +312,7 @@
                             else
                             {      
                                                                             
-                                //$('#inviteSubjectsModalCenter').modal('toggle');                                
+                                //$('#inviteSubjectsModalCenter').modal('toggle');                             
                             }      
                             app.$data.subjectInvitationList +=  response.data.mailResult.mailCount + " invitations sent.";  
                             app.$data.inviteButtonText="";    
@@ -329,6 +330,7 @@
                         if(app.$data.subjectInvitationList.includes('class')) return;
 
                         app.$data.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+                        app.$data.inviteResultsEmptyText="";
 
                         axios.post('/experimentSession/{{id}}/', {
                             status:"findSubjectsToInvite",    
@@ -356,7 +358,9 @@
                             }
 
                             app.$data.subjectInvitationList = s;  
-                            app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";                           
+                            app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";    
+
+                            if(s=="") app.$data.inviteResultsEmptyText="No Users Found<br><br>";                       
                             //app.updateDisplayLists();
                         })
                         .catch(function (error) {
@@ -367,7 +371,8 @@
                     //clear subjects to invite
                     clearSubjectsToInvite: function(){
                         app.$data.subjectInvitationList ="";
-                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";                         
+                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";   
+                        app.$data.inviteResultsEmptyText="";                      
                         },
 
                     //cancel a session day (not in use)
@@ -547,6 +552,7 @@
                     // fire when invite subjects subjects model is shown
                     showInviteSubjects:function(id){                        
                         $('#inviteSubjectsModalCenter').modal('show');
+                        app.$data.inviteResultsEmptyText="";
                         // app.clearMainFormErrors();
                     },
 
@@ -1509,11 +1515,11 @@
 <div class="modal" id="inviteSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="inviteSubjects" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header">                
                 <h5 class="modal-title" id="exampleModalLongTitle">Invite Subjects</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
-                </button>
+                </button>               
             </div>
             <div class="modal-body">   
                 <div class="row">
@@ -1528,6 +1534,7 @@
                                     <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear</button>
                                 </div>
                             </div>
+                            <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>
                         </form>
                     </div>
                     <div class = "col col-md-3">

@@ -9,7 +9,7 @@
             axios.defaults.xsrfCookieName = "csrftoken";
 
             var app = new Vue({
-                elimiters: ['[[', ']]'],
+                delimiters: ['[[', ']]'],
                 el: '#root',        
                 data:{
                     baseURL:'{{request.get_full_path}}',                                                                                                                 
@@ -17,10 +17,14 @@
                     searchInfo:"", 
                     warningText:"",
                     searchButtonText:'Search <i class="fas fa-search"></i>',
+                    blackBallButtonText : 'Blackballs',
+                    noShowButtonText : 'No-Show Blocks',
                     activeOnly:true,
+                    searchCount:0,
                 },
 
                 methods:{
+                    //get list of users based on search
                     getUsers: function(){
                         if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
@@ -31,34 +35,76 @@
                             searchInfo:app.$data.searchInfo,
                             activeOnly:app.$data.activeOnly,                                
                         })
-                        .then(function (response) {                          
-                           
-                           if(response.data.errorMessage != "")
-                           {
-                                app.$data.warningText = "Error: " + response.data.errorMessage;
-                                app.$data.users = [];
-                           }
-                           else
-                           {
-                                app.$data.users=JSON.parse(response.data.users);
-
-                                if(app.$data.users.length == 0)
-                                {
-                                    app.$data.warningText="No users found."
-                                }
-                                else
-                                {
-                                    app.$data.warningText="";
-                                }
-                           }                           
-
-                           app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
-
+                        .then(function (response) {                         
+                            app.functionTakeUserList(response);
+                            app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
                         })
                         .catch(function (error) {
                             console.log(error);                               
                         }); 
-                    },                                        
+                    }, 
+
+                    getBlackballs: function(){
+                        if(app.$data.blackBallButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        app.$data.blackBallButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('{{request.get_full_path}}', {                            
+                            action:"getBlackBalls",
+                            activeOnly:app.$data.activeOnly,                                
+                        })
+                        .then(function (response) {                         
+                            app.functionTakeUserList(response);
+                            app.$data.blackBallButtonText = 'Blackballs';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    },
+
+                    getNoShowBlocks: function(){
+                        if(app.$data.noShowButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        app.$data.users = []
+                        app.$data.warningText = "";
+                        app.$data.noShowButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('{{request.get_full_path}}', {                            
+                            action:"getNoShows",
+                            activeOnly:app.$data.activeOnly,                                
+                        })
+                        .then(function (response) {                         
+                            app.functionTakeUserList(response);
+                            app.$data.noShowButtonText = 'No-Show Blocks';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    },    
+
+                    //process incoming user list
+                    functionTakeUserList:function(response){
+                        if(response.data.errorMessage != "")
+                        {
+                            app.$data.warningText = "Error: " + response.data.errorMessage;
+                            app.$data.users = [];
+                        }
+                        else
+                        {
+                            app.$data.users=JSON.parse(response.data.users);
+
+                            if(app.$data.users.length == 0)
+                            {
+                                app.$data.warningText="No users found."
+                            }
+                            else
+                            {
+                                app.$data.warningText="";
+                            }
+
+                            app.$data.searchCount = app.$data.users.length;
+                        }                           
+                    },                                   
 
                     formatDate: function(value){
                             if (value) {
@@ -91,7 +137,10 @@
             <div class="card-body">
                 
                 <div class="row align-items-center">
-                    <div class="col col-lg-6 offset-lg-3">
+                    <div class="col col-lg-3">
+                        
+                    </div>
+                    <div class="col col-lg-6">
                         <center>
                             <div class="input-group mb-3">
                                 <input  v-on:keyup.enter="getUsers()" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
@@ -112,12 +161,28 @@
                         </div>
                     </div>                   
                 </div>
-               
-                <center><span v-html="warningText" style="color:red;"></span></center>              
+                <div v-if="warningText != ''" class = "row justify-content-center mb-4">
+                    <div class = "col">
+                        <center><span v-html="warningText" style="color:red;"></span></center>  
+                    </div>
+                </div>           
+                <div class = "row">
+                    <div class = "col">
+                        <center>
+                            <button class="btn btn-outline-primary" type="button" v-on:click = "getBlackballs()">
+                                <span v-html="blackBallButtonText"></span>
+                            </button> 
+                            <button class="btn btn-outline-primary" type="button" v-on:click = "getNoShowBlocks()">
+                                <span v-html="noShowButtonText"></span>
+                            </button>
+                        </center>                       
+                    </div>
+                </div>
+                
                 
                 <table class="table table-hover table-condensed">                            
 
-                    <caption style="caption-side:top;text-align: center;">Users</caption>
+                    <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
 
                     <thead>
                         <th width="35%">

@@ -257,8 +257,8 @@ class experiment_sessions(models.Model):
             --institutions that a subject should have done already
             institutions_include AS (SELECT institutions_id
                                         FROM main_recruitmentparameters_institutions_include
-                                        JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_include.recruitmentparameters_id
-                                        JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_include.recruitmentparameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
             --table of users that have at least some of the correct institution experience
@@ -279,8 +279,8 @@ class experiment_sessions(models.Model):
                     --institutions that should subject should not have done already
                     institutions_exclude AS (SELECT institutions_id
                                                 FROM main_recruitmentparameters_institutions_exclude
-                                                JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
-                                                JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                                INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
+                                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
 
                     --table of users that should be excluded based on past history
@@ -302,8 +302,8 @@ class experiment_sessions(models.Model):
             --experiments that a subject should have done already
             experiments_include AS (SELECT experiments_id
                                         FROM main_recruitmentparameters_experiments_include
-                                        JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_include.recruitmentparameters_id
-                                        JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_include.recruitmentparameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
             '''
         if ee_c > 0:
@@ -319,28 +319,32 @@ class experiment_sessions(models.Model):
             --experiments that should subject should not have done already
             experiments_exclude AS (SELECT experiments_id
                                     FROM main_recruitmentparameters_experiments_exclude
-                                    JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
-                                    JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
+                                    INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                     WHERE main_experiment_sessions.id = ''' + str(id) + '''),
             '''
 
-        exeriments_count_select_str =""
-        exeriments_count_select_where=""
-
-
+        user_exeriments_count_str =""
+        user_exeriments_count_where=""
+        
         if es_p.experience_constraint:
-            exeriments_count_select_str ='''
-                --the number of experiments a subject has attended	
-            (SELECT count(*)                                                     
-                    FROM main_experiment_session_day_users
-                    WHERE main_experiment_session_day_users.user_id = auth_user.id AND attended = 1) AS experiments_attended_count,
+            user_exeriments_count_str ='''
+            --table of users that have correct number of experiment experiences
+            user_experiments_count AS (SELECT auth_user.id as id,
+                    count(auth_user.id) as attended_count
+                    FROM auth_user
+                    INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+                    WHERE main_experiment_session_day_users.attended = 1  
+                    GROUP BY auth_user.id
+                    HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
             '''
-            exeriments_count_select_where ='''
-            experiments_attended_count >= ''' + str(es_p.experience_min) + ''' AND       --minimum number of experiments subject has been in
-            experiments_attended_count <=  ''' + str(es_p.experience_max) + ''' AND      --max number of experiments a subject has be in
+            
+            user_exeriments_count_where = '''
+            --check if user has the correct number of experiment experiences
+                EXISTS(SELECT 1
+                      FROM user_experiments_count
+                      WHERE auth_user.id = user_experiments_count.id) AND 
             '''
-
-        #if ee_c > 0 or ei_c > 0:
 
         user_experiments_str = '''
             --table of users and experiments they have been in or commited to be in
@@ -369,17 +373,20 @@ class experiment_sessions(models.Model):
 
         no_show_str ='''
             ---table of users who have no shows over the rolling window
-            now_shows AS (SELECT auth_user.id as id
-                        FROM auth_user
-                        JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                        JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
-                        JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                        WHERE main_experiment_session_day_users.confirmed = 1 AND 
-                            main_experiment_session_day_users.attended = 0 AND 
-                            main_experiment_session_day_users.bumped = 0 AND 
-                            main_experiment_session_days.date >= "''' + str(d) + '''" AND
-                            main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
-                            main_experiment_sessions.canceled = 0),
+            now_shows AS (SELECT auth_user.id as id,
+                            COUNT(auth_user.id) as no_show_count  
+                            FROM auth_user
+                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+                            WHERE main_experiment_session_day_users.confirmed = 1 AND 
+                                main_experiment_session_day_users.attended = 0 AND 
+                                main_experiment_session_day_users.bumped = 0 AND 
+                                main_experiment_session_days.date >= "''' + str(d) + '''" AND
+                                main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
+                                main_experiment_sessions.canceled = 0
+                            GROUP BY auth_user.id
+                            HAVING no_show_count >= 3),
         '''                            
 
         if ii_c > 0 or ie_c > 0:
@@ -428,8 +435,8 @@ class experiment_sessions(models.Model):
             --table of genders required in session
             genders_include AS (SELECT genders_id
                                 FROM main_recruitmentparameters_gender
-                                JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_gender.recruitmentparameters_id
-                                JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_gender.recruitmentparameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         
             ''' \
@@ -441,13 +448,14 @@ class experiment_sessions(models.Model):
             + user_experiments_str \
             + user_current_sesion_str\
             + no_show_str\
+            + user_exeriments_count_str\
             +'''
             
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
                                         FROM main_recruitmentparameters_subject_type
-                                        JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_subject_type.recruitmentparameters_id
-                                        JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_subject_type.recruitmentparameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + ''')
 
             SELECT        
@@ -456,16 +464,12 @@ class experiment_sessions(models.Model):
         + institutions_include_user_count_str \
         + experiments_exclude_user_count_str \
         + experiments_include_user_count_str \
-        + exeriments_count_select_str \
         + '''             		
         
         auth_user.id,
         auth_user.last_name,
         auth_user.first_name
-        --(SELECT count(*)          --number of user no shows
-        --        FROM now_shows
-         --       WHERE auth_user.id = now_shows.id) AS now_show_count 
-                    
+
         FROM auth_user
 
         INNER JOIN main_profile ON main_profile.user_id = auth_user.id
@@ -482,7 +486,7 @@ class experiment_sessions(models.Model):
         --user's subject type is on the list
         EXISTS(SELECT 1                                                   
                 FROM subject_type_include	
-                WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND
+                WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND 
         
         --check user for no show violation
         NOT EXISTS(SELECT 1
@@ -493,7 +497,7 @@ class experiment_sessions(models.Model):
         + user_not_in_session_already \
         + experiments_exclude_str \
         + experiments_include_str \
-        + exeriments_count_select_where \
+        + user_exeriments_count_where \
         + allow_multiple_participations_str \
         + users_to_search_for \
         + '''      
