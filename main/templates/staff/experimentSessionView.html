@@ -1427,7 +1427,7 @@
                     </div>                  
                     <div class = "col col-md-6">
                         <div class="input-group mb-3">
-                            <input v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
+                            <input id="manualSearchInput" v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Manually Add Subject" aria-label="Manual Add" aria-describedby="basic-addon2">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()"><span v-html="findButtonText"></span></button>
                                 <button class="btn btn-outline-primary" type="button" v-on:click ="clearSearchForSubject()">Clear</button>
@@ -1525,17 +1525,15 @@
                 <div class="row">
                     <div class = "col col-md-3">
                     </div>
-                    <div class = "col col-md-6">
-                        <form id="mainForm3">                            
-                            <div class="input-group mb-3">
-                                <input v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
-                                <div class="input-group-append">
-                                    <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find</button>
-                                    <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear</button>
-                                </div>
+                    <div class = "col col-md-6">                                                   
+                        <div class="input-group mb-3">
+                            <input id="findInvitesInput" v-on:keyup.enter="findSubjectsToInvite()" v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find</button>
+                                <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear</button>
                             </div>
-                            <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>
-                        </form>
+                        </div>
+                        <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>                        
                     </div>
                     <div class = "col col-md-3">
                     </div>
