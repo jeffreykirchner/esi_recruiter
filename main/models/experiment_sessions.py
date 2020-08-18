@@ -177,80 +177,49 @@ class experiment_sessions(models.Model):
         id =  self.id
         p = parameters.parameters.objects.get(id=1)
 
-        institutions_exclude_str = ""
-        institutions_include_str = ""
-        experiments_exclude_str = ""
-        experiments_include_str = ""
-        allow_multiple_participations_str = False
-
         experiment_id = es.experiment.id
-        #es.experience_min
 
-        #institutions exclude string
+        #institutions exclude count
         ie_c =  es_p.institutions_exclude.all().count()
-        if ie_c == 0:
-            institutions_exclude_str=''
-        elif es_p.institutions_exclude_all:
-            institutions_exclude_str = 'institutions_exclude_user_count < ' + str(ie_c) + ' AND '
-        else:
-            institutions_exclude_str = 'institutions_exclude_user_count = 0 AND '
+        if not es_p.institutions_exclude_all and ie_c > 1:
+            ie_c = 1
     
-        #institutions include string
+        #institutions include count
         ii_c = es_p.institutions_include.all().count()
-        if ii_c == 0:
-            institutions_include_str=''
-        elif es_p.institutions_include_all:
-            institutions_include_str = 'institutions_include_user_count = ' + str(ii_c) + ' AND '        
-        else:
-            institutions_include_str = 'institutions_include_user_count > 0 AND'
-        
-        #experiments exclude string
-        ee_c = es_p.experiments_exclude.all().count()
-        if  ee_c == 0:
-            experiments_exclude_str=''
-        elif es_p.experiments_exclude_all:
-            experiments_exclude_str = 'experiments_exclude_user_count < ' + str(ee_c) + ' AND '
-        else:
-            experiments_exclude_str = 'experiments_exclude_user_count = 0 AND '
+        if not es_p.institutions_include_all and ii_c > 1:
+            ii_c = 1     
 
-        #experiments include string
+        #experiments exclude count
+        ee_c = es_p.experiments_exclude.all().count()
+        if not es_p.experiments_exclude_all and ee_c > 1:
+            ee_c = 1
+
+        #experiments include count
         ei_c = es_p.experiments_include.all().count()
-        if ei_c == 0:
-            experiments_include_str=''
-        elif es_p.experiments_include_all:
-            experiments_include_str = 'experiments_include_user_count = ' +  str(ei_c) + ' AND '
-        else:
-            experiments_include_str = 'experiments_include_user_count > 0 AND '
+        if not es_p.experiments_include_all and ei_c > 1:
+            ei_c = 1        
 
         #allow multiple participations in same experiment
+        allow_multiple_participations_str=""
         if es_p.allow_multiple_participations:
             allow_multiple_participations_str=""
         else:
-            allow_multiple_participations_str='''NOT EXISTS(SELECT 1                                                   
-                FROM user_experiments
-                WHERE user_experiments.user_id = auth_user.id AND user_experiments.experiments_id =''' + str(experiment_id) + ''') AND'''
+            allow_multiple_participations_str='''
+            NOT EXISTS(SELECT 1                                                   
+                       FROM user_experiments
+                       WHERE user_experiments.user_id = auth_user.id AND
+                             user_experiments.experiments_id =''' + str(experiment_id) + ''') AND
+            '''   
 
-        
-
-        institutions_include_user_count_str = ""
-        institutions_exclude_user_count_str = ""
+        #institutions include strings
+        institutions_include_user_where_str = ""
         institutions_include_with_str = ""
-        institutions_exclude_with_str = ""
-        experiments_include_user_count_str = ""
-        experiments_exclude_user_count_str = ""
-        experiments_include_with_str = ""
-        experiments_exclude_with_str = ""
-        user_experiments_str = ""
-        user_institutions_str= ""
-        no_show_str = ""
-
         if ii_c > 0:
-            institutions_include_user_count_str = '''
-            --number of required institutions a subject has been in
-            (SELECT count(*)                                                    
-                FROM institutions_include_user
-                INNER JOIN institutions_include ON institutions_include.institutions_id = institutions_include_user.institution_id
-                WHERE institutions_include_user.auth_user_id = auth_user.id) AS institutions_include_user_count,
+            institutions_include_user_where_str = '''
+            --check that subject has been in correct number of insitutions
+            EXISTS (SELECT 1                                                    
+                FROM institutions_include_user                
+                WHERE institutions_include_user.id = auth_user.id) AND 
             '''
 
             institutions_include_with_str = '''
@@ -261,58 +230,80 @@ class experiment_sessions(models.Model):
                                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
-            --table of users that have at least some of the correct institution experience
-            institutions_include_user AS (SELECT user_institutions.auth_user_id,
-                                            user_institutions.institution_id
-                                        FROM user_institutions
-                                        INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions.institution_id),
+            --table of users that have the correct institution experience
+            institutions_include_user AS (SELECT user_institutions.auth_user_id as id,
+                                                count(user_institutions.auth_user_id) as institution_include_count
+                                            FROM user_institutions
+                                            INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions.institution_id
+                                            GROUP BY user_institutions.auth_user_id
+                                            HAVING institution_include_count >= '''+ str(ii_c) + '''),
             '''
         
+        #institution exclude strings
+        institutions_exclude_user_where_str = ""
+        institutions_exclude_with_str = ""
         if ie_c > 0:
-            institutions_exclude_user_count_str ='''
-                --number of institutions subject has participated in that they should not have		
-                (SELECT count(*)                                                   
-                        FROM institutions_exclude_user				  
-                        WHERE institutions_exclude_user.auth_user_id = auth_user.id)  AS institutions_exclude_user_count,
+            institutions_exclude_user_where_str ='''
+                --check if subject has not partipated in institutions they should not have		
+                NOT EXISTS (SELECT 1                                                    
+                        FROM institutions_exclude_user                
+                        WHERE institutions_exclude_user.id = auth_user.id) AND
                 ''' 
             institutions_exclude_with_str = '''
-                    --institutions that should subject should not have done already
-                    institutions_exclude AS (SELECT institutions_id
-                                                FROM main_recruitmentparameters_institutions_exclude
-                                                INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
-                                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
-                                                WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
+                --institutions that should subject should not have done already
+                institutions_exclude AS (SELECT institutions_id
+                                            FROM main_recruitmentparameters_institutions_exclude
+                                            INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
+                                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                            WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
 
-                    --table of users that should be excluded based on past history
-                    institutions_exclude_user AS (SELECT user_institutions.auth_user_id
+                --table of users that should be excluded based on past history
+                institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id,
+                                                    count(user_institutions.auth_user_id) as institution_exclude_count
                                                 FROM user_institutions
-                                                INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id),
+                                                INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id
+                                                GROUP BY user_institutions.auth_user_id
+                                                HAVING institution_exclude_count >= '''+ str(ie_c) + '''),
                 '''
 
+        #experiments include strings
+        experiments_include_user_where_str = ""
+        experiments_include_with_str = ""
         if ei_c > 0:
-            experiments_include_user_count_str = '''
-            --number of required experiments a subject has been in		
-            (SELECT count(*)                                                     
-                FROM user_experiments
-                INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
-                WHERE user_experiments.user_id = auth_user.id) AS experiments_include_user_count,
+            experiments_include_user_where_str = '''
+            --check that user has been in required experiments	
+            EXISTS (SELECT 1                                                    
+                FROM experiments_include_user                
+                WHERE experiments_include_user.id = auth_user.id) AND
             '''
 
             experiments_include_with_str = '''
-            --experiments that a subject should have done already
+            --table of experiments that a subject should have done already
             experiments_include AS (SELECT experiments_id
                                         FROM main_recruitmentparameters_experiments_include
                                         INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_include.recruitmentparameters_id
                                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
+            
+
+            --table of users that have the correct experiment include experience
+            experiments_include_user AS(SELECT user_experiments.user_id as id,
+						                       count(user_experiments.user_id) as experiment_include_count
+                                        FROM user_experiments
+                                        INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
+                                        GROUP BY user_experiments.user_id
+                                        HAVING experiment_include_count >= ''' + str(ei_c) + '''),
             '''
+
+        #experiments exclude strings
+        experiments_exclude_user_where_str = ""
+        experiments_exclude_with_str=""
         if ee_c > 0:
-            experiments_exclude_user_count_str = '''
-            --number of excluded experiments a subject has been in		
-            (SELECT count(*)                                                    
-                FROM user_experiments
-                INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
-                WHERE user_experiments.user_id = auth_user.id) AS experiments_exclude_user_count, 
+            experiments_exclude_user_where_str = '''
+            --check that user has not been in excluded experiments		
+            NOT EXISTS (SELECT 1                                                    
+                FROM experiments_exclude_user                
+                WHERE experiments_exclude_user.id = auth_user.id) AND 
             '''
 
             experiments_exclude_with_str = '''
@@ -322,11 +313,19 @@ class experiment_sessions(models.Model):
                                     INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
                                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                     WHERE main_experiment_sessions.id = ''' + str(id) + '''),
+
+            --table of users that have the correct experiment exclude experience
+            experiments_exclude_user AS(SELECT user_experiments.user_id as id,
+						                       count(user_experiments.user_id) as experiment_exclude_count
+                                        FROM user_experiments
+                                        INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
+                                        GROUP BY user_experiments.user_id
+                                        HAVING experiment_exclude_count >= ''' + str(ee_c) + '''),
             '''
 
+        #experience constraints
         user_exeriments_count_str =""
         user_exeriments_count_where=""
-        
         if es_p.experience_constraint:
             user_exeriments_count_str ='''
             --table of users that have correct number of experiment experiences
@@ -346,6 +345,7 @@ class experiment_sessions(models.Model):
                       WHERE auth_user.id = user_experiments_count.id) AND 
             '''
 
+        #user experiments list
         user_experiments_str = '''
             --table of users and experiments they have been in or commited to be in
             user_experiments AS (SELECT DISTINCT main_experiments.id as experiments_id,
@@ -359,6 +359,7 @@ class experiment_sessions(models.Model):
                                 (main_experiment_session_day_users.confirmed = 1 AND main_experiment_session_days.date >  CURRENT_TIMESTAMP)),
             '''
 
+        #list of users in current session
         user_current_sesion_str = '''
             ---table of users that have been invited to the current session
             user_current_sesion AS (SELECT DISTINCT main_experiment_sessions.id as experiment_sessions_id,
@@ -369,8 +370,8 @@ class experiment_sessions(models.Model):
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         '''  
 
+        #table of users who have no show violations
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
-
         no_show_str ='''
             ---table of users who have no shows over the rolling window
             now_shows AS (SELECT auth_user.id as id,
@@ -389,6 +390,8 @@ class experiment_sessions(models.Model):
                             HAVING no_show_count >= 3),
         '''                            
 
+        #list of institions users have been in
+        user_institutions_str=""
         if ii_c > 0 or ie_c > 0:
             user_institutions_str ='''
             -- table of users and institutions they have been in 
@@ -421,7 +424,6 @@ class experiment_sessions(models.Model):
         
         #check that subject is not already invited to session
         user_not_in_session_already=""
-
         if checkAlreadyIn:
             user_not_in_session_already = '''
             --user is not already invited to session     
@@ -458,53 +460,47 @@ class experiment_sessions(models.Model):
                                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + ''')
 
-            SELECT        
-        '''\
-        + institutions_exclude_user_count_str \
-        + institutions_include_user_count_str \
-        + experiments_exclude_user_count_str \
-        + experiments_include_user_count_str \
-        + '''             		
-        
-        auth_user.id,
-        auth_user.last_name,
-        auth_user.first_name
+            SELECT                 		
+            
+            auth_user.id,
+            auth_user.last_name,
+            auth_user.first_name
 
-        FROM auth_user
+            FROM auth_user
 
-        INNER JOIN main_profile ON main_profile.user_id = auth_user.id
+            INNER JOIN main_profile ON main_profile.user_id = auth_user.id
 
-        WHERE '''\
-        + institutions_exclude_str \
-        + institutions_include_str \
-        + '''
-        --user's gender is on the list
-        EXISTS(SELECT 1                                                   
-                FROM genders_include	
-                WHERE main_profile.gender_id = genders_include.genders_id) AND   
+            WHERE '''\
+            + institutions_exclude_user_where_str \
+            + institutions_include_user_where_str \
+            + experiments_exclude_user_where_str \
+            + experiments_include_user_where_str \
+            + '''
+            --user's gender is on the list
+            EXISTS(SELECT 1                                                   
+                    FROM genders_include	
+                    WHERE main_profile.gender_id = genders_include.genders_id) AND   
 
-        --user's subject type is on the list
-        EXISTS(SELECT 1                                                   
-                FROM subject_type_include	
-                WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND 
-        
-        --check user for no show violation
-        NOT EXISTS(SELECT 1
-                FROM now_shows
-                WHERE auth_user.id = now_shows.id) AND
+            --user's subject type is on the list
+            EXISTS(SELECT 1                                                   
+                    FROM subject_type_include	
+                    WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND 
+            
+            --check user for no show violation
+            NOT EXISTS(SELECT 1
+                    FROM now_shows
+                    WHERE auth_user.id = now_shows.id) AND
 
-        '''\
-        + user_not_in_session_already \
-        + experiments_exclude_str \
-        + experiments_include_str \
-        + user_exeriments_count_where \
-        + allow_multiple_participations_str \
-        + users_to_search_for \
-        + '''      
-        is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
-        is_active = 1  AND                                               --acount is activated
-        blackballed = 0                                                  --subject has not been blackballed  
-        '''
+            '''\
+            + user_not_in_session_already \
+            + user_exeriments_count_where \
+            + allow_multiple_participations_str \
+            + users_to_search_for \
+            + '''      
+            is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
+            is_active = 1  AND                                               --acount is activated
+            blackballed = 0                                                  --subject has not been blackballed  
+            '''
 
         #str1 = str1.replace("10256","%s")
 
