@@ -585,9 +585,9 @@
                                     <td style="text-align: center;">                                        
                                             <div>    
                                                 <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">Edit <i class="fas fa-edit fa-xs"></i></button>
-                                                <span v-if="s.allow_delete">
-                                                   | <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)">Delete <i class="fas fa-trash fa-xs"></i></button>
-                                                </span>                                                   
+                                                <!-- <span v-if="s.allow_delete"> -->
+                                                   | <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">Delete <i class="fas fa-trash fa-xs"></i></button>
+                                                <!-- </span>                                                    -->
                                             </div>                                                                                                                                         
                                         </span>
                                     </td>                            
