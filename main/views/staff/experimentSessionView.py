@@ -168,25 +168,29 @@ def cancelSession(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Cancel Session")
     logger.info(data)
-    
+        
     es = experiment_sessions.objects.get(id=id)
 
-    es.canceled = True
+    if es.allowDelete():
+        es.canceled = True
 
-    esd =  es.ESD.order_by("date").first()
-    logger.info(esd.date)
+        esd =  es.ESD.order_by("date").first()
+        logger.info(esd.date)
 
-    p = parameters.objects.get(id=1)
-    subjectText = p.cancelationTextSubject
+        p = parameters.objects.get(id=1)
+        subjectText = p.cancelationTextSubject
 
-    emailList = []
-    
-    for i in es.getConfirmedEmailList():
-        emailList.append({"email":i['user_email']})
+        emailList = []
+        
+        for i in es.getConfirmedEmailList():
+            emailList.append({"email":i['user_email']})
 
-    mailResult = sendSessionMassEmail(emailList,id,subjectText, es.getCancelationEmail())
+        mailResult = sendSessionMassEmail(emailList,id,subjectText, es.getCancelationEmail())
 
-    es.save()
+        es.save()
+    else:
+        logger.info("Cancel Session:Failed, not allowed")
+        mailResult = {"mailCount":0,"errorMessage":"Session cannot be canceled.  Subjects have already attended."}
 
     return JsonResponse({"status":"success","session" :  es.json(),"mailResult":mailResult}, safe=False)
 

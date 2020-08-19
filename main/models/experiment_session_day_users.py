@@ -39,7 +39,7 @@ class experiment_session_day_users(models.Model):
     
     #check if session day user can be deleted
     def allowConfirm(self):
-        if self.show_up_fee > 0 or self.earnings > 0:
+        if self.attended or self.bumped:
             return False
         else:
             return True 
@@ -51,7 +51,7 @@ class experiment_session_day_users(models.Model):
                                                          experiment_session_day__experiment_session__id = self.experiment_session_day.experiment_session.id)
 
         for i in esdu:
-            if i.show_up_fee > 0 or i.earnings > 0:
+            if i.attended or i.bumped:
                 return False 
 
         return True 

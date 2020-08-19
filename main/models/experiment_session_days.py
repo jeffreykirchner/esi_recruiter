@@ -78,7 +78,7 @@ class experiment_session_days(models.Model):
     #check if this session day can be deleted
     def allowDelete(self):
 
-        ESDU = self.experiment_session_day_users_set.filter(Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))
+        ESDU = self.experiment_session_day_users_set.filter(Q(attended = True) | Q(bumped = True))
 
         if len(ESDU) > 0:
             return False
@@ -222,25 +222,7 @@ class experiment_session_days(models.Model):
             "experiment_session_days_user_unconfirmed" : u_list_u_json,
             "confirmedCount": len(u_list_c),
             "unConfirmedCount": len(u_list_u),  
-            "roomOverlap":self.getRoomOverlap(),        
+            "roomOverlap":self.getRoomOverlap(),
+            "allowDelete":self.allowDelete(),     
         }
         
-    # def json_unconfirmed(self):
-    #     u_list_u = self.experiment_session_day_users_set.\
-    #                    filter(confirmed=False).\
-    #                    select_related('user').\
-    #                    order_by('user__last_name','user__first_name')
-
-    #     return{            
-
-    #         "experiment_session_days_user_unconfirmed" : [{"id":i.id,            
-    #                                                       "confirmed":i.bumped,
-    #                                                       "user":{"id" : i.user.id,
-    #                                                               "first_name":i.user.first_name,   
-    #                                                               "last_name":i.user.last_name,},  
-    #                                                       "allowDelete" : i.allowDelete(),
-    #                                                       "allowConfirm" : i.allowConfirm(),}
-    #                                                          for i in u_list_u],
-
-    #         "unConfirmedCount": len(u_list_u),
-    #     }

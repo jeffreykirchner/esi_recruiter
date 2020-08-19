@@ -63,6 +63,7 @@
                              invitationText:"",
                              messageCount:"",                           //number of email messages sent out
                              invitationCount:"",                        //number of invition groups sent out
+                             allowDelete:"false",                       //allow session to be deleted or canceled
                              confirmedEmailList:[]},                    //list of emails that
                     recruitmentParams:{                          //recruiment parameters
                             gender:[],
@@ -1015,6 +1016,7 @@
                     
                 },
 
+                //run when vue is mounted
                 mounted: function(){
                     this.getSession();
                     //attach modal close events to vue
@@ -1030,12 +1032,7 @@
         
             });
 
-            // $(function () {
-            //     $("#id_date").datetimepicker({
-            //         format: 'd/m/Y H:i AM/PM',
-            //         defaultDate: "11/1/2013",
-            //     });
-            // });
+            
         });
 
         
@@ -1162,7 +1159,7 @@
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fa fa-users"></i></button>
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
-                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"><span v-html = "cancelSessionButtonText"></span></button>
+                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowDelete === false"><span v-html = "cancelSessionButtonText"></span></button>
                     </div>               
                 </div>
                 <!-- end recruitment parameters -->
@@ -1211,20 +1208,11 @@
                                             <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
                                             <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
                                         </div>                               
-                                        <div v-if="session.experiment_session_days.length > 1">                                            
-                                            
-                                            <div style="padding-top: 5px;">                                                
-                                                <!-- <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "cancelSessionDay(sd.id)"> Cancel <i class="fas fa-ban fa-xs"></i></button> |  -->
-                                                <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                        <div v-if="session.experiment_session_days.length > 1">                                         
+                                            <div style="padding-top: 5px;">                                               
+                                                <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
                                             </div>
-                                        </div>
-                                        <!-- <div v-else>
-                                            <div>
-                                                <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
-                                                <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
-                                            </div>
-                                                                                       
-                                        </div>                                                                                                                                                                                     -->
+                                        </div>                                                                                                                                                                                                                            
                                     </td>                            
                                 </tr>                        
                             </tbody>
@@ -1747,27 +1735,12 @@
                                         </a>                                    
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <span v-if="esdu.allowDelete">
-                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
-                                                Remove <i class="fas fa-user-minus fa-xs"></i>  
-                                            </button>
-                                        </span>
-                                        <span v-else>
-                                            <button type="button" class="btn btn-light btn-sm">
-                                                Remove <i class="fas fa-user-minus fa-xs"></i>  
-                                            </button>
-                                        </span>
-                                        <span v-if="esdu.allowConfirm">    
-                                            <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')">
-                                                Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
-                                            </button>
-                                        </span>
-                                        <span v-else>
-                                            <button type="button" class="btn btn-light btn-sm">
-                                                Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
-                                            </button>
-                                        </span>                                        
-                                        
+                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')" v-bind:disabled="esdu.allowConfirm === false">
+                                            Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                        </button>                                        
                                     </td>                                
                                 </tr>
                             </tbody>                                                                      
