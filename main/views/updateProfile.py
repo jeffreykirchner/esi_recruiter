@@ -32,8 +32,8 @@ def updateProfile(request):
                 if u.email != form.cleaned_data['email'].lower():
                     emailVerificationRequired=True
                 
-                u.first_name=form.cleaned_data['first_name'].strip()
-                u.last_name=form.cleaned_data['last_name'].strip()
+                u.first_name=form.cleaned_data['first_name'].strip().capitalize()
+                u.last_name=form.cleaned_data['last_name'].strip().capitalize()
                 u.email=form.cleaned_data['email'].lower().strip()
                 u.username=u.email
 

@@ -76,16 +76,18 @@ def migrate_accounts():
 def migrate_schools():
         print("Migrate Schools")
 
-        cursor = connections['old'].cursor()
-        cursor.execute('''select * from schools''')
+        schools.objects.all().delete()
 
-        schools.objects.all().delete()        
+        cursor = connections['old'].cursor()
+        cursor.execute('''select * from schools''')               
 
         for c in cursor.fetchall():
                 id,name,hide_school=c
 
                 school=schools(id=id,name=name)
                 school.save()
+
+        cursor.close()
 
 def migrate_recruitment_parameters():
         print("Start of experiments")       
@@ -169,6 +171,8 @@ def migrate_experiments():
                                 length_default=c[7],
                                 ) for c in cursor.fetchall())
 
+        cursor.close()
+
         print("data fetched")
 
         batch_size=50
@@ -204,6 +208,8 @@ def migrate_experiments():
                                         institution_id=c[0],
                                         ) for c in cursor2.fetchall())
         
+        cursor2.close()
+
         while True:
                 batch = list(islice(objs, batch_size))
                 if not batch:
@@ -239,10 +245,10 @@ def migrate_experiments():
 def migrate_locations():
         print("Migrate Locations")
 
-        cursor = connections['old'].cursor()
-        cursor.execute('''select * from locations''')
-
         locations.objects.all().delete()
+
+        cursor = connections['old'].cursor()
+        cursor.execute('''select * from locations''')        
 
         for c in cursor.fetchall():
                 id,name,address=c
@@ -250,16 +256,18 @@ def migrate_locations():
                 location=locations(id=id,name=name,address=address)
                 location.save()
 
+        cursor.close()
+
 def migrate_majors():
         print("Migrate Majors")
 
-        cursor = connections['old'].cursor()
-        cursor.execute('''select * from majors''')
-
         majors.objects.all().delete()
 
+        cursor = connections['old'].cursor()
+        cursor.execute('''select * from majors''')
+       
         objs = (majors(id=c[0],name=c[1]) for c in cursor.fetchall())
-
+        cursor.close()
         batch_size=999
         # print(objs)
 
@@ -318,6 +326,8 @@ def migrate_subjects1():
 
         print("Migrate Subjects 1")
 
+        User.objects.exclude(id = 0).delete()
+        
         cursor = connections['old'].cursor()
         cursor.execute('''select id,                                
                                 COALESCE(TRIM(first_name),"Not Listed"),
@@ -332,20 +342,21 @@ def migrate_subjects1():
                                         ELSE email END                                 
                         from students AS s1
                         ''')
-
-        User.objects.exclude(id = 0).delete()
+        
         print("Migrate Subjects 2")        
 
         objs = (User(id=c[0],
                 password="",
                 username=c[3],
-                first_name=c[1],
-                last_name=c[2],
+                first_name=c[1].capitalize(),
+                last_name=c[2].capitalize(),
                 email=c[3],
                 is_staff=False,
                 is_active=False,
                 is_superuser=False
                 ) for c in cursor.fetchall())
+
+        cursor.close()
 
         batch_size=50
         # print(objs)
@@ -445,6 +456,8 @@ def migrate_subjects2():
                         subjectType_id = c[4],
                 ) for c in cursor2.fetchall())
 
+        cursor2.close()
+
         batch_size=50
         # print(objs)
 
@@ -485,7 +498,8 @@ def migrate_experiments_institutions():
         objs = (experiments.institution(experiments_id=c[1],
                                         institutions_id=c[0],
                                         ) for c in cursor.fetchall())
-                                        
+        cursor.close()
+
         while True:
                 batch = list(islice(objs, batch_size))
                 if not batch:
@@ -534,6 +548,7 @@ def migrate_sessions():
                                     canceled = c[3]
                                 ) for c in cursor.fetchall())
 
+        cursor.close()
         batch_size=150
         # print(objs)
 
@@ -600,7 +615,7 @@ def migrate_sessions():
                                         auto_reminder = c[6],
                                         complete = not c[7]
                                         ) for c in cursor.fetchall())       
-
+        cursor.close()
         
         while True:
                 batch = list(islice(objs, batch_size))
@@ -647,7 +662,8 @@ def migrate_sessions():
                                         auto_reminder = c[6]
                                         ) for c in cursor.fetchall())       
 
-        
+        cursor.close()
+
         while True:
                 batch = list(islice(objs, batch_size))
 
@@ -750,6 +766,8 @@ def migrate_sessions():
 def migrate_session_users2():
         print("session user day")
 
+        experiment_session_day_users.objects.all().delete()
+
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT CASE WHEN NOT ontime_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'  
                                         THEN 0
@@ -777,9 +795,7 @@ def migrate_session_users2():
                                         WHERE ss_local.id != ss_main.id AND
                                               ss_local.student_id = ss_main.student_id AND
                                               ss_local.session_id = ss_main.session_id)                                                 
-                                       ''')        
-
-        experiment_session_day_users.objects.all().delete()                                 
+                                       ''')                                         
 
         objs = (experiment_session_day_users(show_up_fee=c[0],
                                                 earnings=c[1],                                               
@@ -790,6 +806,8 @@ def migrate_session_users2():
                                                 user_id=c[6],
                                                 experiment_session_legacy_id = c[7]) for c in cursor.fetchall())
         
+        cursor.close()
+
         print("data loaded")
 
         batch_size=75        
@@ -848,6 +866,7 @@ def migrate_session_users4():
                                                 user_id=c[6],
                                                 experiment_session_legacy_id = c[7]) for c in cursor.fetchall())
         
+        cursor.close()
         print("data loaded")
 
         batch_size=75        
@@ -878,7 +897,7 @@ def migrate_session_users3():
                                                 ORDER BY date
                                                 LIMIT 1)                                
                         ''')
-
+        cursorMSU31.close()
         #experiment_session_users_day.objects.all().update(experiment_session_day= F('experiment_session_user.experiment_session.experiment_session_days_set.first()'))
 
         # for sud in experiment_session_users_day.objects.all():                
