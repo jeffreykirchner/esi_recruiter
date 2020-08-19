@@ -499,9 +499,10 @@ class experiment_sessions(models.Model):
             + allow_multiple_participations_str \
             + users_to_search_for \
             + '''      
-            is_staff = 0 AND                                                 --subject cannot be an ESI staff memeber
+            is_staff = 0 AND                                                 --subject cannot be an admin memeber
             is_active = 1  AND                                               --acount is activated
-            blackballed = 0                                                  --subject has not been blackballed  
+            blackballed = 0 AND                                              --subject has not been blackballed  
+            main_profile.type_id = 2                                         --only subjects 
             '''
 
         #str1 = str1.replace("10256","%s")

@@ -8,6 +8,7 @@ from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
+from main.views import sendMassEmailVerify
 
 admin.site.register(accounts)
 admin.site.register(accountTypes)
@@ -44,13 +45,29 @@ class UserAdmin(admin.ModelAdmin):
       activate_all.short_description = "Activate selected subjects"
 
       def deactivate_all(self, request, queryset):
-            updated = queryset.exclude(is_staff = 1).update(is_active=0)
+            queryset_active = queryset.filter(is_active=True).exclude(is_staff = True)
+            queryset_active_profile = profile.objects.filter(user__in = queryset_active).select_related('user')
+
+            updated3 = sendMassEmailVerify(queryset_active_profile,request)
+
+            #updated2 = queryset_active_profile.update(emailConfirmed="no")
+            updated = queryset_active.update(is_active=False)            
+
             self.message_user(request, ngettext(
                   '%d user was deactivated.',
                   '%d users were deactivated.',
                   updated,
             ) % updated, messages.SUCCESS)
-      deactivate_all.short_description = "Deactivate selected subjects"
+
+            # self.message_user(request, ngettext(
+            #       '%d profile was deactivated.',
+            #       '%d profiles were deactivated.',
+            #       updated2,
+            # ) % updated2, messages.SUCCESS)
+
+            self.message_user(request,"Emails Sent: " + str(updated3['mailCount']) + " " + updated3['errorMessage'], messages.SUCCESS)
+
+      deactivate_all.short_description = "Deactivate selected subjects and re-invite"
 
       ordering = ['last_name','first_name']
       search_fields = ['last_name','first_name','email']

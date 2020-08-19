@@ -49,7 +49,8 @@ def updateProfile(request):
                         u.set_password(form.cleaned_data['password1'])                    
 
                 if emailVerificationRequired:
-                    u.is_active=False                                
+                    u.is_active=False     
+                    u.profile.emailConfirmed="no"                           
                     profileCreateSendEmail(request,u)
 
                 u.save()

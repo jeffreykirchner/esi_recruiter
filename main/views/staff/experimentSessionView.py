@@ -27,9 +27,7 @@ from django.db.models import prefetch_related_objects
 from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
-from django.conf import settings
-from django.core.mail import send_mass_mail
-from smtplib import SMTPException
+from . import sendMassEmail
 
 #induvidual experiment view
 @login_required
@@ -144,7 +142,7 @@ def sendMessage(data,id):
         emailList.append({"email":i['user_email']})
         userPkList.append(i['user_id'])
 
-    mailResult = sendSessionMassEmail(emailList,id,subjectText, messageText)
+    mailResult = sendMassEmail(emailList,subjectText, messageText)
 
     logger.info(userPkList)
 
@@ -185,7 +183,7 @@ def cancelSession(data,id):
         for i in es.getConfirmedEmailList():
             emailList.append({"email":i['user_email']})
 
-        mailResult = sendSessionMassEmail(emailList,id,subjectText, es.getCancelationEmail())
+        mailResult = sendMassEmail(emailList,subjectText, es.getCancelationEmail())
 
         es.save()
     else:
@@ -245,7 +243,7 @@ def inviteSubjects(data,id):
             status = "fail"
     
     #send emails
-    mailResult = sendSessionMassEmail(userSuccesses, id, subjectText, messageText)
+    mailResult = sendMassEmail(userSuccesses, subjectText, messageText)
 
     if(mailResult["errorMessage"] != ""):
         status = "fail"
@@ -276,37 +274,6 @@ def inviteSubjects(data,id):
                          "userFails":userFails,
                          "invitationCount":invitationCount,
                          "es_min":es.json_esd(True)}, safe=False)
-
-#send mass email to session
-def sendSessionMassEmail(subjectList,id,subject,message):
-    logger = logging.getLogger(__name__)
-    logger.info("Send mass email to session")
-
-    es = experiment_sessions.objects.get(id=id)
-
-    #p = parameters.objects.get(id=1)
-    #message = es.getInvitationEmail()
-
-    message_list = ()
-    from_email = settings.EMAIL_HOST_USER    
-
-    for i in subjectList:
-        if settings.DEBUG:
-            message_list += ((subject, message,from_email,["TestSubject" + str(random.randrange(1, 20)) + "@esirecruiter.net"]),)   #use for test emails
-        else:
-            message_list += ((subject, message,from_email,[i['email']]),)        
-
-    logger.info(message_list)
-
-    errorMessage = ""
-    mailCount=0
-    try:
-        mailCount = send_mass_mail(message_list, fail_silently=False)
-    except SMTPException as e:
-        logger.info('There was an error sending email: ' + str(e)) 
-        errorMessage = str(e)
-
-    return {"mailCount":mailCount,"errorMessage":errorMessage}
 
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):
@@ -411,7 +378,7 @@ def getManuallyAddSubject(data,id):
        es.addUser(u["id"])
        es.save()
        if sendInvitation:
-           mailResult = sendSessionMassEmail([u],id, subjectText, es.getInvitationEmail())
+           mailResult = sendMassEmail([u], subjectText, es.getInvitationEmail())
        else:
            mailResult =  {"mailCount":0,"errorMessage":""}    
     else:

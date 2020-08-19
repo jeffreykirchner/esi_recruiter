@@ -1,3 +1,4 @@
+from .sendEmail import *
 from .userSearch import *
 from .userInfo import *
 from .experimentView import *

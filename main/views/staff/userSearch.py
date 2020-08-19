@@ -90,10 +90,8 @@ def userSearch(request):
             return JsonResponse({"users" :  json.dumps(u_list,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
 
     else:
-        activeCount = User.objects.filter(is_active = True,profile__subjectType__id = 1).count()
-        return render(request,'staff/userSearch.html',{"activeCount":activeCount})      
-
-
+        activeCount = User.objects.filter(is_active = True,profile__type__id = 2).count()
+        return render(request,'staff/userSearch.html',{"activeCount":activeCount})     
 
 def lookup(value,returnJSON,activeOnly):
     logger = logging.getLogger(__name__)

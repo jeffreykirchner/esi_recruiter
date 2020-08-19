@@ -10,7 +10,6 @@ from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from main.models import accountTypes,profile
 
@@ -113,7 +112,7 @@ def profileCreateSendEmail(request,u):
     u.profile.emailConfirmed = get_random_string(length=32)   
     u.profile.save()
 
-    link=request.get_host()      
+    link = request.get_host()      
     link += "/profileVerify/" + u.profile.emailConfirmed +"/"
 
     msg_html = render_to_string('profileVerifyEmail.html', {'link': link})
