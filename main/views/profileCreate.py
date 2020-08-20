@@ -7,11 +7,10 @@ from django import forms
 from main.forms import profileForm
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.utils.html import strip_tags
 from main.models import accountTypes,profile
+from . import profileCreateSendEmail
 
 import logging
 
@@ -103,25 +102,3 @@ def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gende
     u.save()
 
     return u
-
-def profileCreateSendEmail(request,u):
-    logger = logging.getLogger(__name__) 
-    logger.info("Verify Email: ")
-    logger.info(u.profile)
-
-    u.profile.emailConfirmed = get_random_string(length=32)   
-    u.profile.save()
-
-    link = request.get_host()      
-    link += "/profileVerify/" + u.profile.emailConfirmed +"/"
-
-    msg_html = render_to_string('profileVerifyEmail.html', {'link': link})
-    msg_plain = strip_tags(msg_html)
-    send_mail(
-        'Confirm your email',
-        msg_plain,
-        settings.DEFAULT_FROM_EMAIL,
-        [u.email],
-        html_message=msg_html,
-        fail_silently=False,
-    )

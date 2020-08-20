@@ -7,6 +7,8 @@ import random
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from main.models import profile
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
 
 #send mass email to list,takes a list
 def sendMassEmail(subjectList,subject,message):
@@ -65,7 +67,7 @@ def sendMassEmailVerify(profileList,request):
     i = 0
     c = 0
     for p in profileList:     
-        
+
         if c == 100:
             c = 0
             i += 1
@@ -96,3 +98,26 @@ def sendMassEmailVerify(profileList,request):
         errorMessage = str(e)
 
     return {"mailCount":mailCount,"errorMessage":errorMessage}
+
+#send email when profile is created or changed
+def profileCreateSendEmail(request,u):
+    logger = logging.getLogger(__name__) 
+    logger.info("Verify Email: ")
+    logger.info(u.profile)
+
+    u.profile.emailConfirmed = get_random_string(length=32)   
+    u.profile.save()
+
+    link = request.get_host()      
+    link += "/profileVerify/" + u.profile.emailConfirmed +"/"
+
+    msg_html = render_to_string('profileVerifyEmail.html', {'link': link})
+    msg_plain = strip_tags(msg_html)
+    send_mail(
+        'Confirm your email',
+        msg_plain,
+        settings.DEFAULT_FROM_EMAIL,
+        [u.email],
+        html_message=msg_html,
+        fail_silently=False,
+    )
