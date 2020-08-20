@@ -490,6 +490,7 @@
                     showEditRecruitment:function(){
                         app.$data.cancelModal=true;
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+                        app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitmentParams);
                         $('#recruitmentModalCenter').modal('show');
                         app.clearMainFormErrors();
                     },
@@ -499,6 +500,7 @@
                         if(app.$data.cancelModal)
                         {
                             Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+                            Object.assign(app.$data.recruitmentParams, app.$data.recruitmentParamsBeforeEdit);
                             app.$data.sessionBeforeEdit=null;
                             app.$data.buttonText1="Update";
                         }

@@ -290,7 +290,7 @@
                     // fire when edit experiment model is shown, save copy for cancel
                     showEditRecruitment:function(){
                         app.$data.cancelModal=true;
-                        app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
+                        app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitmentParams);
                         $('#recruitmentModalCenter').modal('show');
                         app.clearMainFormErrors();
                     },
@@ -299,7 +299,7 @@
                     hideEditRecruitment:function(){
                         if(app.$data.cancelModal)
                         {
-                            Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
+                            Object.assign(app.$data.recruitmentParams, app.$data.recruitmentParamsBeforeEdit);
                             app.$data.experiment.experimentBeforeEdit=null;
                         }
                     },
