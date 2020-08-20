@@ -14,6 +14,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_delete
 
 from datetime import date
+from datetime import datetime, timedelta,timezone
 
 import logging
 
@@ -57,6 +58,7 @@ class profile(models.Model):
 
         return out_str
     
+    #get a list of upcoming experiments that subject has confirmed for
     def sorted_session_day_list_upcoming(self):
         logger = logging.getLogger(__name__) 
 
@@ -75,6 +77,7 @@ class profile(models.Model):
 
         return out_str
     
+    #get full invitation list
     def sorted_session_day_list_full(self):
         logger = logging.getLogger(__name__) 
     
@@ -107,6 +110,23 @@ class profile(models.Model):
 
         return out_str
 
+    #return true if subject was bumped from last session they attended
+    def bumped_from_last_session(self,excludeESDU):
+        logger = logging.getLogger(__name__)
+        logger.info("Get bumped from last session")
+
+        d = datetime.now(timezone.utc)
+        ESDU_last = self.user.ESDU.exclude(id = excludeESDU).filter(confirmed = True,experiment_session_day__date__lt = d).order_by("-experiment_session_day__date").first()
+
+        logger.info(ESDU_last.experiment_session_day.date)
+
+        if ESDU_last.bumped:
+            return True
+        else:
+            return False
+
+
+    #json version of model, small
     def json_min(self):
         return{
             "id":self.user.id,                        
@@ -116,6 +136,7 @@ class profile(models.Model):
             "chapmanID":self.chapmanID,                 
         }
 
+    #json version of model, full
     def json(self):
         return{
             "id":self.user.id,                        
@@ -129,7 +150,7 @@ class profile(models.Model):
             "blackballed":self.blackballed,         
         }
 
-#delete associated user model
+#delete associated user model when profile is deleted
 @receiver(post_delete, sender=profile)
 def post_delete_user(sender, instance, *args, **kwargs):
     if instance.user: # just in case user is not specified

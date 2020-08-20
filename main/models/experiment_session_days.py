@@ -185,7 +185,7 @@ class experiment_session_days(models.Model):
             user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False) 
 
             logger.info("Valid List")
-            logger.info(user_list_valid)       
+            #logger.info(user_list_valid)       
 
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,

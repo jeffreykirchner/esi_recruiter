@@ -121,7 +121,8 @@ class experiment_session_day_users(models.Model):
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),
-                        "chapmanID":self.user.profile.chapmanID},                 
+                        "chapmanID":self.user.profile.chapmanID,
+                        "bumpedFromLast":self.user.profile.bumped_from_last_session(self.id)},                 
                 }
 
     def json_min(self):

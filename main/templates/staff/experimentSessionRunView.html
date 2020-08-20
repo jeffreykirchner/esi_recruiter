@@ -445,8 +445,9 @@
                                             <div v-else-if="esdu.attended">
                                                 <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
                                                         v-on:click = "bumpSubject(esdu.id,index)">
-                                                    <span v-html='bumpButtonText'></span> 
+                                                    <span v-html='bumpButtonText'></span>
                                                 </button>
+                                                <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div> 
                                             </div>
                                             <div v-else-if="esdu.bumped">
                                                 <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
