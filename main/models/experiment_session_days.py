@@ -38,6 +38,7 @@ class experiment_session_days(models.Model):
         verbose_name = 'Experiment Session Days'
         verbose_name_plural = 'Experiment Session Days'
 
+    #get list of user and confirmed status
     def getListOfUserIDs(self):
         u_list=[]
 
@@ -157,6 +158,7 @@ class experiment_session_days(models.Model):
         
         return [i.json_runInfo() for i in u_list_c]
 
+    #json object of model
     def json(self,getUnconfirmed):
 
         logger = logging.getLogger(__name__)
@@ -223,6 +225,7 @@ class experiment_session_days(models.Model):
             "confirmedCount": len(u_list_c),
             "unConfirmedCount": len(u_list_u),  
             "roomOverlap":self.getRoomOverlap(),
-            "allowDelete":self.allowDelete(),     
+            "allowDelete":self.allowDelete(),   
+            "complete":self.complete,  
         }
         

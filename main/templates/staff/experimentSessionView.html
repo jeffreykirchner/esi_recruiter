@@ -1153,12 +1153,12 @@
                 </div>
                 <div class = "row mt-2">
                     <div class="col col-md-4 text-right">
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()" v-bind:disabled="session.allowEdit === false">Edit <i class="fas fa-pen fa-xs"></i></button>
                     </div>
                     <div class="col col-md-8">                        
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()">Invite Subjects <i class="fa fa-users"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()" v-bind:disabled="session.allowEdit === false">Invite Subjects <i class="fa fa-users"></i></button>
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                         <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowDelete === false"><span v-html = "cancelSessionButtonText"></span></button>
                     </div>               
                 </div>
@@ -1205,7 +1205,7 @@
                                             <button style="width:80px;" class="btn btn-link btn-sm" type="button" v-on:click = "runSession(sd.id)"> Run <i class="fas fa-running fa-xs"></i></i></button>
                                         </div>
                                         <div>
-                                            <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
+                                            <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button> |
                                             <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>
                                         </div>                               
                                         <div v-if="session.experiment_session_days.length > 1">                                         

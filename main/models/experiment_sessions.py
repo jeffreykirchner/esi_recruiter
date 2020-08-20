@@ -169,6 +169,15 @@ class experiment_sessions(models.Model):
 
         return True
 
+    #check if any of the session days are complete
+    def allowEdit(self):
+        ESD_complete = self.ESD.filter(complete = True)
+
+        if len(ESD_complete) > 0:
+            return False
+
+        return True
+
     #return a list of all valid users that can participate
     def getValidUserList(self,u_list,checkAlreadyIn):
         logger = logging.getLogger(__name__)
@@ -555,4 +564,5 @@ class experiment_sessions(models.Model):
             "messageCount": self.experiment_session_messages_set.count(),
             "invitationCount": self.experiment_session_invitations_set.count(),
             "allowDelete":self.allowDelete(),
+            "allowEdit":self.allowEdit(),
         }
