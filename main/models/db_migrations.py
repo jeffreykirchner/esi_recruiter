@@ -175,7 +175,7 @@ def migrate_experiments():
 
         print("data fetched")
 
-        batch_size=50
+        batch_size=500
         # print(objs)
 
         counter=0
@@ -339,7 +339,8 @@ def migrate_subjects1():
                                                  WHERE s2.email=s1.email AND s2.id != s1.id)
                                           THEN
                                           CONCAT(id,first_name,last_name, "@123.edu")
-                                        ELSE email END                                 
+                                        ELSE email END,
+                                confirmed                                
                         from students AS s1
                         ''')
         
@@ -352,13 +353,13 @@ def migrate_subjects1():
                 last_name=c[2].capitalize(),
                 email=c[3],
                 is_staff=False,
-                is_active=False,
+                is_active=c[4],
                 is_superuser=False
                 ) for c in cursor.fetchall())
 
         cursor.close()
 
-        batch_size=50
+        batch_size=500
         # print(objs)
 
         counter=0
@@ -439,7 +440,7 @@ def migrate_subjects2():
                         from students AS s1
                         ''')
         
-        batch_size=50
+        batch_size=500
         counter=0        
 
 
@@ -458,7 +459,7 @@ def migrate_subjects2():
 
         cursor2.close()
 
-        batch_size=50
+        batch_size=500
         # print(objs)
 
         counter=0
@@ -490,7 +491,7 @@ def migrate_experiments_institutions():
                                 WHERE experiment_id=id)''')
 
         print("migrate experiment institutions")
-        batch_size=50
+        batch_size=500
         # print(objs)
 
         counter=0
@@ -549,7 +550,7 @@ def migrate_sessions():
                                 ) for c in cursor.fetchall())
 
         cursor.close()
-        batch_size=150
+        batch_size=500
         # print(objs)
 
         counter=0
@@ -586,7 +587,7 @@ def migrate_sessions():
         print("session day")
 
         counter=0
-        batch_size=50
+        batch_size=500
 
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT sessions.id,
@@ -631,7 +632,7 @@ def migrate_sessions():
         print("session day, multi day")
 
         counter=0
-        batch_size=50
+        batch_size=500
 
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT sessions.id,
@@ -810,7 +811,7 @@ def migrate_session_users2():
 
         print("data loaded")
 
-        batch_size=75        
+        batch_size=500        
 
         counter=0
 
@@ -869,7 +870,7 @@ def migrate_session_users4():
         cursor.close()
         print("data loaded")
 
-        batch_size=75        
+        batch_size=500        
 
         counter=0
 
