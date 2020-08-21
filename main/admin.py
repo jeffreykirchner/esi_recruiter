@@ -77,6 +77,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
+      #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
 
             updated = queryset.exclude(user__is_staff = 1).update(blackballed=0)
@@ -88,9 +89,33 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       clear_blackBalls.short_description = "Remove blackballs"
 
+      #confirm all active user's emails
+      def confirm_active_email(self, request, queryset):
+
+            updated = queryset.filter(user__is_active = 1).update(emailConfirmed="yes")
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      confirm_active_email.short_description = "Manually confirm selected active user's emails"
+
+      #clear everyone from blackballs status
+      def un_confirm_emails(self, request, queryset):
+
+            updated = queryset.exclude(user__is_staff = 1).update(emailConfirmed='no')
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      un_confirm_emails.short_description = "Un-confirm selected email addresses"
+
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
-      actions = [clear_blackBalls]
+      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails]
       list_display = ['__str__','studentWorker','blackballed']
       list_filter = ('blackballed', 'studentWorker')
 

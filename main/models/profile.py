@@ -125,7 +125,6 @@ class profile(models.Model):
         else:
             return False
 
-
     #json version of model, small
     def json_min(self):
         return{

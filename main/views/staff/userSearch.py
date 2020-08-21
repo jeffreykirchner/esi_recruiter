@@ -15,6 +15,7 @@ from django.db.models import OuterRef, Subquery
 from django.db.models import Count
 from main.models import parameters
 from datetime import datetime, timedelta,timezone
+from . import sendMassEmail
 
 @login_required
 @user_is_staff
@@ -33,13 +34,30 @@ def userSearch(request):
             return sendEmail(request,data)
 
     else:
-        activeCount = User.objects.filter(is_active = True,profile__type__id = 2).count()
+        activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__emailConfirmed = 'yes').count()
         return render(request,'staff/userSearch.html',{"activeCount":activeCount})     
 
 #send an email to active users
 def sendEmail(request,data):
-    pass
+    logger = logging.getLogger(__name__)
+    logger.info("Send Message")
+    logger.info(data)
 
+    subjectText =  data["subject"]
+    messageText = data["text"]
+
+    users_list = User.objects.filter(is_active = True, profile__emailConfirmed = 'yes',profile__type__id = 2)
+
+    emailList = []
+    
+    for i in users_list:
+        emailList.append({"email":i.email})        
+
+    mailResult = sendMassEmail(emailList,subjectText, messageText)
+
+    logger.info(emailList)
+
+    return JsonResponse({"mailResult":mailResult}, safe=False)
 
 
 #get a list of no show violators
@@ -130,7 +148,7 @@ def lookup(value,returnJSON,activeOnly):
 
 
     if activeOnly:
-        users = users.filter(is_active = True)
+        users = users.filter(is_active = True, profile__emailConfirmed = 'yes')
 
     u_list = list(users)
 

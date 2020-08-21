@@ -136,12 +136,60 @@
                     },
 
                     //fire when hide invite subjects  model, cancel action if nessicary
-                    hideSendMessage:function(){       
-                        // app.$data.sendMessageText="";      
-                        // app.$data.emailMessageList="";    
-                        // app.$data.sendMessageSubject=""; 
-                        //app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
+                    hideSendMessage:function(){ 
+                        if(app.$data.sendMessageButtonText == "Send Message <i class='fas fa-envelope fa-xs'></i>")
+                        {
+                            app.$data.sendMessageText="";      
+                            app.$data.emailMessageList="";    
+                            app.$data.sendMessageSubject="";  
+                        }      
+                             
                     },
+
+                    //send an email to all of the confirmed subjects
+                    sendEmailMessage:function(){
+
+                        if(app.$data.sendMessageSubject == "" )
+                        {
+                            confirm("Add a subject to your message.");
+                            return;
+                        }
+
+                        if(app.$data.sendMessageText == "" )
+                        {
+                            confirm("Your message is empty.");
+                            return;
+                        }
+
+                        if(app.$data.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        app.$data.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('{{request.get_full_path}}', {
+                                action:"sendEmail", 
+                                subject:app.$data.sendMessageSubject,
+                                text:app.$data.sendMessageText,                                                                                                                                              
+                            })
+                            .then(function (response) {
+                                //status=response.data.status;
+
+                                if(response.data.mailResult.errorMessage != "")
+                                {
+                                    app.$data.emailMessageList = "<br>Email Send Error:<br>"
+                                    app.$data.emailMessageList += response.data.mailResult.errorMessage + "<br><br>";
+                                }
+                                else
+                                {
+                                    app.$data.emailMessageList =  response.data.mailResult.mailCount + " messages sent.";                                     
+                                }   
+
+                                app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });
+                        },
 
                     formatDate: function(value){
                             if (value) {
