@@ -9,6 +9,7 @@ from .profile import *
 from .locations import *
 from .departments import *
 from .accounts import *
+from .emailFilter import *
 from .recruitmentParameters import *
 from .experiments import *
 from .experiments_institutions import *

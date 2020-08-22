@@ -22,11 +22,12 @@ import logging
 class profile(models.Model):
 
     user = models.OneToOneField(User,verbose_name="User", on_delete=models.CASCADE)
-    type =  models.ForeignKey(accountTypes,verbose_name="Account Type",on_delete=models.CASCADE,default=2)             #subject or staff
-    school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                 #Chapman University ETC
-    major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                   #Economics ETC
+    type =  models.ForeignKey(accountTypes,verbose_name="Account Type",on_delete=models.CASCADE,default=2)            #subject or staff
+    school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                      #Chapman University ETC
+    major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
     subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
+    emailFilters = models.ManyToManyField(institutions, verbose_name="Email Filters")                                  #email filters that apply to this user
 
     chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")    
     emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")    
@@ -43,6 +44,15 @@ class profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
+
+    def setupEmailFilter(self):
+        self.emailFilters.clear()
+        self.save()
+
+        email_regx = self.user.email.lower().replace(".","\.")
+
+        self.emailFilter.objects.filter(domain__regex = r'.+@' + email_regx)
+
 
     #get a list of session days the subject has participated in or was bumped from
     def sorted_session_day_list_earningsOnly(self):
