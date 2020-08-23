@@ -3,15 +3,15 @@ import logging
 import traceback
 
 #email domain a user must have for recruitment ie @ abc.edu
-class emailFilter(models.Model):
-    name = models.CharField(max_length = 300)
-    domain = models.CharField(max_length = 300)
+class emailFilters(models.Model):
+    name = models.CharField(max_length = 300,verbose_name="Name")
+    domain = models.CharField(max_length = 300, verbose_name="Domain, ex: abc.edu")
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return self.name
+        return self.name + ": " + self.domain
 
     class Meta:
         verbose_name = 'Email Filter'

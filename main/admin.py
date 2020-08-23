@@ -17,6 +17,7 @@ admin.site.register(genders)
 admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
+admin.site.register(emailFilters)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
@@ -113,11 +114,26 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       un_confirm_emails.short_description = "Un-confirm selected email addresses"
 
+      #apply email filter to profile
+      def apply_email_filter(self,request,queryset):
+
+            c = 0
+            for p in queryset:
+                  c +=  p.setupEmailFilter()
+            
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  c,
+            ) % c, messages.SUCCESS)
+
+      apply_email_filter.short_description = "Apply email filters to selected profiles"    
+
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
-      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails]
-      list_display = ['__str__','studentWorker','blackballed']
-      list_filter = ('blackballed', 'studentWorker')
+      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter]
+      list_display = ['__str__','studentWorker','blackballed','emailFilter']
+      list_filter = ('blackballed', 'studentWorker','user__is_active','emailFilter')
 
 
 admin.site.unregister(User)

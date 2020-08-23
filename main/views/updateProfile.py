@@ -34,7 +34,7 @@ def updateProfile(request):
                 
                 u.first_name=form.cleaned_data['first_name'].strip().capitalize()
                 u.last_name=form.cleaned_data['last_name'].strip().capitalize()
-                u.email=form.cleaned_data['email'].lower().strip()
+                u.email=form.cleaned_data['email'].strip().lower()
                 u.username=u.email
 
                 u.profile.chapmanID=form.cleaned_data['chapman_id'].strip()

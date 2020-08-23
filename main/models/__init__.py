@@ -5,11 +5,11 @@ from .accountTypes import *
 from .majors import *
 from .subject_types import *
 from .institutions import *
+from .emailFilters import *
 from .profile import *
 from .locations import *
 from .departments import *
 from .accounts import *
-from .emailFilter import *
 from .recruitmentParameters import *
 from .experiments import *
 from .experiments_institutions import *

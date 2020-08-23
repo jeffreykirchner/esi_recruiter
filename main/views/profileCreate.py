@@ -40,7 +40,7 @@ def profileCreate(request):
     #migrate_session_users4()  #***
     #migrate_session_users3()  #***
 
-    #migrate_parameters() #***
+    migrate_parameters() #***
 
     token=""
     status="update"            #either filling out the form or 
@@ -50,8 +50,8 @@ def profileCreate(request):
         if form.is_valid():          
 
             #deactivate user until email is validated
-            u = profileCreateUser(form.cleaned_data['email'].lower().strip(),
-                                    form.cleaned_data['email'].lower().strip(),
+            u = profileCreateUser(form.cleaned_data['email'].strip().lower(),
+                                    form.cleaned_data['email'].strip().lower(),
                                     form.cleaned_data['password1'],
                                     form.cleaned_data['first_name'].strip().capitalize(),
                                     form.cleaned_data['last_name'].strip().capitalize(),

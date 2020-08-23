@@ -7,6 +7,7 @@ from django.db.models import F,Q
 
 from main.models import *
 from main.models import institutions
+from . import emailFilters
 
 import main
 
@@ -27,7 +28,7 @@ class profile(models.Model):
     major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
     subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
-    emailFilters = models.ManyToManyField(institutions, verbose_name="Email Filters")                                  #email filters that apply to this user
+    emailFilter = models.ForeignKey(emailFilters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True)     #email filters that apply to this user
 
     chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")    
     emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")    
@@ -46,12 +47,28 @@ class profile(models.Model):
         verbose_name_plural = 'Profiles'
 
     def setupEmailFilter(self):
-        self.emailFilters.clear()
+        logger = logging.getLogger(__name__) 
+        logger.info("set email filter")
+        
+        self.emailFilter = None
         self.save()
 
-        email_regx = self.user.email.lower().replace(".","\.")
+        if not "@" in self.user.email:
+            return 0
 
-        self.emailFilter.objects.filter(domain__regex = r'.+@' + email_regx)
+        email_split = self.user.email.split("@")
+
+        #logger.info(email_split)
+
+        #domain__regex = r'.+@' + email_regx
+        ef = emailFilters.objects.filter(domain = email_split[1]).first()
+
+        if ef:
+            self.emailFilter = ef
+            self.save()
+            return 1
+        else:
+            return 0
 
 
     #get a list of session days the subject has participated in or was bumped from

@@ -25,7 +25,9 @@ from main.models import institutions,\
                                 schools, \
                                 majors, \
                                 parameters, \
-                                recruitmentParameters
+                                recruitmentParameters,\
+                                emailFilters, \
+                                profile
                         
 
 #migrate old data base over to new database
@@ -339,7 +341,7 @@ def migrate_subjects1():
                                                  WHERE s2.email=s1.email AND s2.id != s1.id)
                                           THEN
                                           CONCAT(id,first_name,last_name, "@123.edu")
-                                        ELSE email END,
+                                        ELSE TRIM(email) END,
                                 confirmed                                
                         from students AS s1
                         ''')
@@ -348,10 +350,10 @@ def migrate_subjects1():
 
         objs = (User(id=c[0],
                 password="",
-                username=c[3],
+                username=c[3].lower(),
                 first_name=c[1].capitalize(),
                 last_name=c[2].capitalize(),
-                email=c[3],
+                email=c[3].lower(),
                 is_staff=False,
                 is_active=c[4],
                 is_superuser=False
@@ -418,6 +420,8 @@ def migrate_subjects2():
 
         migrate_majors() 
 
+        print("migrate profiles")
+
         cursor2 = connections['old'].cursor()
         cursor2.execute('''select id,
                         COALESCE(TRIM(chapman_id),"Not Listed"),                       
@@ -473,6 +477,11 @@ def migrate_subjects2():
                 profile.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
+
+        print("assign email filters")
+        
+        for p in profile.objects.all():
+                p.setupEmailFilter()        
 
 def migrate_experiments_institutions():     
         migrate_institutions()
@@ -578,7 +587,9 @@ def migrate_sessions():
                         e.showUpFee = 0
                 
                 #print("show up fee " + str(e.id) + " " + str(e.showUpFee))
-                e.save()
+                #e.save()
+
+        experiments.objects.bulk_update(e_list,['showUpFee'])
         
        # e_list.update()
                                 
