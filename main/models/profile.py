@@ -27,8 +27,8 @@ class profile(models.Model):
     school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                      #Chapman University ETC
     major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
-    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)      #Undergrad, grad, non student
-    emailFilter = models.ForeignKey(emailFilters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True)     #email filters that apply to this user
+    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)     #Undergrad, grad, non student
+    emailFilter = models.ForeignKey(emailFilters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
     chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")    
     emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")    

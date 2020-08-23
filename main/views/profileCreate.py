@@ -40,7 +40,7 @@ def profileCreate(request):
     #migrate_session_users4()  #***
     #migrate_session_users3()  #***
 
-    migrate_parameters() #***
+    #migrate_parameters() #***
 
     token=""
     status="update"            #either filling out the form or 
@@ -65,6 +65,8 @@ def profileCreate(request):
                                     accountTypes.objects.get(id=2))
 
             profileCreateSendEmail(request,u)
+
+            u.profile.setupEmailFilter()
             
             status="done"
             token = u.profile.emailConfirmed

@@ -12,7 +12,8 @@ urlpatterns = [
     #account control
     path('',views.mainHome,name='mainHome'),
     path('accounts/', include('django.contrib.auth.urls')),  #django built in account registrations
-    path('profile/', views.updateProfile,name='profile'), #custom profile         
+    path('profile/', views.updateProfile,name='profile'), #custom profile 
+    path('accounts/profile/', views.updateProfile,name='profile'), #custom profile         
     path('profileCreate/',views.profileCreate,name='profileCreate'),
     path('profileVerify/<token>/',views.profileVerify,name='profileVerify'),
     path('profileVerifyResend/<token>/',views.profileVerifyResend,name='profileVerifyResend'),

@@ -137,6 +137,8 @@ def lookup(value,returnJSON,activeOnly):
     logger.info("User Lookup")
     logger.info(value)
 
+    value = value.strip()
+
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                       .filter(Q(last_name__icontains = value) |
                               Q(first_name__icontains = value) |
