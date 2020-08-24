@@ -55,6 +55,7 @@ def updateProfile(request):
 
                 u.save()
                 u.profile.save()
+                u.profile.setupEmailFilter()
                 status="done"
         else:
             logger.info("show profile")
