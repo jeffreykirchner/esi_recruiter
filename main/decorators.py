@@ -7,13 +7,13 @@ def user_is_staff(function):
 
     def wrap(request, *args, **kwargs):    
         #check for profile
-        if not request.user.profile:
-            p = profile()
-            p.chapmanID = 0000
-            p.gender =  4
-            p.labUser = 0
-            p.user = request.user
-            p.save()
+        # if not request.user.profile:
+        #     p = profile()
+        #     p.chapmanID = 0000
+        #     p.gender =  4
+        #     p.labUser = 0
+        #     p.user = request.user
+        #     p.save()
 
         if request.user.profile.type.name=="staff":
             return function(request, *args, **kwargs)
