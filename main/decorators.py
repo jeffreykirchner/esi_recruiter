@@ -40,12 +40,9 @@ def email_confirmed(function):
         if request.user.profile.emailConfirmed=="yes":
             return function(request, *args, **kwargs)
         else:
-            #email not verified redirect to verifiction resend
-            form = verifyFormResend(
-                initial={'token': ""}
-            )
+            #email not verified redirect to verifiction resend          
 
-            return render(request,'profileVerifyResend.html',{'form':form, 'status':"update"})
+            return render(request,'profileVerifyResend.html',{})
 
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
