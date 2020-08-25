@@ -36,29 +36,46 @@ admin.site.register(parameters, parametersadmin)
 
 class UserAdmin(admin.ModelAdmin):
 
+      ordering = ['last_name','first_name']
+      search_fields = ['last_name','first_name','email']
+      list_display = ['last_name', 'first_name','email','is_active','is_staff']
+      actions = []
+      list_filter = ('is_staff', 'is_active')
+
+@admin.register(profile)
+class ProfileAdmin(admin.ModelAdmin):
+
       def activate_all(self, request, queryset):
-            updated = queryset.exclude(is_staff = 1).update(is_active=1)
+
+            user_list = User.objects.filter(profile__in = queryset).exclude(is_staff = True)
+            updated_users = user_list.update(is_active = True)
+
             self.message_user(request, ngettext(
                   '%d user was activated.',
                   '%d users were activated.',
-                  updated,
-            ) % updated, messages.SUCCESS)
+                  updated_users,
+            ) % updated_users, messages.SUCCESS)
       activate_all.short_description = "Activate selected subjects"
 
       def deactivate_all(self, request, queryset):
-            queryset_active = queryset.filter(is_active=True).exclude(is_staff = True)
-            queryset_active_profile = profile.objects.filter(user__in = queryset_active).select_related('user')
+
+            user_list = User.objects.filter(profile__in = queryset).filter(is_active=True).exclude(is_staff = True)      
+
+            # queryset_active = queryset.filter(user__is_active=True).exclude(user__is_staff = True)
+
+            queryset_active_profile = list(queryset.filter(user__is_active = True).exclude(user__is_staff = True).select_related('user'))
+            updated_users = user_list.update(is_active = False)
 
             updated3 = sendMassEmailVerify(queryset_active_profile,request)
 
             #updated2 = queryset_active_profile.update(emailConfirmed="no")
-            updated = queryset_active.update(is_active=False)            
+            #updated = queryset_active.update(is_active=False)            
 
             self.message_user(request, ngettext(
                   '%d user was deactivated.',
                   '%d users were deactivated.',
-                  updated,
-            ) % updated, messages.SUCCESS)
+                  updated_users,
+            ) % updated_users, messages.SUCCESS)
 
             # self.message_user(request, ngettext(
             #       '%d profile was deactivated.',
@@ -70,14 +87,6 @@ class UserAdmin(admin.ModelAdmin):
 
       deactivate_all.short_description = "Deactivate selected subjects and re-invite"
 
-      ordering = ['last_name','first_name']
-      search_fields = ['last_name','first_name','email']
-      list_display = ['last_name', 'first_name','email','is_active','is_staff']
-      actions = [activate_all,deactivate_all]
-      list_filter = ('is_staff', 'is_active')
-
-@admin.register(profile)
-class ProfileAdmin(admin.ModelAdmin):
       #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
 
@@ -131,7 +140,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
-      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter]
+      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,deactivate_all,activate_all]
       list_display = ['__str__','studentWorker','blackballed','emailFilter']
       list_filter = ('blackballed', 'studentWorker','user__is_active','emailFilter')
 

@@ -3,9 +3,11 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from main.decorators import email_confirmed
 from django.http import JsonResponse
 
 @login_required
+@email_confirmed
 def mainHome(request):
     if request.method == 'POST':
          return JsonResponse({"Fail" : "Fail"}, safe=False)

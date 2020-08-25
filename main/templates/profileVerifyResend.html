@@ -1,52 +1,107 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+
+{%block head%}
+
+    <script type="text/javascript">
+        $(document).ready(function(){                         
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+
+            var app = new Vue({
+                delimiters: ['[[', ']]'],
+                el: '#root',        
+                data:{
+                    baseURL:'/profileVerifyResend/',  
+                    emailVerified:true, 
+                    status:"update",  
+                    adminEmail : "",
+                    admainName : "",
+                },
+
+                methods:{
+                    //get list of users based on search
+                    sendVerificationEmail: function(){
+                        // if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+                        // app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('/profileVerifyResend/', {                            
+                            action:"sendVerificationEmail",                             
+                        })
+                        .then(function (response) {                         
+                          app.$data.status = response.data.status;
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    }, 
+
+                    getUser:function(){
+                      axios.post('/profileVerifyResend/', {                            
+                            action:"getUser",                                                            
+                        })
+                        .then(function (response) {                         
+                            app.$data.emailVerified = response.data.emailVerified;
+                            app.$data.adminEmail = response.data.adminEmail;
+                            app.$data.admainName = response.data.admainName;
+                            // app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                               
+                        }); 
+                    }
+                  
+                },
+                
+                mounted: function(){
+                    this.getUser();
+                },
+            });
+        });
+    </script>
+{%endblock head%}
+
 {% block content %}
 
 <div class="row justify-content-md-center">
   <div class="col col-lg-6">
     <div class="card">
       <div class="card-header">
-        Resend Verificion Email
+        Resend Verification Email
       </div>
 
       <div class="card-body">
 
-        {%if status == 'update' %}                 
-
-          <form method="post" action="{% url 'profileVerifyResend' 'post' %}">
-            {% csrf_token %}            
-            <div class="row">
-              <div class = "col col-md-8 offset-md-2">  
-                {{ form.email|as_crispy_field }}         
-              </div>            
-            </div>
-            <div class="row">
-              <div class="col col-md-8 offset-md-2">
-                  <button type="submit" class="btn btn-outline-primary"><i class="fas fa-envelope"></i> Submit</button>
+        <div v-if="status === 'update'"> 
+            <div class="row" v-if="emailVerified === false">
+              <div class="col col-md-8 offset-md-2" style="text-align: center;">
+                  Your email account is not verified.<br>
+                  Your email can be edited in your <a href="/profile/">Profile</a>.
               </div>
-            </div>
-            {{form.token.as_hidden}}
-          </form>          
-
-        {%elif status == 'done'%}
+            </div>                         
+            <div class="row mt-2">
+              <div class="col col-md-8 offset-md-2" style="text-align: center;">
+                  <button type="submit" class="btn btn-outline-primary" v-on:click="sendVerificationEmail()"><i class="fas fa-envelope"></i> Send Email Verification</button>
+              </div>
+            </div> 
+        </div>  
+        <div v-if="status === 'done'">
           <div class="row">
-              <div class = "col">  
-              <center>                
-                  Email Sent.<br>
-                  <a href="{% url 'mainHome'%}">Return</a>
-              </center>         
+              <div class = "col" style="text-align: center;">              
+                  Email Sent.         
               </div>            
           </div>
-        {%elif status == 'fail'%}
-        <div class="row">
-            <div class = "col">  
-            <center>                
-                This email address is not on file.<br>
-                <a href="{% url 'profileCreate'%}">Create a new account</a>
-            </center>         
-            </div>            
         </div>
-        {%endif%}
+        <div v-if="status === 'fail'">        
+          <div class="row">
+              <div class = "col" style="text-align: center;">  
+                There was an error sending the email please contact<br>
+                [[admainName]] at <a v-bind:href= "'mailto:' + adminEmail">[[adminEmail]]</a>     
+              </div>            
+          </div>
+        </div>
+
       </div>      
     </div>
   </div>

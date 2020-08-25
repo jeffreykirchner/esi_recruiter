@@ -16,7 +16,7 @@ urlpatterns = [
     path('accounts/profile/', views.updateProfile,name='profile'), #custom profile         
     path('profileCreate/',views.profileCreate,name='profileCreate'),
     path('profileVerify/<token>/',views.profileVerify,name='profileVerify'),
-    path('profileVerifyResend/<token>/',views.profileVerifyResend,name='profileVerifyResend'),
+    path('profileVerifyResend/',views.profileVerifyResend,name='profileVerifyResend'),
     
     #staff
     path('userSearch/',views.userSearch,name='userSearch'),

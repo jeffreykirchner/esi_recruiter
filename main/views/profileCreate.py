@@ -61,7 +61,7 @@ def profileCreate(request):
                                     form.cleaned_data['major'],
                                     form.cleaned_data['subjectType'],
                                     form.cleaned_data['studentWorker'],
-                                    False,
+                                    True,
                                     accountTypes.objects.get(id=2))
 
             profileCreateSendEmail(request,u)

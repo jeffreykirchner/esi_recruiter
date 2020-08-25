@@ -54,8 +54,13 @@ def sendMassEmailVerify(profileList,request):
     logger = logging.getLogger(__name__)
     logger.info("Send mass email to list")
 
+    logger.info(profileList)
+
     message_list = []
     message_list.append(())
+
+    if len(profileList) == 0:
+        return {"mailCount":0,"errorMessage":"No valid users"}
 
     from_email = settings.EMAIL_HOST_USER    
 
