@@ -216,6 +216,7 @@ class experiment_sessions(models.Model):
             allow_multiple_participations_str=""
         else:
             allow_multiple_participations_str='''
+            --check that user has not already done this experiment
             NOT EXISTS(SELECT 1                                                   
                        FROM user_experiments
                        WHERE user_experiments.user_id = auth_user.id AND
@@ -332,6 +333,49 @@ class experiment_sessions(models.Model):
                                         INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
                                         GROUP BY user_experiments.user_id
                                         HAVING experiment_exclude_count >= ''' + str(ee_c) + '''),
+            '''
+
+
+        #schools include strings
+        schools_include_user_where_str = ""
+        schools_include_with_str = ""
+        if es_p.schools_include_constraint:
+            schools_include_with_str='''
+            --subject cannot have one of these email domains
+             emailFilter_include AS (SELECT DISTINCT emailFilters_id
+								FROM main_schools_emailFilter			
+								INNER JOIN main_recruitmentparameters_schools_include ON main_recruitmentparameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
+								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_include.recruitmentparameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
+            '''
+
+            schools_include_user_where_str='''
+            --check if subject is in the required school
+            EXISTS(SELECT 1                                                   
+                    FROM emailFilter_include
+                    WHERE main_profile.emailFilter_id = emailFilter_include.emailFilters_id) AND 
+            '''
+
+        #schools exclude strings
+        schools_exclude_user_where_str = ""
+        schools_exclude_with_str = ""
+        if es_p.schools_exclude_constraint:
+            schools_exclude_with_str = '''
+             --subject cannot be in any of these schools
+              emailFilter_exclude AS (SELECT DISTINCT emailFilters_id
+								FROM main_schools_emailFilter			
+								INNER JOIN main_recruitmentparameters_schools_exclude ON main_recruitmentparameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
+								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_exclude.recruitmentparameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
+            '''
+
+            schools_exclude_user_where_str = '''
+            --check if subject is in excluded school
+             NOT EXISTS(SELECT 1                                                   
+                    FROM emailFilter_exclude
+                    WHERE main_profile.emailFilter_id = emailFilter_exclude.emailFilters_id) AND
             '''
 
         #experience constraints
@@ -458,6 +502,8 @@ class experiment_sessions(models.Model):
             + institutions_exclude_with_str \
             + experiments_exclude_with_str \
             + experiments_include_with_str \
+            + schools_include_with_str \
+            + schools_exclude_with_str \
             + user_experiments_str \
             + user_current_sesion_str\
             + no_show_str\
@@ -486,6 +532,8 @@ class experiment_sessions(models.Model):
             + institutions_include_user_where_str \
             + experiments_exclude_user_where_str \
             + experiments_include_user_where_str \
+            + schools_exclude_user_where_str \
+            + schools_include_user_where_str \
             + '''
             --user's gender is on the list
             EXISTS(SELECT 1                                                   
