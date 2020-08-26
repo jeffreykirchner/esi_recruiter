@@ -18,6 +18,7 @@ def updateProfile(request):
 
     try:
         status="update"            #either filling out the form or 
+        emailVerificationRequired=False
         u=request.user
         
         if request.method == 'POST':
@@ -25,9 +26,7 @@ def updateProfile(request):
 
             #print(request.POST)
 
-            if form.is_valid():                           
-
-                emailVerificationRequired=False
+            if form.is_valid():                         
 
                 if u.email != form.cleaned_data['email'].lower():
                     emailVerificationRequired=True
@@ -49,7 +48,7 @@ def updateProfile(request):
                         u.set_password(form.cleaned_data['password1'])                    
 
                 if emailVerificationRequired:
-                    u.is_active=False     
+                    #u.is_active=False     
                     u.profile.emailConfirmed="no"                           
                     profileCreateSendEmail(request,u)
 
@@ -76,7 +75,8 @@ def updateProfile(request):
         raise Http404('Profile not found')
 
     return render(request,'profile.html',{'form': form,
-                                          'status':status})    
+                                          'status':status,
+                                          'emailVerificationRequired':emailVerificationRequired})    
 
 
 

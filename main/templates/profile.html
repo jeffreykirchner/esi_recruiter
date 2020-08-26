@@ -38,6 +38,9 @@
             <div class = "col col-md-10 offset-md-1">  
               <center>                
                 Profile updated.<br>
+                {%if emailVerificationRequired%}
+                Your email address was changed, check your inbox for a confirmation link.<br>
+                {%endif%}
                 <a href="{% url 'mainHome'%}">Return</a>
               </center>         
             </div>            
