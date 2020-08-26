@@ -340,7 +340,7 @@ def migrate_subjects1():
                                                  FROM students s2
                                                  WHERE s2.email=s1.email AND s2.id != s1.id)
                                           THEN
-                                          CONCAT(id,first_name,last_name, "@123.edu")
+                                          CONCAT(id,TRIM(first_name),TRIM(last_name), "@123.edu")
                                         ELSE TRIM(email) END,
                                 confirmed                                
                         from students AS s1
