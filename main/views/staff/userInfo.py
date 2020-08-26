@@ -33,7 +33,10 @@ def userInfo(request,id=None):
         elif data["status"] == "getSessions":           
             return JsonResponse({"session_day_attended" :  u.profile.sorted_session_day_list_earningsOnly(),
                                  "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(),
-                                 "institutions": u.profile.get_institution_list()},safe=False)       
+                                 "institutions" : u.profile.get_institution_list(),
+                                 "notes" : u.profile.get_notes(),
+                                 },safe=False,
+                                )       
     else:      
         return render(request,'staff/userInfo.html',{"u":u,
                                                      "id":id,

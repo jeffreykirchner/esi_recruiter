@@ -20,54 +20,68 @@
                 session_day_upcoming:[{id:"0"}],
                 invitations:[{id:"0"}],
                 institutions:[],
+                notes:[],
                 institutionsList:"",
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
+                noteText:'',
             },
 
             methods:{
                 //get attended and upcoming sessions
                 getSessions:function(){
                     axios.post('/userInfo/{{id}}/', {
-                            status :"getSessions" ,                                                                                                                             
-                        })
-                        .then(function (response) {     
-                            app.$data.session_day_attended = response.data.session_day_attended;
-                            app.$data.session_day_upcoming = response.data.session_day_upcoming;  
-                            app.$data.institutions = response.data.institutions;     
+                        status :"getSessions" ,                                                                                                                             
+                    })
+                    .then(function (response) {     
+                        app.takeGetSessions(response);                    
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        app.$data.searching=false;
+                    });                        
+                },
 
-                            //format session data
-                            for(var i=0;i<app.$data.session_day_attended.length;i++)
-                            {
-                                app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date);
-                                app.$data.session_day_attended[i].earnings = parseFloat(app.$data.session_day_attended[i].earnings).toFixed(2);
-                                app.$data.session_day_attended[i].show_up_fee = parseFloat(app.$data.session_day_attended[i].show_up_fee).toFixed(2);
-                            } 
+                //process get session response
+                takeGetSessions:function(reponse)
+                {
+                    app.$data.session_day_attended = response.data.session_day_attended;
+                    app.$data.session_day_upcoming = response.data.session_day_upcoming;  
+                    app.$data.institutions = response.data.institutions;     
+                    app.$data.notes = response.data.notes;
 
-                            for(var i=0;i<app.$data.session_day_upcoming.length;i++)
-                            {
-                                app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date);
-                                app.$data.session_day_upcoming[i].earnings = parseFloat(app.$data.session_day_upcoming[i].earnings).toFixed(2);
-                                app.$data.session_day_upcoming[i].show_up_fee = parseFloat(app.$data.session_day_upcoming[i].show_up_fee).toFixed(2);
-                            }
+                    //format session data
+                    for(var i=0;i<app.$data.session_day_attended.length;i++)
+                    {
+                        app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date);
+                        app.$data.session_day_attended[i].earnings = parseFloat(app.$data.session_day_attended[i].earnings).toFixed(2);
+                        app.$data.session_day_attended[i].show_up_fee = parseFloat(app.$data.session_day_attended[i].show_up_fee).toFixed(2);
+                    } 
 
-                            app.$data.institutionsList="";
-                            //create institution list
-                            for(var i=0;i<app.$data.institutions.length;i++)
-                            {
-                                if(i>0)
-                                {
-                                    app.$data.institutionsList += ", ";
-                                }
+                    for(var i=0;i<app.$data.session_day_upcoming.length;i++)
+                    {
+                        app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date);
+                        app.$data.session_day_upcoming[i].earnings = parseFloat(app.$data.session_day_upcoming[i].earnings).toFixed(2);
+                        app.$data.session_day_upcoming[i].show_up_fee = parseFloat(app.$data.session_day_upcoming[i].show_up_fee).toFixed(2);
+                    }
 
-                                app.$data.institutionsList += app.$data.institutions[i].name;
-                            }                               
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                            app.$data.searching=false;
-                        });                        
-                    },
+                    for(var i=0;i<app.$data.notes.length;i++)
+                    {
+                        app.$data.notes[i].date = app.formatDate(app.$data.notes[i].date);
+                    }
+
+                    app.$data.institutionsList="";
+                    //create institution list
+                    for(var i=0;i<app.$data.institutions.length;i++)
+                    {
+                        if(i>0)
+                        {
+                            app.$data.institutionsList += ", ";
+                        }
+
+                        app.$data.institutionsList += app.$data.institutions[i].name;
+                    }
+                },
 
                 // show the full invitation list
                 showInvitations: function(value){
@@ -92,6 +106,22 @@
                         .catch(function (error) {
                             console.log(error);                            
                         }); 
+                },
+
+                sendMakeNote:function(){
+                    
+                    if(app.$data.noteText == '') return;
+
+                    axios.post('/userInfo/{{id}}/', {
+                            status : "makeNote",
+                            text : app.$data.noteText,                                                                                                                
+                        })
+                        .then(function (response) {     
+                            app.takeGetSessions(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);                            
+                        });
                 },
 
                 formatDate: function(value){
@@ -353,4 +383,33 @@
         </div>                
     </div>
 </div>    
+
+<!-- make a note about the subject -->
+<div class="modal" id="noteModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Make a note</h5>                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">   
+                <div class="row">
+                    <div class = "col">                      
+                        <div class="form-group">
+                            <label for="noteText">Message</label>
+                            <textarea class="form-control" v-model="noteText" id="noteText" rows="3" cols="100%"></textarea>
+                          </div>
+                    </div>
+                </div>                              
+            </div>
+            <div class="modal-footer">                            
+                <button type="button" class="btn btn-outline-success" v-on:click = "sendMakeNote()">
+                    <span v-html="sendMessageButtonText"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {%endblock content%}

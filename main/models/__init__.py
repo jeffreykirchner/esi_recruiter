@@ -7,6 +7,7 @@ from .majors import *
 from .subject_types import *
 from .institutions import *
 from .profile import *
+from .profile_note import *
 from .locations import *
 from .departments import *
 from .accounts import *
