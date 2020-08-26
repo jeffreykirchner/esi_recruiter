@@ -344,6 +344,8 @@
                         })
                         .then(function (response) {                                   
                             app.$data.subjectInvitations = response.data.subjectInvitations;   
+                            
+                            var totalValid = response.data.totalValid;
 
                             var s ="";
                             var l = app.$data.subjectInvitations.length
@@ -362,6 +364,9 @@
                                 s += app.$data.subjectInvitations[i].last_name; 
                                 s += "</a>";
                             }
+
+                            s += "<br><br>";
+                            s += "<center><span style='color:gray;'>Total Found: " + totalValid + "<span><center>";
 
                             app.$data.subjectInvitationList = s;  
                             app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";    

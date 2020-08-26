@@ -398,7 +398,9 @@ def findSubjectsToInvite(data,id):
 
     u_list = es.getValidUserList([],True)
 
-    logger.info("Randomly Select:" + str(number)+ " of " + str(len(u_list)))
+    totalValid = len(u_list)
+
+    logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
 
     if number > len(u_list):
         usersSmall = u_list
@@ -409,7 +411,9 @@ def findSubjectsToInvite(data,id):
 
     usersSmall2 = [u.profile.json_min() for u in usersSmall]
 
-    return JsonResponse({"subjectInvitations" : usersSmall2,"status":"success"}, safe=False)
+    return JsonResponse({"subjectInvitations" : usersSmall2,
+                         "status":"success",
+                         "totalValid":str(totalValid)}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):
