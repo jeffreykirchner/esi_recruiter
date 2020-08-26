@@ -82,6 +82,7 @@
                             experiments_exclude:[],
                             experiments_include:[],
                         },
+                    recruitmentTitle:"Recruitment Parameters",
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
                     subjectInvitationList:"",                  //visable list of subject invitations
@@ -112,6 +113,8 @@
                     exclude_institutions_list:"",
                     include_experiments_list:"",
                     exclude_experiments_list:"", 
+                    include_schools_list:"",
+                    exclude_schools_list:"",
                     subject_type_list:"",
                     genders_list:"",        
                     buttonText1:"Update",  
@@ -146,10 +149,10 @@
                     },
 
                     //update recruitment parameters 
-                    updateSession1: function(){                       
+                    updateRecruitmentParameters: function(){                       
                         axios.post('/experimentSession/{{id}}/', {
                                 status :"updateRecruitmentParameters" ,                                
-                                formData : $("#mainForm1").serializeArray(),                                                              
+                                formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
                             })
                             .then(function (response) {     
                                                             
@@ -186,6 +189,8 @@
                         app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
                         app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
                         app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
+                        app.$data.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
+                        app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
                         
@@ -1054,117 +1059,8 @@
     
             <div class="card-body">
 
-                <!-- recruitment parameters -->
-                <div class = "row">
-                    <div class="col col-md-4 text-right">                        
-                        <u>Recruitment Parameters</u>
-                    </div>
-                    <div class="col col-md-8">
-                        
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.gender.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="genders_list"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.subject_type.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="subject_type_list"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.actual_participants.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="recruitmentParams.actual_participants"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        {{form1.registration_cutoff.label}}:
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="recruitmentParams.registration_cutoff"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Experience Level:
-                    </div>
-                    <div class="col col-md-8">
-                        <div v-if="recruitmentParams.experience_constraint">
-                           <span v-html="recruitmentParams.experience_min + ' to ' + recruitmentParams.experience_max"></span>
-                        </div>
-                        <div v-else>
-                            ---
-                        </div>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Allow Multiple Participations:
-                    </div>
-                    <div class="col col-md-8">
-                        <div v-if="recruitmentParams.allow_multiple_participations">
-                           <span v-html="'Yes'"></span>
-                        </div>
-                        <div v-else>
-                           <span v-html="'No'"></span>
-                        </div>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Include Institution Experience (<span v-if="recruitmentParams.institutions_include_all">All</span><span v-else>1+</span>):
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="include_institutions_list"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Exclude Institution Experience (<span v-if="recruitmentParams.institutions_exclude_all">All</span><span v-else>1+</span>):
-                    </div>
-                    <div class="col col-md-8">    
-                        <span v-html="exclude_institutions_list"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Include Experiment Experience (<span v-if="recruitmentParams.experiments_include_all">All</span><span v-else>1+</span>):
-                    </div>
-                    <div class="col col-md-8">
-                        <span v-html="include_experiments_list"></span>
-                    </div>               
-                </div>
-                <div class = "row">
-                    <div class="col col-md-4 text-right">
-                        Exclude Experiment Experience (<span v-if="recruitmentParams.experiments_exclude_all">All</span><span v-else>1+</span>):
-                    </div>
-                    <div class="col col-md-8">    
-                        <span v-html="exclude_experiments_list"></span>
-                    </div>               
-                </div>
-                <div class = "row mt-2">
-                    <div class="col col-md-4 text-right">
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()" v-bind:disabled="session.allowEdit === false">Edit <i class="fas fa-pen fa-xs"></i></button>
-                    </div>
-                    <div class="col col-md-8">                        
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()" v-bind:disabled="session.allowEdit === false">Invite Subjects <i class="fa fa-users"></i></button>
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
-                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
-                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowDelete === false"><span v-html = "cancelSessionButtonText"></span></button>
-                    </div>               
-                </div>
-                <!-- end recruitment parameters -->
+                {%include "snippits/recruitmentParametersTable.html"%}
+
                 <br>
                 <br>                                    
                    
@@ -1554,97 +1450,7 @@
     </div>
 </div>
 
-<!-- recruitment parameters modal -->
-<div class="modal" id="recruitmentModalCenter" tabindex="-1" role="dialog" aria-labelledby="recruitmentparameters" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Recruitment Parameters </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                    <form id="mainForm1">
-                        <!-- recruitment parameters -->
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form1.gender | as_crispy_field }}                            
-                            </div>
-                            <div class = "col"> 
-                                {{form1.subject_type | as_crispy_field }}
-                            </div>
-                        </div>
-                        <div class="row">    
-                            <div class = "col"> 
-                                {{form1.actual_participants | as_crispy_field }}
-                            </div>
-                            <div class = "col"> 
-                                {{form1.registration_cutoff | as_crispy_field }}  
-                            </div>                            
-                        </div>
-                        <div class="row">    
-                            <div class = "col"> 
-                                {{form1.experience_constraint | as_crispy_field }}
-                            </div>
-                            <div class = "col"> 
-                                {{form1.allow_multiple_participations | as_crispy_field }}
-                            </div>
-                        </div> 
-                        <div class="row">    
-                            <div class = "col"> 
-                                {{form1.experience_min | as_crispy_field }}
-                            </div>
-                            <div class = "col"> 
-                                {{form1.experience_max | as_crispy_field }}
-                            </div>
-                        </div>      
-                        <div class="row mb-4">
-                            <div class = "col"> 
-                                Exclude Institution Experience
-                                <div class=" overflow-auto" style="height: 300px;">
-                                    {{form1.institutions_exclude | as_crispy_field }} 
-                                </div>   
-                                <br>
-                                {{form1.institutions_exclude_all | as_crispy_field }}                                                         
-                            </div>
-                            <div class = "col"> 
-                                Include Institution Experience
-                                <div class=" overflow-auto" style="height: 300px;">
-                                    {{form1.institutions_include | as_crispy_field }}
-                                </div>
-                                <br>
-                                {{form1.institutions_include_all | as_crispy_field }}                                
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class = "col"> 
-                                Exclude Experiment Experience
-                                <div class=" overflow-auto" style="height: 300px;">
-                                    {{form1.experiments_exclude | as_crispy_field }}
-                                </div>   
-                                <br>
-                                {{form1.experiments_exclude_all | as_crispy_field }}                               
-                            </div>
-                            <div class = "col"> 
-                                Include Experiment Experience
-                                <div class=" overflow-auto" style="height: 300px;">
-                                    {{form1.experiments_include | as_crispy_field }} 
-                                </div>  
-                                <br>
-                                {{form1.experiments_include_all | as_crispy_field }}                               
-                            </div>
-                        </div>                        
-                    </form> <!-- recruitment parameters form -->                                            
-                </div>
-            <div class="modal-footer">                
-                <button type="button" class="btn btn-outline-primary" v-on:click = "updateSession1()">
-                    <i class="fas fa-sign-in-alt"></i> [[buttonText1]]
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+{%include "modals/recruitmentModal.html"%}
 
 <!-- setup modal -->
 <div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupParameters" aria-hidden="true">

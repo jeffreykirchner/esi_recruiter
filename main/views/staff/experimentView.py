@@ -37,7 +37,7 @@ def experimentView(request,id):
             return getExperiment(data,id)          
         elif data["status"] == "update1":
             return updateForm1(data,id)                   
-        elif data["status"] == "update2":   
+        elif data["status"] == "updateRecruitmentParameters":   
             return updateRecruitmentParameters(data,id)
         elif data["status"] == "add":
            return addSession(data,id)
@@ -48,7 +48,7 @@ def experimentView(request,id):
         return render(request,
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
-                       'form2':recruitmentParametersForm(),                      
+                       'updateRecruitmentParametersForm':recruitmentParametersForm(),                      
                        'id': id})
 
 #get the eperiment info
@@ -154,6 +154,8 @@ def updateRecruitmentParameters(data,id):
     institutionsIncludeList=[]
     experimentsExcludeList=[]
     experimentsIncludeList=[]
+    schoolsExcludeList=[]
+    schoolsIncludeList=[]
 
     for field in data["formData"]:            
         if field["name"] == "gender":                 
@@ -168,6 +170,10 @@ def updateRecruitmentParameters(data,id):
             experimentsExcludeList.append(field["value"])
         elif field["name"] == "experiments_include":                 
             experimentsIncludeList.append(field["value"])
+        elif field["name"] == "schools_exclude":                 
+            schoolsExcludeList.append(field["value"])
+        elif field["name"] == "schools_include":                 
+            schoolsIncludeList.append(field["value"])
         else:
             form_data_dict[field["name"]] = field["value"]
 
@@ -177,6 +183,8 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["institutions_include"]=institutionsIncludeList
     form_data_dict["experiments_exclude"]=experimentsExcludeList
     form_data_dict["experiments_include"]=experimentsIncludeList
+    form_data_dict["schools_exclude"]=schoolsExcludeList
+    form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
     form = recruitmentParametersForm(form_data_dict,instance=e.recruitmentParamsDefault)

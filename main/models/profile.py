@@ -145,10 +145,12 @@ class profile(models.Model):
         d = datetime.now(timezone.utc)
         ESDU_last = self.user.ESDU.exclude(id = excludeESDU).filter(confirmed = True,experiment_session_day__date__lt = d).order_by("-experiment_session_day__date").first()
 
-        logger.info(ESDU_last.experiment_session_day.date)
-
-        if ESDU_last.bumped:
-            return True
+        if ESDU_last:        
+            if ESDU_last.bumped:
+                logger.info(ESDU_last.experiment_session_day.date)
+                return True
+            else:
+                return False
         else:
             return False
 

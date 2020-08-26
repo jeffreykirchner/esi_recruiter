@@ -1,11 +1,11 @@
 # from .models import *
+from .emailFilters import *
 from .schools import *
 from .genders import *
 from .accountTypes import *
 from .majors import *
 from .subject_types import *
 from .institutions import *
-from .emailFilters import *
 from .profile import *
 from .locations import *
 from .departments import *

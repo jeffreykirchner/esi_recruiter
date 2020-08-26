@@ -2,13 +2,13 @@
 from django.db import models
 import logging
 
-from . import genders,subject_types,institutions
+from . import genders,subject_types,institutions,schools
 
 class recruitmentParameters(models.Model):
 
     #recruitment parameters
-    actual_participants = models.IntegerField(default=1,null=True)
-    registration_cutoff = models.IntegerField(default=1,null=True)    
+    actual_participants = models.IntegerField(default=1)
+    registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(genders)
     subject_type =  models.ManyToManyField(subject_types)      
 
@@ -23,16 +23,22 @@ class recruitmentParameters(models.Model):
     #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0,null=True)
     experience_max = models.IntegerField(default = 1000,null=True)
-    experience_constraint  =  models.BooleanField(default=False,null=True) 
+    experience_constraint  =  models.BooleanField(default=False) 
 
     #wether constraints should be be all or more than one
-    institutions_exclude_all = models.BooleanField(default=True,null=True)
-    institutions_include_all = models.BooleanField(default=True,null=True)
-    experiments_exclude_all = models.BooleanField(default=True,null=True)
-    experiments_include_all = models.BooleanField(default=True,null=True)
+    institutions_exclude_all = models.BooleanField(default=True)
+    institutions_include_all = models.BooleanField(default=True)
+    experiments_exclude_all = models.BooleanField(default=True)
+    experiments_include_all = models.BooleanField(default=True)
 
     #all subject to come multiple times to the same same experiment
     allow_multiple_participations =  models.BooleanField(default=False,null=True)
+
+    #school filters by subject email domain
+    schools_include = models.ManyToManyField(schools,blank=True, related_name='%(class)s_schools_include')
+    schools_exclude = models.ManyToManyField(schools,blank=True, related_name='%(class)s_schools_exclude')
+    schools_include_constraint  =  models.BooleanField(default=False)
+    schools_exclude_constraint  =  models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now= True)   
@@ -70,6 +76,11 @@ class recruitmentParameters(models.Model):
         self.experiments_include_all = es.experiments_include_all
 
         self.allow_multiple_participations = es.allow_multiple_participations
+
+        self.schools_include.set(es.schools_include.all())
+        self.schools_exclude.set(es.schools_exclude.all())
+        self.schools_include_constraint  =  es.schools_include_constraint
+        self.schools_exclude_constraint  = es.schools_exclude_constraint
 
         self.save()
 
@@ -171,4 +182,11 @@ class recruitmentParameters(models.Model):
             "experiments_exclude_all":1 if self.experiments_exclude_all else 0,
             "experiments_include_all":1 if self.experiments_include_all else 0,
             "allow_multiple_participations":1 if self.allow_multiple_participations else 0,
+            "schools_include" : [str(i.id) for i in self.schools_include.all()],
+            "schools_include_full" : [i.json() for i in self.schools_include.all()],
+            "schools_exclude" : [str(i.id) for i in self.schools_exclude.all()],
+            "schools_exclude_full" : [i.json() for i in self.schools_exclude.all()],
+            "schools_include_constraint" : 1 if self.schools_include_constraint else 0,
+            "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
+
         }

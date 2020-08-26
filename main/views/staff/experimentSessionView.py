@@ -82,7 +82,7 @@ def experimentSessionView(request,id):
 
         return render(request,
                       'staff/experimentSessionView.html',
-                      {'form1':recruitmentParametersForm(),    
+                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
                        'form2':experimentSessionForm2(),                                                               
                        'id': id,
                        'session':experiment_sessions.objects.get(id=id)})
@@ -423,6 +423,8 @@ def updateRecruitmentParameters(data,id):
     institutionsIncludeList=[]
     experimentsExcludeList=[]
     experimentsIncludeList=[]
+    schoolsExcludeList=[]
+    schoolsIncludeList=[]
 
     for field in data["formData"]:            
         if field["name"] == "gender":                 
@@ -437,6 +439,10 @@ def updateRecruitmentParameters(data,id):
             experimentsExcludeList.append(field["value"])
         elif field["name"] == "experiments_include":                 
             experimentsIncludeList.append(field["value"])
+        elif field["name"] == "schools_exclude":                 
+            schoolsExcludeList.append(field["value"])
+        elif field["name"] == "schools_include":                 
+            schoolsIncludeList.append(field["value"])
         else:
             form_data_dict[field["name"]] = field["value"]
 
@@ -445,7 +451,9 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["institutions_exclude"]=institutionsExcludeList
     form_data_dict["institutions_include"]=institutionsIncludeList
     form_data_dict["experiments_exclude"]=experimentsExcludeList
-    form_data_dict["experiments_include"]=experimentsIncludeList                       
+    form_data_dict["experiments_include"]=experimentsIncludeList
+    form_data_dict["schools_exclude"]=schoolsExcludeList
+    form_data_dict["schools_include"]=schoolsIncludeList                       
 
     #print(form_data_dict)
     form = recruitmentParametersForm(form_data_dict,instance=es.recruitmentParams)
@@ -455,7 +463,7 @@ def updateRecruitmentParameters(data,id):
         form.save()               
         return JsonResponse({"recruitmentParams":es.recruitmentParams.json(),"status":"success"}, safe=False)
     else:
-        print("invalid form1")
+        print("invalid recruitment form")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #add a session day

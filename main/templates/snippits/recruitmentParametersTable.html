@@ -1,0 +1,125 @@
+{% load crispy_forms_tags %}
+<!-- recruitment parameters -->
+<div class = "row">
+    <div class="col col-md-4 text-right">                        
+        <u>[[recruitmentTitle]]</u>
+    </div>
+    <div class="col col-md-8">
+        
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        {{updateRecruitmentParametersForm.gender.label}}:
+    </div>
+    <div class="col col-md-8">
+        <span v-html="genders_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        {{updateRecruitmentParametersForm.subject_type.label}}:
+    </div>
+    <div class="col col-md-8">
+        <span v-html="subject_type_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        {{updateRecruitmentParametersForm.actual_participants.label}}:
+    </div>
+    <div class="col col-md-8">
+        <span v-html="recruitmentParams.actual_participants"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        {{updateRecruitmentParametersForm.registration_cutoff.label}}:
+    </div>
+    <div class="col col-md-8">
+        <span v-html="recruitmentParams.registration_cutoff"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Experience Level:
+    </div>
+    <div class="col col-md-8">
+        <div v-if="recruitmentParams.experience_constraint">
+            <span v-html="recruitmentParams.experience_min + ' to ' + recruitmentParams.experience_max"></span>
+        </div>
+        <div v-else>
+            ---
+        </div>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Allow Multiple Participations:
+    </div>
+    <div class="col col-md-8">
+        <div v-if="recruitmentParams.allow_multiple_participations">
+           <span v-html="'Yes'"></span>
+        </div>
+        <div v-else>
+           <span v-html="'No'"></span>
+        </div>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Include Institution Experience (<span v-if="recruitmentParams.institutions_include_all">All</span><span v-else>1+</span>):
+    </div>
+    <div class="col col-md-8">
+        <span v-html="include_institutions_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Exclude Institution Experience (<span v-if="recruitmentParams.institutions_exclude_all">All</span><span v-else>1+</span>):
+    </div>
+    <div class="col col-md-8">    
+        <span v-html="exclude_institutions_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Include Experiment Experience (<span v-if="recruitmentParams.experiments_include_all">All</span><span v-else>1+</span>):
+    </div>
+    <div class="col col-md-8">
+        <span v-html="include_experiments_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Exclude Experiment Experience (<span v-if="recruitmentParams.experiments_exclude_all">All</span><span v-else>1+</span>):
+    </div>
+    <div class="col col-md-8">    
+        <span v-html="exclude_experiments_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Include Only Subjects in Schools (<span v-if="recruitmentParams.schools_include_constraint">On</span><span v-else>Off</span>):
+    </div>
+    <div class="col col-md-8">
+        <span v-html="include_schools_list"></span>
+    </div>               
+</div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Exclude Subjects in Schools (<span v-if="recruitmentParams.schools_exclude_constraint">On</span><span v-else>Off</span>):
+    </div>
+    <div class="col col-md-8">    
+        <span v-html="exclude_schools_list"></span>
+    </div>               
+</div>
+<div class = "row mt-2">
+    <div class="col col-md-4 text-right">
+
+    </div>
+    <div class="col col-md-8">
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+    </div>               
+</div>
+<!-- end recruitment parameters -->

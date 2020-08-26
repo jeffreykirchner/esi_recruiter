@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,institutions,experiments,recruitmentParameters,hrefExperiments
+from main.models import genders,subject_types,institutions,experiments,recruitmentParameters,hrefExperiments,schools
 from django.db.models.functions import Lower
 
 class recruitmentParametersForm(forms.ModelForm):   
@@ -92,6 +92,31 @@ class recruitmentParametersForm(forms.ModelForm):
                                             choices=((1, 'Yes'), (0, 'No')),                
                                             widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.allow_multiple_participations",
                                                                             "v-on:change":"recruitmentFormChange"}))
+
+    schools_include = forms.ModelMultipleChoiceField(label="",
+                                                    required=False,
+                                                    queryset=schools.objects.all().order_by(Lower("name")),
+                                                    widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.schools_include",
+                                                                                        "v-on:change":"recruitmentFormChange",
+                                                                                        "class":"selectpicker",
+                                                                                        "size":"10"}))
+    schools_exclude = forms.ModelMultipleChoiceField(label="",
+                                                    required=False,
+                                                    queryset=schools.objects.all().order_by(Lower("name")),
+                                                    widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitmentParams.schools_exclude",
+                                                                                        "v-on:change":"recruitmentFormChange",
+                                                                                        "class":"selectpicker",
+                                                                                        "size":"10"}))
+
+    schools_include_constraint = forms.TypedChoiceField(label='Enable school include?',             
+                                         choices=((1, 'Yes'), (0, 'No')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.schools_include_constraint",
+                                                                         "v-on:change":"recruitmentFormChange"}))
+
+    schools_exclude_constraint = forms.TypedChoiceField(label='Enable school exclude?',             
+                                         choices=((1, 'Yes'), (0, 'No')),                
+                                         widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.schools_exclude_constraint",
+                                                                         "v-on:change":"recruitmentFormChange"}))
 
     class Meta:
         model=recruitmentParameters
