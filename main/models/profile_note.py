@@ -23,7 +23,8 @@ class profile_note(models.Model):
     
     def json(self):
         return {
-            "text" : self.note,
+            "id" : self.id,
+            "text" : self.text,
             "noteMaker" : {"id" : self.noteMaker.id,
                            "first_name" : self.noteMaker.first_name,
                            "last_name" : self.noteMaker.last_name,

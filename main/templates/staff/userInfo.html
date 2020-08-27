@@ -25,6 +25,7 @@
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
                 noteText:'',
+                su:{%if user.is_superuser%}true{%else%}false{%endif%},
             },
 
             methods:{
@@ -43,7 +44,7 @@
                 },
 
                 //process get session response
-                takeGetSessions:function(reponse)
+                takeGetSessions:function(response)
                 {
                     app.$data.session_day_attended = response.data.session_day_attended;
                     app.$data.session_day_upcoming = response.data.session_day_upcoming;  
@@ -108,6 +109,21 @@
                         }); 
                 },
 
+                //delete the selected note
+                deleteNote:function(id){
+                    axios.post('/userInfo/{{id}}/', {
+                            status : "deleteNote",
+                            id : id,                                                                                                                
+                        })
+                        .then(function (response) {     
+                            app.takeGetSessions(response);                            
+                        })
+                        .catch(function (error) {
+                            console.log(error);                            
+                        });
+                },
+
+                //make a not about the subject
                 sendMakeNote:function(){
                     
                     if(app.$data.noteText == '') return;
@@ -118,11 +134,26 @@
                         })
                         .then(function (response) {     
                             app.takeGetSessions(response);
+                            $('#noteModalCenter').modal('toggle');
+                            app.$data.noteText = "";
                         })
                         .catch(function (error) {
                             console.log(error);                            
                         });
                 },
+
+                // fire when edit note model is shown
+                showMakeNote:function(){
+                    
+                    $('#noteModalCenter').modal('show');
+                    
+                },
+
+                //fire when note model hides
+                hideMakeNote:function(){
+                    
+                },
+
 
                 formatDate: function(value){
                         if (value) {        
@@ -136,7 +167,8 @@
             },
 
             mounted: function(){
-                    this.getSessions();                    
+                    this.getSessions();  
+                    $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);                  
             },
         });
 
@@ -153,9 +185,16 @@
                 Subject Information: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
                 {%if user.is_superuser%}
                 <span class="float-right">
+                    {%if user.is_superuser%}
                     <a href="/admin/main/profile/{{u.profile.id}}/change">
-                        Edit <i class="fas fa-edit fa-xs"></i>
-                    </a>
+                        Edit Subject <i class="fas fa-edit fa-xs"></i>
+                    </a> |  
+                    {%endif%}
+                    {%if u.profile.type.id == 2%}
+                    <button type="button" class="btn btn-outline-success btn-sm" v-on:click = "showMakeNote()">
+                        Make Note <i class="fas fa-sticky-note fa-xs"></i>
+                    </button>
+                    {%endif%}
                 </span>
                 {%endif%}                                                 
             </div>
@@ -249,6 +288,48 @@
                 </form>
                 <br>
                 <br>
+                {%if u.profile.type.id == 2%}                
+                <!-- notes table -->
+                <table class="table table-hover table-condensed">
+                    <caption style="caption-side:top;text-align: center;">Notes</caption>
+
+                    <thead>
+                        <th width="25%">                            
+                            Date
+                        </th> 
+                        <th width="25%" style="text-align: center;">
+                            Made By
+                        </th>                                                      
+                        <th width="50%" style="text-align: center;">
+                            Text
+                        </th>
+                    </thead>
+                    <tbody>                        
+                        <tr v-for="(n,index) in notes" v-bind:key="n.id">
+                            <td> 
+                                <span v-if="su">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteNote(n.id)">
+                                       <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </span>                                
+                                [[n.date]]
+                            </td>
+                            <td  style="text-align: center;">                                                                
+                                [[n.noteMaker.last_name]], [[n.noteMaker.first_name]]                                    
+                            </td>
+                            <td >     
+                                <span v-html="n.text" style="white-space: pre-line;"></span>                            
+                            </td>
+                        </tr>                        
+                    </tbody>
+                    <tfoot v-if="notes.length === 0">
+                        <tr>
+                            <td>No Notes.</td>
+                        </tr>
+                    </tfoot>                                    
+                </table>
+                <br>
+                <br>
                 <!-- upcoming table -->
                 <table class="table table-hover table-condensed">
                     <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
@@ -286,7 +367,7 @@
                     </tbody>
                     <tfoot v-if="session_day_upcoming.length === 0">
                         <tr>
-                            <td>The subject in not in any upcoming experiments</td>
+                            <td>No upcoming experiments.</td>
                         </tr>
                     </tfoot>                                    
                 </table>
@@ -330,7 +411,7 @@
                     </tbody>
                     <tfoot v-if="session_day_attended.length === 0">
                         <tr>
-                            <td>The subject has not attened any experiments</td>
+                            <td>No experiments attended.</td>
                         </tr>
                     </tfoot>                                    
                 </table>
@@ -379,6 +460,7 @@
                         </tr>
                     </tfoot>                                    
                 </table>
+                {%endif%}
             </div>                    
         </div>                
     </div>
@@ -398,7 +480,7 @@
                 <div class="row">
                     <div class = "col">                      
                         <div class="form-group">
-                            <label for="noteText">Message</label>
+                            <label for="noteText">Text</label>
                             <textarea class="form-control" v-model="noteText" id="noteText" rows="3" cols="100%"></textarea>
                           </div>
                     </div>
@@ -406,7 +488,7 @@
             </div>
             <div class="modal-footer">                            
                 <button type="button" class="btn btn-outline-success" v-on:click = "sendMakeNote()">
-                    <span v-html="sendMessageButtonText"></span>
+                    Save Note <i class="fas fa-sticky-note fa-xs"></i>
                 </button>
             </div>
         </div>

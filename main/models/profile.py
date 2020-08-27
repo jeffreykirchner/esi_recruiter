@@ -141,7 +141,7 @@ class profile(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("get note list")
 
-        note_list=self.profile_note_set.all()
+        note_list=self.profile_note_set.all().order_by('-timestamp')
 
         return [n.json() for n in note_list]
 
