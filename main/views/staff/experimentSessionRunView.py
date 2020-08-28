@@ -10,8 +10,9 @@ from django.db.models import Q,F
 import random
 import csv
 from django.http import HttpResponse
+from datetime import datetime, timedelta,timezone
 
-from main.models import experiment_session_days,experiment_session_day_users
+from main.models import experiment_session_days,experiment_session_day_users,profile
 
 @login_required
 @user_is_staff
@@ -62,7 +63,7 @@ def getSession(data,id):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
-
+#return paypal CSV
 def getPayPalExport(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Pay Pal Export")
@@ -92,10 +93,22 @@ def autoBump(data,id):
     esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
 
     attendedCount = esdu_attended.count()
-    bumpsNeeded = attendedCount - esd.experiment_session.actual_participants
+    bumpsNeeded = attendedCount - esd.experiment_session.recruitmentParams.actual_participants
 
-    if bumpsNeeded > 0:
-        randomSample = random.sample(list(esdu_attended), bumpsNeeded)
+    esdu_attended_not_bumped=[]
+
+    for e in esdu_attended:
+        if not e.user.profile.bumped_from_last_session(e.id):
+            esdu_attended_not_bumped.append(e)
+
+    #logger.info(esdu_attended_not_bumped)
+
+    if bumpsNeeded>len(esdu_attended_not_bumped):
+            bumpsNeeded = len(esdu_attended_not_bumped)
+
+    if bumpsNeeded > 0:        
+
+        randomSample = random.sample(esdu_attended_not_bumped, bumpsNeeded)
         
         for u in randomSample:
             u.attended = False
@@ -111,11 +124,8 @@ def bumpAll(data,id):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-
-    for u in esd.experiment_session_day_users_set.filter(attended=True):
-        u.attended = False
-        u.bumped = True
-        u.save()
+    esd.experiment_session_day_users_set.filter(attended=True) \
+                                        .update(attended = False,bumped = True) 
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
@@ -127,6 +137,10 @@ def backgroundSave(data,id):
 
     payoutList = data['payoutList']
 
+    #time_start = datetime.now()
+
+    esdu_list=[]
+
     for p in payoutList:
         #logger.info(p)
         esdu  = experiment_session_day_users.objects.get(id = p['id'])
@@ -134,15 +148,22 @@ def backgroundSave(data,id):
         try:
             esdu.earnings = max(0,Decimal(p['earnings']))
             esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
-            esdu.save()
         except (ValueError, DecimalException):
             logger.info("Background Save Error : ")
             logger.info(p)
             esdu.earnings = 0
             esdu.show_up_fee = 0
-            esdu.save()
+        
+        esdu_list.append(esdu)
+
+    experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
 
     status="success"
+
+    #time_end = datetime.now()
+    #time_span = time_end-time_start
+
+    #logger.info("SQL Run time: " + str(time_span.total_seconds()))
 
     return JsonResponse({"status" :status }, safe=False)
 
@@ -154,6 +175,8 @@ def savePayouts(data,id):
 
     payoutList = data['payoutList']
 
+    esdu_list = []
+
     for p in payoutList:
         #logger.info(p)
         esdu  = experiment_session_day_users.objects.get(id = p['id'])
@@ -162,13 +185,15 @@ def savePayouts(data,id):
             esdu.earnings = max(0,Decimal(p['earnings']))
             esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
 
-            esdu.save()
         except (ValueError, DecimalException):
             logger.info("Background Save Error : ")
             logger.info(p)
             esdu.earnings = 0
             esdu.show_up_fee = 0
-            esdu.save()
+        
+        esdu_list.append(esdu)
+    
+    experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
 
     esd = experiment_session_days.objects.get(id=id)
 
@@ -197,9 +222,9 @@ def fillDefaultShowUpFee(data,id):
 
     showUpFee = esd.experiment_session.experiment.showUpFee
 
-    for u in esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)):
-        u.show_up_fee = showUpFee
-        u.save()
+    esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)) \
+                                        .update(show_up_fee = showUpFee)
+
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 

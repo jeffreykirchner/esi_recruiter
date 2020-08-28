@@ -138,6 +138,7 @@ class profile(models.Model):
 
         return out_str
 
+    #get list of notes made about user
     def get_notes(self):
         logger = logging.getLogger(__name__)
         logger.info("get note list")
@@ -145,7 +146,6 @@ class profile(models.Model):
         note_list=self.profile_note_set.all().order_by('-timestamp')
 
         return [n.json() for n in note_list]
-
 
     #return true if subject was bumped from last session they attended
     def bumped_from_last_session(self,excludeESDU):
