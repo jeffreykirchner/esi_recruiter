@@ -27,14 +27,15 @@ class profile(models.Model):
     school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                      #Chapman University ETC
     major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
-    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)     #Undergrad, grad, non student
+    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     emailFilter = models.ForeignKey(emailFilters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
-    chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")    
-    emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")    
-    blackballed = models.BooleanField(verbose_name="Blackballed",default=False)
-    phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")
-    studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)
+    chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
+    emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
+    blackballed = models.BooleanField(verbose_name="Blackballed",default=False)                                      #if a subject is blackballed they will not be auto recruited
+    phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
+    studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)                                  #true is subject is a student worker
+    paused = models.BooleanField(verbose_name="Paused",default=False)                                                #allows subject to pause getting invitations
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

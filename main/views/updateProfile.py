@@ -42,6 +42,7 @@ def updateProfile(request):
                 u.profile.studentWorker = form.cleaned_data['studentWorker']
                 u.profile.phone = form.cleaned_data['phone'].strip()
                 u.profile.major = form.cleaned_data['major']
+                u.profile.paused = form.cleaned_data['paused']
 
                 if form.cleaned_data['password1']:
                     if form.cleaned_data['password1'] != "":               
@@ -68,7 +69,8 @@ def updateProfile(request):
                          'phone':request.user.profile.phone,
                          'major':request.user.profile.major.id,
                          'subjectType':request.user.profile.subjectType.id,
-                         'studentWorker':"Yes" if request.user.profile.studentWorker else "No"}
+                         'studentWorker':"Yes" if request.user.profile.studentWorker else "No",
+                         'paused':"Yes" if request.user.profile.paused else "No"}
             )
 
     except u.DoesNotExist:

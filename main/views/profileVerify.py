@@ -22,6 +22,7 @@ def profileVerify(request,token):
                 u=User.objects.get(profile__emailConfirmed=form.cleaned_data['token'])                
                 u.is_active=True
                 u.profile.emailConfirmed="yes"
+                u.profile.paused=False
                 u.profile.save()
                 u.save()    
 

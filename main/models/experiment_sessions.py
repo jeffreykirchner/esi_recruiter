@@ -560,7 +560,8 @@ class experiment_sessions(models.Model):
             is_active = 1  AND                                               --acount is activated
             blackballed = 0 AND                                              --subject has not been blackballed  
             main_profile.type_id = 2 AND                                     --only subjects 
-            main_profile.emailConfirmed = 'yes'                              --the email address has been confirmed
+            main_profile.emailConfirmed = 'yes' AND                          --the email address has been confirmed
+            main_profile.paused = 0                                          --check that the subject has not paused their account
             '''
 
         #str1 = str1.replace("10256","%s")

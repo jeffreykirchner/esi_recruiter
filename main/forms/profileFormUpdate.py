@@ -23,6 +23,9 @@ class profileFormUpdate(forms.Form):
                                      widget=forms.Select(attrs={"v-model":"profile.subjectType"}))
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
                                          choices=(('Yes', 'Yes'), ('No', 'No')),                                                          
+                                         widget=forms.Select)
+    paused = forms.ChoiceField(label='Pause your account?  You will not receive invitations while paused.',             
+                                         choices=(('Yes', 'Yes'), ('No', 'No')),                                                          
                                          widget=forms.Select)     
     password1 = forms.CharField(label='Password (Leave blank for no change.)',widget=forms.PasswordInput(),required=False)
     password2 = forms.CharField(label='Repeat Password',widget=forms.PasswordInput(),required=False)
@@ -36,6 +39,19 @@ class profileFormUpdate(forms.Form):
         if studentWorker == "Yes":
             return True
         elif studentWorker == "No":
+            return False
+        else:
+            raise forms.ValidationError("Please answer the question.")
+    
+    def clean_paused(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Clean paused")
+
+        paused = self.cleaned_data['paused']
+
+        if paused == "Yes":
+            return True
+        elif paused == "No":
             return False
         else:
             raise forms.ValidationError("Please answer the question.")
