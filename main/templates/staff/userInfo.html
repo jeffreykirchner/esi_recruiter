@@ -183,7 +183,7 @@
         <div class="card">                  
             <div class="card-header">
                 Subject Information: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
-                {%if user.is_superuser%}
+               
                 <span class="float-right">
                     {%if user.is_superuser%}
                     <a href="/admin/main/profile/{{u.profile.id}}/change">
@@ -196,7 +196,7 @@
                     </button>
                     {%endif%}
                 </span>
-                {%endif%}                                                 
+                                                                 
             </div>
             <div class="card-body">               
              
