@@ -286,7 +286,6 @@ def changeConfirmationStatus(data,id):
     esduId = data["esduId"]
 
     esdu = experiment_session_day_users.objects.get(id = esduId)                                  
-
     
     if newStatus == "confirm":
         esdu.confirmed = True
