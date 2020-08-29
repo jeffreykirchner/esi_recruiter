@@ -335,7 +335,6 @@ class experiment_sessions(models.Model):
                                         HAVING experiment_exclude_count >= ''' + str(ee_c) + '''),
             '''
 
-
         #schools include strings
         schools_include_user_where_str = ""
         schools_include_with_str = ""
