@@ -25,6 +25,7 @@ urlpatterns = [
     path('experimentSession/<id>/',views.experimentSessionView,name='experimentSessionView'),
     path('experimentSessionRun/<id>/',views.experimentSessionRunView,name='experimentSessionRunView'),
     path('experimentSessionPayouts/<id>/<payGroup>/',views.experimentSessionPayoutsView,name='experimentSessionPayoutsView'),
+    path('calendar/',views.calendarView,name='calendarView'),
 
     #subject
 ]

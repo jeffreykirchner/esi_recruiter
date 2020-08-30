@@ -4,7 +4,8 @@
 {%block head%}
 
     <script type="text/javascript">
-      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    $(document).ready(function(){
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
 
         var app = new Vue({
@@ -17,8 +18,8 @@
 
             methods:{
                 getUser:function(){
-                    axios.post('/userInfo/{{id}}/', {
-                                    status :"getUser" ,                                                                                                                             
+                    axios.post('/tempalte/{{id}}/', {
+                                    action :"getUser" ,                                                                                                                             
                                 })
                                 .then(function (response) {     
                                                                                     
@@ -35,6 +36,7 @@
             },
         });
 
+    });
 
     </script>
 {%endblock head%}
