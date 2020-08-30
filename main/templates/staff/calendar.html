@@ -13,7 +13,7 @@
             delimiters: ['[[', ']]'],
             el: '#root',        
             data:{
-                sessions:[],
+                calendar:[],
                 currentMonth:"",
                 currentYear:"",
             },
@@ -27,7 +27,8 @@
                         })
                         .then(function (response) {     
                             app.$data.currentMonth = response.data.currentMonth;
-                            app.$data.currentYear = response.data.currentYear;                                              
+                            app.$data.currentYear = response.data.currentYear;       
+                            app.$data.calendar = response.data.calendar;                                       
                         })
                         .catch(function (error) {
                             console.log(error);
@@ -44,7 +45,8 @@
                         })
                         .then(function (response) {     
                             app.$data.currentMonth = response.data.currentMonth;
-                            app.$data.currentYear = response.data.currentYear;                                              
+                            app.$data.currentYear = response.data.currentYear;   
+                            app.$data.calendar = response.data.calendar;                                           
                         })
                         .catch(function (error) {
                             console.log(error);

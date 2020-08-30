@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from datetime import datetime,timedelta
+import calendar
+from main.models import experiment_session_days
 
 @login_required
 @user_is_staff
@@ -32,10 +34,11 @@ def getMonth(request,data):
     logger.info("Get month")
     logger.info(data)
 
-    t = datetime.today()
+    t = datetime.today()     
 
     return JsonResponse({"currentMonth" :  str(t.month),
-                         "currentYear" : str(t.year)},safe=False)
+                         "currentYear" : str(t.year),
+                         "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
 def changeMonth(request,data):
     logger = logging.getLogger(__name__) 
@@ -77,3 +80,41 @@ def changeMonth(request,data):
 
     return JsonResponse({"currentMonth" :  t.month,
                          "currentYear" : t.year},safe=False)
+
+def getCalendarJson(month,year):
+    logger = logging.getLogger(__name__) 
+    logger.info("Get Calendar JSON")
+
+    #test code
+    month = 3
+    year = 2020
+
+    cal_full = []
+
+    cal = calendar.Calendar(calendar.SUNDAY).monthdatescalendar(year, month)
+    
+    first_day = cal[0][0]
+    last_day = cal[-1][-1]
+
+    logger.info(first_day)
+    logger.info(last_day)
+
+    s_list = experiment_session_days.objects.filter(date__gte = first_day,
+                                                    date__lte = last_day)
+
+    logger.info(s_list)
+
+    for w in cal:
+        new_week=[]
+
+        for d in w:           
+
+            new_week.append({"day" : d.day})
+            #logger.info(d)
+            
+
+        cal_full.append(new_week)
+
+    #logger.info(cal.monthdatescalendar(year, month))
+
+    return cal_full
