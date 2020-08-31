@@ -162,6 +162,7 @@ class experiment_session_days(models.Model):
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
         }
     
+    #json info for run session
     def json_runInfoUserList(self):
         u_list_c = self.experiment_session_day_users_set.\
                        filter(confirmed=True).\
