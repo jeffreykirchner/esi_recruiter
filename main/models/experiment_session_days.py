@@ -91,6 +91,17 @@ class experiment_session_days(models.Model):
         p = parameters.parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
+    #get the local time of experiment start
+    def getStartTimeString(self):
+        p = parameters.parameters.objects.get(id=1)
+        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")
+
+    #get the local time of experiment end
+    def getEndTimeString(self):
+        p = parameters.parameters.objects.get(id=1)
+        endTime = self.date + timedelta(minutes = self.length)
+        return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
+
     #get a list of session who's room and time overlap this one
     def getRoomOverlap(self):
         startTime = self.date

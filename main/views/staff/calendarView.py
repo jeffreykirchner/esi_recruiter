@@ -8,6 +8,8 @@ import logging
 from datetime import datetime,timedelta
 import calendar
 from main.models import experiment_session_days
+from django.utils.timezone import make_aware
+import pytz
 
 @login_required
 @user_is_staff
@@ -79,7 +81,8 @@ def changeMonth(request,data):
     logger.info(t.month)
 
     return JsonResponse({"currentMonth" :  t.month,
-                         "currentYear" : t.year},safe=False)
+                         "currentYear" : t.year,
+                         "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
 def getCalendarJson(month,year):
     logger = logging.getLogger(__name__) 
@@ -93,14 +96,16 @@ def getCalendarJson(month,year):
 
     cal = calendar.Calendar(calendar.SUNDAY).monthdatescalendar(year, month)
     
-    first_day = cal[0][0]
-    last_day = cal[-1][-1]
+    first_day = datetime.strptime(str(cal[0][0]) + " 00:00:00 -0000","%Y-%m-%d %H:%M:%S %z")
+    last_day = datetime.strptime(str(cal[-1][-1]) + " 23:59:59 -0000","%Y-%m-%d %H:%M:%S %z")
+
 
     logger.info(first_day)
     logger.info(last_day)
 
-    s_list = experiment_session_days.objects.filter(date__gte = first_day,
-                                                    date__lte = last_day)
+    s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
+                                                         date__lte = last_day)\
+                                                 .order_by("location","date"))
 
     logger.info(s_list)
 
@@ -108,8 +113,20 @@ def getCalendarJson(month,year):
         new_week=[]
 
         for d in w:           
+  
+            s_list_local=[]
 
-            new_week.append({"day" : d.day})
+            for s in s_list:
+                #logger.info(s.date.day)
+                if s.date.day == d.day and s.date.month == d.month:
+                    s_list_local.append({"id" : s.id,
+                                         "name" : s.experiment_session.experiment.title,
+                                         "room" : s.location.name,
+                                         "startTime" : s.getStartTimeString(),
+                                         "endTime" : s.getEndTimeString()})
+
+            new_week.append({"day" : d.day,
+                             "sessions" : s_list_local})
             #logger.info(d)
             
 
