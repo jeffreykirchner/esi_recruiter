@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from main.decorators import email_confirmed
 from django.http import JsonResponse
+from django.shortcuts import redirect
 
 @login_required
 @email_confirmed
@@ -14,4 +15,7 @@ def mainHome(request):
     else:
         pass
 
-        return render(request,'mainHome.html',{'user':request.user})    
+        if request.user.profile.type.id == 1:
+            return redirect ('calendarView')
+        else:
+            pass    

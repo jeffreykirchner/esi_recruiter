@@ -10,9 +10,9 @@ urlpatterns = [
     re_path(r'^admin/login/$', RedirectView.as_view(url=settings.LOGIN_URL, permanent=True, query_string=True)),    
 
     #account control
-    path('',views.mainHome,name='mainHome'),
+    path('',views.mainHome,name='mainHome'),                 #direct user by subject type
     path('accounts/', include('django.contrib.auth.urls')),  #django built in account registrations
-    path('profile/', views.updateProfile,name='profile'), #custom profile 
+    path('profile/', views.updateProfile,name='profile'),    #custom profile 
     path('accounts/profile/', views.updateProfile,name='profile'), #custom profile         
     path('profileCreate/',views.profileCreate,name='profileCreate'),
     path('profileVerify/<token>/',views.profileVerify,name='profileVerify'),

@@ -43,10 +43,7 @@
             
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 {% if user.is_authenticated %}
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'mainHome'%}">Home</a>                           
-                        </li>                     
+                    <ul class="navbar-nav mr-auto">                                             
                         {%if user.profile.type.name == 'staff'%}
                         <li class="nav-item active">
                             <a class="nav-link" href="{% url 'userSearch'%}">Users</a>                           
