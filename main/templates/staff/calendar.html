@@ -16,6 +16,9 @@
                 calendar:[],
                 currentMonth:"",
                 currentYear:"",
+                currentMonthString:"",
+                locations:[],
+                displayDay:[],
             },
 
             methods:{
@@ -26,16 +29,15 @@
                                                        
                         })
                         .then(function (response) {     
-                            app.$data.currentMonth = response.data.currentMonth;
-                            app.$data.currentYear = response.data.currentYear;       
-                            app.$data.calendar = response.data.calendar;                                       
+                            app.updateMonth(response);  
+                            app.$data.locations = response.data.locations;                           
                         })
                         .catch(function (error) {
-                            console.log(error);
-                            app.$data.searching=false;
+                            console.log(error);                            
                         });                        
                     },
 
+                //get new month's data
                 chageMonth:function(direction){
                     axios.post('/calendar/', {
                             action :"changeMonth" , 
@@ -44,16 +46,48 @@
                             currentYear: app.$data.currentYear,
                         })
                         .then(function (response) {     
-                            app.$data.currentMonth = response.data.currentMonth;
-                            app.$data.currentYear = response.data.currentYear;   
-                            app.$data.calendar = response.data.calendar;                                           
+                            app.updateMonth(response);
                         })
                         .catch(function (error) {
-                            console.log(error);
-                            app.$data.searching=false;
+                            console.log(error);                            
                         });                        
                     },
-            },
+                
+                //show day modal
+                showDayModal:function(weekIndex,dayIndex){
+                   currentSessions = app.$data.calendar[weekIndex][dayIndex].sessions;
+
+                   displayDay=[];
+
+                   for(i=0;i<app.$data.locations.length;i++)
+                   {
+                       l = app.$data.locations[i];
+                       sessionList = [];
+
+                       for(j=0;j<currentSessions.length;j++)
+                        {
+                            if(currentSessions[j].location.id == l.id)
+                            {
+                                sessionList.push(currentSessions[j]);
+                            }
+                        }
+
+                       displayDay.push({"location":l.name,
+                                               "sessions":sessionList,
+                                              })
+                   }
+
+                   app.$data.displayDay = displayDay;
+                },
+
+                //update the current month's da
+                updateMonth:function(response){
+                        app.$data.currentMonth = response.data.currentMonth;
+                        app.$data.currentYear = response.data.currentYear;       
+                        app.$data.calendar = response.data.calendar;          
+                        app.$data.currentMonthString = response.data.currentMonthString; 
+                    },
+            },            
 
             mounted: function(){
                     this.getMonth();                    
@@ -62,27 +96,85 @@
     });
 
     </script>
+
+    <style>
+        .cell:hover {
+            background-color:rgb(248, 248, 248);        
+        }
+        .cell_content{
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+    </style>
+   
 {%endblock head%}
 
 {%block content%}
-<div class="row justify-content-lg-center">
-    <div class="col col-lg-10">
-        <div class="card">                  
-            <div class="card-header">
-               Calendar
-                {%if user.is_superuser%}
-                <span class="float-right">
-                    <!-- buttons here -->
-                </span>
-                {%endif%}                                                 
-            </div>
-            <div class="card-body">               
-             [[currentMonth]] [[currentYear]]
-             <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="chageMonth('previous')"><<</button>
-             <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="getMonth()">Today</button>
-             <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="chageMonth('next')">>></button>   
-            </div>                    
-        </div>                
+
+<!-- calander control -->
+<div class="row mt-4 ml-4 mr-4 mb-2">
+    <div class="col" style="text-align: left;">
+        <span v-html = "currentMonthString"></span>
     </div>
-</div>    
+    <div class="col" style="text-align: center;">
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="chageMonth('previous')"><<</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="getMonth()">Current</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="chageMonth('next')">>></button>  
+    </div>
+    <div class="col" style="text-align: right;">
+        
+    </div>
+</div>
+<!-- calendar header -->
+<div class="row ml-4 mr-4 bg-light">
+    <div class="col border rounded" style="text-align: center;">
+        Sunday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Monday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Tuesday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Wednesday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Thursday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Friday
+    </div>
+    <div class="col border rounded" style="text-align: center;">
+        Saturday
+    </div>    
+</div>
+
+<!-- calendar body -->
+<div class="row ml-4 mr-4 no-gutters" v-for="(w,indexW) in calendar" v-bind:key="w.id">
+    <div class="col border rounded no-gutters cell" v-for="(d,indexD) in w" v-bind:key="d.id" v-on:click="showDayModal(indexW,indexD)">
+
+        <!-- calendar cell -->
+        <div class="row">
+            <div class = "col cell_content" style="text-align: right;font-weight: bold;font-size: 12px;">[[d.day]]</div>   
+        </div>
+
+        <!-- content -->
+        <div class="row" v-for="(s,index) in d.sessions" v-bind:key="s.id">
+            <div class = "col cell_content" style="font-size: 13px;">
+                <div v-if = "s.name===''">
+                    <!-- spacer -->
+                    <span>&nbsp</span>
+                </div>
+                <div v-else>                    
+                    <span v-html = "s.startTime + '-' + s.endTime + ' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'">
+                    </span>
+                </div>
+            </div>
+            
+        <div class="row">      
+    </div> 
+</div>
+
+
 {%endblock content%}

@@ -7,7 +7,7 @@ from django.http import JsonResponse
 import logging
 from datetime import datetime,timedelta
 import calendar
-from main.models import experiment_session_days
+from main.models import experiment_session_days,locations
 from django.utils.timezone import make_aware
 import pytz
 
@@ -36,10 +36,12 @@ def getMonth(request,data):
     logger.info("Get month")
     logger.info(data)
 
-    t = datetime.today()     
+    t = datetime.today()
 
-    return JsonResponse({"currentMonth" :  str(t.month),
-                         "currentYear" : str(t.year),
+    return JsonResponse({"currentMonth" :  t.month,
+                         "currentYear" : t.year,
+                         "locations" : [l.json() for l in locations.objects.all()],
+                         "currentMonthString" :  t.strftime("%B, %Y"),
                          "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
 def changeMonth(request,data):
@@ -82,6 +84,7 @@ def changeMonth(request,data):
 
     return JsonResponse({"currentMonth" :  t.month,
                          "currentYear" : t.year,
+                         "currentMonthString" :  t.strftime("%B, %Y"),
                          "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
 def getCalendarJson(month,year):
@@ -105,7 +108,7 @@ def getCalendarJson(month,year):
 
     s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
                                                          date__lte = last_day)\
-                                                 .order_by("location","date"))
+                                                 .order_by("date"))
 
     logger.info(s_list)
 
@@ -119,14 +122,26 @@ def getCalendarJson(month,year):
             for s in s_list:
                 #logger.info(s.date.day)
                 if s.date.day == d.day and s.date.month == d.month:
-                    s_list_local.append({"id" : s.id,
+                    s_list_local.append({"id" : s.id,                                         
                                          "name" : s.experiment_session.experiment.title,
-                                         "room" : s.location.name,
+                                         "location" : s.location.json(),
                                          "startTime" : s.getStartTimeString(),
                                          "endTime" : s.getEndTimeString()})
 
+            #add extra spacers
+            for i in range(len(s_list_local),4):
+                s_list_local.append({"id" : i,
+                                         "day" :"",   
+                                         "name" : "",
+                                         "location" : {"id":0,"name":""},
+                                         "startTime" : "",
+                                         "endTime" : ""})
+
+
             new_week.append({"day" : d.day,
-                             "sessions" : s_list_local})
+                             "dayString" :  d.strftime("%-m/%#d/%Y"),
+                             "sessions" : s_list_local
+                             })
             #logger.info(d)
             
 
