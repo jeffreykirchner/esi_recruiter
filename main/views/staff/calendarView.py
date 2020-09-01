@@ -44,6 +44,7 @@ def getMonth(request,data):
 
     return JsonResponse({"currentMonth" :  t.month,
                          "currentYear" : t.year,
+                         "currentDay": t.day,
                          "locations" : [l.json() for l in locations.objects.all()],
                          "currentMonthString" :  t.strftime("%B, %Y"),
                          "calendar": getCalendarJson(t.month,t.year)},safe=False)

@@ -14,6 +14,8 @@
             el: '#root',        
             data:{
                 calendar:[],
+                todayDay:"",
+                todayMonth:"",
                 currentMonth:"",
                 currentYear:"",
                 currentMonthString:"",
@@ -35,7 +37,9 @@
                         })
                         .then(function (response) {     
                             app.updateMonth(response);  
-                            app.$data.locations = response.data.locations;                           
+                            app.$data.locations = response.data.locations;     
+                            app.$data.todayDay = response.data.currentDay;
+                            app.$data.todayMonth = response.data.currentMonth;                      
                         })
                         .catch(function (error) {
                             console.log(error);                            
@@ -132,15 +136,27 @@
             background-color:rgba(0, 0, 0, 0);
             font-weight: bold;
             font-size: 12px;
-            border-radius: 2px;
+            border-radius: 50%;
+            border-width: 1px;
             
         }
-        .cell_button:hover{
-            border:thin;           
-            border-color: var(--primary);
+        .cell_button:hover, .cell_button_today:hover{                      
+            
             background-color : var(--primary);
             color: white;
+            border:1px solid black;
         }
+        .cell_button_today{
+            border-color: black;
+            border-width: 1px;
+            background-color:lightgoldenrodyellow;
+            font-weight: bold;
+            font-size: 12px;
+            border-radius: 50%;
+            color:black;
+        }
+        
+        
     </style>
    
 {%endblock head%}
@@ -192,12 +208,21 @@
 
         <!-- calendar cell -->
         <div class="row">
-            <div class = "col cell_content" style="text-align: right;">
-                <button class="cell_button" v-on:click="showDayModal(indexW,indexD,d.dayString)">
-                    [[d.day]]
-                </button>                
-            </div> 
-           
+            
+                <div class = "col cell_content" style="text-align: right;">
+                    <div v-if="d.day === todayDay && d.month === todayMonth">
+                        <button class="cell_button_today" v-on:click="showDayModal(indexW,indexD,d.dayString)">
+                            [[d.day]]
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button class="cell_button" v-on:click="showDayModal(indexW,indexD,d.dayString)">
+                            [[d.day]]
+                        </button>
+                    </div>                                    
+                </div>
+              
+
         </div>
 
         <!-- content -->
