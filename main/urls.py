@@ -21,6 +21,7 @@ urlpatterns = [
     #staff
     path('userSearch/',views.userSearch,name='userSearch'),
     path('userInfo/<id>/',views.userInfo,name='userInfo'),
+    path('experimentSearch/',views.experimentSearch,name='experimentSearch'),
     path('experiment/<id>/',views.experimentView,name='experimentView'),
     path('experimentSession/<id>/',views.experimentSessionView,name='experimentSessionView'),
     path('experimentSessionRun/<id>/',views.experimentSessionRunView,name='experimentSessionRunView'),
