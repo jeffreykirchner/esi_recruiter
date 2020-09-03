@@ -79,26 +79,26 @@ class experiment_session_days(models.Model):
     #check if this session day can be deleted
     def allowDelete(self):
 
-        ESDU = self.experiment_session_day_users_set.filter(Q(attended = True) | Q(bumped = True))
+        ESDU = self.experiment_session_day_users_set.exists()
 
-        if len(ESDU) > 0:
+        if ESDU > 0:
             return False
         else:
             return True  
 
     #get user readable string of session dates
     def getDateString(self):
-        p = parameters.parameters.objects.get(id=1)
+        p = parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
     #get the local time of experiment start
     def getStartTimeString(self):
-        p = parameters.parameters.objects.get(id=1)
+        p = parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
-        p = parameters.parameters.objects.get(id=1)
+        p = parameters.objects.get(id=1)
         endTime = self.date + timedelta(minutes = self.length)
         return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
 

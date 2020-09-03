@@ -14,25 +14,114 @@
             el: '#root',        
             data:{
                 sessions:[],
+                searchInfo:"",
+                experiments:[],
+                searchCount:0,
+                searchButtonText:'Search <i class="fas fa-search"></i>',
+                warningText:"",
+                showAllButtonText : 'Show All',
+                showOpenButtonText : 'Show Open',
+
             },
 
             methods:{
-                getUser:function(){
-                    axios.post('/tempalte/{{id}}/', {
-                                    action :"getUser" ,                                                                                                                             
+                //get list of experiments based on search
+                searchExperiments:function(){
+                    app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.experiments=[];
+
+                    axios.post('/experimentSearch/', {
+                                    action :"searchExperiments" ,
+                                    searchInfo:app.$data.searchInfo,                                                                                                                             
                                 })
                                 .then(function (response) {     
-                                                                                    
+                                    app.updateExperiments(response);
+                                    app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';                                                   
                                 })
                                 .catch(function (error) {
                                     console.log(error);
                                     app.$data.searching=false;
                                 });                        
                             },
+
+                //get list of all experiments
+                getAllExperiments:function(){
+                    app.$data.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSearch/', {
+                                    action :"getAllExperiments" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                    
+                                    app.updateExperiments(response);
+                                    app.$data.showAllButtonText = 'Show All';
+                                   
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                            },
+                
+                //get list of open experiments
+                getOpenExperiments:function(){
+                    app.$data.showOpenButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSearch/', {
+                                    action :"getOpenExperiments" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                    
+                                    app.updateExperiments(response);
+                                    app.$data.showOpenButtonText = 'Show Open';
+                                   
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                            },
+                
+                //update the experiment list from server
+                updateExperiments:function(response){
+                    app.$data.experiments = response.data.experiments;       
+                                    
+                    if(app.$data.experiments.length == 0)
+                    {
+                        app.$data.warningText = "No experiments found.";
+                    }
+                    else
+                    {
+                        app.$data.warningText = "";
+                    }
+
+                    app.$data.searchCount = app.$data.experiments.length;
+                },
+
+                //delete the selected experiment
+                deleteExperiment:function(id){
+                    if(confirm("Delete Experiment?"))
+                    {
+                        app.$data.experiments=[];
+                        app.$data.warningText ='<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('/experimentSearch/', {
+                                action :"deleteExperiment" ,
+                                id:id,                                                                                                                             
+                            })
+                            .then(function (response) {     
+                                app.$data.warningText ="The experiment was deleted."                                          
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                        }
+                    }                          
             },
 
             mounted: function(){
-                    this.getUser();                    
+                                      
             },
         });
 
@@ -54,8 +143,78 @@
                                                                 
             </div>
             <div class="card-body">               
-             
-                
+                <div class="row">
+                    <div class="col col-lg-3">
+                        
+                    </div>
+                    <div class="col col-lg-6">
+                        <center>
+                            <div class="input-group mb-3">
+                                <input  v-on:keyup.enter="searchExperiments()" v-model="searchInfo" type="text" class="form-control" placeholder="Experiment Info" aria-label="User Info" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="button" v-on:click = "searchExperiments()">
+                                        <span v-html="searchButtonText"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="col col-lg-3">                    
+                        <button class="btn btn-outline-primary" type="button" v-on:click = "getAllExperiments()">
+                            <span v-html="showAllButtonText"></span>
+                        </button> 
+                        <button class="btn btn-outline-primary" type="button" v-on:click = "getOpenExperiments()">
+                            <span v-html="showOpenButtonText"></span>
+                        </button>
+                    </div>                   
+                </div>
+
+                <div v-if="warningText != ''" class = "row justify-content-center mb-4">
+                    <div class = "col">
+                        <center><span v-html="warningText" style="color:red;"></span></center>  
+                    </div>
+                </div>           
+                                
+                <!-- search results table -->
+                <table class="table table-hover table-condensed">                            
+
+                    <caption style="caption-side:top;text-align: center;">Experiments (<span v-html="searchCount"></span>)</caption>
+
+                    <thead>
+                        <th width="30%">
+                            Title
+                        </th> 
+                        <th width="20%" style="text-align: center;">
+                            Date
+                        </th>
+                        <th width="35%" style="text-align: center;">
+                            Manager
+                        </th>                                                      
+                        <th width="15%" style="text-align: center;">
+                            Control
+                        </th>
+                    </thead>
+
+                    <tbody id="experimentList">                                                  
+                        <tr v-for="(e,index) in experiments" v-bind:key="e.id">                                                                          
+                            <td> 
+                                <a :href="'/experiment/' + e.id + '/' "><span v-html="e.title"></span></a>                                        
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-html="e.date"></span>                                   
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <span v-html="e.experiment_manager"></span>                                       
+                            </td>                               
+                            <td style="text-align: center;">
+                                <button v-bind:id="'deleteExperiment' + e.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteExperiment(e.id)" v-bind:disabled="e.allowDelete === false">
+                                    Delete <i class="fas fa-user-minus fa-xs"></i>  
+                                </button>
+                            </td>                            
+                        </tr>                                                    
+                    </tbody>
+                    
+                </table>                 
                 
             </div>                    
         </div>                

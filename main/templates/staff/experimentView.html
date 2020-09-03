@@ -347,7 +347,7 @@
 {%block content%}    
 
 <div class="row justify-content-md-center">
-    <div class="col col-md-12">
+    <div class="col col-md-10">
         <div class="card">
             <div class="card-header">
                 Experiment: <span v-if="loading"><i class="fas fa-spinner fa-spin"></i></span><span v-html="experiment.title"></span>
@@ -459,13 +459,16 @@
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
-                                <th width="35%">
+                                <th width="25%">
                                     Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
+                                </th>
+                                <th width="25%" style="text-align: center;">
+                                    Status
                                 </th> 
-                                <th width="35%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
                                    Confirmed/Invited
                                 </th>                                                      
-                                <th width="30%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
                                     Control
                                 </th>
                             </thead>
@@ -478,6 +481,14 @@
                                                 <span v-if="checkToday(d.date)"> (Today)</span>
                                             </div>                                                                                                                                                                             
                                         </span>
+                                    </td>
+                                    <td>
+                                        <div v-if="s.complete">
+                                            Complete
+                                        </div>
+                                        <div v-else>
+                                            Open
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <span v-for="(d,index) in s.experiment_session_days">

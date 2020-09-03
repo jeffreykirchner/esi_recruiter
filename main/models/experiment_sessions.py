@@ -59,7 +59,7 @@ class experiment_sessions(models.Model):
     
     #build a cancelation email for this experiment session
     def getCancelationEmail(self):
-        p = parameters.parameters.objects.get(id=1)
+        p = parameters.objects.get(id=1)
 
         message = ""
 
@@ -186,7 +186,7 @@ class experiment_sessions(models.Model):
         es = self
         es_p = es.recruitmentParams
         id =  self.id
-        p = parameters.parameters.objects.get(id=1)
+        p = parameters.objects.get(id=1)
 
         experiment_id = es.experiment.id
 
@@ -581,10 +581,20 @@ class experiment_sessions(models.Model):
 
         return u_list
 
+    #return true if all session days are complete
+    def getComplete(self):
+        esd_not_complete = self.ESD.filter(complete = False)
+
+        if esd_not_complete:
+            return False
+        else:
+            return True
+
     #get some of the json object
     def json_min(self):
         return{
             "id":self.id,
+            "complete":self.getComplete(),
             "url": str(reverse('experimentSessionView',args=(self.id,))),           
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "allow_delete": self.allowDelete(),

@@ -5,6 +5,11 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
+from main.models import experiments,experiment_session_days
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models.functions import Lower
+from django.db.models import Q
+from django.db.models import Count
 
 @login_required
 @user_is_staff
@@ -18,11 +23,94 @@ def experimentSearch(request):
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["action"] == "action1":
-            pass
-        elif data["action"] == "action2":
-            pass
+        if data["action"] == "searchExperiments":
+            return searchExperiments(data)
+        elif data["action"] == "getAllExperiments":
+            return getAllExperiments(data)
+        elif data["action"] == "getOpenExperiments":
+            return getOpenExperiments(data)
            
-            return JsonResponse({"response" :  "some json"},safe=False)       
+        return JsonResponse({"status" :  "error"},safe=False)       
     else:      
         return render(request,'staff/experimentSearch.html',{"u":"" ,"id":""})      
+
+#serach for an experiment
+def searchExperiments(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Search Experiments")
+    logger.info(data)
+
+    e_list_json = lookup(data["searchInfo"])
+
+    return JsonResponse({"experiments" : e_list_json},safe=False)
+
+#delete selected experiment
+def deleteExperiment(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Delete Experiment")
+    logger.info(data)
+
+    status = ""
+
+    id = data["id"]
+
+    e = experiments.objects.get(id=id)
+    
+    if e.allowDelete():
+        e.delete()
+        status="success"
+    else:
+        status="fail"
+
+    return JsonResponse({"status" : status},safe=False)
+
+#get a list of all experiments
+def getAllExperiments(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Get All Experiments")
+    logger.info(data)
+
+    e_list=experiments.objects.order_by(Lower("title"))         
+    
+    e_list_json = [e.json_search() for e in e_list]
+
+    return JsonResponse({"experiments" : e_list_json},safe=False)
+
+#get a list of all experiments
+def getOpenExperiments(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Get Open Experiments")
+    logger.info(data)
+
+    esd_open = experiment_session_days.objects.annotate(user_count = Count('experiment_session_day_users'))\
+                                      .filter(user_count__gt = 0)\
+                                      .filter(complete=False)\
+                                      .values_list('experiment_session__experiment__id',flat=True)
+
+    # logger.info(list(esd_open))
+
+    e_list=experiments.objects.filter(id__in=esd_open)\
+                              .distinct()\
+                              .order_by(Lower("title"))
+    
+    e_list_json = [e.json_search() for e in e_list]
+
+    return JsonResponse({"experiments" : e_list_json},safe=False)
+
+#search for users that back search criterion
+def lookup(value):
+    logger = logging.getLogger(__name__)
+    logger.info("Experiment Lookup")
+    logger.info(value)
+
+    value = value.strip()
+
+    e_list = experiments.objects.order_by(Lower('title')) \
+                      .filter(Q(title__icontains = value) |
+                              Q(experiment_manager__icontains = value) |
+                              Q(notes__icontains = value))
+
+
+    e_list_json = [e.json_search() for e in e_list]
+
+    return e_list_json

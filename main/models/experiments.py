@@ -2,7 +2,10 @@ from django.db import models
 import logging
 import traceback
 from django.utils.safestring import mark_safe
-from . import schools,accounts,institutions,genders,subject_types,institutions,recruitmentParameters
+from django.utils import timezone
+import pytz
+from . import schools,accounts,institutions,genders,subject_types,institutions,recruitmentParameters,parameters
+import main
 
 #info for each experiment
 class experiments(models.Model):    
@@ -41,21 +44,61 @@ class experiments(models.Model):
             if isinstance(field, (models.CharField, models.TextField)):
                 setattr(self, field.name, getattr(self, field.name).strip())
 
+        #check if this session can be deleted    
+    
+    def allowDelete(self):
+
+        ES = self.ES.all()    
+
+        for e in ES:
+            if not e.allowDelete():
+                return False
+
+        return True
+
+    #get string
     def getShowUpFeeString(self):
         return f'{self.showUpFee:0.2f}'
 
+    #small json object
     def json_min(self):
         return{
             "id":self.id,
             "name": mark_safe(self.title),
         }
     
+    #json object for experiment search
+    def json_search(self):
+        return{
+            "id"  : self.id,
+            "title": mark_safe(self.title),
+            "experiment_manager":self.experiment_manager,
+            "allowDelete":self.allowDelete(),
+            "date":self.getDateString(),
+        }
+
+    #return date of first session
+    def getDateString(self):
+        p = parameters.objects.get(id=1)
+        tz = pytz.timezone(p.subjectTimeZone)
+        
+        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment = self).order_by('date').first()
+
+        if esd:
+            return  esd.date.astimezone(tz).strftime("%-m/%#d/%Y")
+        else:
+            return "No Sessions"
+
+        
+
+    #get json sessions from this experiment
     def json_sessions(self):
         return{
              "experiment_sessions":[es.json_min() for es in self.ES.all()
                                     .annotate(first_date=models.Min("ESD__date")).order_by('-first_date')],
         }
 
+    #get json object experiment
     def json(self):
         return{
             "id":self.id,
