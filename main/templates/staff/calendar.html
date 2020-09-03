@@ -16,6 +16,7 @@
                 calendar:[],
                 todayDay:"",
                 todayMonth:"",
+                todayYear:"",
                 currentMonth:"",
                 currentYear:"",
                 currentMonthString:"",
@@ -39,7 +40,8 @@
                             app.updateMonth(response);  
                             app.$data.locations = response.data.locations;     
                             app.$data.todayDay = response.data.currentDay;
-                            app.$data.todayMonth = response.data.currentMonth;                      
+                            app.$data.todayMonth = response.data.currentMonth; 
+                            app.$data.todayYear = response.data.currentYear;                      
                         })
                         .catch(function (error) {
                             console.log(error);                            
@@ -122,6 +124,7 @@
 
     </script>
 
+    
     <style>
         .cell:hover {
             background-color:rgb(248, 248, 248);        
@@ -210,7 +213,7 @@
         <div class="row">
             
                 <div class = "col cell_content" style="text-align: right;">
-                    <div v-if="d.day === todayDay && d.month === todayMonth">
+                    <div v-if="d.day === todayDay && d.month === todayMonth  && d.year === todayYear">
                         <button class="cell_button_today" v-on:click="showDayModal(indexW,indexD,d.dayString)">
                             [[d.day]]
                         </button>

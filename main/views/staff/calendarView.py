@@ -32,6 +32,7 @@ def calendarView(request):
     else:      
         return render(request,'staff/calendar.html',{"u":"" ,"id":""})      
 
+#get current month
 def getMonth(request,data):
     logger = logging.getLogger(__name__) 
     logger.info("Get month")
@@ -49,6 +50,7 @@ def getMonth(request,data):
                          "currentMonthString" :  t.strftime("%B, %Y"),
                          "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
+#change the current month viewed
 def changeMonth(request,data):
     logger = logging.getLogger(__name__) 
     logger.info("Get month")
@@ -94,6 +96,7 @@ def changeMonth(request,data):
                          "currentMonthString" :  t.strftime("%B, %Y"),
                          "calendar": getCalendarJson(t.month,t.year)},safe=False)
 
+#get calendar arrays
 def getCalendarJson(month,year):
     logger = logging.getLogger(__name__) 
     logger.info("Get Calendar JSON")
@@ -149,6 +152,7 @@ def getCalendarJson(month,year):
 
             new_week.append({"day" : d.day,
                              "month" : d.month,
+                             "year" : d.year,
                              "dayString" :  d.strftime("%B %-d, %Y"),
                              "sessions" : s_list_local
                              })
