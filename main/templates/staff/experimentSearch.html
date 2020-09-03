@@ -13,7 +13,6 @@
             delimiters: ['[[', ']]'],
             el: '#root',        
             data:{
-                sessions:[],
                 searchInfo:"",
                 experiments:[],
                 searchCount:0,
@@ -22,10 +21,65 @@
                 showAllButtonText : 'Show All',
                 showOpenButtonText : 'Show Open',
                 createExperimentButtonText : 'Create Experiment <i class="fas fa-plus"></i>',
+                dateSortButtonText: 'Date <i class="fas fa-sort"></i>',
+                titleSortButtonText: 'Title <i class="fas fa-sort"></i>',
+                managerSortButtonText: 'Manager <i class="fas fa-sort"></i>',
 
             },
 
             methods:{
+                //sort experiments by date
+                sortByDate:function(){
+
+                    app.$data.dateSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    app.$data.experiments.sort(function(a, b) {
+                        if(b.date == "No Sessions")
+                        {
+                            return 1; 
+                        }
+                        else if( a.date == "No Sessions")
+                        {
+                            return -1;
+                        }
+                        else
+                        {
+                            return new  Date(b.date) - new Date(a.date);
+                        }
+
+                    });
+
+                    app.$data.dateSortButtonText = 'Date <i class="fas fa-sort"></i>';
+                },
+
+                //sort by title
+                sortByTitle:function(){
+
+                    app.$data.titleSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    app.$data.experiments.sort(function(a, b) {
+                        a=a.title.trim().toLowerCase();
+                        b=b.title.trim().toLowerCase();
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    });
+
+                    app.$data.titleSortButtonText = 'Title <i class="fas fa-sort"></i>';
+                },
+
+                //sort by manager
+                sortByManager:function(){
+
+                    app.$data.managerSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    app.$data.experiments.sort(function(a, b) {
+                        a=a.experiment_manager.trim().toLowerCase();
+                        b=b.experiment_manager.trim().toLowerCase();
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    });
+
+                    app.$data.managerSortButtonText = 'Manager <i class="fas fa-sort"></i>';
+                    },
+
                 //get list of experiments based on search
                 searchExperiments:function(){
                     app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -64,7 +118,6 @@
                                 });                        
                 },
                 
-
                 //get list of all experiments
                 getAllExperiments:function(){
                     app.$data.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -161,6 +214,12 @@
     });
 
     </script>
+    <style>
+        .table_header{
+            font-weight:bold;
+            font-size: 16px;
+        }
+    </style>
 {%endblock head%}
 
 {%block content%}
@@ -217,13 +276,19 @@
 
                     <thead>
                         <th width="30%">
-                            Title
+                            <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
+                                <span v-html="titleSortButtonText" class="table_header"></span>
+                            </button>
                         </th> 
                         <th width="20%" style="text-align: center;">
-                            Date
+                            <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByDate()">
+                                <span v-html="dateSortButtonText" class="table_header"></span>
+                            </button>                            
                         </th>
                         <th width="35%" style="text-align: center;">
-                            Manager
+                            <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByManager()">
+                                <span v-html="managerSortButtonText" class="table_header"></span>
+                            </button>
                         </th>                                                      
                         <th width="15%" style="text-align: center;">
                             Control
