@@ -80,8 +80,7 @@ def removeSession(data,id):
     logger.info("Recruitment Parameters ID:")
     logger.info(es.recruitmentParams)
 
-    if es.allowDelete():
-        es.recruitmentParams.delete()
+    if es.allowDelete():        
         es.delete()
 
     e = experiments.objects.get(id=id) 
@@ -108,7 +107,8 @@ def addSession(data,id):
     esd.setup(es,[])
     esd.save()
 
-    return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
+    return JsonResponse({ "sessions" : e.json_sessions(),},safe=False)
+    #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
 
 #update experiment parameters
 def updateForm1(data,id):

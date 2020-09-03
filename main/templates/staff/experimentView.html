@@ -56,6 +56,7 @@
                     genders_list:"",              
                     buttonText1:"Update",
                     buttonText2:"Update",     
+                    addSessionButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
                     errorsText:"",
                     cancelModal:true,    
                     recruitmentTitle:"Recruitment Parameters (default)",
@@ -214,13 +215,18 @@
 
                     //add new session to experiment
                     addSession: function(){
+                        app.$data.addSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
                         axios.post('/experiment/{{id}}/', {
                                 status :"add" ,                                                                                                                              
                             })
                             .then(function (response) {                                   
                                 //redirect to new session     
 
-                                window.location.href = response.data.url;            
+                                app.$data.sessions = response.data.sessions.experiment_sessions;
+                                app.$data.addSessionButtonText ='Add <i class="fas fa-plus fa-xs"></i>';
+
+                                //window.location.href = response.data.url;            
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -346,7 +352,7 @@
 
 {%block content%}    
 
-<div class="row justify-content-md-center">
+<div class="row justify-content-md-center mb-10">
     <div class="col col-md-10">
         <div class="card">
             <div class="card-header">
@@ -454,13 +460,13 @@
                 <br>
                 <br>
                 <!-- session table -->
-                <div class="row">                   
+                <div class="row mb-10">                   
                     <div class="col col-md-10 offset-md-1">
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
                                 <th width="25%">
-                                    Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()">Add <i class="fas fa-plus fa-xs"></i></button> 
+                                    Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></span></button> 
                                 </th>
                                 <th width="25%" style="text-align: center;">
                                     Status
@@ -472,47 +478,60 @@
                                     Control
                                 </th>
                             </thead>
-                            <tbody id="sessionList">                       
+                            <tbody id="sessionList">                                
                                 <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
                                     <td>
                                         <span v-for="(d,index) in s.experiment_session_days">
                                             <div>
                                                 <span v-html="formatDate(d.date)"></span>  
-                                                <span v-if="checkToday(d.date)"> (Today)</span>
+                                                <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
                                             </div>                                                                                                                                                                             
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="text-align: center;">
                                         <div v-if="s.complete">
-                                            Complete
+                                            <span v-html="'Complete'"></span>
                                         </div>
                                         <div v-else>
-                                            Open
+                                            <span v-html="'Open'"></span>
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <span v-for="(d,index) in s.experiment_session_days">
-                                            <!-- <span v-if="index>0"> | </span>                                             -->
-                                            <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>  
-                                                                                                                                                                             
+                                            <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>                                                                        
                                         </span>                                        
                                     </td>                               
                                     <td style="text-align: center;">                                        
-                                            <div>    
-                                                <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">Edit <i class="fas fa-edit fa-xs"></i></button>
-                                                 | <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">Delete <i class="fas fa-trash fa-xs"></i></button>
-                                                                             
-                                            </div>                                                                                                                                         
-                                        </span>
+                                        <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">
+                                            Edit <i class="fas fa-edit fa-xs"></i>
+                                        </button>
+                                        | 
+                                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">
+                                            Delete <i class="fas fa-trash fa-xs"></i>
+                                        </button>                                                                                                                                                                    
                                     </td>                            
-                                </tr>                        
+                                </tr>                                                  
                             </tbody>
+                            <tfoot>
+                                <tr v-if="sessions.length === 0">
+                                    <td><span v-html="'No Sessions'"></span></td>
+                                    <td style="text-align: center;"><span v-html="'---'"></span></td>
+                                    <td style="text-align: center;"><span v-html="'---'"></span></td>
+                                    <td style="text-align: center;"><span v-html="'---'"></span></td>
+                                </tr>                                   
+                            </tfoot>
                         </table>
                     </div>
                 </div>             
-
+                
+                
             </div>      
         </div>
+    </div>
+</div>
+<div class = "row">
+    <div class = "col">
+        &nbsp;
     </div>
 </div>
 
