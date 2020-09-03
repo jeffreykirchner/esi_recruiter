@@ -5,11 +5,12 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiments,experiment_session_days
+from main.models import experiments,experiment_session_days,schools,accounts,recruitmentParameters
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Lower
 from django.db.models import Q
 from django.db.models import Count
+from django.shortcuts import redirect
 
 @login_required
 @user_is_staff
@@ -29,10 +30,32 @@ def experimentSearch(request):
             return getAllExperiments(data)
         elif data["action"] == "getOpenExperiments":
             return getOpenExperiments(data)
+        elif data["action"] == "createExperiment":
+            return createExperiment(data)   
+        elif data["action"] == "deleteExperiment":
+            return deleteExperiment(data)     
            
         return JsonResponse({"status" :  "error"},safe=False)       
     else:      
         return render(request,'staff/experimentSearch.html',{"u":"" ,"id":""})      
+
+#create experiment
+def createExperiment(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Create Experiment")
+    logger.info(data)
+
+    rp = recruitmentParameters()
+
+    e = experiments()
+    e.school = schools.objects.first()
+    e.account_default = accounts.objects.first()
+    e.recruitmentParamsDefault = rp
+
+    rp.save()
+    e.save()    
+
+    return JsonResponse({"experiments" : [e.json_search()]},safe=False)
 
 #serach for an experiment
 def searchExperiments(data):
@@ -55,14 +78,16 @@ def deleteExperiment(data):
     id = data["id"]
 
     e = experiments.objects.get(id=id)
-    
+
+    title = e.title
+
     if e.allowDelete():
         e.delete()
         status="success"
     else:
         status="fail"
 
-    return JsonResponse({"status" : status},safe=False)
+    return JsonResponse({"status" : status,"title":title},safe=False)
 
 #get a list of all experiments
 def getAllExperiments(data):

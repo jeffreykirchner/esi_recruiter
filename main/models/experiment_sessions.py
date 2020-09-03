@@ -8,6 +8,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta,timezone
 
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+
 from . import genders,subject_types,institutions,experiments,parameters,recruitmentParameters,parameters
 
 #session for an experiment (could last multiple days)
@@ -625,3 +628,9 @@ class experiment_sessions(models.Model):
             "allowDelete":self.allowDelete(),
             "allowEdit":self.allowEdit(),
         }
+
+#delete recruitment parameters when deleted
+@receiver(post_delete, sender=experiment_sessions)
+def post_delete_recruitmentParams(sender, instance, *args, **kwargs):
+    if instance.recruitmentParams: # just in case user is not specified
+        instance.recruitmentParams.delete()

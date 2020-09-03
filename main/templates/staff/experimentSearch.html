@@ -21,6 +21,7 @@
                 warningText:"",
                 showAllButtonText : 'Show All',
                 showOpenButtonText : 'Show Open',
+                createExperimentButtonText : 'Create Experiment <i class="fas fa-plus"></i>',
 
             },
 
@@ -29,6 +30,7 @@
                 searchExperiments:function(){
                     app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                     app.$data.experiments=[];
+                    app.$data.warningText = "";
 
                     axios.post('/experimentSearch/', {
                                     action :"searchExperiments" ,
@@ -42,11 +44,32 @@
                                     console.log(error);
                                     app.$data.searching=false;
                                 });                        
-                            },
+                },
+                
+                //create new experient
+                createExperiment:function(){                    
+                    app.$data.experiments = [];
+                    app.$data.warningText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.createExperimentButtonText =
+                    axios.post('/experimentSearch/', {
+                                    action :"createExperiment" ,                                                                                                                                                                
+                                })
+                                .then(function (response) {     
+                                    app.updateExperiments(response);        
+                                    app.$data.createExperimentButtonText = 'Create Experiment <i class="fas fa-plus"></i>';                                        
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                },
+                
 
                 //get list of all experiments
                 getAllExperiments:function(){
                     app.$data.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.experiments = [];
+                    app.$data.warningText = "";
 
                     axios.post('/experimentSearch/', {
                                     action :"getAllExperiments" ,                                                                                                                             
@@ -66,6 +89,8 @@
                 //get list of open experiments
                 getOpenExperiments:function(){
                     app.$data.showOpenButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.experiments = [];
+                    app.$data.warningText = "";
 
                     axios.post('/experimentSearch/', {
                                     action :"getOpenExperiments" ,                                                                                                                             
@@ -109,8 +134,16 @@
                                 action :"deleteExperiment" ,
                                 id:id,                                                                                                                             
                             })
-                            .then(function (response) {     
-                                app.$data.warningText ="The experiment was deleted."                                          
+                            .then(function (response) {   
+                                if(response.data.status == "success")
+                                {
+                                    app.$data.warningText ='The experiment "'+ response.data.title  +  '" was deleted.';
+                                }  
+                                else
+                                {
+                                    app.$data.warningText="The experiment could not be deleted."
+                                }
+                                                                          
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -135,10 +168,12 @@
     <div class="col col-lg-8">
         <div class="card">                  
             <div class="card-header">
-               Experiment Search
+                <span class="align-middle">Experiments</span>               
                 
                 <span class="float-right">
-                    <!-- buttons here -->
+                    <button class="btn btn-outline-success" type="button" v-on:click = "createExperiment()">
+                        <span v-html="createExperimentButtonText"></span>
+                    </button>
                 </span>
                                                                 
             </div>
@@ -159,7 +194,7 @@
                             </div>
                         </center>
                     </div>
-                    <div class="col col-lg-3">                    
+                    <div class="col col-lg-3" style="text-align: center;">                    
                         <button class="btn btn-outline-primary" type="button" v-on:click = "getAllExperiments()">
                             <span v-html="showAllButtonText"></span>
                         </button> 

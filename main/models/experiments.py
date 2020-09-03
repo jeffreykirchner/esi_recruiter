@@ -6,6 +6,8 @@ from django.utils import timezone
 import pytz
 from . import schools,accounts,institutions,genders,subject_types,institutions,recruitmentParameters,parameters
 import main
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 #info for each experiment
 class experiments(models.Model):    
@@ -20,10 +22,10 @@ class experiments(models.Model):
 
     institution = models.ManyToManyField(institutions,through = "experiments_institutions")
 
-    title = models.CharField(max_length = 300)
-    experiment_manager = models.CharField(max_length = 300)
+    title = models.CharField(max_length = 300,default = "***New Experiment***")
+    experiment_manager = models.CharField(max_length = 300,default = "***Manager Here***")
 
-    length_default = models.IntegerField()
+    length_default = models.IntegerField(default = 60)
     notes = models.TextField(default="")   
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
     invitationText = models.CharField(max_length = 10000,default = "")        
@@ -37,7 +39,7 @@ class experiments(models.Model):
     class Meta:
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
-    
+
     #called when model form method is used
     def clean(self):
         for field in self._meta.fields:
@@ -116,6 +118,11 @@ class experiments(models.Model):
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
         }
 
+#delete recruitment parameters when deleted
+@receiver(post_delete, sender=experiments)
+def post_delete_recruitmentParamsDefault(sender, instance, *args, **kwargs):
+    if instance.recruitmentParamsDefault: # just in case user is not specified
+        instance.recruitmentParamsDefault.delete()
 
 #proxy model returns link to experiemnts
 class hrefExperiments(experiments): 

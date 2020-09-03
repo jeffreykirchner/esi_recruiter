@@ -5,6 +5,9 @@ import main
 from . import experiment_sessions,recruitmentParameters
 from django.contrib.auth.models import User
 
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+
 class experiment_session_invitations(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE)
     recruitmentParams = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)
@@ -39,3 +42,9 @@ class experiment_session_invitations(models.Model):
             "mailResultErrorText":self.mailResultErrorText,
             "recruitmentParams":self.recruitmentParams.json_displayString(),
         }
+
+#delete recruitment parameters when deleted
+@receiver(post_delete, sender=experiment_session_invitations)
+def post_delete_recruitmentParams(sender, instance, *args, **kwargs):
+    if instance.recruitmentParams: # just in case user is not specified
+        instance.recruitmentParams.delete()

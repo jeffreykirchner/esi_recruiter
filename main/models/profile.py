@@ -47,6 +47,7 @@ class profile(models.Model):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
+    #find which email filter, if any applies to user
     def setupEmailFilter(self):
         logger = logging.getLogger(__name__) 
         logger.info("set email filter")
@@ -70,7 +71,6 @@ class profile(models.Model):
             return 1
         else:
             return 0
-
 
     #get a list of session days the subject has participated in or was bumped from
     def sorted_session_day_list_earningsOnly(self):
