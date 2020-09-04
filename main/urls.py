@@ -20,6 +20,7 @@ urlpatterns = [
     
     #staff
     path('userSearch/',views.userSearch,name='userSearch'),
+    path('reports/',views.reportsView,name='userSearch'),
     path('userInfo/<id>/',views.userInfo,name='userInfo'),
     path('experimentSearch/',views.experimentSearch,name='experimentSearch'),
     path('experiment/<id>/',views.experimentView,name='experimentView'),

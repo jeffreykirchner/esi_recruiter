@@ -1,0 +1,73 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ['[[', ']]'],
+            el: '#root',        
+            data:{
+                pettyCash:{
+                           department:"",
+                           startDate:"",
+                           endDate:""
+                           },
+            },
+
+            methods:{
+                getUser:function(){
+                    axios.post('/reports/', {
+                                    action :"getPettyCash" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                                                                    
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                            },
+            },
+
+            mounted: function(){
+                                     
+            },
+        });
+
+    });
+
+    </script>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-lg-center">
+    <div class="col col-lg-4">
+        <div class="card">                  
+            <div class="card-header">
+                Petty Cash Reconciliation Sheet 
+                {%if user.is_superuser%}
+                <span class="float-right">
+                    <!-- buttons here -->
+                </span>
+                {%endif%}                                                 
+            </div>
+            <div class="card-body">             
+                {% for i in pettyCashForm %}
+                <div class="row">
+                    <div class = "col col-md-10 offset-md-1">  
+                        {{ i|as_crispy_field }}         
+                    </div>            
+                 </div> 
+                {% endfor %}
+                
+            </div>                    
+        </div>                
+    </div>
+</div>    
+{%endblock content%}

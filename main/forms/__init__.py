@@ -8,3 +8,4 @@ from .experimentForm1 import *
 from .recruitmentParametersForm import *
 from .experimentSessionForm2 import *
 from .parametersForm import *
+from .pettyCashForm import *
