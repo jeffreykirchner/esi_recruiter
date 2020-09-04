@@ -416,6 +416,10 @@ def findSubjectsToInvite(data,id):
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update recruitment form")
+    logger.info(data)
+
     es = experiment_sessions.objects.get(id=id)
     
     form_data_dict = {} 
@@ -466,7 +470,7 @@ def updateRecruitmentParameters(data,id):
         form.save()               
         return JsonResponse({"recruitmentParams":es.recruitmentParams.json(),"status":"success"}, safe=False)
     else:
-        print("invalid recruitment form")
+        logger.info("invalid recruitment form")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #add a session day

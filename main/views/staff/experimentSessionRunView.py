@@ -72,15 +72,15 @@ def getPayPalExport(data,id):
     esd = experiment_session_days.objects.get(id=id)
     esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    csv_response = HttpResponse(content_type='text/csv')
+    csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
-    writer = csv.writer(response)
+    writer = csv.writer(csv_response)
 
     for u in esdu:
         writer.writerow(u.csv_payPal())  
     
-    return response
+    return csv_response
 
 #automatically randomly bump exccess subjects
 def autoBump(data,id):

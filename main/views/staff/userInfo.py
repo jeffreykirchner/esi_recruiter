@@ -74,7 +74,6 @@ def deleteNote(request,data,id):
 
     return getSessions(data,id)
 
-
 #get full is of subject invitions
 def getInvitations(data,id):
     logger = logging.getLogger(__name__) 

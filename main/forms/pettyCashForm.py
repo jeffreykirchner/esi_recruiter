@@ -8,19 +8,19 @@ import logging
 #form
 class pettyCashForm(forms.Form):
 
-    departments =  forms.ModelChoiceField(label="Department",
-                                     queryset=departments.objects.all(),
+    department =  forms.ModelChoiceField(label="Department",
+                                     queryset=departments.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"pettyCash.department"}))
     startDate = forms.DateTimeField(label="Start Date",
                                localize=True,
                                input_formats=['%m/%d/%Y %I:%M %p %z'],
                                error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
                                widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"})) 
-    endDate = forms.DateTimeField(label="Start Date",
+    endDate = forms.DateTimeField(label="End Date",
                                localize=True,
                                input_formats=['%m/%d/%Y %I:%M %p %z'],
                                error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"}))               
+                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.endDate"}))               
 
 
     # def clean_studentWorker(self):

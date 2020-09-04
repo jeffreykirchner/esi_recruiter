@@ -3,10 +3,32 @@
 
 {%block head%}
 
+    <link rel="stylesheet" href="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/css/bootstrap-datetimepicker.min.css"/>
+
+    <script src="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-bootstrap-datetimepicker@5"></script>
+
     <script type="text/javascript">
     $(document).ready(function(){
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
+
+        // http://eonasdan.github.io/bootstrap-datetimepicker/
+        Vue.component('date-picker', VueBootstrapDatetimePicker);
+
+        $.extend(true, $.fn.datetimepicker.defaults, {
+            icons: {
+                time: 'far fa-clock',
+                date: 'far fa-calendar',
+                up: 'fas fa-arrow-up',
+                down: 'fas fa-arrow-down',
+                previous: 'fas fa-chevron-left',
+                next: 'fas fa-chevron-right',
+                today: 'fas fa-calendar-check',
+                clear: 'far fa-trash-alt',
+                close: 'far fa-times-circle'
+            }
+            });
 
         var app = new Vue({
         
@@ -18,15 +40,66 @@
                            startDate:"",
                            endDate:""
                            },
+                pettyCashButtonText:'Generate <i class="fas fa-scroll fa-xs"></i>',
+                options: {
+                        // https://momentjs.com/docs/#/displaying/
+                        format: 'MM/DD/YYYY hh:mm a ZZ',
+                        useCurrent: true,
+                        showClear: false,
+                        showClose: true,
+                        sideBySide: true,
+                        },
             },
 
             methods:{
-                getUser:function(){
+                //display form errors
+                displayErrors:function(errors){
+                        for(var e in errors)
+                        {
+                            $("#id_" + e).attr("class","form-control is-invalid")
+                            var str='<span id=id_errors_'+ e +' class="text-danger">';
+                            
+                            for(var i in errors[e])
+                            {
+                                str +=errors[e][i] + '<br>';
+                            }
+
+                            str+='</span>';
+                            $("#div_id_" + e).append(str);    
+                        }
+                    },
+
+                //clear errors from forms
+                clearMainFormErrors:function(){
+                        for(var item in app.$data.pettyCash)
+                        {
+                            $("#id_" + item).attr("class","form-control");
+                            $("#id_errors_" + item).remove();
+                        }                        
+                    },
+
+                getPettyCash:function(){
+                    app.$data.pettyCashButtonText='<i class="fas fa-spinner fa-spin"></i>';
+
                     axios.post('/reports/', {
-                                    action :"getPettyCash" ,                                                                                                                             
+                                    action :"getPettyCash" ,
+                                    formData : $("#pettyCashForm").serializeArray(),                                                                                                                             
                                 })
-                                .then(function (response) {     
-                                                                                    
+                                .then(function (response) { 
+                                    status=response.data.status; 
+                                                                 
+
+                                    app.clearMainFormErrors();
+
+                                    if(status=="fail")
+                                    {                         
+                                        app.displayErrors(response.data.errors);             
+                                    }
+                                    else
+                                    {                              
+                                        app.$data.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';   
+                                        console.log(response.data);
+                                    }                                                                                       
                                 })
                                 .catch(function (error) {
                                     console.log(error);
@@ -57,16 +130,49 @@
                 </span>
                 {%endif%}                                                 
             </div>
-            <div class="card-body">             
-                {% for i in pettyCashForm %}
-                <div class="row">
-                    <div class = "col col-md-10 offset-md-1">  
-                        {{ i|as_crispy_field }}         
-                    </div>            
-                 </div> 
-                {% endfor %}
-                
-            </div>                    
+            <div class="card-body">
+                <form id="pettyCashForm">             
+                    
+                    <div class="row">
+                        <div class = "col col-md-10 offset-md-1">  
+                            {{ pettyCashForm.department|as_crispy_field }}         
+                        </div>            
+                    </div>
+                    <div class="row">
+                        <div class = "col col-md-10 offset-md-1">
+                            <div id="div_id_startDate" class="form-group">
+                                <label for="id_startDate" class="requiredField">
+                                    Start Date and Time<span class="asteriskField">*</span>
+                                </label>
+                                <div>                            
+                                   <date-picker name="startDate" id="id_startDate" v-model="pettyCash.startDate" :config="options"></date-picker>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class = "col col-md-10 offset-md-1">
+                            <div id="div_id_endDate" class="form-group">
+                                <label for="id_endDate" class="requiredField">
+                                    End Date and Time<span class="asteriskField">*</span>
+                                </label>
+                                <div>                            
+                                   <date-picker name="endDate" id="id_endDate" v-model="pettyCash.endDate" :config="options"></date-picker>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                   
+
+                      
+                </form>                              
+            </div>
+            <div class="card-footer">       
+                <span class="float-right">            
+                    <button class="btn btn-primary" type="button" v-on:click = "getPettyCash()">
+                        <span v-html ="pettyCashButtonText"></span>
+                    </button>   
+                <span>      
+             </div>                    
         </div>                
     </div>
 </div>    
