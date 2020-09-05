@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from main.forms import pettyCashForm
-from main.models import departments,experiment_session_days,accounts
+from main.models import departments,experiment_session_days,accounts,parameters
 import csv
+import pytz
 from django.http import HttpResponse
-from django.db.models import Avg, Count, Min, Sum
+from django.db.models import Avg, Count, Min, Sum, Q
+from django.db.models import Case,Value,When
 
 @login_required
 @user_is_staff
@@ -47,21 +49,36 @@ def pettyCash(data):
     if form.is_valid():
         #print("valid form")   
 
+        p = parameters.objects.get(id=1)
+        tz = pytz.timezone(p.subjectTimeZone)
+
         d = form.cleaned_data['department']
         s_date = form.cleaned_data['startDate'] 
         e_date = form.cleaned_data['endDate']  
 
-        ESD = experiment_session_days.objects.filter(account__in = d.accounts_set.all(),
+        ESD = experiment_session_days.objects.annotate(totalEarnings = Sum(Case( When(experiment_session_day_users__attended = 1,
+                                                                                 then = 'experiment_session_day_users__earnings'),
+                                                                                 default = Value(0) )))\
+                                             .annotate(totalBumps = Sum(Case(When(experiment_session_day_users__bumped = 1,
+                                                                               then = 'experiment_session_day_users__show_up_fee'),
+                                                                             When(experiment_session_day_users__attended = 1,
+                                                                               then = 'experiment_session_day_users__show_up_fee'),
+                                                                             default=Value(0)  )))\
+                                             .filter(account__in = d.accounts_set.all(),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
-                                              .annotate(totalPayout = Sum('experiment_session_day_users__earnings'))\
-                                              .select_related('experiment_session__experiment','account')\
-                                              .order_by('date')
+                                             .filter(Q(totalEarnings__gt = 0) | 
+                                                     Q(totalBumps__gt = 0))\
+                                             .select_related('experiment_session__experiment','account')\
+                                             .order_by('date')
         
         ESD_accounts_ids = experiment_session_days.objects.filter(account__in = d.accounts_set.all(),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                               .values_list('account_id',flat=True).distinct()
+        
+        #ESD_accounts_ids = ESD.values_list('account_id',flat=True).distinct()
+                                              
 
         ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)
         logger.info(ESD_accounts)
@@ -72,26 +89,46 @@ def pettyCash(data):
         writer = csv.writer(csv_response)    
 
         #title
-        writer.writerow(["Petty Cash Reconciliation Report - " + str(s_date) + " to " + str(e_date) + " for Department ESI"]) 
+        writer.writerow(["Petty Cash Reconciliation Report - " + str(s_date.astimezone(tz).strftime("%-m/%#d/%Y")) + " to " + str(e_date.astimezone(tz).strftime("%-m/%#d/%Y")) + " for Department ESI"]) 
         writer.writerow([])
 
+         
         #column header
+        columnSums = []       
         columnHeader1 = ['Title,Date,Amount']
         for a in ESD_accounts.all():
             columnHeader1.append(a.number)
+            columnSums.append(0)
         writer.writerow(columnHeader1)
 
         #session days
         for d in ESD:
             temp=[]
+            totalPayout = "$" + f'{d.totalEarnings+d.totalBumps:.2f}'
 
             temp.append(d.experiment_session.experiment.title)
-            temp.append(str(d.date))
-            temp.append(d.totalPayout)
+            temp.append(d.date.astimezone(tz).strftime("%-m/%#d/%Y"))
+            temp.append(totalPayout)
+
+            i = 0
+            for a in ESD_accounts.all():
+                if d.account == a:
+                    temp.append(totalPayout)
+                    columnSums[i] += d.totalEarnings+d.totalBumps
+                else:
+                    temp.append("-")
+                
+                i += 1
 
             writer.writerow(temp)        
 
+        #totals
+        totalsRow = ["Grand Totals",""]
+        for i in columnSums:
+            totalsRow.append(i)
 
+        writer.writerow([])
+        writer.writerow(totalsRow)
                        
         return csv_response
     else:
