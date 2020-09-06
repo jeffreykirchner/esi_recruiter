@@ -95,8 +95,7 @@
                                         app.displayErrors(response.data.errors);             
                                     }
                                     else
-                                    {                              
-                                        app.$data.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';   
+                                    {                                                                       
                                         console.log(response.data);
 
                                         var downloadLink = document.createElement("a");
@@ -108,7 +107,9 @@
                                         document.body.appendChild(downloadLink);
                                         downloadLink.click();
                                         document.body.removeChild(downloadLink);
-                                    }                                                                                       
+                                    }    
+                                    
+                                    app.$data.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
                                 })
                                 .catch(function (error) {
                                     console.log(error);

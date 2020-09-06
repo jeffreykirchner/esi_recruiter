@@ -11,11 +11,13 @@ class pettyCashForm(forms.Form):
     department =  forms.ModelChoiceField(label="Department",
                                      queryset=departments.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"pettyCash.department"}))
+
     startDate = forms.DateTimeField(label="Start Date",
                                localize=True,
                                input_formats=['%m/%d/%Y %I:%M %p %z'],
                                error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
                                widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"})) 
+                               
     endDate = forms.DateTimeField(label="End Date",
                                localize=True,
                                input_formats=['%m/%d/%Y %I:%M %p %z'],
@@ -23,15 +25,23 @@ class pettyCashForm(forms.Form):
                                widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.endDate"}))               
 
 
-    # def clean_studentWorker(self):
-    #     logger = logging.getLogger(__name__) 
-    #     logger.info("Clean studentWorker")
+    def clean_endDate(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Check date range")
 
-    #     studentWorker = self.cleaned_data['studentWorker']
+        if not 'startDate' in self.cleaned_data:
+            raise forms.ValidationError('Start Date must be before End Date.')
+        
+        if not 'endDate' in self.cleaned_data:
+            raise forms.ValidationError('Start Date must be before End Date.')
+       
+        try:
+            startDate = self.cleaned_data['startDate']
+            endDate = self.cleaned_data['endDate']
 
-    #     if studentWorker == "Yes":
-    #         return True
-    #     elif studentWorker == "No":
-    #         return False
-    #     else:
-    #         raise forms.ValidationError("Please answer the question.")
+            if startDate > endDate:            
+                raise forms.ValidationError("Start Date must be before End Date.")
+            else:
+                return endDate
+        except ValueError:
+            raise forms.ValidationError('Invalid Entry')

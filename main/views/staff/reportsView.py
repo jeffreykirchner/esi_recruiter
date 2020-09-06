@@ -153,7 +153,7 @@ def pettyCash(data):
                        
         return csv_response
     else:
-        logger.info("invalid pretty form")
+        logger.info("invalid petty cash form")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
     
