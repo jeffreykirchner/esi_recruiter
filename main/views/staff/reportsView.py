@@ -34,6 +34,7 @@ def reportsView(request):
         return render(request,'staff/reports.html',{"pettyCashForm":pettyCashForm() ,
                                                     "id":""})      
 
+#generate the petty cash csv report
 def pettyCash(data):
     logger = logging.getLogger(__name__)
     logger.info("Get Petty Cash CSV")
@@ -52,7 +53,7 @@ def pettyCash(data):
         p = parameters.objects.get(id=1)
         tz = pytz.timezone(p.subjectTimeZone)
 
-        d = form.cleaned_data['department']
+        dpt = form.cleaned_data['department']
         s_date = form.cleaned_data['startDate'] 
         e_date = form.cleaned_data['endDate']  
 
@@ -64,7 +65,7 @@ def pettyCash(data):
                                                                              When(experiment_session_day_users__attended = 1,
                                                                                then = 'experiment_session_day_users__show_up_fee'),
                                                                              default=Value(0)  )))\
-                                             .filter(account__in = d.accounts_set.all(),
+                                             .filter(account__in = dpt.accounts_set.all(),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                              .filter(Q(totalEarnings__gt = 0) | 
@@ -72,13 +73,10 @@ def pettyCash(data):
                                              .select_related('experiment_session__experiment','account')\
                                              .order_by('date')
         
-        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = d.accounts_set.all(),
+        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = dpt.accounts_set.all(),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
-                                              .values_list('account_id',flat=True).distinct()
-        
-        #ESD_accounts_ids = ESD.values_list('account_id',flat=True).distinct()
-                                              
+                                              .values_list('account_id',flat=True).distinct()                                            
 
         ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)
         logger.info(ESD_accounts)
@@ -94,8 +92,8 @@ def pettyCash(data):
 
          
         #column header
-        columnSums = []       
-        columnHeader1 = ['Title,Date,Amount']
+        columnSums = [0]       
+        columnHeader1 = ['Title','Date','Amount']
         for a in ESD_accounts.all():
             columnHeader1.append(a.number)
             columnSums.append(0)
@@ -110,7 +108,9 @@ def pettyCash(data):
             temp.append(d.date.astimezone(tz).strftime("%-m/%#d/%Y"))
             temp.append(totalPayout)
 
-            i = 0
+            columnSums[0] +=  d.totalEarnings+d.totalBumps
+
+            i = 1
             for a in ESD_accounts.all():
                 if d.account == a:
                     temp.append(totalPayout)
@@ -125,10 +125,31 @@ def pettyCash(data):
         #totals
         totalsRow = ["Grand Totals",""]
         for i in columnSums:
-            totalsRow.append(i)
+            totalsRow.append("$" + f'{i:.2f}')
 
         writer.writerow([])
         writer.writerow(totalsRow)
+
+        #petty cash
+        writer.writerow([])
+        writer.writerow([])
+        writer.writerow([])
+        writer.writerow(['Petty Cash Advanced','',"$" + f'{dpt.petty_cash:.2f}'])
+        writer.writerow(['Amount in Cash Box','',"$" + f'{-1 * columnSums[0]:.2f}'])
+
+        #signatures
+        writer.writerow([])
+        writer.writerow([])
+        writer.writerow(["Turned into Cashier's"])
+        writer.writerow([])
+        writer.writerow(['O/S charge to'])
+        writer.writerow([dpt.charge_account + "   $" + f'{columnSums[0] - dpt.petty_cash:.2f}'])
+        writer.writerow([])
+        writer.writerow([])
+        writer.writerow(["Cashier                                     _____________________________________________"])
+        writer.writerow([])
+        writer.writerow([])
+        writer.writerow(["Department Representative     _____________________________________________"])
                        
         return csv_response
     else:

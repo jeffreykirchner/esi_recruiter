@@ -86,8 +86,7 @@
                                     formData : $("#pettyCashForm").serializeArray(),                                                                                                                             
                                 })
                                 .then(function (response) { 
-                                    status=response.data.status; 
-                                                                 
+                                    status=response.data.status;                                                                  
 
                                     app.clearMainFormErrors();
 
@@ -99,6 +98,16 @@
                                     {                              
                                         app.$data.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';   
                                         console.log(response.data);
+
+                                        var downloadLink = document.createElement("a");
+                                        var blob = new Blob(["\ufeff", response.data]);
+                                        var url = URL.createObjectURL(blob);
+                                        downloadLink.href = url;
+                                        downloadLink.download = "data.csv";
+
+                                        document.body.appendChild(downloadLink);
+                                        downloadLink.click();
+                                        document.body.removeChild(downloadLink);
                                     }                                                                                       
                                 })
                                 .catch(function (error) {
