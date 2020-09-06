@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.forms import pettyCashForm
+from main.forms import pettyCashForm,studentReportForm
 from main.models import departments,experiment_session_days,accounts,parameters
 import csv
 import pytz
@@ -25,14 +25,45 @@ def reportsView(request):
 
         if data["action"] == "getPettyCash":
             return pettyCash(data)
-        elif data["action"] == "action2":
-            pass
+        elif data["action"] == "getStudentReport":
+            return studentReport(data)
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
+        return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
+                                                    "studentReportForm" : studentReportForm()})      
 
-        return render(request,'staff/reports.html',{"pettyCashForm":pettyCashForm() ,
-                                                    "id":""})      
+#generate the petty cash csv report
+def studentReport(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Get Student Report CSV")
+    logger.info(data)
+
+    form_data_dict = {}
+
+    for field in data["formData"]:            
+        form_data_dict[field["name"]] = field["value"]
+    
+    form = studentReportForm(form_data_dict)
+
+    if form.is_valid():
+        #print("valid form")   
+
+        p = parameters.objects.get(id=1)
+        tz = pytz.timezone(p.subjectTimeZone)
+        
+        s_date = form.cleaned_data['studentReport_startDate'] 
+        e_date = form.cleaned_data['studentReport_endDate']  
+
+        csv_response = HttpResponse(content_type='text/csv')
+        csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+        writer = csv.writer(csv_response)
+                       
+        return csv_response
+    else:
+        logger.info("invalid student report form")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #generate the petty cash csv report
 def pettyCash(data):
@@ -57,6 +88,11 @@ def pettyCash(data):
         s_date = form.cleaned_data['startDate'] 
         e_date = form.cleaned_data['endDate']  
 
+        csv_response = HttpResponse(content_type='text/csv')
+        csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+        writer = csv.writer(csv_response)   
+
         ESD = experiment_session_days.objects.annotate(totalEarnings = Sum(Case( When(experiment_session_day_users__attended = 1,
                                                                                  then = 'experiment_session_day_users__earnings'),
                                                                                  default = Value(0) )))\
@@ -79,12 +115,7 @@ def pettyCash(data):
                                               .values_list('account_id',flat=True).distinct()                                            
 
         ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)
-        logger.info(ESD_accounts)
-
-        csv_response = HttpResponse(content_type='text/csv')
-        csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-
-        writer = csv.writer(csv_response)    
+        logger.info(ESD_accounts) 
 
         #title
         writer.writerow(["Petty Cash Reconciliation Report - " + str(s_date.astimezone(tz).strftime("%-m/%#d/%Y")) + " to " + str(e_date.astimezone(tz).strftime("%-m/%#d/%Y")) + " for Department ESI"]) 

@@ -9,3 +9,4 @@ from .recruitmentParametersForm import *
 from .experimentSessionForm2 import *
 from .parametersForm import *
 from .pettyCashForm import *
+from .studentReportForm import *
