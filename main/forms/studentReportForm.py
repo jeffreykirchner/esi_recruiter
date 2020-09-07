@@ -7,18 +7,27 @@ import logging
 
 #form
 class studentReportForm(forms.Form):
+    studentReport_nra = forms.TypedChoiceField(label="Subjects that are nonresident ?",                                       
+                                       choices=[(1,"Yes"),(0,"No, any subjects.")],                                                  
+                                       widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_nra"}))
 
-    studentReport_startDate = forms.DateTimeField(label="Start Date",
-                               localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p %z'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"})) 
+    studentReport_gt600 = forms.TypedChoiceField(label="Subjects earning at least $[[maxAnnualEarnings]] in total?",                                       
+                                       choices=[(1,"Yes"),(0,"No, any earnings.")],                                                  
+                                       widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_gt600"}))
+
+    studentReport_studentWorkers = forms.TypedChoiceField(label="Student workers only?",                                       
+                                       choices=[(1,"Yes"),(0,"No, any type.")],                                                 
+                                       widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_studentWorkers"}))
+
+    studentReport_startDate = forms.DateTimeField(label="Start Date",                               
+                               input_formats=['%m/%d/%Y'],
+                               error_messages={'invalid': 'Format: MM/DD/YYYY'},                                                                                                           
+                               widget = forms.DateTimeInput(attrs={"v-model":"studentReport.studentReport_startDate"})) 
                                
-    studentReport_endDate = forms.DateTimeField(label="End Date",
-                               localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p %z'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.endDate"}))               
+    studentReport_endDate = forms.DateTimeField(label="End Date",                               
+                               input_formats=['%m/%d/%Y'],
+                               error_messages={'invalid': 'Format: MM/DD/YYYY'},                                                                                                           
+                               widget = forms.DateTimeInput(attrs={"v-model":"studentReport.studentReport_endDate"}))               
 
 
     def clean_studentReport_endDate(self):

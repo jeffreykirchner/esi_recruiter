@@ -41,14 +41,18 @@
                            endDate:""
                            },
                 studentReport:{
+                           studentReport_gt600:0,
+                           studentReport_studentWorkers:0,
+                           studentReport_nra:0,
                            studentReport_startDate:"",
-                           studentReport_endDate:"",
+                           studentReport_endDate:"",                
                 },
+                maxAnnualEarnings:{{maxAnnualEarnings}},
                 pettyCashButtonText:'Generate <i class="fas fa-scroll fa-xs"></i>',
                 studentReportButtonText:'Generate <i class="fas fa-scroll fa-xs"></i>',
                 options: {
                         // https://momentjs.com/docs/#/displaying/
-                        format: 'MM/DD/YYYY hh:mm a ZZ',
+                        format: 'MM/DD/YYYY',
                         useCurrent: true,
                         showClear: false,
                         showClose: true,
@@ -150,15 +154,15 @@
                                     {                                                                       
                                         console.log(response.data);
 
-                                        // var downloadLink = document.createElement("a");
-                                        // var blob = new Blob(["\ufeff", response.data]);
-                                        // var url = URL.createObjectURL(blob);
-                                        // downloadLink.href = url;
-                                        // downloadLink.download = "data.csv";
+                                        var downloadLink = document.createElement("a");
+                                        var blob = new Blob(["\ufeff", response.data]);
+                                        var url = URL.createObjectURL(blob);
+                                        downloadLink.href = url;
+                                        downloadLink.download = "data.csv";
 
-                                        // document.body.appendChild(downloadLink);
-                                        // downloadLink.click();
-                                        // document.body.removeChild(downloadLink);
+                                        document.body.appendChild(downloadLink);
+                                        downloadLink.click();
+                                        document.body.removeChild(downloadLink);
                                     }    
                                     
                                     app.$data.studentReportButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
@@ -205,7 +209,7 @@
                         <div class = "col col-md-10 offset-md-1">
                             <div id="div_id_startDate" class="form-group">
                                 <label for="id_startDate" class="requiredField">
-                                    Start Date and Time<span class="asteriskField">*</span>
+                                    Start Date<span class="asteriskField">*</span>
                                 </label>
                                 <div>                            
                                    <date-picker name="startDate" id="id_startDate" v-model="pettyCash.startDate" :config="options"></date-picker>
@@ -217,7 +221,7 @@
                         <div class = "col col-md-10 offset-md-1">
                             <div id="div_id_endDate" class="form-group">
                                 <label for="id_endDate" class="requiredField">
-                                    End Date and Time<span class="asteriskField">*</span>
+                                    End Date<span class="asteriskField">*</span>
                                 </label>
                                 <div>                            
                                    <date-picker name="endDate" id="id_endDate" v-model="pettyCash.endDate" :config="options"></date-picker>
@@ -251,9 +255,20 @@
             </div>
             <div class="card-body">
                 <form id="studentReportForm">             
-                    
                     <div class="row">
-                                    
+                        <div class = "col col-md-10 offset-md-1">  
+                            {{ studentReportForm.studentReport_nra|as_crispy_field }}         
+                        </div>            
+                    </div>
+                    <div class="row">
+                        <div class = "col col-md-10 offset-md-1">  
+                            {{ studentReportForm.studentReport_gt600|as_crispy_field }}         
+                        </div>            
+                    </div>
+                    <div class="row">
+                        <div class = "col col-md-10 offset-md-1">  
+                            {{ studentReportForm.studentReport_studentWorkers|as_crispy_field }}         
+                        </div>            
                     </div>
                     <div class="row">
                         <div class = "col col-md-10 offset-md-1">

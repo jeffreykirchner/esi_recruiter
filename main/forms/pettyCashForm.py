@@ -14,14 +14,14 @@ class pettyCashForm(forms.Form):
 
     startDate = forms.DateTimeField(label="Start Date",
                                localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p %z'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
+                               input_formats=['%m/%d/%Y'],
+                               error_messages={'invalid': 'Format: M/D/YYYY'},                                                                                                           
                                widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"})) 
                                
     endDate = forms.DateTimeField(label="End Date",
                                localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p %z'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
+                               input_formats=['%m/%d/%Y'],
+                               error_messages={'invalid': 'Format: M/D/YYYY'},                                                                                                           
                                widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.endDate"}))               
 
 
