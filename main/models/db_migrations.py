@@ -440,7 +440,9 @@ def migrate_subjects2():
                                         FROM schools
                                         WHERE s1.school_id = id ) 
                                 THEN 1 
-                                ELSE school_id END  
+                                ELSE school_id END,
+                        COALESCE(non_resident_alien,0),
+                        COALESCE(w9_collected,0)
                         from students AS s1
                         ''')
         
@@ -459,6 +461,8 @@ def migrate_subjects2():
                         major_id=c[5],
                         type_id=2,
                         subjectType_id = c[4],
+                        nonresidentAlien = c[10],
+                        w9Collected = c[11],
                 ) for c in cursor2.fetchall())
 
         cursor2.close()
@@ -480,8 +484,11 @@ def migrate_subjects2():
 
         print("assign email filters")
         
-        for p in profile.objects.all():
-                p.setupEmailFilter()        
+        for f in emailFilters.objects.all():
+                p = profile.objects.filter(user__email__regex = r'.+@' + f.domain)
+                p.update(emailFilter = f)
+
+        print("email filters complete")     
 
 def migrate_experiments_institutions():     
         migrate_institutions()

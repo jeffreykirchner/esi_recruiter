@@ -8,7 +8,8 @@ class parameters(models.Model):
     labManager = models.ForeignKey(User,on_delete=models.CASCADE,null=True)                #primary contact for subjects
     subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")           #time zone the lab is in
     defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)     #money paid to subjects for coming regardless of performance
-    
+    maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5,default = 600)  #max money that can be paid to a subject per year  
+
     noShowCutoff = models.IntegerField(default = 3)                                         #if subject hits count in window they will not be invited
     noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured
 
@@ -21,9 +22,7 @@ class parameters(models.Model):
     cancelationTextSubject = models.CharField(max_length = 1000,default = "")              #email subject text when an experiment is canceled
     cancelationText = models.CharField(max_length = 10000,default = "")                    #email text when an experiment is canceled
     
-    consentForm = models.CharField(max_length = 50000, default ="")                         #consent for subject must agree to before participation 
-
-    
+    consentForm = models.CharField(max_length = 50000, default ="")                        #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

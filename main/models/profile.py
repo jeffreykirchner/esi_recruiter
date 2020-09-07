@@ -36,6 +36,8 @@ class profile(models.Model):
     phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
     studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)                                  #true is subject is a student worker
     paused = models.BooleanField(verbose_name="Paused",default=False)                                                #allows subject to pause getting invitations
+    w9Collected = models.BooleanField(verbose_name="W9 Form Collected",default=False)                                #true if a w9 tax form was collected from subject
+    nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien",default=False)                           #true is subject is a not a US Citizen or US Resident
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

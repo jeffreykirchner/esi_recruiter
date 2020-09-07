@@ -15,6 +15,9 @@ class parametersForm(forms.ModelForm):
 
     defaultShowUpFee = forms.CharField(label='Default Show-up Fee ($)',
                                        widget=forms.NumberInput(attrs={}))
+    
+    maxAnnualEarnings = forms.CharField(label='Max Annual Earnings ($)',
+                                       widget=forms.NumberInput(attrs={}))
 
     invitationTextSubject = forms.CharField(label='Default Recruitment Email Subject, Single Day',
                                          widget=forms.TextInput(attrs={"size":"125"}))
