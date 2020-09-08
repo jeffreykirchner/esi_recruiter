@@ -47,6 +47,8 @@ def experimentSessionRunView(request,id=None):
             return autoBump(data,id)
         elif data["action"] == "payPalExport":
             return getPayPalExport(data,id)
+        elif data["action"] == "fillEarningsWithFixed":
+            return fillEarningsWithFixed(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:      
@@ -209,6 +211,33 @@ def completeSession(data,id):
 
     esd.complete = not esd.complete
     esd.save()
+
+    #clear any extra earnings fields entered
+    if esd.complete:
+        esdu = esd.experiment_session_day_users_set.all().filter(attended = False,bumped=False)
+        esdu.update(earnings = 0, show_up_fee=0)
+
+        esdu = esd.experiment_session_day_users_set.all().filter(bumped=True)
+        esdu.update(earnings = 0)
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+
+#fill subjects with default bump fee set in the experiments model
+def fillEarningsWithFixed(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Fill Earnings with fixed amount")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+
+    amount = data["amount"]
+
+    try:
+        esd.experiment_session_day_users_set.filter(attended=True) \
+                                        .update(earnings = Decimal(amount))
+
+    except (ValueError, DecimalException):
+        logger.info("Fill earnings with fixed amount error : ")
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 

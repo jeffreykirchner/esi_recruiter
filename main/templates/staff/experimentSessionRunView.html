@@ -36,9 +36,11 @@
                 printPayoutsButtonText : 'Print Attendees <i class="fas fa-print"></i>',
                 printBumpsButtonText : 'Print Bumps <i class="fas fa-print"></i>',
                 paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
+                fillEarningsWithFixedButtonText : 'Fill',
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
                 payoutTotal:"",                            //total paid to subjects
+                fillEarningsWithValue:"",                   //amount to fill all earnings with 
             },
 
             methods:{
@@ -233,7 +235,28 @@
                         .then(function (response) {     
                             app.$data.sessionDay = response.data.sessionDay;    
 
-                            app.$data.fillShowUpFeeButtonText = "Fill show-up fee: $" + app.$data.sessionDay.defaultShowUpFee;
+                            app.$data.fillShowUpFeeButtonText = "Fill show-up fee: $" + app.$data.sessionDay.defaultShowUpFee;                            
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });
+                },
+
+                 //fill subjects with default show up fee from experiments model
+                 fillEarningsWithFixed:function(){
+
+                    if(app.$data.fillEarningsWithValue=="") return;
+
+                    app.$data.fillEarningsWithFixedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"fillEarningsWithFixed" ,
+                            amount: app.$data.fillEarningsWithValue,                                                                                                                             
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay = response.data.sessionDay;    
+                            app.$data.fillEarningsWithFixedButtonText = "Fill";
+                            app.$data.fillEarningsWithValue="";                            
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -381,16 +404,16 @@
                                                                                             Bumped: [[sessionDay.bumpCount]]
                             </caption>
                             <thead>
-                                <th width="20%">
+                                <th width="25%">
                                     Name 
                                 </th>
-                                <th width="10%">
+                                <th width="15%">
                                     ID Number 
                                 </th>
-                                <th width=20%  style="text-align: center;">  
+                                <th width=15%  style="text-align: center;">  
                                     Earnings($)
                                 </th> 
-                                <th width=20%  style="text-align: center;">  
+                                <th width=15%  style="text-align: center;">  
                                     Show-up Fee($)
                                 </th>   
                                 <th width=15%  style="text-align: center;">  
@@ -471,14 +494,24 @@
                                     <td>
                                         Payout Total: $[[payoutTotal]]                                      
                                     </td>
-                                    <td>                                        
-                                    </td>
-                                    <td style="text-align: center;">
+                                    <td>
                                         <div v-if='sessionDay.complete === false'>
                                             <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()">
                                                 <span v-html='saveButtonText'></span> 
                                             </button>
-                                        </div>                                                                                
+                                        </div>                                        
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div v-if='sessionDay.complete === false'>
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill" aria-describedby="basic-addon2" v-model="fillEarningsWithValue">
+                                                <div class="input-group-append">
+                                                  <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
+                                                      <span v-html="fillEarningsWithFixedButtonText"></span>
+                                                  </button>
+                                                </div>
+                                              </div>
+                                        </div>                                                                            
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
