@@ -152,7 +152,7 @@ class profile(models.Model):
     #return true if subject was bumped from last session they attended
     def bumped_from_last_session(self,excludeESDU):
         logger = logging.getLogger(__name__)
-        logger.info("Get bumped from last session")
+        #logger.info("Get bumped from last session")
 
         d = datetime.now(timezone.utc)
         ESDU_last = self.user.ESDU.exclude(id = excludeESDU).filter(confirmed = True,experiment_session_day__date__lt = d).order_by("-experiment_session_day__date").first()

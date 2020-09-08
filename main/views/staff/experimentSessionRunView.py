@@ -11,6 +11,7 @@ import random
 import csv
 from django.http import HttpResponse
 from datetime import datetime, timedelta,timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import experiment_session_days,experiment_session_day_users,profile
 
@@ -49,6 +50,8 @@ def experimentSessionRunView(request,id=None):
             return getPayPalExport(data,id)
         elif data["action"] == "fillEarningsWithFixed":
             return fillEarningsWithFixed(data,id)
+        elif data["action"]=="stripeReaderCheckin":
+            return getStripeReaderCheckin(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:      
@@ -65,6 +68,48 @@ def getSession(data,id):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
+#get data from the strip reader for subject checkin
+def getStripeReaderCheckin(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Stripe Reader Checkin")
+    logger.info(data)
+
+    status = ""    
+
+    try:
+        v = data["value"].split("=")
+        chapmanID = int(v[0])
+        logger.info(id)
+    except:
+        status="Card Read Error"
+
+
+
+    if status == "":
+        # try:            
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
+                                                            user__profile__chapmanID__icontains = chapmanID,
+                                                            confirmed = True)\
+                                                    .select_related('user')\
+                                                    .first()
+        
+        if esdu:
+            esdu.attended = True
+            esdu.bumped = False
+            esdu.save()
+            logger.info(esdu)
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
+        else:           
+            status = "No subject found."
+        # except:
+        #     logger.info("error")
+        #     status = "No subject found."
+
+
+    esd = experiment_session_days.objects.get(id=id)
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
 #return paypal CSV
 def getPayPalExport(data,id):
     logger = logging.getLogger(__name__)

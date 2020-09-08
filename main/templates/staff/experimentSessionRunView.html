@@ -41,7 +41,10 @@
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
                 payoutTotal:"",                            //total paid to subjects
                 fillEarningsWithValue:"",                   //amount to fill all earnings with
-                isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%}, 
+                isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},  
+                stripeReaderSpinner:"",
+                stripeReaderValue:"",
+                stripeReaderStatus:"",
             },
 
             methods:{
@@ -65,6 +68,32 @@
                             console.log(error);                                   
                         });                        
                     },
+
+                //stripe reader checkin
+                stripeReaderCheckin:function(){
+                    window.setTimeout(this.stripeReaderCheckin, 250);
+                    
+                    if(app.$data.stripeReaderValue == "") return;
+                    if(app.$data.stripeReaderSpinner != "") return;
+                    if(!app.$data.stripeReaderValue.includes("=")) return;
+
+                    app.$data.stripeReaderSpinner = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.stripeReaderStatus="";
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                             action :"stripeReaderCheckin" ,
+                             value:app.$data.stripeReaderValue,                                                                                                                            
+                         })
+                         .then(function (response) {                                
+                            app.$data.sessionDay = response.data.sessionDay;   
+                            app.$data.stripeReaderSpinner = "";   
+                            app.$data.stripeReaderValue = "";    
+                            app.$data.stripeReaderStatus= response.data.status;           
+                         })
+                         .catch(function (error) {
+                             console.log(error);                                   
+                         });
+                },
 
                 //export a csv file for paypal mass payment
                 payPalExport:function(){
@@ -377,7 +406,8 @@
             },
 
             mounted: function(){
-                    this.getSession();                    
+                    this.getSession();       
+                    window.setTimeout(this.stripeReaderCheckin, 250);             
             },
         });
 
@@ -394,8 +424,28 @@
                                 <a href="{% url 'experimentSessionView' sessionDay.experiment_session.id %}">Session Info</a> |
                                 <span v-html="dateText"></span>
             </div>
-            <div class="card-body">               
-            
+            <div class="card-body">  
+                <!-- stripe reader -->
+                <div v-if='sessionDay.complete === false'>
+                    <div class="row align-items-left">
+                        <div class = "col-md-4 offset-md-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                <span class="input-group-text">Stripe Reader</span>
+                                </div>
+                                <input type="password" placeholder="Cursor Here" class="form-control" aria-label="Stripe Reader" v-model="stripeReaderValue">
+                                <div class="input-group-append">
+                                <span class="input-group-text"><span v-html="stripeReaderSpinner"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class = "col" style="text-align: left;padding-top: 10px;">
+                            <span v-html="stripeReaderStatus"></span>
+                        </div>                    
+                    </div>  
+                </div>      
+
+                <!-- subject table     -->
                 <div class="row">
                     <div class = "col">
                         <table class="table table-hover table-condensed">
