@@ -38,7 +38,8 @@
                 pettyCash:{
                            department:"",
                            startDate:"",
-                           endDate:""
+                           endDate:"",
+                           department_name:"",
                            },
                 studentReport:{
                            studentReport_gt600:0,
@@ -118,7 +119,7 @@
                                         var blob = new Blob(["\ufeff", response.data]);
                                         var url = URL.createObjectURL(blob);
                                         downloadLink.href = url;
-                                        downloadLink.download = "data.csv";
+                                        downloadLink.download = "Petty_Cash_" + $( "#id_department option:selected" ).text() + "_"+ app.$data.pettyCash.startDate + "_to_" + app.$data.pettyCash.endDate + ".csv";
 
                                         document.body.appendChild(downloadLink);
                                         downloadLink.click();
@@ -158,7 +159,7 @@
                                         var blob = new Blob(["\ufeff", response.data]);
                                         var url = URL.createObjectURL(blob);
                                         downloadLink.href = url;
-                                        downloadLink.download = "data.csv";
+                                        downloadLink.download = "Student_Report_" + app.$data.studentReport.studentReport_startDate + "_to_"+ app.$data.studentReport.studentReport_endDate + ".csv";
 
                                         document.body.appendChild(downloadLink);
                                         downloadLink.click();

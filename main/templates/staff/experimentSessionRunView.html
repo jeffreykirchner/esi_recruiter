@@ -81,7 +81,7 @@
                             var blob = new Blob(["\ufeff", response.data]);
                             var url = URL.createObjectURL(blob);
                             downloadLink.href = url;
-                            downloadLink.download = "data.csv";
+                            downloadLink.download = "PayPal_Mass_Pay_" + app.$data.sessionDay.id + ".csv";
 
                             document.body.appendChild(downloadLink);
                             downloadLink.click();
