@@ -40,7 +40,8 @@
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
                 payoutTotal:"",                            //total paid to subjects
-                fillEarningsWithValue:"",                   //amount to fill all earnings with 
+                fillEarningsWithValue:"",                   //amount to fill all earnings with
+                isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%}, 
             },
 
             methods:{
@@ -480,7 +481,7 @@
                                                 </button>
                                                 <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div>
                                             </div>
-                                            <div v-else>
+                                            <div v-else-if="isAdmin">
                                                 <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
                                                     <span v-html='attendButtonText'></span>
                                                 </button>

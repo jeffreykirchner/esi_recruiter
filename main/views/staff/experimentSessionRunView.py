@@ -28,7 +28,7 @@ def experimentSessionRunView(request,id=None):
         if data["action"] == "getSession":
             return getSession(data,id)
         elif data["action"] == "attendSubject":
-            return attendSubject(data,id)
+            return attendSubject(request,data,id)
         elif data["action"] == "bumpSubject":
             return bumpSubject(data,id)
         elif data["action"] == "noShowSubject":
@@ -258,16 +258,21 @@ def fillDefaultShowUpFee(data,id):
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
 #mark subject as attended
-def attendSubject(data,id):    
+def attendSubject(request,data,id):    
     logger = logging.getLogger(__name__)
     logger.info("Attend Subject")
     logger.info(data)
-
+    
     esdu = experiment_session_day_users.objects.get(id=data['id'])
 
-    esdu.attended=True
-    esdu.bumped=False
-    esdu.save()
+    logger.info(data)
+
+    if request.user.is_superuser:
+        esdu.attended=True
+        esdu.bumped=False
+        esdu.save()
+    else:
+        logger.info("Attend Subject Error, non super user")
 
     esd = experiment_session_days.objects.get(id=id)
 
