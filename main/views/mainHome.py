@@ -18,4 +18,4 @@ def mainHome(request):
         if request.user.profile.type.id == 1:
             return redirect ('calendarView')
         else:
-            pass    
+            return redirect('subjectHome')    

@@ -30,4 +30,5 @@ urlpatterns = [
     path('calendar/',views.calendarView,name='calendarView'),
 
     #subject
+    path('subjectHome/',views.subjectHome,name='subjectHome'),
 ]

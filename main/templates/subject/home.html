@@ -1,0 +1,95 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ['[[', ']]'],
+            el: '#root',        
+            data:{
+                upcomingInvitations:[],
+                pastAcceptedInvitations:[],
+                pastDeclinedInvitations:[],
+            },
+
+            methods:{
+                getCurrentInvitations:function(){
+                    axios.post('/subjectHome/{{id}}/', {
+                                    action :"getCurrentInvitations" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                    app.takeCurrentInvitations(response);                                                                     
+                                })
+                                .catch(function (error) {
+                                    console.log(error);                                    
+                                });                        
+                },
+                
+                acceptInvitation:function(index){
+                    axios.post('/subjectHome/{{id}}/', {
+                                    action :"acceptInvitation",
+                                    index:index,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                    app.takeCurrentInvitations(response);                                                                     
+                                })
+                                .catch(function (error) {
+                                    console.log(error);                                    
+                                });                        
+                },
+                
+                showPastDeclinedInvitations:function(index){
+                    axios.post('/subjectHome/{{id}}/', {
+                                    action :"showPastDeclinedInvitations",                                                                                                                            
+                                })
+                                .then(function (response) {     
+                                    app.$date.pastDeclinedInvitations=response.data.pastDeclinedInvitations;                                                                     
+                                })
+                                .catch(function (error) {
+                                    console.log(error);                                    
+                                });                        
+                },
+                
+                takeCurrentInvitations:function(reponse){
+                    app.$data.upcomingSessions=reponse.data.upcomingSessions;
+                    app.$data.pastSessions=reponse.data.pastSessions;
+                },
+            },
+
+            mounted: function(){
+                    this.getCurrentInvitations();                    
+            },
+        });
+
+    });
+
+    </script>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-lg-center">
+    <div class="col col-lg-10">
+        <div class="card">                  
+            <div class="card-header">
+               Experiments
+                
+               <span class="float-right">
+                    Need Help? Email:
+               </span>
+                                                           
+            </div>
+            <div class="card-body">               
+             
+                
+                
+            </div>                    
+        </div>                
+    </div>
+</div>    
+{%endblock content%}
