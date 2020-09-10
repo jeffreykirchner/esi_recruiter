@@ -13,6 +13,7 @@ from django.utils.timezone import make_aware
 from django.http import HttpResponse
 from django.db.models import Avg, Count, Min, Sum, Q,F
 from django.db.models import Case,Value,When,DecimalField
+from datetime import datetime, timedelta,timezone
 
 @login_required
 @user_is_staff
@@ -62,11 +63,17 @@ def studentReport(data):
 
         logger.info(studentReport_studentWorkers)
         
-        s_date = form.cleaned_data['studentReport_startDate'] 
-        e_date = form.cleaned_data['studentReport_endDate']
+        #non tz aware dates
+        s_date_start = form.cleaned_data['studentReport_startDate'] 
+        e_date_start = form.cleaned_data['studentReport_endDate']
 
-        s_date = s_date.replace(tzinfo=tz)
-        e_date = e_date.replace(tzinfo=tz)
+        #create a new tz aware date time
+        s_date = datetime.now(tz)
+        e_date = datetime.now(tz)
+
+        #replace with non aware info
+        s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
+        e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
 
         s_date = s_date.replace(hour=0,minute=0, second=0)
         e_date = e_date.replace(hour=23,minute=59, second=59)
@@ -190,14 +197,23 @@ def pettyCash(data):
 
         dpt = form.cleaned_data['department']
 
-        s_date =  form.cleaned_data['startDate']
-        e_date = form.cleaned_data['endDate'] 
+        #non tz aware date
+        s_date_start =  form.cleaned_data['startDate']
+        e_date_start = form.cleaned_data['endDate'] 
 
-        s_date = s_date.replace(tzinfo=tz)
-        e_date = e_date.replace(tzinfo=tz)
+        #create a new tz aware date time
+        s_date = datetime.now(tz)
+        e_date = datetime.now(tz)
+
+        #replace with non aware info
+        s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
+        e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
 
         s_date = s_date.replace(hour=0,minute=0, second=0)
-        e_date = e_date.replace(hour=23,minute=59, second=59)        
+        e_date = e_date.replace(hour=23,minute=59, second=59)  
+
+        logger.info(s_date)
+        logger.info(e_date)      
 
         csv_response = HttpResponse(content_type='text/csv')
         csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
