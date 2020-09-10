@@ -93,7 +93,7 @@ class profile(models.Model):
     def sorted_session_day_upcoming(self,confirmedOnly):
         logger = logging.getLogger(__name__) 
         logger.info("sorted session day upcoming")
-        
+
         tz = pytz.utc
 
         logger.info(tz)
@@ -119,13 +119,34 @@ class profile(models.Model):
 
         qs =self.sorted_session_day_upcoming(confirmedOnly)
 
-        out_str = [e.json_subjectInfo() for e in qs]      
+        out_lst = [e.json_subjectInfo() for e in qs]      
 
         #logger.info("get upcoming session day list")
         #logger.info(out_str)
 
-        return out_str
+        return out_lst
+
+    #upcoming session query set
+    def sessions_upcoming(self):
+        logger = logging.getLogger(__name__)
+
+        qs = self.sorted_session_day_upcoming(False)
+
+        session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
     
+        return experiment_sessions.objects.filter(id__in = session_ids)
+    
+    #sorted list of session a subject is in
+    def sorted_session_list_upcoming(self):
+        logger = logging.getLogger(__name__) 
+
+        session_list =self.sessions_upcoming()
+
+        out_lst = [es.json_subject(self.user) for es in session_list.all()
+                                    .annotate(first_date=models.Min("ESD__date"))
+                                    .order_by('-first_date')]
+
+        return out_lst
     #get full invitation list
     def sorted_session_day_list_full(self):
         logger = logging.getLogger(__name__) 

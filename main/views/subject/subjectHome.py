@@ -41,8 +41,8 @@ def getCurrentInvitations(data,u):
     logger.info("Get current invitations")    
     logger.info(data)
 
-    upcomingInvitations=u.profile.sorted_session_day_list_upcoming(False)
-    pastAcceptedInvitations=u.profile.sorted_session_day_list_earningsOnly()
+    upcomingInvitations = u.profile.sorted_session_list_upcoming()
+    pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,"pastAcceptedInvitations":pastAcceptedInvitations}, safe=False)
 
@@ -52,15 +52,18 @@ def acceptInvitation(data,u):
     logger.info("Accept invitation")    
     logger.info(data)
 
-    esdu_id = data["id"]
+    es_id = data["id"]
 
     try:
-        qs=u.profile.sorted_session_day_upcoming(False)
-        qs = qs.filter(id = esdu_id).first()
+        qs = u.profile.sessions_upcoming()
+        qs = qs.filter(id = es_id).first()
 
         if qs:
-            qs.confirmed=True
-            qs.save()
+
+            experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                                user__id=u.id)\
+                                        .update(confirmed=True)  
+
         else:
             logger.info("Invitation not found")             
             logger.info("User: " + str(u.id))
@@ -69,7 +72,7 @@ def acceptInvitation(data,u):
         logger.info("Accept invitation error")             
         logger.info("User: " + str(u.id))    
 
-    upcomingInvitations=u.profile.sorted_session_day_list_upcoming(False)
+    upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations}, safe=False)
 
@@ -79,15 +82,17 @@ def cancelAcceptInvitation(data,u):
     logger.info("Cancel accept invitation")    
     logger.info(data)
 
-    esdu_id = data["id"]
+    es_id = data["id"]
 
     try:
-        qs=u.profile.sorted_session_day_upcoming(False)
-        qs = qs.filter(id = esdu_id).first()
+        qs = u.profile.sessions_upcoming()
+        qs = qs.filter(id = es_id).first()
 
         if qs:
-            qs.confirmed=False
-            qs.save()
+            if qs.hoursUntilFirstStart()>24:
+                experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                                user__id=u.id)\
+                                        .update(confirmed=False)
         else:
             logger.info("Invitation not found")             
             logger.info("User: " + str(u.id))
@@ -96,9 +101,7 @@ def cancelAcceptInvitation(data,u):
         logger.info("Cancel invitation error")             
         logger.info("User: " + str(u.id))    
 
-    upcomingInvitations=u.profile.sorted_session_day_list_upcoming(False)
-
-    upcomingInvitations=u.profile.sorted_session_day_list_upcoming(False)
+    upcomingInvitations=u.profile.sorted_session_list_upcoming()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations}, safe=False)
 

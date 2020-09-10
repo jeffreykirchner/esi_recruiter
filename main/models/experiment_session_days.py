@@ -104,6 +104,15 @@ class experiment_session_days(models.Model):
         endTime = self.date + timedelta(minutes = self.length)
         return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
 
+    #hours until start
+    def hoursUntilStart(self):
+        #time remaining until start
+        d_now = datetime.now(pytz.utc)
+        timeRemaining = self.date - d_now
+
+        return timeRemaining.total_seconds()/60/60
+        #return str(timeRemaining)
+
     #get a list of session who's room and time overlap this one
     def getRoomOverlap(self):
         startTime = self.date

@@ -3,7 +3,7 @@ import logging
 import traceback
 import uuid
 from django.utils.safestring import mark_safe
-from datetime import datetime
+from datetime import datetime,timedelta
 import pytz
 
 from . import experiment_session_days,experiment_sessions,experiment_session_day_users
@@ -58,6 +58,7 @@ class experiment_session_day_users(models.Model):
 
     #get json info on session user
     def json_subjectInfo(self):
+        
         return{
             "id":self.id,
             "title":mark_safe(self.experiment_session_day.experiment_session.experiment.title),

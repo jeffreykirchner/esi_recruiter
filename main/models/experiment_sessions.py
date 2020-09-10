@@ -597,16 +597,42 @@ class experiment_sessions(models.Model):
     def json_min(self):
         return{
             "id":self.id,
-            "complete":self.getComplete(),
-            "url": str(reverse('experimentSessionView',args=(self.id,))),           
-            "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "complete":self.getComplete(),                       
+            "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
+                                                                                 .order_by('-first_date')],
             "allow_delete": self.allowDelete(),
+        }
+
+    #get the number of hours until the first session starts
+    def hoursUntilFirstStart(self):
+        esd = self.ESD.order_by('date').first()
+
+        return esd.hoursUntilStart() if esd else 0
+
+    #json sent to subject screen
+    def json_subject(self,u):
+        esdu = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id,
+                                                                       user__id = u.id)\
+                                                                .order_by('experiment_session_day__date')\
+                                                                .first()
+        return{
+            "id":self.id,                                  
+            "experiment_session_days" : [{"id" : esd.id,
+                                          "date":esd.date,
+                                          "hours_until_start": esd.hoursUntilStart(),
+                                          "hours_until_start_str": str(int(esd.hoursUntilStart())) + " hours<br>" + f'{int(esd.hoursUntilStart() %1 * 60):02d}' + ' minutes',
+                                          } for esd in self.ESD.all().annotate(first_date=models.Min('date'))
+                                                                                          .order_by('-first_date')],
+            "canceled":self.canceled,
+            "confirmed":esdu.confirmed if esdu else False,
+            "hours_until_first_start": self.hoursUntilFirstStart(),
         }
     
     #get session days attached to this session
     def json_esd(self,getUnConfirmed):
         return{          
-            "experiment_session_days" : [esd.json(getUnConfirmed) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
+            "experiment_session_days" : [esd.json(getUnConfirmed) for esd in self.ESD.all().annotate(first_date=models.Min('date'))
+                                                                                           .order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
         }

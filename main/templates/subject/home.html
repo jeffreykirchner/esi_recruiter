@@ -107,8 +107,12 @@
 
                     for(var i=0;i<app.$data.upcomingInvitations.length;i++)
                     {
-                        app.$data.upcomingInvitations[i].waiting=false;
-                        app.$data.upcomingInvitations[i].date = app.formatDate(app.$data.upcomingInvitations[i].date);
+                        temp_s = app.$data.upcomingInvitations[i];
+
+                        for(var j=0;j<temp_s.experiment_session_days.length;j++)
+                        {
+                            temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date);
+                        }                        
                     }
                 },
 
@@ -163,12 +167,23 @@
                             Control
                         </th>
                     </thead>
-                    <tbody>                        
+                    <tbody> 
+                        <div  style="text-align: center;color:red;padding-bottom: 5px;">
+                            You cannot leave an experiment if it starts within 24 hours. 
+                        </div> 
+
                         <tr v-for="(s,index) in upcomingInvitations" v-bind:key="s.id">
                            
-                            <td  style="text-align: center;">                                                                
-                                <span v-html=s.date></span>
-                                <div v-if="s.multiDay">(Multi-day)</div>                                    
+                            <td  style="text-align: center;">      
+                                <div v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                                    <span v-html=sd.date></span>
+                                    <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start >= 0">
+                                        <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                    </div>  
+                                </div>                                                       
+                                <div v-if="s.experiment_session_days.length > 1">
+                                    <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
+                                </div>                                    
                             </td>
                             <td  style="text-align: center;">
                                 <div v-if="s.waiting">
@@ -182,11 +197,16 @@
                                         <div style="margin-bottom: 5px">
                                             You are attending.
                                         </div>
-                                        <button v-bind:id="'cancelAcceptInvitation' + s.id" type="button" class="btn btn-primary" v-on:click ="cancelAcceptInvitation(s.id,index)">
-                                            <span v-html="'I no longer wish to attend.'"></span>
-                                        </button>
+                                        <div v-if="s.hours_until_first_start > 24">
+                                            <button v-bind:id="'cancelAcceptInvitation' + s.id" type="button" class="btn btn-primary" v-on:click ="cancelAcceptInvitation(s.id,index)">
+                                                <span v-html="'I no longer wish to attend.'"></span>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div v-else>
+                                        <div style="margin-bottom: 5px">
+                                            You are not attending.
+                                        </div>
                                         <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
                                             <span v-html="'I want to attend.'"></span>
                                         </button> 
