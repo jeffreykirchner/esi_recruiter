@@ -94,7 +94,7 @@ def getSessions(data,id):
     u=User.objects.get(id=id)
 
     return JsonResponse({"session_day_attended" :  u.profile.sorted_session_day_list_earningsOnly(),
-                                 "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(),
+                                 "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(True),
                                  "institutions" : u.profile.get_institution_list(),
                                  "notes" : u.profile.get_notes(),
                                  },safe=False,

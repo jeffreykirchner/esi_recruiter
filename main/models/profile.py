@@ -87,23 +87,31 @@ class profile(models.Model):
         logger.info(out_str)
 
         return out_str
-    
-    #get a list of upcoming experiments that subject has confirmed for
-    def sorted_session_day_list_upcoming(self):
-        logger = logging.getLogger(__name__) 
 
+    #get the query set of upcoming experiments or this subject
+    def sorted_session_day_upcoming(self,confirmedOnly):
         t = date.today()
 
         qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
                          .annotate(session_id=F('experiment_session_day__experiment_session__id'))\
-                         .filter(confirmed=True,date__gte = t)\
-                         .order_by('-date')
+                         .order_by('-date')\
+                         .filter(date__gte = t)
+        
+        if confirmedOnly:
+            qs=qs.filter(confirmed=True)
+        
+        return qs
+    
+    #get a list of upcoming experiments for this subject
+    def sorted_session_day_list_upcoming(self,confirmedOnly):
+        logger = logging.getLogger(__name__) 
 
-        out_str = [e.json_subjectInfo() for e in qs]
-      
+        qs =self.sorted_session_day_upcoming(confirmedOnly)
 
-        logger.info("get upcoming session day list")
-        logger.info(out_str)
+        out_str = [e.json_subjectInfo() for e in qs]      
+
+        #logger.info("get upcoming session day list")
+        #logger.info(out_str)
 
         return out_str
     
@@ -117,7 +125,7 @@ class profile(models.Model):
         out_str = [e.json_subjectInfo() for e in qs]      
 
         logger.info("get full invitation history")
-        logger.info(out_str)
+        #logger.info(out_str)
 
         return out_str
 

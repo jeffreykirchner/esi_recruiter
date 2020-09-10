@@ -61,6 +61,7 @@ class experiment_session_day_users(models.Model):
         return{
             "id":self.id,
             "title":mark_safe(self.experiment_session_day.experiment_session.experiment.title),
+            "canceled": self.experiment_session_day.experiment_session.canceled,
             "session_id":self.experiment_session_day.experiment_session.id,
             "date":self.experiment_session_day.date,
             "attended":self.attended,
