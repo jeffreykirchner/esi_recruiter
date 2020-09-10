@@ -6,7 +6,7 @@ from django.core.validators import RegexValidator
 from django.db.models import F,Q
 
 from main.models import *
-from main.models import institutions
+from main.models import institutions,parameters
 from . import emailFilters
 
 import main
@@ -16,6 +16,7 @@ from django.db.models.signals import post_delete
 
 from datetime import date
 from datetime import datetime, timedelta,timezone
+import pytz
 
 import logging
 
@@ -84,13 +85,23 @@ class profile(models.Model):
         out_str = [e.json_subjectInfo() for e in qs]    
 
         logger.info("get attended session day list")
-        logger.info(out_str)
+        #logger.info(out_str)
 
         return out_str
 
     #get the query set of upcoming experiments or this subject
     def sorted_session_day_upcoming(self,confirmedOnly):
-        t = date.today()
+        logger = logging.getLogger(__name__) 
+        logger.info("sorted session day upcoming")
+        
+        tz = pytz.utc
+
+        logger.info(tz)
+
+        t = datetime.now(tz)
+        t = t.replace(hour=0,minute=0, second=0)
+
+        logger.info(t)
 
         qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
                          .annotate(session_id=F('experiment_session_day__experiment_session__id'))\

@@ -6,13 +6,13 @@ from .accountTypes import *
 from .majors import *
 from .subject_types import *
 from .institutions import *
+from .parameters import *
 from .profile import *
 from .profile_note import *
 from .locations import *
 from .departments import *
 from .accounts import *
 from .recruitmentParameters import *
-from .parameters import *
 from .experiments import *
 from .experiments_institutions import *
 from .experiment_sessions import *
