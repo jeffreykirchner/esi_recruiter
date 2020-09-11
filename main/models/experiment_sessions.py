@@ -608,6 +608,17 @@ class experiment_sessions(models.Model):
         esd = self.ESD.order_by('date').first()
 
         return esd.hoursUntilStart() if esd else 0
+    
+    def confirmedCount(self):
+        esd = self.ESD.order_by('date').first()
+
+        if esd:
+            esdu_confirmed_count = main.models.experiment_session_day_users.objects.filter(experiment_session_day__id=esd.id,
+                                                                                           confirmed = True)\
+                                                                                    .count()
+            return esdu_confirmed_count
+        else:
+            return 0
 
     #json sent to subject screen
     def json_subject(self,u):
@@ -626,6 +637,7 @@ class experiment_sessions(models.Model):
             "canceled":self.canceled,
             "confirmed":esdu.confirmed if esdu else False,
             "hours_until_first_start": self.hoursUntilFirstStart(),
+            "full":True if self.confirmedCount() >= self.recruitmentParams.registration_cutoff else False,
         }
     
     #get session days attached to this session
