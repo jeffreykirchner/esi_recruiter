@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from main.models import experiment_session_day_users
+from datetime import datetime, timedelta,timezone
+import pytz
 
 @login_required
 @user_is_subject
@@ -55,8 +57,8 @@ def acceptInvitation(data,u):
     es_id = data["id"]
 
     # try:
-    qs = u.profile.sessions_upcoming(False)
-    qs = qs.filter(id = es_id).first()
+    qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
+    qs = qs.filter(id = es_id).first()                               #session being accepted
 
     if qs:
         
@@ -79,7 +81,7 @@ def acceptInvitation(data,u):
         
         #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
         if not failed:
-            qs_attending = u.profile.sessions_upcoming(True)
+            qs_attending = u.profile.sessions_upcoming(True,qs.getFirstDate())
 
             for s in qs_attending:
                 user_list_valid = s.getValidUserList([{'id':u.id}],False,qs.experiment.id)
@@ -122,7 +124,7 @@ def cancelAcceptInvitation(data,u):
     es_id = data["id"]
 
     try:
-        qs = u.profile.sessions_upcoming(False)
+        qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
         qs = qs.filter(id = es_id).first()
 
         if qs:

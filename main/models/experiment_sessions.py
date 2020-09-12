@@ -7,6 +7,7 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta,timezone
+import pytz
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -218,12 +219,13 @@ class experiment_sessions(models.Model):
 
         #allow multiple participations in same experiment
         allow_multiple_participations_str=""
-        if not es_p.allow_multiple_participations and checkAlreadyIn:
+        if not es_p.allow_multiple_participations:
             allow_multiple_participations_str='''
             --check that user has not already done this experiment
             NOT EXISTS(SELECT 1                                                   
                        FROM user_experiments
                        WHERE user_experiments.user_id = auth_user.id AND
+                             experiment_sessions_id != '''+ str(id) + ''' AND
                              user_experiments.experiments_id =''' + str(experiment_id) + ''') AND
             '''   
 
@@ -397,7 +399,6 @@ class experiment_sessions(models.Model):
 
             users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
 
-
         #experience constraints
         user_exeriments_count_str =""
         user_exeriments_count_where=""
@@ -405,11 +406,17 @@ class experiment_sessions(models.Model):
             user_exeriments_count_str ='''
             --table of users that have correct number of experiment experiences
             user_experiments_count AS (SELECT auth_user.id as id,
-                    count(auth_user.id) as attended_count
+                                       count(auth_user.id) as attended_count
                     FROM auth_user
                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+                    INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
+                    INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
                     WHERE ''' + users_to_search_for + '''
-                        main_experiment_session_day_users.attended = 1  
+                        (main_experiment_session_day_users.attended = 1 OR
+                        (main_experiment_session_day_users.confirmed = 1 AND 
+                           main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
+                           main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''" )) AND
+                        main_experiment_sessions.id != ''' + str(id) + ''' 
                     GROUP BY auth_user.id
                     HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
             '''
@@ -438,13 +445,15 @@ class experiment_sessions(models.Model):
         if len(u_list) > 0:
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND 
-                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP))) AND
+                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
+                                            main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''" ))) AND
                                        main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                 '''
         else:
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND
-                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP)))),
+                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
+                                            main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''")))),
                 '''
 
         #list of users in current session
@@ -503,7 +512,8 @@ class experiment_sessions(models.Model):
                 user_institutions_str +='''       
                                     (main_experiment_session_day_users.attended = 1 OR
                                     (main_experiment_session_day_users.confirmed = 1 AND 
-                                       main_experiment_session_days.date >=  CURRENT_TIMESTAMP) AND            
+                                       main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
+                                       main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''") AND            
                                     main_institutions.id = main_experiments_institutions.institution_id)) AND
                                     main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                     '''
@@ -511,7 +521,8 @@ class experiment_sessions(models.Model):
                 user_institutions_str +='''
                           (main_experiment_session_day_users.attended = 1 OR
                           (main_experiment_session_day_users.confirmed = 1 AND 
-                              main_experiment_session_days.date >=  CURRENT_TIMESTAMP) AND
+                              main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
+                              main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''") AND
                           main_institutions.id = main_experiments_institutions.institution_id))),
                     '''
 
@@ -668,11 +679,33 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
 
         return True if self.confirmedCount() >= self.recruitmentParams.registration_cutoff else False
+    
+    #return the first date of the session
+    def getFirstDate(self):
+        logger = logging.getLogger(__name__)
+        logger.info("Get first session day date, session:" + str(self.id))
+
+        d = self.ESD.all().order_by('date').first().date
+
+        logger.info(d)
+
+        return d
+    
+        #return the first date of the session
+    def getLastDate(self):
+        logger = logging.getLogger(__name__)
+        logger.info("Get last session day date, session:" + str(self.id))
+
+        d = self.ESD.all().order_by('-date').first().date
+
+        logger.info(d)
+
+        return d
 
     #json sent to subject screen
     def json_subject(self,u):
         logger = logging.getLogger(__name__)
-        logger.info("json subject:" + str(self.id))
+        logger.info("json subject, session:" + str(self.id))
 
         esdu = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id,
                                                                        user__id = u.id)\
@@ -689,9 +722,10 @@ class experiment_sessions(models.Model):
 
         #check that accepting this experiment will not invalidate other accepted experiments if not confirmed
         user_list_valid2_check=True
-        qs_attending = u.profile.sessions_upcoming(True)
-
+       
         if not esdu.confirmed:
+            qs_attending = u.profile.sessions_upcoming(True,self.getFirstDate())
+
             for s in qs_attending:
 
                 #check that session experiment is still valid
@@ -712,7 +746,10 @@ class experiment_sessions(models.Model):
             "experiment_session_days" : [{"id" : esd.id,
                                           "date":esd.date,
                                           "hours_until_start": esd.hoursUntilStart(),
-                                          "hours_until_start_str": str(int(esd.hoursUntilStart())) + " hours<br>" + f'{int(esd.hoursUntilStart() %1 * 60):02d}' + ' minutes',
+                                          "hours_until_start_str":  str(int(esd.hoursUntilStart())) + " hours<br>" + 
+                                                                       str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes' 
+                                                                   if esd.hoursUntilStart() >= 1 else
+                                                                    str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes'   ,
                                           } for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                           .order_by('-first_date')],
             "canceled":self.canceled,

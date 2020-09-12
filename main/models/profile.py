@@ -127,20 +127,24 @@ class profile(models.Model):
         return out_lst
 
     #upcoming session query set
-    def sessions_upcoming(self,confirmedOnly):
+    def sessions_upcoming(self,confirmedOnly,startDateRange):
         logger = logging.getLogger(__name__)
 
         qs = self.sorted_session_day_upcoming(confirmedOnly)
 
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
+
+        es = experiment_sessions.objects.annotate(first_date=models.Min("ESD__date"))\
+                                          .filter(id__in = session_ids)\
+                                          .filter(first_date__gte = startDateRange)
     
-        return experiment_sessions.objects.filter(id__in = session_ids)
-    
+        return es
+
     #sorted list of session a subject is in
     def sorted_session_list_upcoming(self):
         logger = logging.getLogger(__name__) 
 
-        session_list =self.sessions_upcoming(False)
+        session_list =self.sessions_upcoming(False,datetime.now(pytz.utc)- timedelta(hours=1))
 
         out_lst = [es.json_subject(self.user) for es in session_list.all()
                                     .annotate(first_date=models.Min("ESD__date"))

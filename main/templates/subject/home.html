@@ -180,6 +180,9 @@
                                     <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start >= 0">
                                         <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
                                     </div>  
+                                    <div v-else-if ="sd.hours_until_start<=0">
+                                        <span v-html = "'In Progress'" style="color:red;"></span>
+                                    </div>
                                 </div>                                                       
                                 <div v-if="s.experiment_session_days.length > 1">
                                     <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
