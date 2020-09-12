@@ -207,9 +207,17 @@
                                         <div style="margin-bottom: 5px">
                                             You are not attending.
                                         </div>
-                                        <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
-                                            <span v-html="'I want to attend.'"></span>
-                                        </button> 
+                                        <div v-if = "s.full">
+                                            <span v-html="'The session is already full but a spot may open later.'" style="color: red;"></span>
+                                        </div>
+                                        <div v-else-if = "s.valid === false">
+                                            <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
+                                        </div>
+                                        <div v-else>
+                                            <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                <span v-html="'I want to attend.'"></span>
+                                            </button>
+                                        </div>                                         
                                     </div>
                                 </div>
                                                                                                

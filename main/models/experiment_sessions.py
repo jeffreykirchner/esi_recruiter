@@ -182,7 +182,10 @@ class experiment_sessions(models.Model):
         return True
 
     #return a list of all valid users that can participate
-    def getValidUserList(self,u_list,checkAlreadyIn):
+    #u_list confine search to list, empty for all subjects
+    #checkAlreadyIn checks if a subject is already added to session
+    #if testExperiment is greater than 0, use to test valid list if user were to hypothetically participate in that experiment
+    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
 
@@ -215,9 +218,7 @@ class experiment_sessions(models.Model):
 
         #allow multiple participations in same experiment
         allow_multiple_participations_str=""
-        if es_p.allow_multiple_participations:
-            allow_multiple_participations_str=""
-        else:
+        if not es_p.allow_multiple_participations and checkAlreadyIn:
             allow_multiple_participations_str='''
             --check that user has not already done this experiment
             NOT EXISTS(SELECT 1                                                   
@@ -322,7 +323,7 @@ class experiment_sessions(models.Model):
             '''
 
             experiments_exclude_with_str = '''
-            --experiments that should subject should not have done already
+            --experiments that subject should not have done already
             experiments_exclude AS (SELECT experiments_id
                                     FROM main_recruitmentparameters_experiments_exclude
                                     INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
@@ -380,6 +381,23 @@ class experiment_sessions(models.Model):
                     WHERE main_profile.emailFilter_id = emailFilter_exclude.emailFilters_id) AND
             '''
 
+        #list of users to search for, if empty return all valid users
+        users_to_search_for=""
+        user_to_search_for_list_str = ""
+        if len(u_list) > 0:
+            logger.info(u_list)
+            user_to_search_for_list_str = "("
+            for u in u_list:
+                if( user_to_search_for_list_str != "("):
+                    user_to_search_for_list_str += " , "
+
+                user_to_search_for_list_str += str(u['id'])
+
+            user_to_search_for_list_str += ")"
+
+            users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
+
+
         #experience constraints
         user_exeriments_count_str =""
         user_exeriments_count_where=""
@@ -390,7 +408,8 @@ class experiment_sessions(models.Model):
                     count(auth_user.id) as attended_count
                     FROM auth_user
                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                    WHERE main_experiment_session_day_users.attended = 1  
+                    WHERE ''' + users_to_search_for + '''
+                        main_experiment_session_day_users.attended = 1  
                     GROUP BY auth_user.id
                     HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
             '''
@@ -412,9 +431,21 @@ class experiment_sessions(models.Model):
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                             INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                            WHERE main_experiment_session_day_users.attended = 1 OR
-                                (main_experiment_session_day_users.confirmed = 1 AND main_experiment_session_days.date >  CURRENT_TIMESTAMP)),
-            '''
+                            WHERE ('''
+        if testExperiment > 0:
+            user_experiments_str += '''main_experiments.id = ''' + str(testExperiment) + ''' OR '''
+
+        if len(u_list) > 0:
+            user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
+                                      (main_experiment_session_day_users.confirmed = 1 AND 
+                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP))) AND
+                                       main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
+                '''
+        else:
+            user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
+                                      (main_experiment_session_day_users.confirmed = 1 AND
+                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP)))),
+                '''
 
         #list of users in current session
         user_current_sesion_str = '''
@@ -442,6 +473,7 @@ class experiment_sessions(models.Model):
                                 main_experiment_session_day_users.bumped = 0 AND 
                                 main_experiment_session_days.date >= "''' + str(d) + '''" AND
                                 main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
+                                ''' + users_to_search_for + '''
                                 main_experiment_sessions.canceled = 0
                             GROUP BY auth_user.id
                             HAVING no_show_count >= 3),
@@ -462,23 +494,27 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
                                 INNER JOIN main_experiments_institutions ON main_experiments.id = main_experiments_institutions.experiment_id AND
                                                                             main_institutions.id = main_experiments_institutions.institution_id
-                                WHERE main_experiment_session_day_users.attended = 1 AND
-                                    main_institutions.id = main_experiments_institutions.institution_id),
-        '''
+                                WHERE (
+            '''
+            if testExperiment > 0:
+                user_institutions_str += '''main_experiments.id = ''' + str(testExperiment) + ''' OR ''' 
 
-        #list of users to search for, if empty return all valid users
-        users_to_search_for=""
-        if len(u_list) > 0:
-            logger.info(u_list)
-            users_to_search_for = "("
-            for u in u_list:
-                if( users_to_search_for != "("):
-                    users_to_search_for += " OR "
+            if len(u_list) > 0:
+                user_institutions_str +='''       
+                                    (main_experiment_session_day_users.attended = 1 OR
+                                    (main_experiment_session_day_users.confirmed = 1 AND 
+                                       main_experiment_session_days.date >=  CURRENT_TIMESTAMP) AND            
+                                    main_institutions.id = main_experiments_institutions.institution_id)) AND
+                                    main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
+                    '''
+            else:
+                user_institutions_str +='''
+                          (main_experiment_session_day_users.attended = 1 OR
+                          (main_experiment_session_day_users.confirmed = 1 AND 
+                              main_experiment_session_days.date >=  CURRENT_TIMESTAMP) AND
+                          main_institutions.id = main_experiments_institutions.institution_id))),
+                    '''
 
-                users_to_search_for += 'auth_user.id = ' + str(u['id'])
-
-            users_to_search_for += ") AND"
-        
         #check that subject is not already invited to session
         user_not_in_session_already=""
         if checkAlreadyIn:
@@ -609,23 +645,68 @@ class experiment_sessions(models.Model):
 
         return esd.hoursUntilStart() if esd else 0
     
+    #number of confirmed subjects
     def confirmedCount(self):
+        logger = logging.getLogger(__name__)
+        #logger.info("Confirmed count")    
+        
+
         esd = self.ESD.order_by('date').first()
 
         if esd:
             esdu_confirmed_count = main.models.experiment_session_day_users.objects.filter(experiment_session_day__id=esd.id,
                                                                                            confirmed = True)\
                                                                                     .count()
+            #logger.info(esdu_confirmed_count)
             return esdu_confirmed_count
         else:
+            logger.info("Confirmed count error, no session days found") 
             return 0
+    
+    #return true if session is full
+    def getFull(self):
+        logger = logging.getLogger(__name__)
+
+        return True if self.confirmedCount() >= self.recruitmentParams.registration_cutoff else False
 
     #json sent to subject screen
     def json_subject(self,u):
+        logger = logging.getLogger(__name__)
+        logger.info("json subject:" + str(self.id))
+
         esdu = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id,
                                                                        user__id = u.id)\
                                                                 .order_by('experiment_session_day__date')\
                                                                 .first()
+
+        #check that other experience is not invaldating this session if not confirmed  
+        user_list_valid_check = True
+
+        if not esdu.confirmed:
+            user_list_valid = self.getValidUserList([{'id':u.id}],False,0)
+            if not u in user_list_valid:
+                user_list_valid_check=False
+
+        #check that accepting this experiment will not invalidate other accepted experiments if not confirmed
+        user_list_valid2_check=True
+        qs_attending = u.profile.sessions_upcoming(True)
+
+        if not esdu.confirmed:
+            for s in qs_attending:
+
+                #check that session experiment is still valid
+                user_list_valid3 = s.getValidUserList([{'id':u.id}],False, 0)
+                if u in user_list_valid3:
+
+                    #check that by doing this experiment it would invalidate subject from a previously accepted experiment
+                    user_list_valid2 = s.getValidUserList([{'id':u.id}],False, self.experiment.id)
+
+                    if not u in user_list_valid2:
+                            user_list_valid2_check = False
+                            break
+
+                  
+
         return{
             "id":self.id,                                  
             "experiment_session_days" : [{"id" : esd.id,
@@ -637,7 +718,8 @@ class experiment_sessions(models.Model):
             "canceled":self.canceled,
             "confirmed":esdu.confirmed if esdu else False,
             "hours_until_first_start": self.hoursUntilFirstStart(),
-            "full":True if self.confirmedCount() >= self.recruitmentParams.registration_cutoff else False,
+            "full": self.getFull(),
+            "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
         }
     
     #get session days attached to this session

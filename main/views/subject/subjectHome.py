@@ -54,23 +54,60 @@ def acceptInvitation(data,u):
 
     es_id = data["id"]
 
-    try:
-        qs = u.profile.sessions_upcoming()
-        qs = qs.filter(id = es_id).first()
+    # try:
+    qs = u.profile.sessions_upcoming(False)
+    qs = qs.filter(id = es_id).first()
 
-        if qs:
+    if qs:
+        
+        failed=False
 
-            experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
-                                                user__id=u.id)\
-                                        .update(confirmed=True)  
-
-        else:
-            logger.info("Invitation not found")             
+        #check session not already full
+        if qs.getFull(): 
+            logger.info("Invitation failed accept session full")             
             logger.info("User: " + str(u.id))
+            failed=True
+        
+        #check user is not already attending a recruitment violation
+        if not failed:
+            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0)
 
-    except:
-        logger.info("Accept invitation error")             
-        logger.info("User: " + str(u.id))    
+            if not u in user_list_valid:
+                logger.info("Invitation failed recruitment violation")             
+                logger.info("User: " + str(u.id))
+                failed=True
+        
+        #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
+        if not failed:
+            qs_attending = u.profile.sessions_upcoming(True)
+
+            for s in qs_attending:
+                user_list_valid = s.getValidUserList([{'id':u.id}],False,qs.experiment.id)
+
+                if not u in user_list_valid:
+                    logger.info("Invitation failed attended recruitment violation")             
+                    logger.info("User: " + str(u.id) + ", attending session: " + str(s.id) + " , violation experiment: " + str(qs.experiment.id) )
+                    failed=True
+                    break
+
+        
+        #update confirmed status
+        if not failed:
+            logger.info("Not Failed")
+            experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                            user__id=u.id)\
+                                    .update(confirmed=True)
+        else:
+            logger.info("Failed") 
+
+    else:
+        logger.info("Invitation not found")             
+        logger.info("User: " + str(u.id))
+
+    # except Exception  as e:
+    #     logger.info("Accept invitation error")             
+    #     logger.info("User: " + str(u.id))    
+    #     logger.info(e)
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
@@ -85,21 +122,25 @@ def cancelAcceptInvitation(data,u):
     es_id = data["id"]
 
     try:
-        qs = u.profile.sessions_upcoming()
+        qs = u.profile.sessions_upcoming(False)
         qs = qs.filter(id = es_id).first()
 
         if qs:
-            if qs.hoursUntilFirstStart()>24:
+            if qs.hoursUntilFirstStart() > 24:
                 experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=False)
+            else:
+                logger.info("Invitation failed cancel within 24 hours")             
+                logger.info("User: " + str(u.id))
         else:
             logger.info("Invitation not found")             
             logger.info("User: " + str(u.id))
 
-    except:
+    except Exception  as e:
         logger.info("Cancel invitation error")             
         logger.info("User: " + str(u.id))    
+        logger.info(e)
 
     upcomingInvitations=u.profile.sorted_session_list_upcoming()
 

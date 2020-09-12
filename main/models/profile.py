@@ -127,10 +127,10 @@ class profile(models.Model):
         return out_lst
 
     #upcoming session query set
-    def sessions_upcoming(self):
+    def sessions_upcoming(self,confirmedOnly):
         logger = logging.getLogger(__name__)
 
-        qs = self.sorted_session_day_upcoming(False)
+        qs = self.sorted_session_day_upcoming(confirmedOnly)
 
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
     
@@ -140,7 +140,7 @@ class profile(models.Model):
     def sorted_session_list_upcoming(self):
         logger = logging.getLogger(__name__) 
 
-        session_list =self.sessions_upcoming()
+        session_list =self.sessions_upcoming(False)
 
         out_lst = [es.json_subject(self.user) for es in session_list.all()
                                     .annotate(first_date=models.Min("ESD__date"))

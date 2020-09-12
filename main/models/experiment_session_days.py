@@ -205,7 +205,7 @@ class experiment_session_days(models.Model):
             #get list of valid users        
             u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]                   
 
-            user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False) 
+            user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0) 
 
             logger.info("Valid List")
             #logger.info(user_list_valid)       

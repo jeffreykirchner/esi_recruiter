@@ -313,7 +313,7 @@ def getSearchForSubject(data,id):
         return JsonResponse({"status":"fail","message":"Error: Narrow your search"}, safe=False)
 
     if len(users_list)>0:
-        user_list_valid = es.getValidUserList(users_list,True)    
+        user_list_valid = es.getValidUserList(users_list,True,0)    
 
     for u in users_list:
         u['valid'] = 0
@@ -336,7 +336,7 @@ def getSearchForSubject(data,id):
                 u['valid'] = 1
                 break
 
-    logger.info(users_list)
+    #logger.info(users_list)
     #logger.info(user_list_valid)
 
     return JsonResponse({"status":"success","users":json.dumps(list(users_list),cls=DjangoJSONEncoder)}, safe=False)
@@ -395,7 +395,7 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list = es.getValidUserList([],True)
+    u_list = es.getValidUserList([],True,0)
 
     totalValid = len(u_list)
 
