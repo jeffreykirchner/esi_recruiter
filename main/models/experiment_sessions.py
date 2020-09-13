@@ -467,6 +467,29 @@ class experiment_sessions(models.Model):
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         '''  
 
+        #list of users who are already doing an experiment during this time
+        user_during_session_time_str = '''
+            --table of users who are already doing an expeirment at this time
+             user_during_session_time AS (SELECT DISTINCT auth_user.id as user_id
+                            FROM auth_user
+                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+                            WHERE main_experiment_sessions.id != '''+ str(id) + ''' AND 
+                                  ('''
+        tempS=""
+        for d in es.ESD.all():
+            if tempS != "":
+                tempS += ''' OR '''
+            tempS+= '''main_experiment_session_days.date BETWEEN "''' + str(d.date) + '''" AND "''' + str(d.date + timedelta(minutes = d.length)) + '''"'''
+
+        user_during_session_time_str+= tempS
+        user_during_session_time_str +=''' ) AND                                
+                                auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
+                                main_experiment_sessions.canceled = 0 
+                                            ),
+        '''        
+
         #table of users who have no show violations
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
         no_show_str ='''
@@ -546,6 +569,7 @@ class experiment_sessions(models.Model):
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         
             ''' \
+            +user_during_session_time_str \
             + user_institutions_str \
             + institutions_include_with_str \
             + institutions_exclude_with_str \
@@ -598,6 +622,11 @@ class experiment_sessions(models.Model):
             NOT EXISTS(SELECT 1
                     FROM now_shows
                     WHERE auth_user.id = now_shows.id) AND
+
+            --check user has time slot open
+             NOT EXISTS(SELECT 1
+                    FROM user_during_session_time
+                    WHERE auth_user.id = user_during_session_time.user_id) AND
 
             '''\
             + user_not_in_session_already \
