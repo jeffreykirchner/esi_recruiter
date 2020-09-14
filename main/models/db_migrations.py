@@ -12,6 +12,7 @@ from django.conf import settings
 import pytz
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.utils.crypto import get_random_string
 
 from datetime import timedelta
 
@@ -351,7 +352,7 @@ def migrate_subjects1():
         print("Migrate Subjects 2")        
 
         objs = (User(id=c[0],
-                password="",
+                password=get_random_string(length=32),
                 username=c[3].lower(),
                 first_name=c[1].capitalize(),
                 last_name=c[2].capitalize(),

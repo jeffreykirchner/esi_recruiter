@@ -19,8 +19,8 @@ def subjectHome(request):
 
     if request.method == 'POST':     
 
-        #u=request.user  
-        u=User.objects.get(id=11330)
+        u=request.user  
+        #u=User.objects.get(id=11330)  #tester
 
         data = json.loads(request.body.decode('utf-8'))
 
