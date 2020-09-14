@@ -28,6 +28,7 @@ from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
 from . import sendMassEmail
+from datetime import timedelta
 
 #induvidual experiment view
 @login_required
@@ -395,7 +396,9 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list = es.getValidUserList([],True,0)
+    #u_list = es.getValidUserList([],True,0)
+
+    u_list = es.getValidUserListDjango([],True,0)
 
     totalValid = len(u_list)
 
@@ -532,6 +535,9 @@ def updateSessionDay(data,id):
 
     if form.is_valid():
         esd.save()
+        esd.date_end = esd.date + timedelta(minutes = esd.length)
+        esd.save()
+        
         es.save()      
 
         # es = experiment_sessions.objects.get(id=id)

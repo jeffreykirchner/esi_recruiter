@@ -12,6 +12,8 @@ import pytz
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 
+from django.db.models import Q,F,Value as V,Count
+
 from . import genders,subject_types,institutions,experiments,parameters,recruitmentParameters,parameters
 
 #session for an experiment (could last multiple days)
@@ -181,6 +183,73 @@ class experiment_sessions(models.Model):
             return False
 
         return True
+
+    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("Get valid user list for session (django DB fuctions) " + str(self))
+
+        time_start = datetime.now()       
+
+        es_p = self.recruitmentParams
+
+        #table of users and institutions
+        user_institution_list = experiments.objects\
+                                .values(user_id=F("ES__ESD__experiment_session_day_users__user__id"),
+                                        institution_id=F("institution__id"),
+                                        institution_name=F("institution__name"),
+                                        attended=F("ES__ESD__experiment_session_day_users__attended"),
+                                        bumped=F("ES__ESD__experiment_session_day_users__bumped"),
+                                        confirmed=F("ES__ESD__experiment_session_day_users__confirmed"),
+                                        date = F("ES__ESD__date"))\
+                                .filter(attended = True)\
+                                .distinct()
+
+        #institutions to include
+        institutions_include_list = list(es_p.institutions_include.values_list('id',flat=True).distinct())
+        logger.info(institutions_include_list)
+
+        if len(institutions_include_list) > 0:
+            #users that have at least one of required institutions
+            user_institutions_include_list = user_institution_list.filter(institution_id__in = institutions_include_list)\
+                                                                  .filter(user_id__in = [18,15])\
+                                                                  .values("user_id","institution_id")\
+                                                                  .distinct()                                                                                                          
+
+            logger.info(user_institutions_include_list)
+
+            #user must have all required institution experience
+            if es_p.institutions_include_all:
+                tempL = list(user_institutions_include_list)
+                logger.info(tempL)
+
+                
+
+
+                user_institutions_include_list = user_institutions_include_list.values('user_id')\
+                                                                               .annotate(user_id_count = Count('user_id',distinct=True))\
+                                                                               .filter(user_id_count__gte = len(institutions_include_list))
+                                                                               
+
+
+                logger.info("Users with needed institutions, count:" + str(len(user_institutions_include_list)))                                   
+                logger.info(user_institutions_include_list)
+
+        #institutions that subject should not have done
+
+        #experiments that subject should have done
+
+        #experiments that subject should not have done
+
+        time_end = datetime.now()
+        time_span = time_end-time_start
+        logger.info("SQL Run time: " + str(time_span.total_seconds()))
+
+        u_list = User.objects.filter(id__in = user_institutions_include_list.values_list("user_id",flat=True))
+
+        u_list = list(u_list)
+
+        return u_list
+
 
     #return a list of all valid users that can participate
     #u_list confine search to list, empty for all subjects
@@ -476,6 +545,7 @@ class experiment_sessions(models.Model):
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
                             WHERE main_experiment_sessions.id != '''+ str(id) + ''' AND 
+                                  main_experiment_session_day_users.confirmed = 1 AND 
                                   ('''
         tempS=""
         for d in es.ESD.all():

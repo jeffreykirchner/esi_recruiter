@@ -24,7 +24,8 @@ class experiment_session_days(models.Model):
     account = models.ForeignKey(accounts,on_delete=models.CASCADE)
 
     date = models.DateTimeField(default=datetime.now)                   #date and time of session 
-    length = models.IntegerField(default=60)                            #length of session in minutes     
+    length = models.IntegerField(default=60)                            #length of session in minutes
+    date_end = models.DateTimeField(default=datetime.now)               #date and time of session end, calculated from date and length   
     auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
 
@@ -123,6 +124,8 @@ class experiment_session_days(models.Model):
 
         esd_list = []
 
+        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
+        
         for i in esd:
             endTime_this = i.date + timedelta(minutes = i.length)
             

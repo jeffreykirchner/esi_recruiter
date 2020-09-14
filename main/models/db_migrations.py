@@ -13,6 +13,8 @@ import pytz
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
+from datetime import timedelta
+
 from main.models import institutions,\
                                 departments,\
                                 accounts,\
@@ -629,7 +631,8 @@ def migrate_sessions():
         objs = (experiment_session_days(experiment_session_id = c[0],
                                         location_id = c[2],
                                         date = make_aware(c[3],pytz.timezone("america/los_angeles")),
-                                        length = c[4],                                                               
+                                        length = c[4],
+                                        date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                               
                                         account_id = c[5],
                                         auto_reminder = c[6],
                                         complete = not c[7]
@@ -676,7 +679,8 @@ def migrate_sessions():
         objs = (experiment_session_days(experiment_session_id=c[0],
                                         location_id=c[2],
                                         date=make_aware(c[8],pytz.timezone("america/los_angeles")),
-                                        length=c[4],                                                               
+                                        length=c[4],        
+                                        date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                       
                                         account_id=c[5],
                                         auto_reminder = c[6]
                                         ) for c in cursor.fetchall())       
