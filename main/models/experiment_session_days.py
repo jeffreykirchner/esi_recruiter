@@ -120,24 +120,12 @@ class experiment_session_days(models.Model):
         endTime = self.date + timedelta(minutes = self.length)
 
         esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+                                                         .filter(date__lte=self.date_end)\
+                                                         .filter(date_end__gte=self.date)\
                                                          .exclude(id=self.id)
-
-        esd_list = []
-
-        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
-        
-        for i in esd:
-            endTime_this = i.date + timedelta(minutes = i.length)
-            
-            if (startTime >= i.date and startTime <= endTime_this) or\
-               (endTime >= i.date and endTime <= endTime_this) or\
-               (startTime>=i.date and endTime <= endTime_this) or\
-               (startTime<=i.date and endTime >= endTime_this) :
-
-               esd_list.append(i)
        
 
-        return [i.json_min() for i in esd_list]
+        return [i.json_min() for i in esd]
 
     #get user readable string of session lengths in mintues
     def getLengthString(self):
