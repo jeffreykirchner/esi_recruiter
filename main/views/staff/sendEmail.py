@@ -39,13 +39,16 @@ def sendMassEmail(subjectList,subject,message):
 
     errorMessage = ""
     mailCount=0
-    try:
-        for x in range(i+1):            
-            logger.info("Sending Block " + str(x+1) + " of " + str(i+1))
-            mailCount += send_mass_mail(message_list[x], fail_silently=False) 
-    except SMTPException as e:
-        logger.info('There was an error sending email: ' + str(e)) 
-        errorMessage = str(e)
+    if len(subjectList)>0 :
+        try:
+            for x in range(i+1):            
+                logger.info("Sending Block " + str(x+1) + " of " + str(i+1))
+                mailCount += send_mass_mail(message_list[x], fail_silently=False) 
+        except SMTPException as e:
+            logger.info('There was an error sending email: ' + str(e)) 
+            errorMessage = str(e)
+    else:
+        errorMessage:"The session is empty, no emails sent."
 
     return {"mailCount":mailCount,"errorMessage":errorMessage}
 
