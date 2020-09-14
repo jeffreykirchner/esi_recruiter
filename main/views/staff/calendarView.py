@@ -105,6 +105,9 @@ def getCalendarJson(month,year):
     #month = 3
     #year = 2020
 
+    p = parameters.objects.get(id=1)
+    tz = pytz.timezone(p.subjectTimeZone)
+
     cal_full = []
 
     cal = calendar.Calendar(calendar.SUNDAY).monthdatescalendar(year, month)
@@ -132,10 +135,12 @@ def getCalendarJson(month,year):
 
             for s in s_list:
                 #logger.info(s.date.day)
-                if s.date.day == d.day and s.date.month == d.month:
+                s_date_local = s.date.astimezone(tz)
+                if s_date_local.day == d.day and s_date_local.month == d.month and s_date_local.year == d.year:
                     s_list_local.append({"id" : s.id,                                         
                                          "name" : s.experiment_session.experiment.title,
                                          "manager" : s.experiment_session.experiment.experiment_manager,
+                                         "canceled" : s.experiment_session.canceled,
                                          "location" : s.location.json(),
                                          "startTime" : s.getStartTimeString(),
                                          "endTime" : s.getEndTimeString()})
@@ -145,6 +150,7 @@ def getCalendarJson(month,year):
                 s_list_local.append({"id" : i,   
                                     "name" : "",
                                     "manager" : "",
+                                    "canceled" : False,
                                     "location" : {"id":0,"name":""},
                                     "startTime" : "",
                                     "endTime" : ""})
