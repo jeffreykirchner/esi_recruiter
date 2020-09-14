@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiment_session_day_users
+from main.models import experiment_session_day_users,parameters
 from datetime import datetime, timedelta,timezone
 import pytz
 
@@ -35,7 +35,10 @@ def subjectHome(request):
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
-        return render(request,'subject/home.html',{"u":"" ,"id":""})      
+        p = parameters.objects.get(id=1)
+
+        labManager = p.labManager
+        return render(request,'subject/home.html',{"labManager":labManager})      
 
 #return invitations for subject
 def getCurrentInvitations(data,u):    
