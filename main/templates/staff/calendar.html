@@ -158,7 +158,11 @@
             border-radius: 50%;
             color:black;
         }
-        
+        .is_canceled{
+            text-decoration: line-through;
+            color:grey;
+        }
+                
         
     </style>
    
@@ -236,7 +240,7 @@
                     <span>&nbsp</span>
                 </div>
                 <div v-else>                    
-                    <span v-html = "s.startTime + '-' + s.endTime + ' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'">
+                    <span v-html = "s.startTime + '-' + s.endTime + ' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }"></div>
                     </span>
                 </div>
             </div>
