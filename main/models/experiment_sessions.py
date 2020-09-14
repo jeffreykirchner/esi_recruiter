@@ -184,6 +184,7 @@ class experiment_sessions(models.Model):
 
         return True
 
+    #do getValidUserList but in Django DB functions
     def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session (django DB fuctions) " + str(self))
@@ -258,6 +259,9 @@ class experiment_sessions(models.Model):
     def getValidUserList(self,u_list,checkAlreadyIn,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
+
+        if u_list==[]:
+            u_list = User.objects.filter(is_active=True).values("id")
 
         es = self
         es_p = es.recruitmentParams
@@ -416,7 +420,7 @@ class experiment_sessions(models.Model):
         if es_p.schools_include_constraint:
             schools_include_with_str='''
             --subject cannot have one of these email domains
-             emailFilter_include AS (SELECT DISTINCT emailFilters_id
+             emailFilter_include AS (SELECT emailFilters_id
 								FROM main_schools_emailFilter			
 								INNER JOIN main_recruitmentparameters_schools_include ON main_recruitmentparameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
 								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_include.recruitmentparameters_id
@@ -437,7 +441,7 @@ class experiment_sessions(models.Model):
         if es_p.schools_exclude_constraint:
             schools_exclude_with_str = '''
              --subject cannot be in any of these schools
-              emailFilter_exclude AS (SELECT DISTINCT emailFilters_id
+              emailFilter_exclude AS (SELECT emailFilters_id
 								FROM main_schools_emailFilter			
 								INNER JOIN main_recruitmentparameters_schools_exclude ON main_recruitmentparameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
 								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_exclude.recruitmentparameters_id
@@ -500,7 +504,7 @@ class experiment_sessions(models.Model):
         #user experiments list
         user_experiments_str = '''
             --table of users and experiments they have been in or commited to be in
-            user_experiments AS (SELECT DISTINCT main_experiments.id as experiments_id,
+            user_experiments AS (SELECT main_experiments.id as experiments_id,
                                             main_experiment_sessions.id as experiment_sessions_id,
                                             main_experiment_session_day_users.user_id as user_id
                             FROM main_experiments
@@ -528,7 +532,7 @@ class experiment_sessions(models.Model):
         #list of users in current session
         user_current_sesion_str = '''
             ---table of users that have been invited to the current session
-            user_current_sesion AS (SELECT DISTINCT main_experiment_sessions.id as experiment_sessions_id,
+            user_current_sesion AS (SELECT main_experiment_sessions.id as experiment_sessions_id,
                                         main_experiment_session_day_users.user_id as user_id
                                 FROM main_experiment_sessions
                                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
@@ -537,9 +541,10 @@ class experiment_sessions(models.Model):
         '''  
 
         #list of users who are already doing an experiment during this time
+        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
         user_during_session_time_str = '''
             --table of users who are already doing an expeirment at this time
-             user_during_session_time AS (SELECT DISTINCT auth_user.id as user_id
+             user_during_session_time AS (SELECT auth_user.id as user_id
                             FROM auth_user
                             INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
@@ -547,16 +552,22 @@ class experiment_sessions(models.Model):
                             WHERE main_experiment_sessions.id != '''+ str(id) + ''' AND 
                                   main_experiment_session_day_users.confirmed = 1 AND 
                                   ('''
-        tempS=""
+        tempS = ""
         for d in es.ESD.all():
             if tempS != "":
                 tempS += ''' OR '''
-            tempS+= '''main_experiment_session_days.date BETWEEN "''' + str(d.date) + '''" AND "''' + str(d.date + timedelta(minutes = d.length)) + '''"'''
+            tempS+= '''(main_experiment_session_days.date <= "''' + str(d.date_end) + '''" AND "''' + str(d.date) + '''" <= main_experiment_session_days.date_end )'''
 
         user_during_session_time_str+= tempS
-        user_during_session_time_str +=''' ) AND                                
-                                auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
-                                main_experiment_sessions.canceled = 0 
+
+        user_during_session_time_str +=''' ) AND 
+                                       '''
+
+        if len(u_list) > 0:
+            user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
+                                           '''
+
+        user_during_session_time_str += '''main_experiment_sessions.canceled = 0 
                                             ),
         '''        
 
@@ -639,7 +650,7 @@ class experiment_sessions(models.Model):
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         
             ''' \
-            +user_during_session_time_str \
+            + user_during_session_time_str \
             + user_institutions_str \
             + institutions_include_with_str \
             + institutions_exclude_with_str \
@@ -694,7 +705,7 @@ class experiment_sessions(models.Model):
                     WHERE auth_user.id = now_shows.id) AND
 
             --check user has time slot open
-             NOT EXISTS(SELECT 1
+            NOT EXISTS(SELECT 1
                     FROM user_during_session_time
                     WHERE auth_user.id = user_during_session_time.user_id) AND
 

@@ -396,9 +396,9 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    #u_list = es.getValidUserList([],True,0)
+    u_list = es.getValidUserList([],True,0)
 
-    u_list = es.getValidUserListDjango([],True,0)
+    #u_list = es.getValidUserListDjango([],True,0)
 
     totalValid = len(u_list)
 
