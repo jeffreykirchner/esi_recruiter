@@ -801,7 +801,7 @@ class experiment_sessions(models.Model):
 
         return d
     
-        #return the first date of the session
+    #return the first date of the session
     def getLastDate(self):
         logger = logging.getLogger(__name__)
         logger.info("Get last session day date, session:" + str(self.id))
