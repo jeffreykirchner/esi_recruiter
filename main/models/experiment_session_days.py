@@ -197,10 +197,13 @@ class experiment_session_days(models.Model):
             #get list of valid users        
             u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]                   
 
-            user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0) 
+            if u_list_u2_json != []:
+                user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0) 
+            else:
+                user_list_valid = []
 
             logger.info("Valid List")
-            #logger.info(user_list_valid)       
+            logger.info(user_list_valid)       
 
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
