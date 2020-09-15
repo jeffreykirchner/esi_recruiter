@@ -518,15 +518,15 @@ class experiment_sessions(models.Model):
         if len(u_list) > 0:
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND 
-                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''" ))) AND
+                                            main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
+                                            main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''" ))) AND
                                        main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                 '''
         else:
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND
-                                            main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''")))),
+                                            main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
+                                            main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''")))),
                 '''
 
         #list of users in current session
@@ -616,8 +616,8 @@ class experiment_sessions(models.Model):
                 user_institutions_str +='''       
                                     (main_experiment_session_day_users.attended = 1 OR
                                     (main_experiment_session_day_users.confirmed = 1 AND 
-                                       main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
-                                       main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''") AND            
+                                       main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
+                                       main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''") AND            
                                     main_institutions.id = main_experiments_institutions.institution_id)) AND
                                     main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                     '''
@@ -625,8 +625,8 @@ class experiment_sessions(models.Model):
                 user_institutions_str +='''
                           (main_experiment_session_day_users.attended = 1 OR
                           (main_experiment_session_day_users.confirmed = 1 AND 
-                              main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
-                              main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''") AND
+                              main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
+                              main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''") AND
                           main_institutions.id = main_experiments_institutions.institution_id))),
                     '''
 
