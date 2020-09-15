@@ -19,7 +19,8 @@ class experimentSessionForm2(forms.ModelForm):
     length = forms.CharField(label='Length in Minutes',
                             widget=forms.NumberInput(attrs={"v-model":"currentSessionDay.length",
                                                             "v-on:keyup":"mainFormChange2",
-                                                            "v-on:change":"mainFormChange2"}))
+                                                            "v-on:change":"mainFormChange2",
+                                                            "v-bind:disabled":"session.confirmedCount > 0"}))
     account = forms.ModelChoiceField(label="Account",
                                             queryset=accounts.objects.all(),
                                             widget=forms.Select(attrs={"v-model":"currentSessionDay.account",

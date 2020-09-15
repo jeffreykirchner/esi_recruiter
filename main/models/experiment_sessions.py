@@ -750,15 +750,7 @@ class experiment_sessions(models.Model):
         else:
             return True
 
-    #get some of the json object
-    def json_min(self):
-        return{
-            "id":self.id,
-            "complete":self.getComplete(),                       
-            "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
-                                                                                 .order_by('-first_date')],
-            "allow_delete": self.allowDelete(),
-        }
+   
 
     #get the number of hours until the first session starts
     def hoursUntilFirstStart(self):
@@ -767,7 +759,7 @@ class experiment_sessions(models.Model):
         return esd.hoursUntilStart() if esd else 0
     
     #number of confirmed subjects
-    def confirmedCount(self):
+    def getConfirmedCount(self):
         logger = logging.getLogger(__name__)
         #logger.info("Confirmed count")    
         
@@ -876,8 +868,18 @@ class experiment_sessions(models.Model):
                                                                                            .order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
+            "confirmedCount":self.getConfirmedCount(),
         }
 
+    #get some of the json object
+    def json_min(self):
+        return{
+            "id":self.id,
+            "complete":self.getComplete(),                       
+            "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
+                                                                                 .order_by('-first_date')],
+            "allow_delete": self.allowDelete(),            
+        }
     #get full json object
     def json(self):
         #days_list = self.ESD.order_by("-date").prefetch_related('experiment_session_day_users_set')
@@ -894,6 +896,7 @@ class experiment_sessions(models.Model):
             "invitationCount": self.experiment_session_invitations_set.count(),
             "allowDelete":self.allowDelete(),
             "allowEdit":self.allowEdit(),
+            "confirmedCount":self.getConfirmedCount(),
         }
 
 #delete recruitment parameters when deleted

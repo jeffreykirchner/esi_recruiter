@@ -48,6 +48,7 @@ class experiments(models.Model):
 
         #check if this session can be deleted    
     
+    #check if experiment can be deleted
     def allowDelete(self):
 
         ES = self.ES.all()    
@@ -62,13 +63,6 @@ class experiments(models.Model):
     def getShowUpFeeString(self):
         return f'{self.showUpFee:0.2f}'
 
-    #small json object
-    def json_min(self):
-        return{
-            "id":self.id,
-            "name": mark_safe(self.title),
-        }
-    
     #json object for experiment search
     def json_search(self):
         return{
@@ -91,8 +85,21 @@ class experiments(models.Model):
         else:
             return "No Sessions"
 
-        
+    #return true if at least one subject in one session has confirmed
+    def checkForConfirmation(self):
+        for s in self.ES.all():
+            if s.getConfirmedCount()>0:
+                return True
 
+        return False
+
+    #small json object
+    def json_min(self):
+        return{
+            "id":self.id,
+            "name": mark_safe(self.title),
+        }
+        
     #get json sessions from this experiment
     def json_sessions(self):
         return{
@@ -116,6 +123,7 @@ class experiments(models.Model):
             "account_default_full":self.account_default.json(),            
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
+            "confirmationFound":self.checkForConfirmation(),
         }
 
 #delete recruitment parameters when deleted

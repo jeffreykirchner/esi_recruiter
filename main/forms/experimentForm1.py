@@ -36,7 +36,8 @@ class experimentForm1(forms.ModelForm):
                                                  widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.institution",
                                                                                       "v-on:change":"mainFormChange1",
                                                                                       "class":"selectpicker",
-                                                                                      "size":"13"}))    
+                                                                                      "size":"13",
+                                                                                      "v-bind:disabled":"experiment.confirmationFound === true"}))    
 
     invitationText = forms.CharField(label='Recruitment Email',
                                      widget=forms.Textarea(attrs={"v-model":"experiment.invitationText",

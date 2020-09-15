@@ -63,7 +63,8 @@
                              invitationText:"",
                              messageCount:"",                           //number of email messages sent out
                              invitationCount:"",                        //number of invition groups sent out
-                             allowDelete:false,                       //allow session to be deleted or canceled
+                             allowDelete:false,                         //allow session to be deleted or canceled
+                             confirmedCount:0,                          //number of subjects that have confirmed to be in session
                              confirmedEmailList:[]},                    //list of emails that
                     recruitmentParams:{                          //recruiment parameters
                             gender:[],
@@ -249,7 +250,8 @@
                                 status:"addSessionDay",                                                              
                             })
                             .then(function (response) {                                   
-                                app.$data.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                 
+                                app.$data.session.experiment_session_days= response.data.session.experiment_session_days;  
+                                app.$data.session.confirmedCount = response.data.session.confirmedCount;             
                                 
                                 app.$data.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
                             })
@@ -765,7 +767,7 @@
 
                             app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
                             app.$data.session.confirmedEmailList = response.data.es_min.confirmedEmailList;
-
+                            app.$data.session.confirmedCount = response.data.es_min.confirmedCount;
                             app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
 
                             if(status=="success")
@@ -1089,7 +1091,7 @@
                             <thead>
                                 <th width="35%">
                                     Date 
-                                    <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()"><span v-html="multiDayButtonText"></span></button> 
+                                    <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button> 
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
                                 <th width="35%" style="text-align: center;">
@@ -1499,7 +1501,7 @@
                                     <div>
                                         <!-- <input type="text" name="date" required="required" id="id_date" class="form-control"> -->
                                         <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
-                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2"></date-picker>
+                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2" v-bind:disabled="session.confirmedCount > 0"></date-picker>
                                     </div>
                                 </div>
                             </div>

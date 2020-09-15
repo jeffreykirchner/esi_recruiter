@@ -482,22 +482,25 @@ def addSessionDay(data,id):
     logger.info("Add session day")
     logger.info(data)
 
-    esd = experiment_session_days()
     es = experiment_sessions.objects.get(id=id)
 
-    u_list = es.ESD.first().getListOfUserIDs()
+    if es.confirmedCount() == 0:
+        esd = experiment_session_days()
+        
 
-    #for i in id_list:
-    #    logger.info(i)
+        u_list = es.ESD.first().getListOfUserIDs()
 
-    # logger.info(u_list)
+        #for i in id_list:
+        #    logger.info(i)
 
-    esd.setup(es,u_list)
-    esd.save()
+        # logger.info(u_list)
 
-    es.save()    
+        esd.setup(es,u_list)
+        esd.save()
 
-    return JsonResponse({"status":"success","sessionDays":es.json()}, safe=False)
+        es.save()    
+
+    return JsonResponse({"status":"success","session":es.json()}, safe=False)
 
 #remove a session day
 def removeSessionDay(data,id):

@@ -127,7 +127,14 @@ def updateForm1(data,id):
         else:
             form_data_dict[field["name"]] = field["value"]
     
-    form_data_dict["institution"]=institutionList                       
+    #if a subject has confirmed cannot change insitutions
+    if e.checkForConfirmation():
+           
+        institutionList=[]
+        for i in e.institution.all():
+            institutionList.append(str(i.id))      
+
+    form_data_dict["institution"] = institutionList                 
 
     form = experimentForm1(form_data_dict,instance=e)
 
