@@ -487,8 +487,8 @@ class experiment_sessions(models.Model):
                     WHERE ''' + users_to_search_for + '''
                         (main_experiment_session_day_users.attended = 1 OR
                         (main_experiment_session_day_users.confirmed = 1 AND 
-                           main_experiment_session_days.date >=  CURRENT_TIMESTAMP AND
-                           main_experiment_session_days.date <= "''' + str(self.getLastDate()) + '''" )) AND
+                           main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
+                           main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''" )) AND
                         main_experiment_sessions.id != ''' + str(id) + ''' 
                     GROUP BY auth_user.id
                     HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
