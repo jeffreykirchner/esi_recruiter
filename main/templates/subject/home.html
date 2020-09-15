@@ -177,22 +177,20 @@
                             <td  style="text-align: center;">      
                                 <div v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                                     <span v-html=sd.date></span>
-                                    <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start >= 0">
+                                    <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                         <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
-                                    </div>  
-                                    <div v-else-if ="sd.hours_until_start<=0">
-                                        <span v-html = "'In Progress'" style="color:red;"></span>
                                     </div>
+                                    <div v-else-if="sd.hours_until_start <= 0 && sd.hours_until_start >= -0.25">
+                                        <span v-html = "'Starts Now'" style="color:red;"></span>
+                                    </div>  
                                 </div>                                                       
                                 <div v-if="s.experiment_session_days.length > 1">
                                     <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
                                 </div>                                    
                             </td>
                             <td  style="text-align: center;">
-                                <div v-if="s.waiting">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </div>
-                                <div v-else>
+                                
+
                                     <div v-if="s.canceled">
                                         <span v-html="'*** Canceled ***'" style="color: red;"></span>
                                     </div>
@@ -210,19 +208,24 @@
                                         <div style="margin-bottom: 5px">
                                             You are not attending.
                                         </div>
-                                        <div v-if = "s.full">
-                                            <span v-html="'The session is already full but a spot may open later.'" style="color: red;"></span>
-                                        </div>
-                                        <div v-else-if = "s.valid === false">
-                                            <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
+                                        <div v-if ="s.hours_until_first_start <= -0.25">
+                                            <span v-html = "'The experiment has started.'" style="color:red;"></span>
                                         </div>
                                         <div v-else>
-                                            <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
-                                                <span v-html="'I want to attend.'"></span>
-                                            </button>
-                                        </div>                                         
+                                            <div v-if = "s.full">
+                                                <span v-html="'The session is already full but a spot may open later.'" style="color: red;"></span>
+                                            </div>
+                                            <div v-else-if = "s.valid === false">
+                                                <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
+                                            </div>
+                                            <div v-else>
+                                                <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                    <span v-html="'I want to attend.'"></span>
+                                                </button>
+                                            </div>  
+                                        </div>                                       
                                     </div>
-                                </div>
+
                                                                                                
                             </td>
                         </tr>                        

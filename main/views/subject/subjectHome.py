@@ -67,6 +67,13 @@ def acceptInvitation(data,u):
         
         failed=False
 
+        #check that session has not started
+        if qs.hoursUntilFirstStart() <= -0.25:
+            logger.info("Invitation failed session started")             
+            logger.info("User: " + str(u.id))
+
+            failed=True
+
         #check session not already full
         if qs.getFull(): 
             logger.info("Invitation failed accept session full")             
