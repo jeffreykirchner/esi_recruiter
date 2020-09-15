@@ -135,8 +135,9 @@ class profile(models.Model):
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
 
         es = experiment_sessions.objects.annotate(first_date=models.Min("ESD__date"))\
+                                        .annotate(last_date=models.Max("ESD__date"))\
                                           .filter(id__in = session_ids)\
-                                          .filter(first_date__gte = startDateRange)
+                                          .filter(last_date__gte = startDateRange)
     
         return es
 
