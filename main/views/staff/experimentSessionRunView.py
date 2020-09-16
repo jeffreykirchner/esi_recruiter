@@ -358,7 +358,9 @@ def bumpSubject(data,id):
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+    status = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
 
 #mark subject as no show
 def noShowSubject(data,id):    

@@ -485,7 +485,7 @@ def addSessionDay(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    if es.confirmedCount() == 0:
+    if es.getConfirmedCount() == 0:
         esd = experiment_session_days()
         
 

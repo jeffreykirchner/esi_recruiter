@@ -69,7 +69,7 @@ class experiment_session_day_users(models.Model):
                                       .filter(experiment_session_day__experiment_session__experiment__id = experiment_id)\
                                       .filter(user__id = self.user.id)\
                                       .filter(attended = True)\
-                                      .exclude(id =  self.id)
+                                      .exclude(experiment_session_day__experiment_session__id=self.experiment_session_day.experiment_session.id)
 
         if esdu_list:
             return True
