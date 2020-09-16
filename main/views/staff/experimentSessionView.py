@@ -289,7 +289,8 @@ def changeConfirmationStatus(data,id):
     esdu = experiment_session_day_users.objects.get(id = esduId)                                  
     
     if newStatus == "confirm":
-        esdu.confirmed = True
+        if not esdu.getAlreadyAttended():
+            esdu.confirmed = True
     else:
         if esdu.allowConfirm():
             esdu.confirmed = False

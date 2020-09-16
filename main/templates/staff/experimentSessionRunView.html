@@ -156,7 +156,8 @@
                             localId:id,                                                                                                                         
                         })
                         .then(function (response) {                                
-                           app.$data.sessionDay = response.data.sessionDay;                        
+                           app.$data.sessionDay = response.data.sessionDay;     
+                           app.$data.stripeReaderStatus= response.data.status;                   
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -188,7 +189,8 @@
                             id:esduID,                                                                                                                            
                         })
                         .then(function (response) {     
-                            app.$data.sessionDay = response.data.sessionDay;                                                                      
+                            app.$data.sessionDay = response.data.sessionDay;    
+                            app.$data.stripeReaderStatus = "";                                                                  
                         })
                         .catch(function (error) {
                             console.log(error);                                   

@@ -91,7 +91,8 @@ class recruitmentParametersForm(forms.ModelForm):
     allow_multiple_participations = forms.TypedChoiceField(label='Allow subjects to participate more than once?',             
                                             choices=((1, 'Yes'), (0, 'No')),                
                                             widget=forms.RadioSelect(attrs={"v-model":"recruitmentParams.allow_multiple_participations",
-                                                                            "v-on:change":"recruitmentFormChange"}))
+                                                                            "v-on:change":"recruitmentFormChange",
+                                                                            "v-bind:disabled":"session.confirmedCount > 0"}))
 
     schools_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,

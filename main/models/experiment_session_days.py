@@ -212,6 +212,7 @@ class experiment_session_days(models.Model):
                         "last_name":i.user.last_name.capitalize(),},  
                 "allowDelete" : i.allowDelete(),
                 "allowConfirm" : i.allowConfirm(),
+                "alreadyAttending":i.getAlreadyAttended(),
                 "valid" :  0}
                     for i in u_list_u]
 
@@ -236,6 +237,7 @@ class experiment_session_days(models.Model):
                                                         "first_name":i.user.first_name.capitalize(),   
                                                         "last_name":i.user.last_name.capitalize(),},  
                                                 "allowDelete" : i.allowDelete(),
+                                                "alreadyAttending":i.getAlreadyAttended(),
                                                 "allowConfirm" : i.allowConfirm(),}
                                                     for i in u_list_c],
 

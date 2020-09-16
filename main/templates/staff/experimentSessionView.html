@@ -1610,7 +1610,7 @@
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         {%if user.is_superuser%}
-                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')">
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')"v-bind:disabled="esdu.alreadyAttending">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                         {%endif%}

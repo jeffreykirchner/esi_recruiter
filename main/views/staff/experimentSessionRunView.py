@@ -94,12 +94,20 @@ def getStripeReaderCheckin(data,id):
                                                     .first()
         
         if esdu:
-            esdu.attended = True
-            esdu.bumped = False
-            esdu.save()
-            logger.info(esdu)
+            if esdu.getAlreadyAttended():
+                esdu.attended = False
+                esdu.bumped = True
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
+                status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
+                logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+            else:     
+                esdu.attended = True
+                esdu.bumped = False
+
+                status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
+
+            esdu.save()
+            logger.info(esdu)            
         else:           
             status = "No subject found."
         # except:
@@ -110,6 +118,7 @@ def getStripeReaderCheckin(data,id):
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
+
 #return paypal CSV
 def getPayPalExport(data,id):
     logger = logging.getLogger(__name__)
@@ -312,16 +321,28 @@ def attendSubject(request,data,id):
 
     logger.info(data)
 
+    status=""
+
     if request.user.is_superuser:
-        esdu.attended=True
-        esdu.bumped=False
+        if esdu.getAlreadyAttended():
+            esdu.attended=False
+            esdu.bumped=True
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
+
+            logger.info("Double experiment checkin attempt:user " + str(esdu.user.id) + ", " + " ESDU " + str(esdu.id))
+        else:
+            esdu.attended=True
+            esdu.bumped=False
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
         esdu.save()
     else:
         logger.info("Attend Subject Error, non super user")
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
 
 #mark subject as bumped
 def bumpSubject(data,id):    

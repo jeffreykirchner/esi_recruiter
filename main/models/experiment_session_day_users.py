@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from datetime import datetime,timedelta
 import pytz
 
-from . import experiment_session_days,experiment_sessions,experiment_session_day_users
+from . import experiment_session_days,experiment_sessions,experiment_session_day_users,experiments
 
 from django.contrib.auth.models import User
 
@@ -56,6 +56,26 @@ class experiment_session_day_users(models.Model):
 
         return True 
 
+    #check if subject is violation of attending experiment twice
+    def getAlreadyAttended(self):
+
+        #multiple participations are allowed
+        if self.experiment_session_day.experiment_session.recruitmentParams.allow_multiple_participations:
+            return False
+
+        experiment_id = self.experiment_session_day.experiment_session.experiment.id
+
+        esdu_list = experiment_session_day_users.objects\
+                                      .filter(experiment_session_day__experiment_session__experiment__id = experiment_id)\
+                                      .filter(user__id = self.user.id)\
+                                      .filter(attended = True)\
+                                      .exclude(id =  self.id)
+
+        if esdu_list:
+            return True
+        else:
+            return False
+
     #get json info on session user
     def json_subjectInfo(self):
         
@@ -71,10 +91,11 @@ class experiment_session_day_users(models.Model):
             "show_up_fee":self.show_up_fee,
             "confirmed":self.confirmed,
             "multiDay":self.getMultiDay(),
+            "alreadyAttending":self.getAlreadyAttended(),            
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and
-                             datetime.now(pytz.UTC) > self.experiment_session_day.date else False,
+                             datetime.now(pytz.UTC) > self.experiment_session_day.date_end else False,
         }
     
     #get multiday status of session
@@ -133,5 +154,6 @@ class experiment_session_day_users(models.Model):
             "confirmed":self.bumped,
             "user":self.user.profile.json_min(),  
             "allowDelete" : self.allowDelete(),
-            "allowConfirm" : self.allowConfirm(),       
+            "allowConfirm" : self.allowConfirm(),
+            "alreadyAttending":self.getAlreadyAttended(),       
         }
