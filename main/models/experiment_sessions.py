@@ -750,8 +750,6 @@ class experiment_sessions(models.Model):
         else:
             return True
 
-   
-
     #get the number of hours until the first session starts
     def hoursUntilFirstStart(self):
         esd = self.ESD.order_by('date').first()
