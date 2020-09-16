@@ -8,6 +8,7 @@ import logging
 from main.models import experiment_session_day_users,parameters
 from datetime import datetime, timedelta,timezone
 import pytz
+from django.db.models import Q
 
 @login_required
 @user_is_subject
@@ -46,10 +47,12 @@ def getCurrentInvitations(data,u):
     logger.info("Get current invitations")    
     logger.info(data)
 
+    failed=False
+
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"pastAcceptedInvitations":pastAcceptedInvitations}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"pastAcceptedInvitations":pastAcceptedInvitations,"failed":failed}, safe=False)
 
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
@@ -63,9 +66,9 @@ def acceptInvitation(data,u):
     qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
     qs = qs.filter(id = es_id).first()                               #session being accepted
 
+    failed=False
+
     if qs:
-        
-        failed=False
 
         #check that session has not started
         if qs.hoursUntilFirstStart() <= -0.25:
@@ -102,19 +105,29 @@ def acceptInvitation(data,u):
                     failed=True
                     break
 
+        #do a backup check that user has not already done this experiment, if prohibited
+        if not failed:
+            esdu = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                            user__id=u.id).first()
+            
+            if esdu.getAlreadyAttended():
+                logger.info("Invitation failed, user has already done this experiment")
+                logger.info("User: " + str(u.id) + ", attending session: " + str(esdu.id))
+                failed=True
         
         #update confirmed status
         if not failed:
-            logger.info("Not Failed")
+            logger.info("Accept Not Failed")
             experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                             user__id=u.id)\
                                     .update(confirmed=True)
         else:
-            logger.info("Failed") 
+            logger.info("Accept Failed") 
 
     else:
         logger.info("Invitation not found")             
         logger.info("User: " + str(u.id))
+        failed=True
 
     # except Exception  as e:
     #     logger.info("Accept invitation error")             
@@ -123,7 +136,7 @@ def acceptInvitation(data,u):
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"failed":failed}, safe=False)
 
 #return invitations for subject
 def cancelAcceptInvitation(data,u):    
@@ -133,21 +146,43 @@ def cancelAcceptInvitation(data,u):
 
     es_id = data["id"]
 
+    failed=False
+
     try:
         qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
         qs = qs.filter(id = es_id).first()
-
+        
         if qs:
-            if qs.hoursUntilFirstStart() > 24:
+            #subject cannot cancel within 24 hours of an experiment
+            if qs.hoursUntilFirstStart() < 24:
+                logger.info("Invitation failed cancel within 24 hours")             
+                logger.info("User: " + str(u.id) + " Session: " + str(qs.id))
+                failed=True
+
+            #subjects cannot cancel if they have been marked as bumped or attended
+            if not failed:
+                esdu_list = experiment_session_day_users.objects\
+                                       .filter(experiment_session_day__experiment_session__id = qs.id,
+                                               user__id=u.id)\
+                                       .filter(Q(attended=True) | Q(bumped=True))
+                
+                if esdu_list:
+                    logger.info("Invitation failed allready attending or bumped")             
+                    logger.info("User: " + str(u.id) + " Session: " + str(qs.id))
+                    failed=True
+
+                  
+            if not failed:
+                logger.info("Cancel Not Failed")
                 experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=False)
             else:
-                logger.info("Invitation failed cancel within 24 hours")             
-                logger.info("User: " + str(u.id))
+                logger.info("Cancel Accept Failed") 
         else:
             logger.info("Invitation not found")             
             logger.info("User: " + str(u.id))
+            failed=True
 
     except Exception  as e:
         logger.info("Cancel invitation error")             
@@ -156,7 +191,7 @@ def cancelAcceptInvitation(data,u):
 
     upcomingInvitations=u.profile.sorted_session_list_upcoming()
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"failed":failed}, safe=False)
 
 #return list of past declined invitations
 def showAllInvitations(data,u):    

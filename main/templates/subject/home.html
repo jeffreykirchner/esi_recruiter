@@ -18,6 +18,7 @@
                 allInvitations:[],
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
+                lastActionFailed:false,
             },
 
             methods:{
@@ -71,7 +72,7 @@
                                     id:id,                                                                                                                             
                                 })
                                 .then(function (response) {     
-                                    app.takeUpcomingInvitations(response);                                                                     
+                                    app.takeUpcomingInvitations(response);                                                                  
                                 })
                                 .catch(function (error) {
                                     console.log(error);                                    
@@ -102,8 +103,7 @@
                 },
                 
                 takeUpcomingInvitations:function(response){
-                    app.$data.upcomingInvitations=response.data.upcomingInvitations;
-                   
+                    app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
                     for(var i=0;i<app.$data.upcomingInvitations.length;i++)
                     {
@@ -114,6 +114,8 @@
                             temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date);
                         }                        
                     }
+
+                    app.$data.lastActionFailed = response.data.failed;
                 },
 
                 formatDate: function(value){
@@ -154,7 +156,13 @@
                </span>
                                                            
             </div>
-            <div class="card-body">               
+            <div class="card-body">    
+                <div style="text-align: center;color:red;padding-bottom: 5px;">
+                    You cannot leave an experiment if it starts within 24 hours. 
+                </div>
+                <div v-if="lastActionFailed"  style="text-align: center;color:red;padding-bottom: 5px;">
+                    <span v-html ="'***There was error processing your last request***'"></span>
+                </div>           
                 <!-- upcoming table -->
                 <table class="table table-hover table-condensed">
                     <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
@@ -167,11 +175,7 @@
                             Control
                         </th>
                     </thead>
-                    <tbody> 
-                        <div  style="text-align: center;color:red;padding-bottom: 5px;">
-                            You cannot leave an experiment if it starts within 24 hours. 
-                        </div> 
-
+                    <tbody>
                         <tr v-for="(s,index) in upcomingInvitations" v-bind:key="s.id">
                            
                             <td  style="text-align: center;">      

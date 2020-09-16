@@ -778,7 +778,7 @@ class experiment_sessions(models.Model):
     def getFull(self):
         logger = logging.getLogger(__name__)
 
-        return True if self.confirmedCount() >= self.recruitmentParams.registration_cutoff else False
+        return True if self.getConfirmedCount() >= self.recruitmentParams.registration_cutoff else False
     
     #return the first date of the session
     def getFirstDate(self):
