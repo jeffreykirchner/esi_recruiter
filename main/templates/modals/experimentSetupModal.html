@@ -58,7 +58,15 @@
                                 Multi-Day Default Invitation <i class="fa fa-arrow-up" aria-hidden="true"></i>
                             </button>
                         </div>                                    
-                    </div>                                                                    
+                    </div>  
+                    <div class="row mt-3">
+                        <div class = "col" >
+                             {{form1.reminderText | as_crispy_field }}
+                             <button type="button" class="btn btn-outline-primary" v-on:click = "fillWithDefaultReminder()">
+                                Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                             </button>
+                        </div>
+                    </div>                                                                  
                 </form>  <!-- main form -->                                                   
             </div>
             <div class="modal-footer">                

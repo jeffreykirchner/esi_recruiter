@@ -28,7 +28,7 @@ class experiment_session_days(models.Model):
     date_end = models.DateTimeField(default=datetime.now)               #date and time of session end, calculated from date and length   
     auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
-    confirmationEmailSent = models.BooleanField(default=False)          #true once the confirmation email is sent to subjects
+    reminderEmailSent = models.BooleanField(default=False)              #true once the reminder email is sent to subjects
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -136,6 +136,33 @@ class experiment_session_days(models.Model):
        
         return str(self.length) + " minutes"
 
+    #send a reminder email to all subjects in session day
+    def sendReminderEmail(self):
+
+        #self.reminderEmailSent=True
+        self.save()
+
+        logger = logging.getLogger(__name__)
+        p = parameters.objects.get(id=1)
+        logger.info("Send Reminder emails to: session " + str(self.experiment_session) + ", session day " + str(self.id))
+        
+        subjectText =  p.reminderTextSubject
+        messageText = self.experiment_session.getReminderEmail()
+
+        users_list = self.experiment_session_day_users_set.filter(confirmed = True).select_related("user")
+
+        logger.info(users_list)
+        emailList = []
+        
+        for i in users_list:
+            emailList.append({"email":i.user.email,"first_name":i.user.first_name})        
+
+        logger.info(emailList)
+
+        mailResult = main.views.staff.sendMassEmail(emailList,subjectText, messageText)
+        logger.info(mailResult)
+
+    #get small json object
     def json_min(self):
         confirmedCount = self.experiment_session_day_users_set.filter(confirmed=True).count()
         totalCount = self.experiment_session_day_users_set.count()               

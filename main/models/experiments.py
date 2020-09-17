@@ -15,20 +15,21 @@ class experiments(models.Model):
     #experiment parameters
     school = models.ForeignKey(schools,on_delete=models.CASCADE)
     account_default = models.ForeignKey(accounts,on_delete=models.CASCADE)
-    recruitmentParamsDefault = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)
+    recruitmentParamsDefault = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)    #default parameters used for new sessions
 
-    actual_participants_legacy = models.IntegerField(default=1,null=True)
+    actual_participants_legacy = models.IntegerField(default=1,null=True)                        #legacy parameters carried over from old recruiter
     registration_cutoff_legacy = models.IntegerField(default=1,null=True)
 
-    institution = models.ManyToManyField(institutions,through = "experiments_institutions")
+    institution = models.ManyToManyField(institutions,through = "experiments_institutions")      #institutions to which this experiment belongs  
 
-    title = models.CharField(max_length = 300,default = "***New Experiment***")
-    experiment_manager = models.CharField(max_length = 300,default = "***Manager Here***")
+    title = models.CharField(max_length = 300,default = "***New Experiment***")                  #name of experimet 
+    experiment_manager = models.CharField(max_length = 300,default = "***Manager Here***")       #faculty running experiment
 
-    length_default = models.IntegerField(default = 60)
-    notes = models.TextField(default="")   
-    showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)
-    invitationText = models.CharField(max_length = 10000,default = "")        
+    length_default = models.IntegerField(default = 60)                              #default length of experiment
+    notes = models.TextField(default="")                                            #notes about the experiment
+    showUpFee = models.DecimalField(decimal_places=6, max_digits=10,default = 0)    #amount subjects earn for attending by default
+    invitationText = models.CharField(max_length = 10000,default = "")              #text of email invitation subjects receive
+    reminderText = models.CharField(max_length = 10000,default = "")                #text of email reminder subjects receive
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -116,6 +117,7 @@ class experiments(models.Model):
             "length_default":self.length_default,
             "notes":self.notes,
             "invitationText":self.invitationText,
+            "reminderText":self.reminderText,
             "school":self.school.id,
             "showUpFee":self.showUpFee,
             "school_full":self.school.json(),

@@ -47,16 +47,29 @@ class experiment_sessions(models.Model):
 
         return [{"user_email": i['user__email'],
                  "user_id":i['user__id'],
-                 "user_last_name":i['user__first_name'],
-                 "user_first_name":i['user__last_name'],} for i in l ]
+                 "user_first_name":i['user__first_name'],
+                 "user_last_name":i['user__last_name'],} for i in l ]
 
-    #build an invitional email given the experiment session
+    #build an invition email given the experiment session
     def getInvitationEmail(self):
        
         message = ""
 
         message = self.experiment.invitationText
-        message = message.replace("[confirmation link]","http://www.google.com/")
+        message = message.replace("[confirmation link]","https://experiments.chapman.edu/")
+        message = message.replace("[session length]",self.getSessionDayLengthString())
+        message = message.replace("[session date and time]",self.getSessionDayDateString())
+        message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
+
+        return message
+    
+    #build an reminder email given the experiment session
+    def getReminderEmail(self):
+       
+        message = ""
+
+        message = self.experiment.reminderText
+        message = message.replace("[confirmation link]","https://experiments.chapman.edu/")
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
         message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())

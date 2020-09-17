@@ -51,7 +51,7 @@ def sendEmail(request,data):
     emailList = []
     
     for i in users_list:
-        emailList.append({"email":i.email})        
+        emailList.append({"email":i.email,"first_name":i.first_name})        
 
     mailResult = sendMassEmail(emailList,subjectText, messageText)
 

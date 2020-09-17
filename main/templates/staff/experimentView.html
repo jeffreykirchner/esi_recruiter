@@ -23,6 +23,7 @@
                                 account_default_full:{str:""},
                                 title:'',
                                 invitationText:'',
+                                reminderText:'',
                                 school_full:{name:""},
                                 department_default_full:{name:""},
                                 confirmationFound:false,
@@ -334,9 +335,14 @@
                        app.$data.experiment.invitationText = app.$data.parameters.invitationText;
                     },
 
-                    //fill parameters with default single day
+                    //fill parameters with default multi day
                     fillWithMultiDayInvitation:function(){
                         app.$data.experiment.invitationText = app.$data.parameters.invitationTextMultiDay;
+                    },
+
+                    //fill parameters with default reminder
+                    fillWithDefaultReminder:function(){
+                        app.$data.experiment.reminderText = app.$data.parameters.reminderText;
                     },
                 },
         
@@ -442,6 +448,14 @@
                     </div>
                     <div class="col col-md-8">                        
                         <textarea class="form-control" rows="5" v-model="experiment.invitationText" readonly="true"></textarea>
+                    </div>               
+                </div>
+                <div class = "row row mt-2">
+                    <div class="col col-md-4 text-right">
+                        {{form1.reminderText.label}}:
+                    </div>
+                    <div class="col col-md-8">                        
+                        <textarea class="form-control" rows="5" v-model="experiment.reminderText" readonly="true"></textarea>
                     </div>               
                 </div>
                 <div class = "row mt-2">

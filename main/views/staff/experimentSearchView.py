@@ -57,6 +57,8 @@ def createExperiment(data):
     e.account_default = accounts.objects.first()
     e.recruitmentParamsDefault = rp
     e.showUpFee = p.defaultShowUpFee
+    e.invitationText = p.invitationText
+    e.reminderText = p.reminderText
 
     rp.save()
     e.save()    

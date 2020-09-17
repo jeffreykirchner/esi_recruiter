@@ -140,7 +140,7 @@ def sendMessage(data,id):
     userPkList = []
     
     for i in es.getConfirmedEmailList():
-        emailList.append({"email":i['user_email']})
+        emailList.append({"email":i['user_email'],"first_name":i["user_first_name"]})
         userPkList.append(i['user_id'])
 
     mailResult = sendMassEmail(emailList,subjectText, messageText)
@@ -182,7 +182,7 @@ def cancelSession(data,id):
         emailList = []
         
         for i in es.getConfirmedEmailList():
-            emailList.append({"email":i['user_email']})
+            emailList.append({"email":i['user_email'],"first_name":i["user_first_name"]})
 
         mailResult = sendMassEmail(emailList,subjectText, es.getCancelationEmail())
 

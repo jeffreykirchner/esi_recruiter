@@ -6,7 +6,7 @@ import logging
 import random
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
-from main.models import profile
+from main.models import profile,parameters
 from django.utils.html import strip_tags
 from django.core.mail import send_mail
 
@@ -28,10 +28,12 @@ def sendMassEmail(subjectList,subject,message):
             i += 1
             message_list.append(())
 
+        new_message = s['first_name'] + ",\n\n" + message
+
         if settings.DEBUG:
-            message_list[i] += ((subject, message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
         else:
-            message_list[i] += ((subject, message,from_email,[s['email']]),)  
+            message_list[i] += ((subject, new_message,from_email,[s['email']]),)  
 
         c+=1      
 
@@ -55,12 +57,16 @@ def sendMassEmail(subjectList,subject,message):
 #send verify email to list, takes query set
 def sendMassEmailVerify(profileList,request):
     logger = logging.getLogger(__name__)
-    logger.info("Send mass email to list")
+    logger.info("Send mass verification email to list")
 
     logger.info(profileList)
 
     message_list = []
     message_list.append(())
+
+    params = parameters.objects.get(id=1)
+
+    subject = params.deactivationTextSubject
 
     if len(profileList) == 0:
         return {"mailCount":0,"errorMessage":"No valid users"}
@@ -84,12 +90,15 @@ def sendMassEmailVerify(profileList,request):
         link = request.get_host()      
         link += "/profileVerify/" + p.emailConfirmed +"/"
 
-        message ="Your account has been disabled.\r\nTo re-activate please confirm your email:\r\n"+ link
+        message = params.deactivationText
+        message = message.replace("[activation link]",link)
+
+        new_message = p.user.first_name + ",\n\n" + message
 
         if settings.DEBUG:
-            message_list[i] += (("ESI Account Disabled", message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
         else:
-            message_list[i] += (("ESI Account Disabled", message,from_email,[p.user.email]),)  
+            message_list[i] += ((subject, new_message,from_email,[p.user.email]),)  
 
         c+=1
             

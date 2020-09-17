@@ -42,6 +42,11 @@ class experimentForm1(forms.ModelForm):
     invitationText = forms.CharField(label='Recruitment Email',
                                      widget=forms.Textarea(attrs={"v-model":"experiment.invitationText",
                                                                   "v-on:keyup":"mainFormChange1",
+                                                                  "rows":"12"}))
+
+    reminderText = forms.CharField(label='Reminder Email',
+                                     widget=forms.Textarea(attrs={"v-model":"experiment.reminderText",
+                                                                  "v-on:keyup":"mainFormChange1",
                                                                   "rows":"12"}))                                                                                                                                                                                                                                                                   
 
     class Meta:

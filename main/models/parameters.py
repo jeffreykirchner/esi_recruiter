@@ -47,6 +47,7 @@ class parameters(models.Model):
             "defaultShowUpFee":str(self.defaultShowUpFee),
             "invitationText":self.invitationText,
             "invitationTextMultiDay":self.invitationTextMultiDay,
+            "reminderText":self.reminderText,
             "consentForm":self.consentForm,
             "noShowCutoff":str(self.noShowCutoff),
             "noShowCutoffWindow":(self.noShowCutoffWindow),
