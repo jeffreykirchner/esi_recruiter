@@ -154,5 +154,9 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'INFO',           
         },
+        'django_cron': {
+            'handlers': ['console', 'logfile'],
+            'level': 'INFO',           
+        },
     },
 }
