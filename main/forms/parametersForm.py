@@ -18,6 +18,9 @@ class parametersForm(forms.ModelForm):
     
     maxAnnualEarnings = forms.CharField(label='Max Annual Earnings ($)',
                                        widget=forms.NumberInput(attrs={}))
+    
+    siteURL = forms.CharField(label='Site URL',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
 
     invitationTextSubject = forms.CharField(label='Default Recruitment Email Subject, Single Day',
                                          widget=forms.TextInput(attrs={"size":"125"}))

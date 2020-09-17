@@ -1,3 +1,26 @@
+You are invited to an experiment by the Economic Science Institute.
+
+The experiment will take place on: [session date and time]
+The length of the experiment is: [session length]
+The on time bonus is: [on time bonus]
+Check-in is located in Wilkinson Hall 111 (the main corridor).
+Please arrive 10 minutes early.
+
+Do not reply to this email, see contact email below. 
+
+***A valid Chapman ID is required to participate in experiments.  Your fellow students are counting on you to show up.  Any student who twice fails to show up for a confirmed experiment will be removed from the system. In order to participate, you must be proficient in English. ***
+
+To confirm your presence at the session, click on the link below:
+[confirmation link]
+
+If you do not wish to attend, no action is required.
+
+You may contact me with questions on the following address:
+[contact email]
+
+
+
+
 Thank you for your time and willingness to participate in our experiments.
 
 You are invited to an experiment by the Economic Science Institute.
@@ -22,39 +45,47 @@ To confirm your presence at the session, click on the link below:
 If you do not wish to attend, no action is required.
 
 You may contact me with questions on the following address:
-luetje@chapman.edu
+[contact email]
 
 Thank you for your time and willingness to participate in our experiments.
 
 
 
+Unfortunately, we had to cancel the following experiment that you were invited to:
+The experiment was on: [session date and time]
 
-You are invited to an experiment by the Economic Science Institute.
+Thank you for your time.
+
+You may contact me with questions on the following address:
+[contact email]
+
+
+
+
+This email is a reminder that you are confirmed to participate in an Economic Science Institute experiment.
 
 The experiment will take place on: [session date and time]
 The length of the experiment is: [session length]
 The on time bonus is: [on time bonus]
 Check-in is located in Wilkinson Hall 111 (the main corridor).
-Please arrive 10 minutes early.
+
+Unless otherwise specified, check-in for in-person experiments is located at Wilkinson Hall 111 (the main corridor). Please plan to arrive 10 minutes early. For online experiments, please refer to your original email invitation for information.
 
 Do not reply to this email, see contact email below. 
 
-***A valid Chapman ID is required to participate in experiments.  Your fellow students are counting on you to show up.  Any student who twice fails to show up for a confirmed experiment will be removed from the system. In order to participate, you must be proficient in English. ***
-
-To confirm your presence at the session, click on the link below:
-[confirmation link]
-
-If you do not wish to attend, no action is required.
+***A valid Chapman ID is required to participate in experiments.  Your fellow students are counting on you to show up.  Any student who twice fails to show up for a confirmed experiment will be removed from the system.***
 
 You may contact me with questions on the following address:
-luetje@chapman.edu
+[contact email]
 
+Thank you for your time and willingness to participate in our experiments.
 
 
 
 Your ESI account was deactivated
 
-You can reactivate it by following this link and verifying you email:
+You can reactivate your account by following this link and verifying your email:
 [activation link]
 
-If you are having trouble contact us at: luetje@chapman.edu
+If you are having trouble contact us at:
+[contact email]

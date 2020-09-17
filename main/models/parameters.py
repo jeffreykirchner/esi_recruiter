@@ -9,6 +9,7 @@ class parameters(models.Model):
     subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")           #time zone the lab is in
     defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)     #money paid to subjects for coming regardless of performance
     maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5,default = 600)  #max money that can be paid to a subject per year  
+    siteURL = models.CharField(max_length = 200,default = "https://www.google.com/")       #site URL used for display in emails
 
     noShowCutoff = models.IntegerField(default = 3)                                         #if subject hits count in window they will not be invited
     noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured

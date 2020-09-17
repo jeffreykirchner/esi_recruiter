@@ -139,7 +139,7 @@ class experiment_session_days(models.Model):
     #send a reminder email to all subjects in session day
     def sendReminderEmail(self):
 
-        #self.reminderEmailSent=True
+        self.reminderEmailSent=True
         self.save()
 
         logger = logging.getLogger(__name__)

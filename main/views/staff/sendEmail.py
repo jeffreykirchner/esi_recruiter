@@ -87,11 +87,12 @@ def sendMassEmailVerify(profileList,request):
             i += 1
             message_list.append(())
 
-        link = request.get_host()      
-        link += "/profileVerify/" + p.emailConfirmed +"/"
+        link = params.siteURL      
+        link += "profileVerify/" + p.emailConfirmed +"/"
 
         message = params.deactivationText
         message = message.replace("[activation link]",link)
+        message = message.replace("[contact email]",params.labManager.email)
 
         new_message = p.user.first_name + ",\n\n" + message
 
