@@ -28,11 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles',    
     'crispy_forms',
     'main',
     'django.contrib.admin',
-    'django.contrib.humanize',    
+    'django.contrib.humanize',  
+    "django_cron",  
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+#cron jobs
+CRON_CLASSES = [
+    "main.cron.checkForReminderEmails",
 ]
 
 #head text of admin site

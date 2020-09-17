@@ -3,7 +3,8 @@ import logging
 import traceback
 
 class subject_types(models.Model):
-    name = models.CharField(max_length = 300)
+    name = models.CharField(verbose_name = 'Name',max_length = 300)
+    initialValue = models.BooleanField(verbose_name = 'Default to On',default=False)    #if true add on initial experiment creation
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

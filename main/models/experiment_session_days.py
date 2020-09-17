@@ -28,6 +28,7 @@ class experiment_session_days(models.Model):
     date_end = models.DateTimeField(default=datetime.now)               #date and time of session end, calculated from date and length   
     auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
+    confirmationEmailSent = models.BooleanField(default=False)          #true once the confirmation email is sent to subjects
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -51,11 +52,13 @@ class experiment_session_days(models.Model):
         return u_list
 
     #add user to session day
-    def addUser(self,userID):
+    def addUser(self,userID,staffUser,manuallyAdded):
         esdu = main.models.experiment_session_day_users()
 
         esdu.experiment_session_day = self
         esdu.user = User.objects.get(id=userID)
+        esdu.addedByUser = staffUser
+        esdu.manuallyAdded = manuallyAdded
 
         esdu.save()
 

@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiments,experiment_session_days,schools,accounts,recruitmentParameters
+from main.models import experiments,experiment_session_days,schools,accounts,recruitmentParameters,parameters,genders,subject_types
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Lower
 from django.db.models import Q
@@ -46,14 +46,24 @@ def createExperiment(data):
     logger.info(data)
 
     rp = recruitmentParameters()
+    p = parameters.objects.get(id=1)
+
+    #setup with initial genders selected
+    g_list=list(genders.objects.filter(initialValue = True))
+    st_list = list(subject_types.objects.filter(initialValue = True))
 
     e = experiments()
     e.school = schools.objects.first()
     e.account_default = accounts.objects.first()
     e.recruitmentParamsDefault = rp
+    e.showUpFee = p.defaultShowUpFee
 
     rp.save()
     e.save()    
+
+    rp.gender.add(*g_list)
+    rp.subject_type.add(*st_list)
+    rp.save()
 
     return JsonResponse({"experiments" : [e.json_search()]},safe=False)
 

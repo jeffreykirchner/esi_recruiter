@@ -4,7 +4,8 @@ import traceback
 
 #list of genders
 class genders(models.Model):
-    name = models.CharField(max_length = 300)
+    name = models.CharField(verbose_name = 'Name',max_length = 300)                    #name of gender
+    initialValue = models.BooleanField(verbose_name = 'Default to On',default=True)    #if true add on initial experiment creation
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

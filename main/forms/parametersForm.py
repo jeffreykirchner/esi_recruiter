@@ -36,6 +36,18 @@ class parametersForm(forms.ModelForm):
 
     cancelationText = forms.CharField(label='Cancelation Email Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+
+    reminderTextSubject = forms.CharField(label='Reminder Email Subject',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
+
+    reminderText = forms.CharField(label='Reminder Email Text',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+    
+    deactivationTextSubject = forms.CharField(label='Deactivation Email Subject',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
+
+    deactivationText = forms.CharField(label='Deactivation Email Text',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
                                      widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))

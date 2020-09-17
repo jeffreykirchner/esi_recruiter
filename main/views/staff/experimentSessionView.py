@@ -63,11 +63,11 @@ def experimentSessionView(request,id):
         elif data["status"] == "searchForSubject":
             return getSearchForSubject(data,id)
         elif data["status"] == "manuallyAddSubject":
-            return getManuallyAddSubject(data,id)    
+            return getManuallyAddSubject(data,id,request)    
         elif data["status"] == "changeConfirmation":
             return changeConfirmationStatus(data,id)     
         elif data["status"] == "inviteSubjects":
-            return inviteSubjects(data,id)
+            return inviteSubjects(data,id,request)
         elif data["status"] == "showUnconfirmedSubjects":
             return showUnconfirmedSubjects(data,id)    
         elif data["status"] == "cancelSession":
@@ -204,7 +204,7 @@ def showUnconfirmedSubjects(data,id):
     return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
 
 #invite subjects based on recruitment parameters
-def inviteSubjects(data,id):
+def inviteSubjects(data,id,request):
     logger = logging.getLogger(__name__)
     logger.info("Invite subjects")
     logger.info(data)
@@ -236,7 +236,7 @@ def inviteSubjects(data,id):
     #add users to session
     for i in subjectInvitations:
         try:
-            es.addUser(i['id'])
+            es.addUser(i['id'],request.user,False)
             userSuccesses.append(i)
             userPkList.append(i['id'])
         except IntegrityError:
@@ -344,7 +344,7 @@ def getSearchForSubject(data,id):
     return JsonResponse({"status":"success","users":json.dumps(list(users_list),cls=DjangoJSONEncoder)}, safe=False)
 
 #manually add a single subject
-def getManuallyAddSubject(data,id):
+def getManuallyAddSubject(data,id,request):
 
     logger = logging.getLogger(__name__)
     logger.info("Manually add subject")
@@ -376,7 +376,7 @@ def getManuallyAddSubject(data,id):
         subjectText = p.invitationTextMultiDaySubject
 
     if not esdu:
-       es.addUser(u["id"])
+       es.addUser(u["id"],request.user,True)
        es.save()
        if sendInvitation:
            mailResult = sendMassEmail([u], subjectText, es.getInvitationEmail())

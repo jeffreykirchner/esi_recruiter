@@ -75,9 +75,9 @@ class experiment_sessions(models.Model):
         return message
 
     #add new user to session
-    def addUser(self,userID):
+    def addUser(self,userID,staffUser,manuallyAdded):
         for esd in self.ESD.all():
-            esd.addUser(userID)  
+            esd.addUser(userID,staffUser,manuallyAdded)  
 
     #get a string of sessions day dates
     def getSessionDayDateString(self):

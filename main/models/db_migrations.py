@@ -961,13 +961,31 @@ def migrate_parameters():
         for c in cursorMP2.fetchall():
                 #invitationText = c[0]
                 p.cancelationText = c[0]    
-                p.cancelationTextSubject = c[1]         
-
-        #consent form
+                p.cancelationTextSubject = c[1]   
+        
+        #reminder text
         cursorMP3 = connections['old'].cursor()
-        cursorMP3.execute('''select value from ui_templates where id = 3 limit 1''')
+        cursorMP3.execute('''select body,subject from boilerplates where id = 4 limit 1''')
 
         for c in cursorMP3.fetchall():
+                #invitationText = c[0]
+                p.reminderText = c[0]    
+                p.reminderTextSubject = c[1]
+
+        #deactivation text
+        cursorMP4 = connections['old'].cursor()
+        cursorMP4.execute('''select body,subject from boilerplates where id = 2 limit 1''')
+
+        for c in cursorMP4.fetchall():
+                #invitationText = c[0]
+                p.deactivationText = c[0]    
+                p.deactivationTextSubject = c[1]
+
+        #consent form
+        cursorMP5 = connections['old'].cursor()
+        cursorMP5.execute('''select value from ui_templates where id = 3 limit 1''')
+
+        for c in cursorMP5.fetchall():
                 p.consentForm = c[0]
  
         p.save()

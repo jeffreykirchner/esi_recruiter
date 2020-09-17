@@ -15,14 +15,16 @@ class experiment_session_day_users(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='ESDU')    
     experiment_session_day = models.ForeignKey(experiment_session_days,on_delete=models.CASCADE,null = True)                                                                                               
     experiment_session_legacy = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,null=True)
+    addedByUser = models.ForeignKey(User,on_delete=models.CASCADE,null=True)              #staff user who added to session
 
-    attended=models.BooleanField(default=False)
-    bumped=models.BooleanField(default=False)
-    confirmed=models.BooleanField(default=False)   
-    confirmationHash=models.UUIDField(default=uuid.uuid4,editable=False)
-    show_up_fee = models.DecimalField(max_digits=10, decimal_places=6,default = 0)
-    earnings = models.DecimalField(max_digits=10, decimal_places=6, default = 0)
-    multi_day_legacy = models.BooleanField(default=False,null=True)   #needed to transition from old to new multiday model
+    attended=models.BooleanField(default=False)                                    #true once a subject has been marked as attended
+    bumped=models.BooleanField(default=False)                                      #true if user has been bumped from session 
+    confirmed=models.BooleanField(default=False)                                   #true once user has confirmed desire to attend
+    confirmationHash=models.UUIDField(default=uuid.uuid4,editable=False)           #code used for direct confirmation (not in use)   
+    show_up_fee = models.DecimalField(max_digits=10, decimal_places=6,default = 0)    #amount subject earned for just for coming
+    earnings = models.DecimalField(max_digits=10, decimal_places=6, default = 0)      #amount subject earned in experiment  
+    multi_day_legacy = models.BooleanField(default=False,null=True)                #needed to transition from old to new multiday model
+    manuallyAdded=models.BooleanField(default=False)                               #true if subject was manually added to a session
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

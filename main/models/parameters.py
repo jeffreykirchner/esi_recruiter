@@ -22,6 +22,12 @@ class parameters(models.Model):
     cancelationTextSubject = models.CharField(max_length = 1000,default = "")              #email subject text when an experiment is canceled
     cancelationText = models.CharField(max_length = 10000,default = "")                    #email text when an experiment is canceled
     
+    reminderTextSubject = models.CharField(max_length = 1000,default = "")                 #email subject text to remind subjects 24 hours before start
+    reminderText = models.CharField(max_length = 10000,default = "")                       #email text to remind subjects 24 hours before start
+
+    deactivationTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text to  subject when account is deactivated
+    deactivationText = models.CharField(max_length = 10000,default = "")                   #email text to  subject when account is deactivated
+
     consentForm = models.CharField(max_length = 50000, default ="")                        #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)
