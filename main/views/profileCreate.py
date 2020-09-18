@@ -24,22 +24,22 @@ def profileCreate(request):
     #migrate_institutions()
     #migrate_departments()
     #migrate_accounts()
-    #migrate_schools()  #***
+    migrate_schools()  #***
 
-    #migrate_subjects1()   #***
+    migrate_subjects1()   #***
     #migrate_subjects2()
    
     #migrate_experiments()
-    #migrate_recruitment_parameters() #***
+    migrate_recruitment_parameters() #***
     #migrate_locations()
     #migrate_experiments_institutions()
     #migrate_sessions()
     #migrate_majors()
 
     #migrate_session_users1()
-    #migrate_session_users2()  #***
-    #migrate_session_users4()  #***
-    #migrate_session_users3()  #***
+    migrate_session_users2()  #***
+    migrate_session_users4()  #***
+    migrate_session_users3()  #***
 
     migrate_parameters() #***
 
