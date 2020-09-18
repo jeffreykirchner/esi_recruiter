@@ -12,13 +12,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='profile',
-            name='id',
-        ),
-        migrations.AlterField(
-            model_name='profile',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL),
-        ),
+        # migrations.RemoveField(
+        #     model_name='profile',
+        #     name='id',
+        # ),
+        # migrations.AlterField(
+        #     model_name='profile',
+        #     name='user',
+        #     field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL),
+        # ),
     ]
