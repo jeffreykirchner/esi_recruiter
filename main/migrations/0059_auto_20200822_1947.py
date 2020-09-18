@@ -24,9 +24,9 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Email Filters',
             },
         ),
-        migrations.AddField(
-            model_name='profile',
-            name='emailFilters',
-            field=models.ManyToManyField(to='main.institutions', verbose_name='Email Filters'),
-        ),
+        # migrations.AddField(
+        #     model_name='profile',
+        #     name='emailFilters',
+        #     field=models.ManyToManyField(to='main.institutions', verbose_name='Email Filters'),
+        # ),
     ]
