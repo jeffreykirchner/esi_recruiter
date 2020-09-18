@@ -123,19 +123,28 @@ def profileCreateSendEmail(request,u):
     logger.info("Verify Email: ")
     logger.info(u.profile)
 
+    params = parameters.objects.get(id=1)
+
     u.profile.emailConfirmed = get_random_string(length=32)   
     u.profile.save()
 
-    link = request.get_host()      
-    link += "/profileVerify/" + u.profile.emailConfirmed +"/"
+    link = params.siteURL       
+    link += "profileVerify/" + u.profile.emailConfirmed +"/"
 
-    msg_html = render_to_string('profileVerifyEmail.html', {'link': link})
+    msg_html = render_to_string('profileVerifyEmail.html', {'link': link,'first_name':u.first_name})
     msg_plain = strip_tags(msg_html)
+
+    email_address=""
+    if settings.DEBUG:
+        email_address = "TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"
+    else:
+        email_address = u.email
+
     send_mail(
         'Confirm your email',
         msg_plain,
         settings.DEFAULT_FROM_EMAIL,
-        [u.email],
+        [email_address],
         html_message=msg_html,
         fail_silently=False,
     )
