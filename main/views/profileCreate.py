@@ -38,8 +38,8 @@ def profileCreate(request):
 
     #migrate_session_users1()
     #migrate_session_users2()  #***
-    migrate_session_users4()  #***
-    migrate_session_users3()  #***
+    #migrate_session_users4()  #***
+    #migrate_session_users3()  #***
 
     migrate_parameters() #***
 
