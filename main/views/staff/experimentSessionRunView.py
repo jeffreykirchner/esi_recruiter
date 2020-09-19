@@ -149,7 +149,7 @@ def autoBump(data,id):
     esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
 
     attendedCount = esdu_attended.count()
-    bumpsNeeded = attendedCount - esd.experiment_session.recruitmentParams.actual_participants
+    bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
 
     esdu_attended_not_bumped=[]
 

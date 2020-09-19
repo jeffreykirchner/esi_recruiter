@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.conf import settings
-from main.models import accountTypes,profile
+from main.models import account_types,profile
 from . import profileCreateSendEmail
 from datetime import timedelta
 
@@ -63,7 +63,7 @@ def profileCreate(request):
                                     form.cleaned_data['subjectType'],
                                     form.cleaned_data['studentWorker'],
                                     True,
-                                    accountTypes.objects.get(id=2))
+                                    account_types.objects.get(id=2))
 
             profileCreateSendEmail(request,u)
 

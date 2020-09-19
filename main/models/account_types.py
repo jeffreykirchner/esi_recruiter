@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #subject, staff
-class accountTypes(models.Model):
+class account_types(models.Model):
     name = models.CharField(max_length = 300)
 
     timestamp = models.DateTimeField(auto_now_add= True)

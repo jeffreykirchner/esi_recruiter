@@ -66,7 +66,7 @@
                              allowDelete:false,                         //allow session to be deleted or canceled
                              confirmedCount:0,                          //number of subjects that have confirmed to be in session
                              confirmedEmailList:[]},                    //list of emails that
-                    recruitmentParams:{                          //recruiment parameters
+                    recruitment_params:{                          //recruiment parameters
                             gender:[],
                             actual_participants:0,
                             registration_cutoff:0,
@@ -163,7 +163,7 @@
 
                                 if(status=="success")
                                 {                                 
-                                    app.$data.recruitmentParams= response.data.recruitmentParams;  
+                                    app.$data.recruitment_params= response.data.recruitment_params;  
                                     app.updateDisplayLists();
 
                                     app.$data.cancelModal=false; 
@@ -184,7 +184,7 @@
 
                     //creates lists  of recruitment parameters
                     updateDisplayLists:function(errors){
-                        var e = app.$data.recruitmentParams;
+                        var e = app.$data.recruitment_params;
                         
                         app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
                         app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
@@ -223,7 +223,7 @@
                             })
                             .then(function (response) {                                                                   
                                 app.$data.session= response.data.session;
-                                app.$data.recruitmentParams= response.data.recruitmentParams; 
+                                app.$data.recruitment_params= response.data.recruitment_params; 
                                 // app.$data.experiment =  response.data.experiment;                                                            
                                 // app.$data.loading=false; 
                                 app.updateDisplayLists();
@@ -502,7 +502,7 @@
                     showEditRecruitment:function(){
                         app.$data.cancelModal=true;
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
-                        app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitmentParams);
+                        app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
                         $('#recruitmentModalCenter').modal('show');
                         app.clearMainFormErrors();
                     },
@@ -512,7 +512,7 @@
                         if(app.$data.cancelModal)
                         {
                             Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
-                            Object.assign(app.$data.recruitmentParams, app.$data.recruitmentParamsBeforeEdit);
+                            Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
                             app.$data.sessionBeforeEdit=null;
                             app.$data.buttonText1="Update";
                         }
@@ -1164,7 +1164,7 @@
                                         <div v-html="m.messageText"></div>  
                                         <br>
                                         <div v-html="'Parameters:'"></div>
-                                        <div v-html="m.recruitmentParams"></div>                                                                          
+                                        <div v-html="m.recruitment_params"></div>                                                                          
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <div v-html="m.emailMessageList"></div>                                                                                

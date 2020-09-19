@@ -2,7 +2,7 @@ from django.db import models
 import logging
 import main
 
-from . import experiment_sessions,recruitmentParameters
+from . import experiment_sessions,recruitment_parameters
 from django.contrib.auth.models import User
 
 from django.dispatch import receiver
@@ -10,7 +10,7 @@ from django.db.models.signals import post_delete
 
 class experiment_session_invitations(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE)
-    recruitmentParams = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)
+    recruitment_params = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)
 
     users = models.ManyToManyField(User)
 
@@ -40,11 +40,11 @@ class experiment_session_invitations(models.Model):
             "date_raw":self.timestamp,
             "mailResultSentCount":self.mailResultSentCount,
             "mailResultErrorText":self.mailResultErrorText,
-            "recruitmentParams":self.recruitmentParams.json_displayString(),
+            "recruitment_params":self.recruitment_params.json_displayString(),
         }
 
 #delete recruitment parameters when deleted
 @receiver(post_delete, sender=experiment_session_invitations)
-def post_delete_recruitmentParams(sender, instance, *args, **kwargs):
-    if instance.recruitmentParams: # just in case user is not specified
-        instance.recruitmentParams.delete()
+def post_delete_recruitment_params(sender, instance, *args, **kwargs):
+    if instance.recruitment_params: # just in case user is not specified
+        instance.recruitment_params.delete()

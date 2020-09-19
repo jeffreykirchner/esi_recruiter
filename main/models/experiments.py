@@ -4,7 +4,7 @@ import traceback
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 import pytz
-from . import schools,accounts,institutions,genders,subject_types,institutions,recruitmentParameters,parameters
+from . import schools,accounts,institutions,genders,subject_types,institutions,recruitment_parameters,parameters
 import main
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -15,7 +15,7 @@ class experiments(models.Model):
     #experiment parameters
     school = models.ForeignKey(schools,on_delete=models.CASCADE)
     account_default = models.ForeignKey(accounts,on_delete=models.CASCADE)
-    recruitmentParamsDefault = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)    #default parameters used for new sessions
+    recruitment_params_default = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)    #default parameters used for new sessions
 
     actual_participants_legacy = models.IntegerField(default=1,null=True)                        #legacy parameters carried over from old recruiter
     registration_cutoff_legacy = models.IntegerField(default=1,null=True)
@@ -130,9 +130,9 @@ class experiments(models.Model):
 
 #delete recruitment parameters when deleted
 @receiver(post_delete, sender=experiments)
-def post_delete_recruitmentParamsDefault(sender, instance, *args, **kwargs):
-    if instance.recruitmentParamsDefault: # just in case user is not specified
-        instance.recruitmentParamsDefault.delete()
+def post_delete_recruitment_params_default(sender, instance, *args, **kwargs):
+    if instance.recruitment_params_default: # just in case user is not specified
+        instance.recruitment_params_default.delete()
 
 #proxy model returns link to experiemnts
 class hrefExperiments(experiments): 

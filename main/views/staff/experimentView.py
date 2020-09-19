@@ -66,7 +66,7 @@ def getExperiment(data,id):
             
     return JsonResponse({"experiment" :  e.json(),
                             "sessions" : e.json_sessions(),
-                            "recruitmentParams":e.recruitmentParamsDefault.json(),
+                            "recruitment_params":e.recruitment_params_default.json(),
                             "parameters" : p.json()}, safe=False)
 
 #delete session from experiment
@@ -78,7 +78,7 @@ def removeSession(data,id):
     es = experiment_sessions.objects.get(id=data["sid"])
 
     logger.info("Recruitment Parameters ID:")
-    logger.info(es.recruitmentParams)
+    logger.info(es.recruitment_params)
 
     if es.allowDelete():        
         es.delete()
@@ -194,13 +194,13 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=e.recruitmentParamsDefault)
+    form = recruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
 
     if form.is_valid():
         #print("valid form")                                
         form.save()    
                                     
-        return JsonResponse({"recruitmentParams":e.recruitmentParamsDefault.json(),"status":"success"}, safe=False)
+        return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
     else:
         print("invalid form2")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)    

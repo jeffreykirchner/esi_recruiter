@@ -11,7 +11,7 @@ from main.models import *
 from main.views import sendMassEmailVerify
 
 admin.site.register(accounts)
-admin.site.register(accountTypes)
+admin.site.register(account_types)
 admin.site.register(departments)
 admin.site.register(genders)
 admin.site.register(institutions)

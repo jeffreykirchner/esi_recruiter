@@ -4,7 +4,7 @@ import logging
 
 from . import genders,subject_types,institutions,schools
 
-class recruitmentParameters(models.Model):
+class recruitment_parameters(models.Model):
 
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)

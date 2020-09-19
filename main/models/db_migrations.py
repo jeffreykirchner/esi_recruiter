@@ -28,7 +28,7 @@ from main.models import institutions,\
                                 schools, \
                                 majors, \
                                 parameters, \
-                                recruitmentParameters,\
+                                recruitment_parameters,\
                                 email_filters, \
                                 profile
                         
@@ -97,29 +97,29 @@ def migrate_schools():
 def migrate_recruitment_parameters():
         print("Start of experiments")       
 
-        recruitmentParameters.objects.all().delete()
+        recruitment_parameters.objects.all().delete()
 
         migrate_experiments()
 
         print("Experiment recruitment parameters")
         for e in experiments.objects.all():
-                p=recruitmentParameters()
+                p=recruitment_parameters()
                 p.actual_participants = e.actual_participants_legacy
                 p.registration_cutoff = e.registration_cutoff_legacy
 
                 p.save()
 
-                e.recruitmentParamsDefault = p
+                e.recruitment_params_default = p
                 e.save()
 
         print("Session recruitment parameters")
         
         for es in experiment_sessions.objects.all():
-                p = es.experiment.recruitmentParamsDefault
+                p = es.experiment.recruitment_params_default
                 p.pk = None
                 p.save()
 
-                es.recruitmentParams = p
+                es.recruitment_params = p
                 es.save()
 
 def migrate_experiments():      

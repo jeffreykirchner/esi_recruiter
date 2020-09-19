@@ -2,7 +2,7 @@
 from .email_filters import *
 from .schools import *
 from .genders import *
-from .accountTypes import *
+from .account_types import *
 from .majors import *
 from .subject_types import *
 from .institutions import *
@@ -10,7 +10,7 @@ from .parameters import *
 from .locations import *
 from .departments import *
 from .accounts import *
-from .recruitmentParameters import *
+from .recruitment_parameters import *
 from .experiments import *
 from .experiments_institutions import *
 from .experiment_sessions import *

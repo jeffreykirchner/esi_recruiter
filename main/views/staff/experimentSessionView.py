@@ -12,7 +12,7 @@ from main.models import experiment_session_days, \
                         parameters,\
                         experiment_session_messages,\
                         experiment_session_invitations,\
-                        recruitmentParameters
+                        recruitment_parameters
 from main.forms import recruitmentParametersForm,experimentSessionForm2
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -96,10 +96,10 @@ def getSesssion(data,id):
 
     es = experiment_sessions.objects.get(id=id)
     
-    logger.info(es.recruitmentParams)
+    logger.info(es.recruitment_params)
 
     return JsonResponse({"session" :  es.json(),
-                         "recruitmentParams":es.recruitmentParams.json()}, safe=False)
+                         "recruitment_params":es.recruitment_params.json()}, safe=False)
 
 #show all messages sent to confirmed users
 def showInvitations(data,id):
@@ -252,9 +252,9 @@ def inviteSubjects(data,id,request):
     es.save()
 
     #store invitation
-    recruitmentParams = recruitmentParameters()
-    recruitmentParams.setup(es.recruitmentParams)
-    recruitmentParams.save()
+    recruitment_params = recruitment_parameters()
+    recruitment_params.setup(es.recruitment_params)
+    recruitment_params.save()
 
     m = experiment_session_invitations()
     m.experiment_session = es
@@ -262,7 +262,7 @@ def inviteSubjects(data,id,request):
     m.messageText = messageText
     m.mailResultSentCount = mailResult['mailCount']
     m.mailResultErrorText = mailResult['errorMessage']  
-    m.recruitmentParams = recruitmentParams
+    m.recruitment_params = recruitment_params
 
     m.save()
     m.users.add(*userPkList)
@@ -468,15 +468,15 @@ def updateRecruitmentParameters(data,id):
 
     #if a subject has confirmed cannot some parameters
     if es.getConfirmedCount() > 0:
-        form_data_dict["allow_multiple_participations"] = "1" if es.recruitmentParams.allow_multiple_participations else "0"
+        form_data_dict["allow_multiple_participations"] = "1" if es.recruitment_params.allow_multiple_participations else "0"
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=es.recruitmentParams)
+    form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                
         form.save()               
-        return JsonResponse({"recruitmentParams":es.recruitmentParams.json(),"status":"success"}, safe=False)
+        return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
     else:
         logger.info("invalid recruitment form")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)

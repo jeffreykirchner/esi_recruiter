@@ -14,7 +14,7 @@ from django.db.models.signals import post_delete
 
 from django.db.models import Q,F,Value as V,Count
 
-from . import genders,subject_types,institutions,experiments,parameters,recruitmentParameters,parameters
+from . import genders,subject_types,institutions,experiments,parameters,recruitment_parameters,parameters
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
@@ -22,7 +22,7 @@ class experiment_sessions(models.Model):
     showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10,null = True) 
     canceled=models.BooleanField(default=False)
 
-    recruitmentParams = models.ForeignKey(recruitmentParameters,on_delete=models.CASCADE,null=True)
+    recruitment_params = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -138,49 +138,15 @@ class experiment_sessions(models.Model):
     #setup this session with defualt parameters from related experiment
     def setupRecruitment(self):
 
-        p = self.experiment.recruitmentParamsDefault
+        p = self.experiment.recruitment_params_default
 
-        tempP = recruitmentParameters()
+        tempP = recruitment_parameters()
         tempP.setup(p)
         tempP.save()
 
-        self.recruitmentParams = tempP
-        self.recruitmentParams.save()
+        self.recruitment_params = tempP
+        self.recruitment_params.save()
         self.save()
-        
-        # self.recruitmentParams.actual_participants = p.actual_participants
-        # self.recruitmentParams.registration_cutoff = p.registration_cutoff
-
-        # for i in p.gender.all():
-        #     self.recruitmentParams.gender.add(i)
-        
-        # for i in p.subject_type.all():
-        #     self.recruitmentParams.subject_type.add(i)
-
-        # self.recruitmentParams.experience_min=p.experience_min
-        # self.recruitmentParams.experience_max=p.experience_max
-        # self.recruitmentParams.experience_constraint=p.experience_constraint
-
-        # for i in p.institutions_exclude.all():
-        #     self.recruitmentParams.institutions_exclude.add(i)
-        
-        # for i in p.institutions_include.all():
-        #     self.recruitmentParams.institutions_include.add(i)
-
-        # for i in p.experiments_exclude.all():
-        #     self.recruitmentParams.experiments_exclude.add(i)
-
-        # for i in p.experiments_include.all():
-        #     self.recruitmentParams.experiments_include.add(i)
-
-        # self.recruitmentParams.institutions_exclude_all=p.institutions_exclude_all
-        # self.recruitmentParams.institutions_include_all=p.institutions_include_all
-        # self.recruitmentParams.experiments_exclude_all=p.experiments_exclude_all
-        # self.recruitmentParams.experiments_include_all=p.experiments_include_all
-
-        # self.recruitmentParams.allow_multiple_participations=p.allow_multiple_participations
-
-        #self.recruitmentParams.save()
 
         return self
 
@@ -211,7 +177,7 @@ class experiment_sessions(models.Model):
 
         time_start = datetime.now()       
 
-        es_p = self.recruitmentParams
+        es_p = self.recruitment_params
 
         #table of users and institutions
         user_institution_list = experiments.objects\
@@ -284,7 +250,7 @@ class experiment_sessions(models.Model):
             u_list = User.objects.filter(is_active=True).values("id")
 
         es = self
-        es_p = es.recruitmentParams
+        es_p = es.recruitment_params
         id =  self.id
         p = parameters.objects.get(id=1)
 
@@ -336,9 +302,9 @@ class experiment_sessions(models.Model):
             institutions_include_with_str = '''
             --institutions that a subject should have done already
             institutions_include AS (SELECT institutions_id
-                                        FROM main_recruitmentparameters_institutions_include
-                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_include.recruitmentparameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        FROM main_recruitment_parameters_institutions_include
+                                        INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_include.recruitment_parameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
             --table of users that have the correct institution experience
@@ -363,9 +329,9 @@ class experiment_sessions(models.Model):
             institutions_exclude_with_str = '''
                 --institutions that should subject should not have done already
                 institutions_exclude AS (SELECT institutions_id
-                                            FROM main_recruitmentparameters_institutions_exclude
-                                            INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_institutions_exclude.recruitmentparameters_id
-                                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                            FROM main_recruitment_parameters_institutions_exclude
+                                            INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_exclude.recruitment_parameters_id
+                                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                             WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
 
                 --table of users that should be excluded based on past history
@@ -391,9 +357,9 @@ class experiment_sessions(models.Model):
             experiments_include_with_str = '''
             --table of experiments that a subject should have done already
             experiments_include AS (SELECT experiments_id
-                                        FROM main_recruitmentparameters_experiments_include
-                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_include.recruitmentparameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        FROM main_recruitment_parameters_experiments_include
+                                        INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_include.recruitment_parameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
             
 
@@ -420,9 +386,9 @@ class experiment_sessions(models.Model):
             experiments_exclude_with_str = '''
             --experiments that subject should not have done already
             experiments_exclude AS (SELECT experiments_id
-                                    FROM main_recruitmentparameters_experiments_exclude
-                                    INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_experiments_exclude.recruitmentparameters_id
-                                    INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                    FROM main_recruitment_parameters_experiments_exclude
+                                    INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_exclude.recruitment_parameters_id
+                                    INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                     WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
             --table of users that have the correct experiment exclude experience
@@ -442,9 +408,9 @@ class experiment_sessions(models.Model):
             --subject cannot have one of these email domains
              emailFilter_include AS (SELECT email_filters_id
 								FROM main_schools_emailFilter			
-								INNER JOIN main_recruitmentparameters_schools_include ON main_recruitmentparameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
-								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_include.recruitmentparameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+								INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
+								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_include.recruitment_parameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
             '''
 
@@ -463,9 +429,9 @@ class experiment_sessions(models.Model):
              --subject cannot be in any of these schools
               emailFilter_exclude AS (SELECT email_filters_id
 								FROM main_schools_emailFilter			
-								INNER JOIN main_recruitmentparameters_schools_exclude ON main_recruitmentparameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
-								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_exclude.recruitmentparameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+								INNER JOIN main_recruitment_parameters_schools_exclude ON main_recruitment_parameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
+								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_exclude.recruitment_parameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
             '''
 
@@ -664,9 +630,9 @@ class experiment_sessions(models.Model):
             WITH
             --table of genders required in session
             genders_include AS (SELECT genders_id
-                                FROM main_recruitmentparameters_gender
-                                INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_gender.recruitmentparameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                FROM main_recruitment_parameters_gender
+                                INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_gender.recruitment_parameters_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) + '''),
         
             ''' \
@@ -686,9 +652,9 @@ class experiment_sessions(models.Model):
             
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
-                                        FROM main_recruitmentparameters_subject_type
-                                        INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_subject_type.recruitmentparameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitmentParams_id = main_recruitmentparameters.id
+                                        FROM main_recruitment_parameters_subject_type
+                                        INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_subject_type.recruitment_parameters_id
+                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                         WHERE main_experiment_sessions.id = ''' + str(id) + ''')
 
             SELECT                 		
@@ -798,7 +764,7 @@ class experiment_sessions(models.Model):
     def getFull(self):
         logger = logging.getLogger(__name__)
 
-        return True if self.getConfirmedCount() >= self.recruitmentParams.registration_cutoff else False
+        return True if self.getConfirmedCount() >= self.recruitment_params.registration_cutoff else False
     
     #return the first date of the session
     def getFirstDate(self):
@@ -919,6 +885,6 @@ class experiment_sessions(models.Model):
 
 #delete recruitment parameters when deleted
 @receiver(post_delete, sender=experiment_sessions)
-def post_delete_recruitmentParams(sender, instance, *args, **kwargs):
-    if instance.recruitmentParams: # just in case user is not specified
-        instance.recruitmentParams.delete()
+def post_delete_recruitment_params(sender, instance, *args, **kwargs):
+    if instance.recruitment_params: # just in case user is not specified
+        instance.recruitment_params.delete()

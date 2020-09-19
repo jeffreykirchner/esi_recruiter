@@ -62,7 +62,7 @@ class experiment_session_day_users(models.Model):
     def getAlreadyAttended(self):
 
         #multiple participations are allowed
-        if self.experiment_session_day.experiment_session.recruitmentParams.allow_multiple_participations:
+        if self.experiment_session_day.experiment_session.recruitment_params.allow_multiple_participations:
             return False
 
         experiment_id = self.experiment_session_day.experiment_session.experiment.id

@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,profile,accountTypes,majors
+from main.models import genders,profile,account_types,majors
 
 class userInfoForm(forms.Form):
     class Meta:
@@ -20,7 +20,7 @@ class userInfoForm(forms.Form):
                                 widget=forms.TextInput(attrs={"v-on:change":"userChange"}))
 
     type = forms.ModelChoiceField(label = "Account Type",
-                                         queryset=accountTypes.objects.all(),
+                                         queryset=account_types.objects.all(),
                                          widget=forms.Select(attrs={"v-on:change":"userChange"}))
 
     gender = forms.ModelChoiceField(label = "Gender",

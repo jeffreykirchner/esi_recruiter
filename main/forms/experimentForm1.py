@@ -52,7 +52,7 @@ class experimentForm1(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['actual_participants_legacy','registration_cutoff_legacy','recruitmentParamsDefault']
+        exclude=['actual_participants_legacy','registration_cutoff_legacy','recruitment_paramsDefault']
 
     def clean_length_default(self):
         length_default = self.data['length_default']

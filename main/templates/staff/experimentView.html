@@ -28,7 +28,7 @@
                                 department_default_full:{name:""},
                                 confirmationFound:false,
                         },
-                    recruitmentParams:{
+                    recruitment_params:{
                             gender:[],
                             actual_participants:0,
                             registration_cutoff:0,
@@ -74,7 +74,7 @@
                             $("#id_errors_" + item).remove();
                         }
 
-                        for(var item in app.$data.recruitmentParams)
+                        for(var item in app.$data.recruitment_params)
                         {
                             $("#id_" + item).attr("class","form-control");
                             $("#id_errors_" + item).remove();
@@ -83,7 +83,7 @@
 
                     //update recruitment display lists
                     updateDisplayLists:function(errors){
-                        var e = app.$data.recruitmentParams;
+                        var e = app.$data.recruitment_params;
 
                         app.$data.institutions_list=app.updateDisplayLists2(app.$data.experiment.institution_full);
                         app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
@@ -120,7 +120,7 @@
                                 app.$data.experiment =  response.data.experiment;     
                                 app.$data.sessions = response.data.sessions.experiment_sessions;      
                                 app.$data.parameters = response.data.parameters;  
-                                app.$data.recruitmentParams = response.data.recruitmentParams;                                        
+                                app.$data.recruitment_params = response.data.recruitment_params;                                        
                                 app.$data.loading=false; 
                                 app.updateDisplayLists();
                             })
@@ -198,7 +198,7 @@
 
                                 if(status=="success")
                                 {                           
-                                    app.$data.recruitmentParams = response.data.recruitmentParams;  
+                                    app.$data.recruitment_params = response.data.recruitment_params;  
                                     app.updateDisplayLists();      
                                     $('#recruitmentModalCenter').modal('toggle');
                                 }
@@ -310,7 +310,7 @@
                     // fire when edit experiment model is shown, save copy for cancel
                     showEditRecruitment:function(){
                         app.$data.cancelModal=true;
-                        app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitmentParams);
+                        app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
                         $('#recruitmentModalCenter').modal('show');
                         app.clearMainFormErrors();
                     },
@@ -319,7 +319,7 @@
                     hideEditRecruitment:function(){
                         if(app.$data.cancelModal)
                         {
-                            Object.assign(app.$data.recruitmentParams, app.$data.recruitmentParamsBeforeEdit);
+                            Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
                             app.$data.experiment.experimentBeforeEdit=null;
                         }
                     },

@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from . import experiment_sessions,locations,accounts,parameters
 import main
+from django.utils.timezone import now
 
 from pytz import timezone
 
@@ -23,9 +24,9 @@ class experiment_session_days(models.Model):
     location = models.ForeignKey(locations,on_delete=models.CASCADE)
     account = models.ForeignKey(accounts,on_delete=models.CASCADE)
 
-    date = models.DateTimeField(default=datetime.now)                   #date and time of session 
+    date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
-    date_end = models.DateTimeField(default=datetime.now)               #date and time of session end, calculated from date and length   
+    date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
     auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminderEmailSent = models.BooleanField(default=False)              #true once the reminder email is sent to subjects
@@ -196,7 +197,7 @@ class experiment_session_days(models.Model):
             "complete":self.complete,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
-            "requiredCount" : self.experiment_session.recruitmentParams.actual_participants,
+            "requiredCount" : self.experiment_session.recruitment_params.actual_participants,
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
         }
     
