@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #email domain a user must have for recruitment ie @ abc.edu
-class emailFilters(models.Model):
+class email_filters(models.Model):
     name = models.CharField(max_length = 300,verbose_name="Name")
     domain = models.CharField(max_length = 300, verbose_name="Domain, ex: abc.edu")
 

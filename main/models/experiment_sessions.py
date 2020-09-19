@@ -440,7 +440,7 @@ class experiment_sessions(models.Model):
         if es_p.schools_include_constraint:
             schools_include_with_str='''
             --subject cannot have one of these email domains
-             emailFilter_include AS (SELECT emailFilters_id
+             emailFilter_include AS (SELECT email_filters_id
 								FROM main_schools_emailFilter			
 								INNER JOIN main_recruitmentparameters_schools_include ON main_recruitmentparameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
 								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_include.recruitmentparameters_id
@@ -452,7 +452,7 @@ class experiment_sessions(models.Model):
             --check if subject is in the required school
             EXISTS(SELECT 1                                                   
                     FROM emailFilter_include
-                    WHERE main_profile.emailFilter_id = emailFilter_include.emailFilters_id) AND 
+                    WHERE main_profile.emailFilter_id = emailFilter_include.email_filters_id) AND 
             '''
 
         #schools exclude strings
@@ -461,7 +461,7 @@ class experiment_sessions(models.Model):
         if es_p.schools_exclude_constraint:
             schools_exclude_with_str = '''
              --subject cannot be in any of these schools
-              emailFilter_exclude AS (SELECT emailFilters_id
+              emailFilter_exclude AS (SELECT email_filters_id
 								FROM main_schools_emailFilter			
 								INNER JOIN main_recruitmentparameters_schools_exclude ON main_recruitmentparameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
 								INNER JOIN main_recruitmentparameters ON main_recruitmentparameters.id = main_recruitmentparameters_schools_exclude.recruitmentparameters_id
@@ -473,7 +473,7 @@ class experiment_sessions(models.Model):
             --check if subject is in excluded school
              NOT EXISTS(SELECT 1                                                   
                     FROM emailFilter_exclude
-                    WHERE main_profile.emailFilter_id = emailFilter_exclude.emailFilters_id) AND
+                    WHERE main_profile.emailFilter_id = emailFilter_exclude.email_filters_id) AND
             '''
 
         #list of users to search for, if empty return all valid users
@@ -508,7 +508,7 @@ class experiment_sessions(models.Model):
                         (main_experiment_session_day_users.attended = 1 OR
                         (main_experiment_session_day_users.confirmed = 1 AND 
                            main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                           main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''" )) AND
+                           main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' )) AND
                         main_experiment_sessions.id != ''' + str(id) + ''' 
                     GROUP BY auth_user.id
                     HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
@@ -539,14 +539,14 @@ class experiment_sessions(models.Model):
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND 
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''" ))) AND
+                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' ))) AND
                                        main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                 '''
         else:
             user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
                                       (main_experiment_session_day_users.confirmed = 1 AND
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''")))),
+                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\')))),
                 '''
 
         #list of users in current session
@@ -576,7 +576,7 @@ class experiment_sessions(models.Model):
         for d in es.ESD.all():
             if tempS != "":
                 tempS += ''' OR '''
-            tempS+= '''(main_experiment_session_days.date <= "''' + str(d.date_end) + '''" AND "''' + str(d.date) + '''" <= main_experiment_session_days.date_end )'''
+            tempS+= '''(main_experiment_session_days.date <= \'''' + str(d.date_end) + '''\' AND \'''' + str(d.date) + '''\' <= main_experiment_session_days.date_end )'''
 
         user_during_session_time_str+= tempS
 
@@ -604,7 +604,7 @@ class experiment_sessions(models.Model):
                             WHERE main_experiment_session_day_users.confirmed = 1 AND 
                                 main_experiment_session_day_users.attended = 0 AND 
                                 main_experiment_session_day_users.bumped = 0 AND 
-                                main_experiment_session_days.date >= "''' + str(d) + '''" AND
+                                main_experiment_session_days.date >= \'''' + str(d) + '''\' AND
                                 main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
                                 ''' + users_to_search_for + '''
                                 main_experiment_sessions.canceled = 0
@@ -637,7 +637,7 @@ class experiment_sessions(models.Model):
                                     (main_experiment_session_day_users.attended = 1 OR
                                     (main_experiment_session_day_users.confirmed = 1 AND 
                                        main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                                       main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''") AND            
+                                       main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\') AND            
                                     main_institutions.id = main_experiments_institutions.institution_id)) AND
                                     main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                     '''
@@ -646,7 +646,7 @@ class experiment_sessions(models.Model):
                           (main_experiment_session_day_users.attended = 1 OR
                           (main_experiment_session_day_users.confirmed = 1 AND 
                               main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                              main_experiment_session_days.date_end <= "''' + str(self.getLastDate()) + '''") AND
+                              main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\') AND
                           main_institutions.id = main_experiments_institutions.institution_id))),
                     '''
 

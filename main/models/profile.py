@@ -7,7 +7,7 @@ from django.db.models import F,Q
 
 from main.models import *
 from main.models import institutions,parameters
-from . import emailFilters
+from . import email_filters
 
 import main
 
@@ -29,7 +29,7 @@ class profile(models.Model):
     major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
     subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
-    emailFilter = models.ForeignKey(emailFilters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
+    emailFilter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
     chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
     emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
@@ -66,7 +66,7 @@ class profile(models.Model):
         #logger.info(email_split)
 
         #domain__regex = r'.+@' + email_regx
-        ef = emailFilters.objects.filter(domain = email_split[1]).first()
+        ef = email_filters.objects.filter(domain = email_split[1]).first()
 
         if ef:
             self.emailFilter = ef

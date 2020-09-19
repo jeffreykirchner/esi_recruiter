@@ -92,10 +92,15 @@ class experiment_session_days(models.Model):
         else:
             return True  
 
-    #get user readable string of session dates
+    #get user readable string of session date
     def getDateString(self):
         p = parameters.objects.get(id=1)
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+    
+    #get user readable string of session date with timezone offset
+    def getDateStringTZOffset(self):
+        p = parameters.objects.get(id=1)
+        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p %z")
 
     #get the local time of experiment start
     def getStartTimeString(self):

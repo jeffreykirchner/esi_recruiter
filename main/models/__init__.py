@@ -1,5 +1,5 @@
 # from .models import *
-from .emailFilters import *
+from .email_filters import *
 from .schools import *
 from .genders import *
 from .accountTypes import *

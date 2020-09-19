@@ -17,7 +17,7 @@ admin.site.register(genders)
 admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
-admin.site.register(emailFilters)
+admin.site.register(email_filters)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 

@@ -29,7 +29,7 @@ from main.models import institutions,\
                                 majors, \
                                 parameters, \
                                 recruitmentParameters,\
-                                emailFilters, \
+                                email_filters, \
                                 profile
                         
 
@@ -487,7 +487,7 @@ def migrate_subjects2():
 
         print("assign email filters")
         
-        for f in emailFilters.objects.all():
+        for f in email_filters.objects.all():
                 p = profile.objects.filter(user__email__regex = r'.+@' + f.domain)
                 p.update(emailFilter = f)
 

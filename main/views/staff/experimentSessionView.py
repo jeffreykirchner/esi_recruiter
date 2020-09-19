@@ -464,7 +464,11 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["experiments_exclude"]=experimentsExcludeList
     form_data_dict["experiments_include"]=experimentsIncludeList
     form_data_dict["schools_exclude"]=schoolsExcludeList
-    form_data_dict["schools_include"]=schoolsIncludeList                       
+    form_data_dict["schools_include"]=schoolsIncludeList 
+
+    #if a subject has confirmed cannot some parameters
+    if es.getConfirmedCount() > 0:
+        form_data_dict["allow_multiple_participations"] = "1" if es.recruitmentParams.allow_multiple_participations else "0"
 
     #print(form_data_dict)
     form = recruitmentParametersForm(form_data_dict,instance=es.recruitmentParams)
@@ -534,6 +538,10 @@ def updateSessionDay(data,id):
 
     for field in data["formData"]:           
         form_data_dict[field["name"]] = field["value"]
+
+    if es.getConfirmedCount() > 0:
+        form_data_dict["date"] = esd.getDateStringTZOffset()
+        form_data_dict["length"] = str(esd.length)
 
     form = experimentSessionForm2(form_data_dict,instance=esd)   
 
