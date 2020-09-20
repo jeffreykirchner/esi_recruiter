@@ -12,27 +12,22 @@ def initGenders(apps, schema_editor):
 
     gender=MyModel()
     gender.name="Female"
-    gender.initialValue=True
     gender.save()
 
     gender=MyModel()
     gender.name="Male"
-    gender.initialValue=True
     gender.save()
 
     gender=MyModel()
     gender.name="Transgender"
-    gender.initialValue=True
     gender.save()
 
     gender=MyModel()
     gender.name="Other"
-    gender.initialValue=True
     gender.save()
 
     gender=MyModel()
     gender.name="Prefer not to say"
-    gender.initialValue=True
     gender.save()
 
 

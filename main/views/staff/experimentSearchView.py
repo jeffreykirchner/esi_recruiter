@@ -51,6 +51,7 @@ def createExperiment(data):
     #setup with initial genders selected
     g_list=list(genders.objects.filter(initialValue = True))
     st_list = list(subject_types.objects.filter(initialValue = True))
+    schools_list = list(schools.objects.filter(initialValue = True))
 
     e = experiments()
     e.school = schools.objects.first()
@@ -65,6 +66,8 @@ def createExperiment(data):
 
     rp.gender.add(*g_list)
     rp.subject_type.add(*st_list)
+    rp.schools_include.add(*schools_list)
+
     rp.save()
 
     return JsonResponse({"experiments" : [e.json_search()]},safe=False)

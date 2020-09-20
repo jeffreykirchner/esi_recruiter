@@ -7,17 +7,14 @@ def doPython(apps, schema_editor):
 
     staff=MyModel()
     staff.name="Undergraduate"
-    staff.initialValue = True
     staff.save()
 
     staff=MyModel()
     staff.name="Graduate"
-    staff.initialValue = False
     staff.save()
 
     staff=MyModel()
     staff.name="Non-Student"
-    staff.initialValue = False
     staff.save()
 
 class Migration(migrations.Migration):
