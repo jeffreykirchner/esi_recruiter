@@ -67,7 +67,7 @@ def profileCreate(request):
 
             profileCreateSendEmail(request,u)
 
-            u.profile.setupemail_filter()
+            u.profile.setup_email_filter()
             
             status="done"
             token = u.profile.email_confirmed

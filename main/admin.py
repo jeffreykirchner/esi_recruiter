@@ -129,7 +129,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
             c = 0
             for p in queryset:
-                  c +=  p.setupemail_filter()
+                  c +=  p.setup_email_filter()
             
             self.message_user(request, ngettext(
                   '%d user was updated.',

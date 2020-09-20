@@ -51,7 +51,7 @@ class profile(models.Model):
         verbose_name_plural = 'Profiles'
 
     #find which email filter, if any applies to user
-    def setupemail_filter(self):
+    def setup_email_filter(self):
         logger = logging.getLogger(__name__) 
         logger.info("set email filter")
         
