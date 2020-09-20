@@ -84,11 +84,13 @@ class experiment_session_days(models.Model):
     #check if this session day can be deleted
     def allowDelete(self):
 
-        ESDU = self.experiment_session_day_users_set.filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
-                                                            (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
-                                                    .exists()
+        # ESDU = self.experiment_session_day_users_set.filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
+        #                                                     (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
+        #                                             .exists()
 
-        if ESDU > 0:
+        ESDU = self.experiment_session_day_users_set.filter(confirmed = True).exists()
+
+        if ESDU:
             return False
         else:
             return True  
