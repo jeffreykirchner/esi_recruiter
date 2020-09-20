@@ -39,7 +39,7 @@ def profileVerifyResend(request):
                 
         #     try:
         #         #look for token first
-        #         u=User.objects.get(profile__emailConfirmed=form.cleaned_data['token'].strip().lower())    
+        #         u=User.objects.get(profile__email_confirmed=form.cleaned_data['token'].strip().lower())    
         #         u.email = form.cleaned_data['email']
         #         u.username = form.cleaned_data['email']
         #         u.save()
@@ -72,7 +72,7 @@ def getUser(request,data):
 
     p = parameters.objects.get(id=1)
 
-    return JsonResponse({"emailVerified":False if u.profile.emailConfirmed != "yes" else True,
+    return JsonResponse({"emailVerified":False if u.profile.email_confirmed != "yes" else True,
                          "admainName":p.labManager.first_name + " " + p.labManager.last_name,
                          "adminEmail":p.labManager.email}, safe=False) 
 

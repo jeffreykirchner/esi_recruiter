@@ -6,7 +6,7 @@ from . import email_filters
 #Chapman, etc
 class schools(models.Model):
     name = models.CharField(max_length = 300, verbose_name = 'Name')
-    emailFilter = models.ManyToManyField(email_filters,blank=True, verbose_name = 'Email Filters')     
+    email_filter = models.ManyToManyField(email_filters,blank=True, verbose_name = 'Email Filters')     
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

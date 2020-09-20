@@ -74,9 +74,9 @@ def sendMassEmailVerify(profileList,request):
     from_email = settings.EMAIL_HOST_USER    
 
     for p in profileList:
-        p.emailConfirmed = get_random_string(length=32)
+        p.email_confirmed = get_random_string(length=32)
     
-    profile.objects.bulk_update(profileList, ['emailConfirmed'])
+    profile.objects.bulk_update(profileList, ['email_confirmed'])
 
     i = 0
     c = 0
@@ -88,7 +88,7 @@ def sendMassEmailVerify(profileList,request):
             message_list.append(())
 
         link = params.siteURL      
-        link += "profileVerify/" + p.emailConfirmed +"/"
+        link += "profileVerify/" + p.email_confirmed +"/"
 
         message = params.deactivationText
         message = message.replace("[activation link]",link)
@@ -125,11 +125,11 @@ def profileCreateSendEmail(request,u):
 
     params = parameters.objects.get(id=1)
 
-    u.profile.emailConfirmed = get_random_string(length=32)   
+    u.profile.email_confirmed = get_random_string(length=32)   
     u.profile.save()
 
     link = params.siteURL       
-    link += "profileVerify/" + u.profile.emailConfirmed +"/"
+    link += "profileVerify/" + u.profile.email_confirmed +"/"
 
     msg_html = render_to_string('profileVerifyEmail.html', {'link': link,'first_name':u.first_name})
     msg_plain = strip_tags(msg_html)

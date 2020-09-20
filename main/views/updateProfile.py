@@ -38,7 +38,7 @@ def updateProfile(request):
 
                 u.profile.chapmanID=form.cleaned_data['chapman_id'].strip()
                 u.profile.gender=form.cleaned_data['gender']
-                u.profile.subjecType = form.cleaned_data['subjectType']
+                u.profile.subjecType = form.cleaned_data['subject_type']
                 u.profile.studentWorker = form.cleaned_data['studentWorker']
                 u.profile.phone = form.cleaned_data['phone'].strip()
                 u.profile.major = form.cleaned_data['major']
@@ -50,12 +50,12 @@ def updateProfile(request):
 
                 if emailVerificationRequired:
                     #u.is_active=False     
-                    u.profile.emailConfirmed="no"                           
+                    u.profile.email_confirmed="no"                           
                     profileCreateSendEmail(request,u)
 
                 u.save()
                 u.profile.save()
-                u.profile.setupEmailFilter()
+                u.profile.setupemail_filter()
                 status="done"
         else:
             logger.info("show profile")
@@ -68,7 +68,7 @@ def updateProfile(request):
                          'gender':request.user.profile.gender.id,
                          'phone':request.user.profile.phone,
                          'major':request.user.profile.major.id,
-                         'subjectType':request.user.profile.subjectType.id,
+                         'subject_type':request.user.profile.subject_type.id,
                          'studentWorker':"Yes" if request.user.profile.studentWorker else "No",
                          'paused':"Yes" if request.user.profile.paused else "No"}
             )

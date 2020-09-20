@@ -18,9 +18,9 @@ class profileFormUpdate(forms.Form):
     major = forms.ModelChoiceField(label="Major",
                                      queryset=majors.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"profile.major"}))
-    subjectType = forms.ModelChoiceField(label="What is your enrollment status?",
+    subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
                                      queryset=subject_types.objects.all(),
-                                     widget=forms.Select(attrs={"v-model":"profile.subjectType"}))
+                                     widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
                                          choices=(('Yes', 'Yes'), ('No', 'No')),                                                          
                                          widget=forms.Select)

@@ -308,12 +308,11 @@ class experiment_sessions(models.Model):
                                         WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
             --table of users that have the correct institution experience
-            institutions_include_user AS (SELECT user_institutions.auth_user_id as id,
-                                                count(user_institutions.auth_user_id) as institution_include_count
+            institutions_include_user AS (SELECT user_institutions.auth_user_id as id
                                             FROM user_institutions
                                             INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions.institution_id
                                             GROUP BY user_institutions.auth_user_id
-                                            HAVING institution_include_count >= '''+ str(ii_c) + '''),
+                                            HAVING count(user_institutions.auth_user_id) >= '''+ str(ii_c) + '''),
             '''
         
         #institution exclude strings
@@ -335,12 +334,11 @@ class experiment_sessions(models.Model):
                                             WHERE main_experiment_sessions.id = ''' + str(id) + '''), 
 
                 --table of users that should be excluded based on past history
-                institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id,
-                                                    count(user_institutions.auth_user_id) as institution_exclude_count
+                institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id
                                                 FROM user_institutions
                                                 INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id
                                                 GROUP BY user_institutions.auth_user_id
-                                                HAVING institution_exclude_count >= '''+ str(ie_c) + '''),
+                                                HAVING count(user_institutions.auth_user_id) >= '''+ str(ie_c) + '''),
                 '''
 
         #experiments include strings
@@ -364,12 +362,11 @@ class experiment_sessions(models.Model):
             
 
             --table of users that have the correct experiment include experience
-            experiments_include_user AS(SELECT user_experiments.user_id as id,
-						                       count(user_experiments.user_id) as experiment_include_count
+            experiments_include_user AS(SELECT user_experiments.user_id as id
                                         FROM user_experiments
                                         INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
                                         GROUP BY user_experiments.user_id
-                                        HAVING experiment_include_count >= ''' + str(ei_c) + '''),
+                                        HAVING count(user_experiments.user_id) >= ''' + str(ei_c) + '''),
             '''
 
         #experiments exclude strings
@@ -392,12 +389,11 @@ class experiment_sessions(models.Model):
                                     WHERE main_experiment_sessions.id = ''' + str(id) + '''),
 
             --table of users that have the correct experiment exclude experience
-            experiments_exclude_user AS(SELECT user_experiments.user_id as id,
-						                       count(user_experiments.user_id) as experiment_exclude_count
+            experiments_exclude_user AS(SELECT user_experiments.user_id as id
                                         FROM user_experiments
                                         INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
                                         GROUP BY user_experiments.user_id
-                                        HAVING experiment_exclude_count >= ''' + str(ee_c) + '''),
+                                        HAVING count(user_experiments.user_id) >= ''' + str(ee_c) + '''),
             '''
 
         #schools include strings
@@ -406,9 +402,9 @@ class experiment_sessions(models.Model):
         if es_p.schools_include_constraint:
             schools_include_with_str='''
             --subject cannot have one of these email domains
-             emailFilter_include AS (SELECT email_filters_id
-								FROM main_schools_emailFilter			
-								INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_emailFilter.schools_id						
+             email_filter_include AS (SELECT email_filters_id
+								FROM main_schools_email_filter			
+								INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_email_filter.schools_id						
 								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_include.recruitment_parameters_id
                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
@@ -417,8 +413,8 @@ class experiment_sessions(models.Model):
             schools_include_user_where_str='''
             --check if subject is in the required school
             EXISTS(SELECT 1                                                   
-                    FROM emailFilter_include
-                    WHERE main_profile.emailFilter_id = emailFilter_include.email_filters_id) AND 
+                    FROM email_filter_include
+                    WHERE main_profile.email_filter_id = email_filter_include.email_filters_id) AND 
             '''
 
         #schools exclude strings
@@ -427,9 +423,9 @@ class experiment_sessions(models.Model):
         if es_p.schools_exclude_constraint:
             schools_exclude_with_str = '''
              --subject cannot be in any of these schools
-              emailFilter_exclude AS (SELECT email_filters_id
-								FROM main_schools_emailFilter			
-								INNER JOIN main_recruitment_parameters_schools_exclude ON main_recruitment_parameters_schools_exclude.schools_id = main_schools_emailFilter.schools_id						
+              email_filter_exclude AS (SELECT email_filters_id
+								FROM main_schools_email_filter			
+								INNER JOIN main_recruitment_parameters_schools_exclude ON main_recruitment_parameters_schools_exclude.schools_id = main_schools_email_filter.schools_id						
 								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_exclude.recruitment_parameters_id
                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = ''' + str(id) +  '''),
@@ -438,8 +434,8 @@ class experiment_sessions(models.Model):
             schools_exclude_user_where_str = '''
             --check if subject is in excluded school
              NOT EXISTS(SELECT 1                                                   
-                    FROM emailFilter_exclude
-                    WHERE main_profile.emailFilter_id = emailFilter_exclude.email_filters_id) AND
+                    FROM email_filter_exclude
+                    WHERE main_profile.email_filter_id = email_filter_exclude.email_filters_id) AND
             '''
 
         #list of users to search for, if empty return all valid users
@@ -464,20 +460,19 @@ class experiment_sessions(models.Model):
         if es_p.experience_constraint:
             user_exeriments_count_str ='''
             --table of users that have correct number of experiment experiences
-            user_experiments_count AS (SELECT auth_user.id as id,
-                                       count(auth_user.id) as attended_count
+            user_experiments_count AS (SELECT auth_user.id as id
                     FROM auth_user
                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
                     WHERE ''' + users_to_search_for + '''
-                        (main_experiment_session_day_users.attended = 1 OR
-                        (main_experiment_session_day_users.confirmed = 1 AND 
+                        (main_experiment_session_day_users.attended = TRUE OR
+                        (main_experiment_session_day_users.confirmed = TRUE AND 
                            main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' )) AND
                         main_experiment_sessions.id != ''' + str(id) + ''' 
                     GROUP BY auth_user.id
-                    HAVING attended_count BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
+                    HAVING count(auth_user.id) BETWEEN ''' + str(es_p.experience_min) + ''' AND  ''' + str(es_p.experience_max) + '''),
             '''
             
             user_exeriments_count_where = '''
@@ -502,15 +497,15 @@ class experiment_sessions(models.Model):
             user_experiments_str += '''main_experiments.id = ''' + str(testExperiment) + ''' OR '''
 
         if len(u_list) > 0:
-            user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
-                                      (main_experiment_session_day_users.confirmed = 1 AND 
+            user_experiments_str +='''(main_experiment_session_day_users.attended = TRUE OR
+                                      (main_experiment_session_day_users.confirmed = TRUE AND 
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
                                             main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' ))) AND
                                        main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
                 '''
         else:
-            user_experiments_str +='''(main_experiment_session_day_users.attended = 1 OR
-                                      (main_experiment_session_day_users.confirmed = 1 AND
+            user_experiments_str +='''(main_experiment_session_day_users.attended = TRUE OR
+                                      (main_experiment_session_day_users.confirmed = TRUE AND
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
                                             main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\')))),
                 '''
@@ -536,7 +531,7 @@ class experiment_sessions(models.Model):
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
                             WHERE main_experiment_sessions.id != '''+ str(id) + ''' AND 
-                                  main_experiment_session_day_users.confirmed = 1 AND 
+                                  main_experiment_session_day_users.confirmed = TRUE AND 
                                   ('''
         tempS = ""
         for d in es.ESD.all():
@@ -553,7 +548,7 @@ class experiment_sessions(models.Model):
             user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
                                            '''
 
-        user_during_session_time_str += '''main_experiment_sessions.canceled = 0 
+        user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
                                             ),
         '''        
 
@@ -561,21 +556,20 @@ class experiment_sessions(models.Model):
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
         no_show_str ='''
             ---table of users who have no shows over the rolling window
-            now_shows AS (SELECT auth_user.id as id,
-                            COUNT(auth_user.id) as no_show_count  
+            now_shows AS (SELECT auth_user.id as id  
                             FROM auth_user
                             INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                            WHERE main_experiment_session_day_users.confirmed = 1 AND 
-                                main_experiment_session_day_users.attended = 0 AND 
-                                main_experiment_session_day_users.bumped = 0 AND 
+                            WHERE main_experiment_session_day_users.confirmed = TRUE AND 
+                                main_experiment_session_day_users.attended = FALSE AND 
+                                main_experiment_session_day_users.bumped = FALSE AND 
                                 main_experiment_session_days.date >= \'''' + str(d) + '''\' AND
                                 main_experiment_session_days.date <= CURRENT_TIMESTAMP AND
                                 ''' + users_to_search_for + '''
-                                main_experiment_sessions.canceled = 0
+                                main_experiment_sessions.canceled = FALSE
                             GROUP BY auth_user.id
-                            HAVING no_show_count >= 3),
+                            HAVING COUNT(auth_user.id) >= 3),
         '''                            
 
         #list of institions users have been in
@@ -587,12 +581,11 @@ class experiment_sessions(models.Model):
                                             --main_institutions.name AS institution_name,
                                             main_experiment_session_day_users.user_id AS auth_user_id
                                 FROM main_institutions
-                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+                                INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
                                 INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
-                                INNER JOIN main_experiments_institutions ON main_experiments.id = main_experiments_institutions.experiment_id AND
-                                                                            main_institutions.id = main_experiments_institutions.institution_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
                                 WHERE (
             '''
             if testExperiment > 0:
@@ -600,8 +593,8 @@ class experiment_sessions(models.Model):
 
             if len(u_list) > 0:
                 user_institutions_str +='''       
-                                    (main_experiment_session_day_users.attended = 1 OR
-                                    (main_experiment_session_day_users.confirmed = 1 AND 
+                                    (main_experiment_session_day_users.attended = TRUE OR
+                                    (main_experiment_session_day_users.confirmed = TRUE AND 
                                        main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
                                        main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\') AND            
                                     main_institutions.id = main_experiments_institutions.institution_id)) AND
@@ -609,8 +602,8 @@ class experiment_sessions(models.Model):
                     '''
             else:
                 user_institutions_str +='''
-                          (main_experiment_session_day_users.attended = 1 OR
-                          (main_experiment_session_day_users.confirmed = 1 AND 
+                          (main_experiment_session_day_users.attended = TRUE OR
+                          (main_experiment_session_day_users.confirmed = TRUE AND 
                               main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
                               main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\') AND
                           main_institutions.id = main_experiments_institutions.institution_id))),
@@ -640,11 +633,11 @@ class experiment_sessions(models.Model):
             + user_institutions_str \
             + institutions_include_with_str \
             + institutions_exclude_with_str \
-            + experiments_exclude_with_str \
-            + experiments_include_with_str \
             + schools_include_with_str \
             + schools_exclude_with_str \
             + user_experiments_str \
+            + experiments_exclude_with_str \
+            + experiments_include_with_str \
             + user_current_sesion_str\
             + no_show_str\
             + user_exeriments_count_str\
@@ -683,7 +676,7 @@ class experiment_sessions(models.Model):
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
                     FROM subject_type_include	
-                    WHERE main_profile.subjectType_id = subject_type_include.subject_types_id) AND 
+                    WHERE main_profile.subject_type_id = subject_type_include.subject_types_id) AND 
             
             --check user for no show violation
             NOT EXISTS(SELECT 1
@@ -701,12 +694,12 @@ class experiment_sessions(models.Model):
             + allow_multiple_participations_str \
             + users_to_search_for \
             + '''      
-            is_staff = 0 AND                                                 --subject cannot be an admin memeber
-            is_active = 1  AND                                               --acount is activated
-            blackballed = 0 AND                                              --subject has not been blackballed  
+            is_staff = FALSE AND                                             --subject cannot be an admin memeber
+            is_active = TRUE  AND                                            --acount is activated
+            blackballed = FALSE AND                                          --subject has not been blackballed  
             main_profile.type_id = 2 AND                                     --only subjects 
-            main_profile.emailConfirmed = 'yes' AND                          --the email address has been confirmed
-            main_profile.paused = 0                                          --check that the subject has not paused their account
+            main_profile.email_confirmed = 'yes' AND                          --the email address has been confirmed
+            main_profile.paused = FALSE                                      --check that the subject has not paused their account
             '''
 
         #str1 = str1.replace("10256","%s")

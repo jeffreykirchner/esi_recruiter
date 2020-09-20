@@ -28,11 +28,11 @@ class profile(models.Model):
     school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                      #Chapman University ETC
     major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
-    subjectType = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
-    emailFilter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
+    subject_type = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
+    email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
     chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
-    emailConfirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
+    email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
     blackballed = models.BooleanField(verbose_name="Blackballed",default=False)                                      #if a subject is blackballed they will not be auto recruited
     phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
     studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)                                  #true is subject is a student worker
@@ -51,11 +51,11 @@ class profile(models.Model):
         verbose_name_plural = 'Profiles'
 
     #find which email filter, if any applies to user
-    def setupEmailFilter(self):
+    def setupemail_filter(self):
         logger = logging.getLogger(__name__) 
         logger.info("set email filter")
         
-        self.emailFilter = None
+        self.email_filter = None
         self.save()
 
         if not "@" in self.user.email:
@@ -69,7 +69,7 @@ class profile(models.Model):
         ef = email_filters.objects.filter(domain = email_split[1]).first()
 
         if ef:
-            self.emailFilter = ef
+            self.email_filter = ef
             self.save()
             return 1
         else:
@@ -231,7 +231,7 @@ class profile(models.Model):
             "chapmanID":self.chapmanID, 
             "type":self.type.json(),  
             "gender":self.gender.json(),
-            "emailConfirmed":self.emailConfirmed,  
+            "email_confirmed":self.email_confirmed,  
             "blackballed":self.blackballed,         
         }
 

@@ -156,7 +156,7 @@ def updateRecruitmentParameters(data,id):
     form_data_dict = {} 
 
     genderList=[]
-    subjectTypeList=[]
+    subject_typeList=[]
     institutionsExcludeList=[]
     institutionsIncludeList=[]
     experimentsExcludeList=[]
@@ -168,7 +168,7 @@ def updateRecruitmentParameters(data,id):
         if field["name"] == "gender":                 
             genderList.append(field["value"])
         elif field["name"] == "subject_type":                 
-            subjectTypeList.append(field["value"])
+            subject_typeList.append(field["value"])
         elif field["name"] == "institutions_exclude":                 
             institutionsExcludeList.append(field["value"])
         elif field["name"] == "institutions_include":                 
@@ -185,7 +185,7 @@ def updateRecruitmentParameters(data,id):
             form_data_dict[field["name"]] = field["value"]
 
     form_data_dict["gender"]=genderList
-    form_data_dict["subject_type"]=subjectTypeList
+    form_data_dict["subject_type"]=subject_typeList
     form_data_dict["institutions_exclude"]=institutionsExcludeList
     form_data_dict["institutions_include"]=institutionsIncludeList
     form_data_dict["experiments_exclude"]=experimentsExcludeList

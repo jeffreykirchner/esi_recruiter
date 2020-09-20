@@ -4,7 +4,7 @@ from main.models import genders,profile,account_types,majors
 class userInfoForm(forms.Form):
     class Meta:
         model=profile
-        exclude=['labUser','emailConfirmed','user']
+        exclude=['labUser','email_confirmed','user']
 
     first_name = forms.CharField(label='First Name',
                                  widget=forms.TextInput(attrs={"v-on:change":"userChange"}))

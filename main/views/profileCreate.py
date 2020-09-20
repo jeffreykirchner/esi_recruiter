@@ -60,24 +60,24 @@ def profileCreate(request):
                                     form.cleaned_data['gender'],
                                     form.cleaned_data['phone'].strip(),
                                     form.cleaned_data['major'],
-                                    form.cleaned_data['subjectType'],
+                                    form.cleaned_data['subject_type'],
                                     form.cleaned_data['studentWorker'],
                                     True,
                                     account_types.objects.get(id=2))
 
             profileCreateSendEmail(request,u)
 
-            u.profile.setupEmailFilter()
+            u.profile.setupemail_filter()
             
             status="done"
-            token = u.profile.emailConfirmed
+            token = u.profile.email_confirmed
 
     else:
         form = profileForm()
 
     return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
 
-def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,subjectType,studentWorker,isActive,accountType):
+def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,subject_type,studentWorker,isActive,accountType):
     logger = logging.getLogger(__name__) 
 
     u = User.objects.create_user(username = username,
@@ -95,7 +95,7 @@ def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gende
                 type=accountType,
                 phone=phone,
                 major=major,
-                subjectType=subjectType,
+                subject_type=subject_type,
                 studentWorker=studentWorker)
 
     logger.info("Create Profile: ")

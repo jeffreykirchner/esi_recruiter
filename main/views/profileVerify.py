@@ -19,9 +19,9 @@ def profileVerify(request,token):
         if form.is_valid():          
             try:
 
-                u=User.objects.get(profile__emailConfirmed=form.cleaned_data['token'])                
+                u=User.objects.get(profile__email_confirmed=form.cleaned_data['token'])                
                 u.is_active=True
-                u.profile.emailConfirmed="yes"
+                u.profile.email_confirmed="yes"
                 u.profile.paused=False
                 u.profile.save()
                 u.save()    

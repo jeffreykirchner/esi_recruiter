@@ -212,7 +212,7 @@
                             <span class="float-right">Email Confirmed:</span>                            
                         </div>
                         <div class = "col"> 
-                            <span class="float-left">{%if u.profile.emailConfirmed == "yes"%}Yes{%else%}<span style="color: red;"></span>No</span>{%endif%}</span>
+                            <span class="float-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;"></span>No</span>{%endif%}</span>
                         </div>                
                     </div>
                     <div class = "row">
@@ -234,7 +234,7 @@
                             <span class="float-right">Enrollment Status:</span>                            
                         </div>
                         <div class = "col"> 
-                            <span class="float-left">{{u.profile.subjectType}}</span>
+                            <span class="float-left">{{u.profile.subject_type}}</span>
                         </div>
                         <div class = "col"> 
                             <span class="float-right">Student Worker:</span>                            

@@ -34,7 +34,7 @@ def userSearch(request):
             return sendEmail(request,data)
 
     else:
-        activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__emailConfirmed = 'yes').count()
+        activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__email_confirmed = 'yes').count()
         return render(request,'staff/userSearch.html',{"activeCount":activeCount})     
 
 #send an email to active users
@@ -46,7 +46,7 @@ def sendEmail(request,data):
     subjectText =  data["subject"]
     messageText = data["text"]
 
-    users_list = User.objects.filter(is_active = True, profile__emailConfirmed = 'yes',profile__type__id = 2)
+    users_list = User.objects.filter(is_active = True, profile__email_confirmed = 'yes',profile__type__id = 2)
 
     emailList = []
     
@@ -150,7 +150,7 @@ def lookup(value,returnJSON,activeOnly):
 
 
     if activeOnly:
-        users = users.filter(is_active = True, profile__emailConfirmed = 'yes')
+        users = users.filter(is_active = True, profile__email_confirmed = 'yes')
 
     u_list = list(users)
 

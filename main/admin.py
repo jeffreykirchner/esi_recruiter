@@ -18,6 +18,7 @@ admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
+admin.site.register(subject_types)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
@@ -68,7 +69,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
             updated3 = sendMassEmailVerify(queryset_active_profile,request)
 
-            #updated2 = queryset_active_profile.update(emailConfirmed="no")
+            #updated2 = queryset_active_profile.update(email_confirmed="no")
             #updated = queryset_active.update(is_active=False)            
 
             self.message_user(request, ngettext(
@@ -102,7 +103,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #confirm all active user's emails
       def confirm_active_email(self, request, queryset):
 
-            updated = queryset.filter(user__is_active = 1).update(emailConfirmed="yes")
+            updated = queryset.filter(user__is_active = 1).update(email_confirmed="yes")
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -114,7 +115,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #clear everyone from blackballs status
       def un_confirm_emails(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = 1).update(emailConfirmed='no')
+            updated = queryset.exclude(user__is_staff = 1).update(email_confirmed='no')
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -128,7 +129,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
             c = 0
             for p in queryset:
-                  c +=  p.setupEmailFilter()
+                  c +=  p.setupemail_filter()
             
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -141,8 +142,8 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
       actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,deactivate_all,activate_all]
-      list_display = ['__str__','studentWorker','blackballed','emailFilter']
-      list_filter = ('blackballed', 'studentWorker','user__is_active','emailFilter')
+      list_display = ['__str__','studentWorker','blackballed','email_filter']
+      list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')
 
 
 admin.site.unregister(User)

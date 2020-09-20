@@ -405,7 +405,7 @@ def migrate_subjects1():
         #                         is_superuser=False) 
 
         #         u.profile.chapmanID = c[1]
-        #         u.profile.emailConfirmed = "no"
+        #         u.profile.email_confirmed = "no"
         #         u.profile.blackballed = c[9]
         #         u.profile.gender_id = c[6]
         #         u.profile.phone = c[5]
@@ -455,7 +455,7 @@ def migrate_subjects2():
 
         objs = (profile(user_id = c[0],
                         chapmanID = c[1],
-                        emailConfirmed = "no",
+                        email_confirmed = "no",
                         blackballed = c[6],
                         gender_id = c[3],
                         phone = c[2],
@@ -463,7 +463,7 @@ def migrate_subjects2():
                         school_id=c[9],
                         major_id=c[5],
                         type_id=2,
-                        subjectType_id = c[4],
+                        subject_type_id = c[4],
                         nonresidentAlien = c[10],
                         w9Collected = c[11],
                 ) for c in cursor2.fetchall())
@@ -489,7 +489,7 @@ def migrate_subjects2():
         
         for f in email_filters.objects.all():
                 p = profile.objects.filter(user__email__regex = r'.+@' + f.domain)
-                p.update(emailFilter = f)
+                p.update(email_filter = f)
 
         print("email filters complete")     
 

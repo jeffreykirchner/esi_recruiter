@@ -29,7 +29,7 @@ def user_is_subject(function):
 
 def email_confirmed(function):
     def wrap(request, *args, **kwargs):       
-        if request.user.profile.emailConfirmed=="yes":
+        if request.user.profile.email_confirmed=="yes":
             return function(request, *args, **kwargs)
         else:
             #email not verified redirect to verifiction resend          
