@@ -289,7 +289,22 @@ def changeConfirmationStatus(data,id):
     esdu = experiment_session_day_users.objects.get(id = esduId)                                  
     
     if newStatus == "confirm":
-        if not esdu.getAlreadyAttended():
+        es = experiment_sessions.objects.get(id=id)
+
+        failed = False
+
+        #check user is still valid
+        u_list = es.getValidUserList([{'id':esdu.user.id}],False,0,0,[])
+
+        if not esdu.user in u_list:
+            failed=True
+        
+        #check that attending will not violate another attending experiment for this user
+        if not failed:
+            if esdu.user.profile.check_for_future_constraints(es):
+                failed=True
+
+        if not failed:
             esdu.confirmed = True
     else:
         if esdu.allowConfirm():
@@ -355,6 +370,7 @@ def getManuallyAddSubject(data,id,request):
     logger.info(data)
 
     es = experiment_sessions.objects.get(id=id)
+    p = parameters.objects.get(id=1)
 
     if es.canceled:
         return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"user":"","es_min":es.json_esd(False)}, safe=False)
@@ -363,29 +379,47 @@ def getManuallyAddSubject(data,id,request):
     sendInvitation = data["sendInvitation"]
 
     status = "success"
+    failed = False
 
     #check the subject not already in session
     esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
-                                                           experiment_session_day__experiment_session__id = id) \
-                                                   .exists()    
+                                                       experiment_session_day__experiment_session__id = id) \
+                                                   .exists()   
+    if esdu:
+        failed=True
+    
+    #check user is still valid
+    if not failed:
+       
+        u_list = es.getValidUserList([{'id':u["id"]}],False,0,0,[])
 
-    mailResult =  {"mailCount":0,"errorMessage":""}
+        if len(u_list) == 0:
+            failed=True
+    
+    #check that this session would not violate other attended experiments by this subject
+    if not failed:
+        if User.objects.get(id=u["id"]).profile.check_for_future_constraints(es):
+            failed=True
 
-    p = parameters.objects.get(id=1)
-    subjectText = ""
 
-    if es.ESD.count() == 1:
-        subjectText = p.invitationTextSubject
-    else:
-        subjectText = p.invitationTextMultiDaySubject
+    mailResult =  {"mailCount":0,"errorMessage":""}   
 
-    if not esdu:
-       es.addUser(u["id"],request.user,True)
-       es.save()
-       if sendInvitation:
-           mailResult = sendMassEmail([u], subjectText, es.getInvitationEmail())
-       else:
-           mailResult =  {"mailCount":0,"errorMessage":""}    
+    if not failed:
+
+        subjectText = ""
+
+        if es.ESD.count() == 1:
+            subjectText = p.invitationTextSubject
+        else:
+            subjectText = p.invitationTextMultiDaySubject
+
+        es.addUser(u["id"],request.user,True)
+        es.save()
+
+        if sendInvitation:
+            mailResult = sendMassEmail([u], subjectText, es.getInvitationEmail())
+        else:
+            mailResult =  {"mailCount":0,"errorMessage":""}    
     else:
         status = "fail"    
 

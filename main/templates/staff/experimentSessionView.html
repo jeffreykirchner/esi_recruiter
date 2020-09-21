@@ -1351,7 +1351,7 @@
                 </div>  
                 <div class="row mb-2">
                     <div class="col" style="text-align: center">
-                        Recruitment violations will require manual confirmation by the lab administrator.
+                        Recruitment violations cannot be manually added.
                     </div>
                 </div>                               
                 <div class="row">
@@ -1392,7 +1392,7 @@
                                             <div style="text-align: center;color: red;">Aready Added</div>
                                         </div>
                                         <div v-else>
-                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)">
+                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)" v-bind:disabled = "u.valid == 0">
                                                 Add <i class="fas fa-plus-square fa-xs"></i>  
                                             </button>   
                                             <div v-if="u.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
@@ -1491,16 +1491,11 @@
                                 {{form2.location | as_crispy_field }}                            
                             </div>
                             <div class = "col"> 
-                                <!-- {{form2.date | as_crispy_field }} -->
-                                <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
-
                                 <div id="div_id_date" class="form-group">
                                     <label for="id_date" class="requiredField">
                                         Date and Time<span class="asteriskField">*</span>
                                     </label>
                                     <div>
-                                        <!-- <input type="text" name="date" required="required" id="id_date" class="form-control"> -->
-                                        <!-- <vue-datetimepicker id="id_date" v-model="currentSessionDay.date"></vue-datetimepicker> -->
                                        <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2" v-bind:disabled="session.confirmedCount > 0"></date-picker>
                                     </div>
                                 </div>
@@ -1610,7 +1605,7 @@
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         {%if user.is_superuser%}
-                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')"v-bind:disabled="esdu.alreadyAttending">
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')"v-bind:disabled="esdu.valid == 0">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                         {%endif%}
