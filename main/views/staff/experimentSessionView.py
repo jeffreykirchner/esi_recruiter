@@ -315,7 +315,7 @@ def getSearchForSubject(data,id):
         return JsonResponse({"status":"fail","message":"Error: Narrow your search"}, safe=False)
 
     if len(users_list)>0:
-        user_list_valid = es.getValidUserList(users_list,True,0)    
+        user_list_valid = es.getValidUserList(users_list,True,0,0)    
 
     for u in users_list:
         u['valid'] = 0
@@ -335,7 +335,11 @@ def getSearchForSubject(data,id):
         #check if subject violates recrutment parameters
         for uv in user_list_valid:
             if u['id'] == uv.id:
-                u['valid'] = 1
+                
+                #check that this experiment does not violate another accepted experiment
+                if not uv.profile.check_for_future_constraints(es):                    
+                    u['valid'] = 1
+                
                 break
 
     #logger.info(users_list)
@@ -397,18 +401,24 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list = es.getValidUserList([],True,0)
+    u_list = es.getValidUserList([],True,0,0)
 
     #u_list = es.getValidUserListDjango([],True,0)
 
-    totalValid = len(u_list)
+    #check that invitation does not violate previously accepted invitations
+    u_list_2=[]
+    for u in u_list:
+        if not u.profile.check_for_future_constraints(es):
+            u_list_2.append(u)
+
+    totalValid = len(u_list_2)
 
     logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
 
-    if number > len(u_list):
-        usersSmall = u_list
+    if number > len(u_list_2):
+        usersSmall = u_list_2
     else:  
-        usersSmall = random.sample(u_list,number)
+        usersSmall = random.sample(u_list_2,number)
 
     prefetch_related_objects(usersSmall,'profile')
 

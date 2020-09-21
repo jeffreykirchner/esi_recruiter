@@ -6,7 +6,7 @@ from django.core.validators import RegexValidator
 from django.db.models import F,Q
 
 from main.models import *
-from main.models import institutions,parameters
+from main.models import institutions,parameters,experiment_sessions
 from . import email_filters
 
 import main
@@ -89,19 +89,19 @@ class profile(models.Model):
 
         return out_str
 
-    #get the query set of upcoming experiments or this subject
+    #get the query set of upcoming session days for this subject
     def sorted_session_day_upcoming(self,confirmedOnly):
         logger = logging.getLogger(__name__) 
         logger.info("sorted session day upcoming")
 
         tz = pytz.utc
 
-        logger.info(tz)
+        #logger.info(tz)
 
         t = datetime.now(tz)
         t = t.replace(hour=0,minute=0, second=0)
 
-        logger.info(t)
+        #logger.info(t)
 
         qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
                          .annotate(session_id=F('experiment_session_day__experiment_session__id'))\
@@ -141,17 +141,18 @@ class profile(models.Model):
     
         return es
 
-    #sorted list of session a subject is in
+    #sorted json list of session a subject is in
     def sorted_session_list_upcoming(self):
         logger = logging.getLogger(__name__) 
 
-        session_list =self.sessions_upcoming(False,datetime.now(pytz.utc)- timedelta(hours=1))
+        session_list = self.sessions_upcoming(False,datetime.now(pytz.utc)- timedelta(hours=1))
 
         out_lst = [es.json_subject(self.user) for es in session_list.all()
                                     .annotate(first_date=models.Min("ESD__date"))
                                     .order_by('-first_date')]
 
         return out_lst
+        
     #get full invitation list
     def sorted_session_day_list_full(self):
         logger = logging.getLogger(__name__) 
@@ -210,6 +211,23 @@ class profile(models.Model):
                 return False
         else:
             return False
+
+    #return true if adding user to session creates recruitment violations in other future  accepted experiments
+    def check_for_future_constraints(self,es):
+        logger = logging.getLogger(__name__)
+        logger.info("check for future constraints")
+
+        qs_attending = self.sessions_upcoming(True,es.getFirstDate())
+
+        for s in qs_attending:
+            user_list_valid = s.getValidUserList([{'id':self.user.id}],False,es.experiment.id,es.id)
+
+            if not self.user in user_list_valid:
+                logger.info("Invitation failed attended recruitment violation")             
+                logger.info("User: " + str(self.user.id) + ", attending session: " + str(s.id) + " , violation experiment: " + str(es.experiment.id) )
+                return True
+                        
+        return False
 
     #json version of model, small
     def json_min(self):

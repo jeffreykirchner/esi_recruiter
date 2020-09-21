@@ -236,7 +236,7 @@ class experiment_session_days(models.Model):
             u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]                   
 
             if u_list_u2_json != []:
-                user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0) 
+                user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0,0) 
             else:
                 user_list_valid = []
 

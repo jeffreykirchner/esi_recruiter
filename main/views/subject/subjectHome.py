@@ -85,7 +85,7 @@ def acceptInvitation(data,u):
         
         #check user is not already attending a recruitment violation
         if not failed:
-            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0)
+            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0,0)
 
             if not u in user_list_valid:
                 logger.info("Invitation failed recruitment violation")             
@@ -94,16 +94,8 @@ def acceptInvitation(data,u):
         
         #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
         if not failed:
-            qs_attending = u.profile.sessions_upcoming(True,qs.getFirstDate())
-
-            for s in qs_attending:
-                user_list_valid = s.getValidUserList([{'id':u.id}],False,qs.experiment.id)
-
-                if not u in user_list_valid:
-                    logger.info("Invitation failed attended recruitment violation")             
-                    logger.info("User: " + str(u.id) + ", attending session: " + str(s.id) + " , violation experiment: " + str(qs.experiment.id) )
-                    failed=True
-                    break
+            if u.profile.check_for_future_constraints(qs):
+                failed=True
 
         #do a backup check that user has not already done this experiment, if prohibited
         if not failed:

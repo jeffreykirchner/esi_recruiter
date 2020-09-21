@@ -242,7 +242,7 @@ class experiment_sessions(models.Model):
     #u_list confine search to list, empty for all subjects
     #checkAlreadyIn checks if a subject is already added to session
     #if testExperiment is greater than 0, use to test valid list if user were to hypothetically participate in that experiment
-    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment):
+    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment,testSession):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
 
@@ -441,14 +441,17 @@ class experiment_sessions(models.Model):
         #list of users to search for, if empty return all valid users
         users_to_search_for=""
         user_to_search_for_list_str = ""
+        user_to_search_for_list_values_str=""
         if len(u_list) > 0:
             logger.info(u_list)
             user_to_search_for_list_str = "("
             for u in u_list:
                 if( user_to_search_for_list_str != "("):
                     user_to_search_for_list_str += " , "
+                    user_to_search_for_list_values_str +=", "
 
                 user_to_search_for_list_str += str(u['id'])
+                user_to_search_for_list_values_str +="(" + str(u['id']) + ")"
 
             user_to_search_for_list_str += ")"
 
@@ -492,23 +495,32 @@ class experiment_sessions(models.Model):
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                             INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                            WHERE ('''
-        if testExperiment > 0:
-            user_experiments_str += '''main_experiments.id = ''' + str(testExperiment) + ''' OR '''
+                            WHERE '''
 
         if len(u_list) > 0:
-            user_experiments_str +='''(main_experiment_session_day_users.attended = TRUE OR
+            user_experiments_str +='''main_experiment_session_day_users.attended = TRUE OR
                                       (main_experiment_session_day_users.confirmed = TRUE AND 
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' ))) AND
-                                       main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''),  
+                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\' ) AND
+                                       main_experiment_session_day_users.user_id IN ''' + user_to_search_for_list_str +  '''  
                 '''
         else:
-            user_experiments_str +='''(main_experiment_session_day_users.attended = TRUE OR
+            user_experiments_str +='''main_experiment_session_day_users.attended = TRUE OR
                                       (main_experiment_session_day_users.confirmed = TRUE AND
                                             main_experiment_session_days.date_end >=  CURRENT_TIMESTAMP AND
-                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\')))),
+                                            main_experiment_session_days.date_end <= \'''' + str(self.getLastDate()) + '''\')
                 '''
+
+        if testExperiment > 0:
+            user_experiments_str +='''
+                                    --add test experiment and session in to check if violation occurs
+                                    UNION   
+                                    SELECT ''' + str(testExperiment) + ''' as experiments_id,
+                                           ''' + str(testSession) + ''' as experiment_sessions_id, 
+                                           v.user_id
+		                            FROM (VALUES ''' + user_to_search_for_list_values_str + ''') AS v(user_id)
+                                    '''
+        user_experiments_str +='''),'''
 
         #list of users in current session
         user_current_sesion_str = '''
@@ -795,7 +807,7 @@ class experiment_sessions(models.Model):
         user_list_valid_check = True
 
         if not esdu.confirmed:
-            user_list_valid = self.getValidUserList([{'id':u.id}],False,0)
+            user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0)
             if not u in user_list_valid:
                 user_list_valid_check=False
 
@@ -803,20 +815,21 @@ class experiment_sessions(models.Model):
         user_list_valid2_check=True
        
         if not esdu.confirmed:
-            qs_attending = u.profile.sessions_upcoming(True,self.getFirstDate())
+            user_list_valid2_check = not u.profile.check_for_future_constraints(self)
+            # qs_attending = u.profile.sessions_upcoming(True,self.getFirstDate())
 
-            for s in qs_attending:
+            # for s in qs_attending:
 
-                #check that session experiment is still valid
-                user_list_valid3 = s.getValidUserList([{'id':u.id}],False, 0)
-                if u in user_list_valid3:
+            #     #check that session experiment is still valid
+            #     user_list_valid3 = s.getValidUserList([{'id':u.id}],False, 0)
+            #     if u in user_list_valid3:
 
-                    #check that by doing this experiment it would invalidate subject from a previously accepted experiment
-                    user_list_valid2 = s.getValidUserList([{'id':u.id}],False, self.experiment.id)
+            #         #check that by doing this experiment it would invalidate subject from a previously accepted experiment
+            #         user_list_valid2 = s.getValidUserList([{'id':u.id}],False, self.experiment.id)
 
-                    if not u in user_list_valid2:
-                            user_list_valid2_check = False
-                            break
+            #         if not u in user_list_valid2:
+            #                 user_list_valid2_check = False
+            #                 break
 
                   
 
@@ -857,6 +870,7 @@ class experiment_sessions(models.Model):
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),            
         }
+
     #get full json object
     def json(self):
         #days_list = self.ESD.order_by("-date").prefetch_related('experiment_session_day_users_set')
