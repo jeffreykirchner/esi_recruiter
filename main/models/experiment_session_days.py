@@ -235,13 +235,17 @@ class experiment_session_days(models.Model):
             #get list of valid users        
             u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]                   
 
+            user_list_valid_clean=[]
             if u_list_u2_json != []:
                 user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0,0,[]) 
-            else:
-                user_list_valid = []
+
+                #check that attending will violate other experiments already attending
+                for u in user_list_valid:
+                    if not u.profile.check_for_future_constraints(self.experiment_session):
+                        user_list_valid_clean.append(u)
 
             logger.info("Valid List")
-            logger.info(user_list_valid)       
+            logger.info(user_list_valid_clean)       
 
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
@@ -256,7 +260,7 @@ class experiment_session_days(models.Model):
 
             #mark users that do not violate recruitment parameters
             for u in u_list_u_json:
-                for uv in user_list_valid:
+                for uv in user_list_valid_clean:
                     if u['user']['id'] == uv.id:
                         u['valid'] = 1
                         break
