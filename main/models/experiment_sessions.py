@@ -613,6 +613,7 @@ class experiment_sessions(models.Model):
                                 main_experiment_session_day_users.attended = FALSE AND 
                                 main_experiment_session_day_users.bumped = FALSE AND 
                                 main_experiment_session_days.date BETWEEN '{d}' AND CURRENT_TIMESTAMP AND
+                                main_experiment_session_days.complete = TRUE AND
                                 {users_to_search_for}
                                 main_experiment_sessions.canceled = FALSE
                             GROUP BY auth_user.id
