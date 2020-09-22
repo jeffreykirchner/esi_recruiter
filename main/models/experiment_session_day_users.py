@@ -97,6 +97,7 @@ class experiment_session_day_users(models.Model):
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and
+                             self.experiment_session_day.complete and
                              datetime.now(pytz.UTC) > self.experiment_session_day.date_end else False,
         }
     
