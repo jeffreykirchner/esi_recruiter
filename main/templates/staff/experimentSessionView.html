@@ -1076,7 +1076,7 @@
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()" v-bind:disabled="session.allowEdit === false">Invite Subjects <i class="fa fa-users"></i></button>
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
-                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowDelete === false"><span v-html = "cancelSessionButtonText"></span></button> 
+                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowEdit === false"><span v-html = "cancelSessionButtonText"></span></button> 
                     </div>               
                 </div>
 

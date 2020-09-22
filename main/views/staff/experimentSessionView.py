@@ -170,11 +170,15 @@ def cancelSession(data,id):
         
     es = experiment_sessions.objects.get(id=id)
 
-    if es.allowDelete():
-        es.canceled = True
+    if es.allowEdit():       
 
         esd =  es.ESD.order_by("date").first()
         logger.info(esd.date)
+
+        # experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = es.id)\
+        #                                     .update(earnings=0,show_up_fee=0)    
+        
+        es.canceled = True
 
         p = parameters.objects.get(id=1)
         subjectText = p.cancelationTextSubject
