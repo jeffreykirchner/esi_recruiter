@@ -303,7 +303,8 @@
                                 <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
                             </td>
                             <td  style="text-align: center;">  
-                                <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div>   
+                                <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
+                                <div v-else-if="s.confirmed" style="color: red;"><span v-html="'Canceled'"></span></div>  
                                 <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
                                 <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
                                 <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               
