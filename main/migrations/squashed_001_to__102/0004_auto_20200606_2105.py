@@ -2,13 +2,13 @@
 
 from django.db import migrations
 
-def doPython(apps, schema_editor):
+# def doPython(apps, schema_editor):
 
-    MyModel = apps.get_model('main', 'majors')
+#     MyModel = apps.get_model('main', 'majors')
 
-    staff=MyModel()
-    staff.name="Economics"
-    staff.save()
+#     staff=MyModel()
+#     staff.name="Economics"
+#     staff.save()
 
 class Migration(migrations.Migration):
 
@@ -17,5 +17,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(doPython),
+        #migrations.RunPython(doPython),
     ]

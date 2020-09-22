@@ -6,29 +6,29 @@ from django.db import migrations, models
 import django.db.models.deletion
 import uuid
 
-def initGenders(apps, schema_editor):
+# def initGenders(apps, schema_editor):
 
-    MyModel = apps.get_model('main', 'genders')
+#     MyModel = apps.get_model('main', 'genders')
 
-    gender=MyModel()
-    gender.name="Female"
-    gender.save()
+#     gender=MyModel()
+#     gender.name="Female"
+#     gender.save()
 
-    gender=MyModel()
-    gender.name="Male"
-    gender.save()
+#     gender=MyModel()
+#     gender.name="Male"
+#     gender.save()
 
-    gender=MyModel()
-    gender.name="Transgender"
-    gender.save()
+#     gender=MyModel()
+#     gender.name="Transgender"
+#     gender.save()
 
-    gender=MyModel()
-    gender.name="Other"
-    gender.save()
+#     gender=MyModel()
+#     gender.name="Other"
+#     gender.save()
 
-    gender=MyModel()
-    gender.name="Prefer not to say"
-    gender.save()
+#     gender=MyModel()
+#     gender.name="Prefer not to say"
+#     gender.save()
 
 
 class Migration(migrations.Migration):
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
             ],
         ),
         
-        migrations.RunPython(initGenders),
+        #migrations.RunPython(initGenders),
 
         migrations.CreateModel(
             name='institutions',
