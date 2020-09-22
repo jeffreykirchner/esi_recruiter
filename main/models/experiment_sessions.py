@@ -481,7 +481,8 @@ class experiment_sessions(models.Model):
                             (main_experiment_session_day_users.attended = TRUE OR
                             (main_experiment_session_day_users.confirmed = TRUE AND 
                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-                            main_experiment_sessions.id != {id} 
+                            main_experiment_sessions.id != {id} AND
+                            main_experiment_sessions.canceled = FALSE
                         GROUP BY auth_user.id
                         HAVING count(auth_user.id) BETWEEN {e_min} AND {e_max}),
                 '''
@@ -504,7 +505,8 @@ class experiment_sessions(models.Model):
                                 (main_experiment_session_day_users.attended = TRUE OR
                                 (main_experiment_session_day_users.confirmed = TRUE AND 
                                 main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-                                main_experiment_sessions.id != {id}
+                                main_experiment_sessions.id != {id} AND
+                                main_experiment_sessions.canceled = FALSE
                 '''
 
                 if testExperiment > 0:
@@ -634,8 +636,9 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
                                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                                 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                WHERE (main_experiment_session_day_users.attended = TRUE OR
-                                        (main_experiment_session_day_users.confirmed = TRUE AND 
+                                WHERE main_experiment_sessions.canceled = FALSE AND
+                                       (main_experiment_session_day_users.attended = TRUE OR
+                                         (main_experiment_session_day_users.confirmed = TRUE AND 
                                         main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
                                         main_institutions.id = main_experiments_institutions.institution_id)
             '''

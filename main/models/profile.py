@@ -219,6 +219,9 @@ class profile(models.Model):
 
         qs_attending = self.sessions_upcoming(True,es.getFirstDate())
 
+        #ignore cancel experiments
+        qs_attending = qs_attending.filter(canceled=False)
+
         i_list = es.experiment.institution.values_list("id",flat=True)
 
         for s in qs_attending:
