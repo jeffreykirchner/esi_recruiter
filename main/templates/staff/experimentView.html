@@ -511,6 +511,9 @@
                                         <div v-else>
                                             <span v-html="'Open'"></span>
                                         </div>
+                                        <div v-if="s.canceled">
+                                            <span v-html="'Canceled'" style="color: red;"></span>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <span v-for="(d,index) in s.experiment_session_days">

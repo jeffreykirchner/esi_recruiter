@@ -887,7 +887,8 @@ class experiment_sessions(models.Model):
     def json_min(self):
         return{
             "id":self.id,
-            "complete":self.getComplete(),                       
+            "complete":self.getComplete(),   
+            "canceled":self.canceled,                    
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),            
