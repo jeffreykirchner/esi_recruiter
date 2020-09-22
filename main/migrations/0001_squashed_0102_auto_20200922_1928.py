@@ -254,7 +254,7 @@ class Migration(migrations.Migration):
             name='experiment_session_days',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(default=datetime.datetime.now)),
+                ('date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('length', models.IntegerField(default=60)),
                 ('auto_reminder', models.SmallIntegerField(default=1)),
                 ('canceled', models.SmallIntegerField(default=0)),
@@ -1011,24 +1011,9 @@ class Migration(migrations.Migration):
             old_name='accountTypes',
             new_name='account_types',
         ),
-        migrations.AlterField(
-            model_name='experiment_session_days',
-            name='date',
-            field=models.DateTimeField(default=django.utils.timezone.now),
-        ),
         migrations.AddField(
             model_name='schools',
             name='initialValue',
             field=models.BooleanField(default=False, verbose_name='Default to On'),
-        ),
-        migrations.AlterField(
-            model_name='experiment_session_days',
-            name='date',
-            field=models.DateTimeField(),
-        ),
-        migrations.AlterField(
-            model_name='experiment_session_days',
-            name='date',
-            field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]
