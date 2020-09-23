@@ -252,7 +252,7 @@ class experiment_sessions(models.Model):
         es = self
         es_p = es.recruitment_params
         id =  self.id
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
 
         experiment_id = es.experiment.id
 

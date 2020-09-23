@@ -1,4 +1,5 @@
 # from .models import *
+from .parameters import *
 from .email_filters import *
 from .schools import *
 from .genders import *
@@ -6,7 +7,6 @@ from .account_types import *
 from .majors import *
 from .subject_types import *
 from .institutions import *
-from .parameters import *
 from .locations import *
 from .departments import *
 from .accounts import *

@@ -69,7 +69,7 @@ class experiment_session_days(models.Model):
         self.location = locations.objects.first()
         self.length=es.experiment.length_default
         self.account = es.experiment.account_default    
-        self.date = datetime.now()
+        self.date = now()
 
         self.save()
 

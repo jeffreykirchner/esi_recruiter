@@ -95,6 +95,15 @@ def addSession(data,id):
 
     e = experiments.objects.get(id=id) 
 
+    es = addSessionBlank(e)
+
+    return JsonResponse({ "sessions" : e.json_sessions(),},safe=False)
+    #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
+
+def addSessionBlank(e):
+    logger = logging.getLogger(__name__)
+    logger.info("Add Session Blank")
+
     es=experiment_sessions()
     es.experiment=e           
     es.save()
@@ -107,8 +116,7 @@ def addSession(data,id):
     esd.setup(es,[])
     esd.save()
 
-    return JsonResponse({ "sessions" : e.json_sessions(),},safe=False)
-    #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
+    return es
 
 #update experiment parameters
 def updateForm1(data,id):

@@ -84,6 +84,42 @@ class recruitment_parameters(models.Model):
 
         self.save()
 
+    #clear all of the parameters out
+    def reset_settings(self):
+        self.actual_participants = 1
+        self.registration_cutoff =1 
+        self.gender.clear()
+        self.subject_type.clear()     
+
+        #institutions to include or exclude
+        self.institutions_exclude.clear()
+        self.institutions_include.clear()
+
+        #experiments to include or exclude
+        self.experiments_exclude.clear()
+        self.experiments_include.clear()
+
+        #range, in number of experiments, the subject has been in
+        self.experience_min = 0
+        self.experience_max = 1000
+        self.experience_constraint  =  False
+
+        #wether constraints should be be all or more than one
+        self.institutions_exclude_all = True
+        self.institutions_include_all = True
+        self.experiments_exclude_all = True
+        self.experiments_include_all = True
+
+        #all subject to come multiple times to the same same experiment
+        self.allow_multiple_participations =  False
+
+        self.schools_include.clear()
+        self.schools_exclude.clear()
+        self.schools_include_constraint=False
+        self.schools_exclude_constraint=False
+
+        self.save()
+
     #display string for 
     def json_displayString(self):
         s=""

@@ -11,6 +11,7 @@ from django.db.models.functions import Lower
 from django.db.models import Q
 from django.db.models import Count
 from django.shortcuts import redirect
+import main
 
 @login_required
 @user_is_staff
@@ -45,8 +46,17 @@ def createExperiment(data):
     logger.info("Create Experiment")
     logger.info(data)
 
+    e = createExperimentBlank()
+
+    return JsonResponse({"experiments" : [e.json_search()]},safe=False)
+
+#create blank experiment
+def createExperimentBlank():
+    logger = logging.getLogger(__name__)
+    logger.info("Create Blank Experiment")
+    
     rp = recruitment_parameters()
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
 
     #setup with initial genders selected
     g_list=list(genders.objects.filter(initialValue = True))
@@ -64,13 +74,13 @@ def createExperiment(data):
     rp.save()
     e.save()    
 
-    rp.gender.add(*g_list)
-    rp.subject_type.add(*st_list)
-    rp.schools_include.add(*schools_list)
+    rp.gender.set(g_list)
+    rp.subject_type.set(st_list)
+    rp.schools_include.set(schools_list)
 
     rp.save()
 
-    return JsonResponse({"experiments" : [e.json_search()]},safe=False)
+    return e
 
 #serach for an experiment
 def searchExperiments(data):
