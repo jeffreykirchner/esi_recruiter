@@ -76,7 +76,7 @@ class experiments(models.Model):
 
     #return date of first session
     def getDateString(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
         esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment = self).order_by('date').first()

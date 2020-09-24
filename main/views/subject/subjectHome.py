@@ -36,7 +36,7 @@ def subjectHome(request):
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
 
         labManager = p.labManager
         return render(request,'subject/home.html',{"labManager":labManager})      
@@ -85,7 +85,7 @@ def acceptInvitation(data,u):
         
         #check user is not already attending a recruitment violation
         if not failed:
-            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0,0,[])
+            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0,0,[],False)
 
             if not u in user_list_valid:
                 logger.info("Invitation failed recruitment violation")             

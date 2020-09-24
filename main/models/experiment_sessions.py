@@ -53,7 +53,7 @@ class experiment_sessions(models.Model):
     #build an invition email given the experiment session
     def getInvitationEmail(self):
 
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
        
         message = ""
 
@@ -69,7 +69,7 @@ class experiment_sessions(models.Model):
     #build an reminder email given the experiment session
     def getReminderEmail(self):
 
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
        
         message = ""
 
@@ -84,7 +84,7 @@ class experiment_sessions(models.Model):
     
     #build a cancelation email for this experiment session
     def getCancelationEmail(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
 
         message = ""
 
@@ -242,7 +242,7 @@ class experiment_sessions(models.Model):
     #u_list confine search to list, empty for all subjects
     #checkAlreadyIn checks if a subject is already added to session
     #if testExperiment is greater than 0, use to test valid list if user were to hypothetically participate in that experiment
-    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList):
+    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
 
@@ -759,7 +759,8 @@ class experiment_sessions(models.Model):
         users = User.objects.raw(str1) #institutions_exclude_str,institutions_include_str,experiments_exclude_str,experiments_include_str
 
         #log sql statement
-        logger.info(users)
+        if printSQL:
+            logger.info(users)
 
         time_start = datetime.now()
         u_list = list(users)
@@ -769,6 +770,20 @@ class experiment_sessions(models.Model):
         logger.info("SQL Run time: " + str(time_span.total_seconds()))
 
         return u_list
+
+    #gets the valid list from getValidUserList then clean it based on future confermations
+    def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+        user_list_valid_clean=[]
+
+        #valid list based on current experience
+        user_list_valid = self.getValidUserList(u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL) 
+
+        #check that attending will not violate other experiments already attending in future
+        for u in user_list_valid:
+            if not u.profile.check_for_future_constraints(self):
+                user_list_valid_clean.append(u)
+        
+        return user_list_valid_clean
 
     #return true if all session days are complete
     def getComplete(self):
@@ -845,7 +860,7 @@ class experiment_sessions(models.Model):
         user_list_valid_check = True
 
         if not esdu.confirmed:
-            user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0,[])
+            user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0,[],False)
             if not u in user_list_valid:
                 user_list_valid_check=False
 

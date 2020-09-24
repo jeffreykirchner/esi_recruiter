@@ -180,7 +180,7 @@ def cancelSession(data,id):
         
         es.canceled = True
 
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         subjectText = p.cancelationTextSubject
 
         emailList = []
@@ -227,7 +227,7 @@ def inviteSubjects(data,id,request):
     userSuccesses = []          #list of users add
     userPkList = []             #list of primary keys of added users
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
     subjectText = ""
 
     if es.ESD.count() == 1:
@@ -298,7 +298,7 @@ def changeConfirmationStatus(data,id):
         failed = False
 
         #check user is still valid
-        u_list = es.getValidUserList([{'id':esdu.user.id}],False,0,0,[])
+        u_list = es.getValidUserList([{'id':esdu.user.id}],False,0,0,[],False)
 
         if not esdu.user in u_list:
             failed=True
@@ -334,7 +334,7 @@ def getSearchForSubject(data,id):
         return JsonResponse({"status":"fail","message":"Error: Narrow your search"}, safe=False)
 
     if len(users_list)>0:
-        user_list_valid = es.getValidUserList(users_list,True,0,0,[])    
+        user_list_valid = es.getValidUserList(users_list,True,0,0,[],False)    
 
     for u in users_list:
         u['valid'] = 0
@@ -374,7 +374,7 @@ def getManuallyAddSubject(data,id,request):
     logger.info(data)
 
     es = experiment_sessions.objects.get(id=id)
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
 
     if es.canceled:
         return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"user":"","es_min":es.json_esd(False)}, safe=False)
@@ -395,7 +395,7 @@ def getManuallyAddSubject(data,id,request):
     #check user is still valid
     if not failed:
        
-        u_list = es.getValidUserList([{'id':u["id"]}],False,0,0,[])
+        u_list = es.getValidUserList([{'id':u["id"]}],False,0,0,[],False)
 
         if len(u_list) == 0:
             failed=True
@@ -439,7 +439,7 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list = es.getValidUserList([],True,0,0,[])
+    u_list = es.getValidUserList([],True,0,0,[],False)
 
     #u_list = es.getValidUserListDjango([],True,0)
 
@@ -600,11 +600,12 @@ def updateSessionDay(data,id):
         
         es.save()      
 
-        # es = experiment_sessions.objects.get(id=id)
+        print("valid session form")
 
         return JsonResponse({"sessionDays" :es.json(),"status":"success"}, safe=False)
     else:
-        print("invalid form2")
+        print("invalid session form")
+        print(dict(form.errors.items()))
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #remove subject from session day 

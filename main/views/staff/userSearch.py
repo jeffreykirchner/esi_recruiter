@@ -66,7 +66,7 @@ def getNoShows(request,data):
     logger.info("Get no show blocks")
     logger.info(data)
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
     d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
 
     errorMessage = ""

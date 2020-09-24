@@ -32,7 +32,7 @@ def reportsView(request):
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
 
         return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
                                                     "studentReportForm" : studentReportForm(),
@@ -54,7 +54,7 @@ def studentReport(data):
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         studentReport_nra = form.cleaned_data['studentReport_nra'] 
@@ -192,7 +192,7 @@ def pettyCash(data):
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         dpt = form.cleaned_data['department']

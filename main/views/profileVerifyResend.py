@@ -70,7 +70,7 @@ def getUser(request,data):
     u=request.user
     logger.info(u)
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
 
     return JsonResponse({"emailVerified":False if u.profile.email_confirmed != "yes" else True,
                          "admainName":p.labManager.first_name + " " + p.labManager.last_name,

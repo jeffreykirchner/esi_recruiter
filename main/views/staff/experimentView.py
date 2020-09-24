@@ -62,7 +62,7 @@ def getExperiment(data,id):
     except ObjectDoesNotExist :
         raise Http404('Experiment Not Found')
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
             
     return JsonResponse({"experiment" :  e.json(),
                             "sessions" : e.json_sessions(),

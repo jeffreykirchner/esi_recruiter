@@ -38,7 +38,7 @@ def getMonth(request,data):
     logger.info("Get month")
     logger.info(data)
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
     t = datetime.now(tz)
 
@@ -61,7 +61,7 @@ def changeMonth(request,data):
     currentYear = int(data["currentYear"])
 
     if direction == "current":
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         t = datetime.now(tz)
     elif direction == "previous":
@@ -105,7 +105,7 @@ def getCalendarJson(month,year):
     #month = 3
     #year = 2020
 
-    p = parameters.objects.get(id=1)
+    p = parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
 
     cal_full = []

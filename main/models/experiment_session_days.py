@@ -97,22 +97,22 @@ class experiment_session_days(models.Model):
 
     #get user readable string of session date
     def getDateString(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
     
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p %z")
 
     #get the local time of experiment start
     def getStartTimeString(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         endTime = self.date + timedelta(minutes = self.length)
         return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
 
@@ -151,7 +151,7 @@ class experiment_session_days(models.Model):
         self.save()
 
         logger = logging.getLogger(__name__)
-        p = parameters.objects.get(id=1)
+        p = parameters.objects.first()
         logger.info("Send Reminder emails to: session " + str(self.experiment_session) + ", session day " + str(self.id))
         
         subjectText =  p.reminderTextSubject
@@ -237,7 +237,7 @@ class experiment_session_days(models.Model):
 
             user_list_valid_clean=[]
             if u_list_u2_json != []:
-                user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0,0,[]) 
+                user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0,0,[],False) 
 
                 #check that attending will violate other experiments already attending
                 for u in user_list_valid:

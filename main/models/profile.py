@@ -225,7 +225,7 @@ class profile(models.Model):
         i_list = es.experiment.institution.values_list("id",flat=True)
 
         for s in qs_attending:
-            user_list_valid = s.getValidUserList([{'id':self.user.id}],False,es.experiment.id,es.id,i_list)
+            user_list_valid = s.getValidUserList([{'id':self.user.id}],False,es.experiment.id,es.id,i_list,False)
 
             if not self.user in user_list_valid:
                 logger.info("Invitation failed attended recruitment violation")             
