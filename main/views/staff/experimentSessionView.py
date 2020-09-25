@@ -588,6 +588,7 @@ def updateSessionDay(data,id):
         form_data_dict[field["name"]] = field["value"]
 
     if es.getConfirmedCount() > 0:
+        logger.info("Cannot change session date or length when subjects have confirmed")
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
 

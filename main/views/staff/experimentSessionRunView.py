@@ -29,7 +29,7 @@ def experimentSessionRunView(request,id=None):
         if data["action"] == "getSession":
             return getSession(data,id)
         elif data["action"] == "attendSubject":
-            return attendSubject(request,data,id)
+            return attendSubject(request.user,data,id)
         elif data["action"] == "bumpSubject":
             return bumpSubject(data,id)
         elif data["action"] == "noShowSubject":
@@ -312,7 +312,19 @@ def fillDefaultShowUpFee(data,id):
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
 #mark subject as attended
-def attendSubject(request,data,id):    
+def attendSubject(u,data,id):
+    '''
+        Mark subject as attended in a session day
+
+        :param u: user object
+        :type u:django.contrib.auth.models.User
+
+        :param data: dict from user screen
+        :type data:dict
+
+        :param id:experiment session day id
+        :type id:main.models.experiment_session_day
+    '''    
     logger = logging.getLogger(__name__)
     logger.info("Attend Subject")
     logger.info(data)
@@ -323,7 +335,7 @@ def attendSubject(request,data,id):
 
     status=""
 
-    if request.user.is_superuser:
+    if u.is_superuser:
         if esdu.getAlreadyAttended():
             esdu.attended=False
             esdu.bumped=True

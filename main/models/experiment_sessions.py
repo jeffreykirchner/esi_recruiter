@@ -308,11 +308,11 @@ class experiment_sessions(models.Model):
                                         WHERE main_experiment_sessions.id = {id}),
 
             --table of users that have the correct institution experience
-            institutions_include_user AS (SELECT user_institutions.auth_user_id as id
-                                            FROM user_institutions
-                                            INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions.institution_id
-                                            GROUP BY user_institutions.auth_user_id
-                                            HAVING count(user_institutions.auth_user_id) >= {ii_c}),
+            institutions_include_user AS (SELECT user_institutions_past.auth_user_id as id
+                                            FROM user_institutions_past
+                                            INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions_past.institution_id
+                                            GROUP BY user_institutions_past.auth_user_id
+                                            HAVING count(user_institutions_past.auth_user_id) >= {ii_c}),
             '''
         
         #institution exclude strings
@@ -622,9 +622,34 @@ class experiment_sessions(models.Model):
                             HAVING COUNT(auth_user.id) >= {p.noShowCutoff}),
         '''                            
 
-        #list of institions users have been in
+        #list of institutions subject has been in in the past
+        user_institutions_past_str=""
+        if ii_c > 0:
+            user_institutions_past_str =f'''
+            -- table of users and institutions they have been in past
+            user_institutions_past AS (SELECT DISTINCT main_institutions.id as institution_id,
+                                                       --main_institutions.name AS institution_name,
+                                                       main_experiment_session_day_users.user_id AS auth_user_id
+                                FROM main_institutions
+                                INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
+                                INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+                                WHERE main_experiment_sessions.canceled = FALSE AND
+                                      main_experiment_session_day_users.attended = TRUE AND            
+                                      main_institutions.id = main_experiments_institutions.institution_id
+            '''
+
+            if len(u_list) > 0:
+                user_institutions_past_str +=f''' AND       
+                                       main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
+                    '''
+            user_institutions_past_str +='''),'''
+
+        #list of institutions subject has been in or are commited to be in in the future
         user_institutions_str=""
-        if ii_c > 0 or ie_c > 0:
+        if ie_c > 0:
             user_institutions_str =f'''
             -- table of users and institutions they have been in 
             user_institutions AS (SELECT DISTINCT main_institutions.id as institution_id,
@@ -681,6 +706,7 @@ class experiment_sessions(models.Model):
             ''' \
             + user_during_session_time_str \
             + user_institutions_str \
+            + user_institutions_past_str \
             + institutions_include_with_str \
             + institutions_exclude_with_str \
             + schools_include_with_str \

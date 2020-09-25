@@ -7,7 +7,9 @@ from main.models import genders,experiments,subject_types,account_types,majors,\
                         experiment_session_day_users    
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
-from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay
+from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
+from main.views.subject.subjectHome import acceptInvitation,cancelAcceptInvitation
+from main.views.staff.experimentSessionRunView import attendSubject,bumpSubject,noShowSubject,completeSession
 
 from datetime import datetime,timedelta
 import pytz
@@ -195,12 +197,14 @@ class recruiteTestCase(TestCase):
     l1=None           #locations
     l2=None
     account1=None     #accounts   
+    p=None            #parameters
+    staff_u=None      #staff user
     
     def setUp(self):
         logger = logging.getLogger(__name__)
 
-        p = parameters()
-        p.save()
+        self.p = parameters()
+        self.p.save()
         
         d = departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
@@ -226,12 +230,14 @@ class recruiteTestCase(TestCase):
         #staff user
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
-        staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st,False,True,account_types.objects.get(id=1))
+        self.staff_u.is_superuser=True
+        self.staff_u.save()
         
-        p.labManager=staff_u
-        p.save()
+        self.p.labManager=self.staff_u
+        self.p.save()
 
         self.user_list=[]
 
@@ -277,18 +283,18 @@ class recruiteTestCase(TestCase):
         updateSessionDay(session_day_data,esd1.id)
 
         temp_u = self.user_list[1]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
 
         temp_u = self.user_list[2]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id)
 
         #setup experiment with one session three subjects, one confirmed, +2 day
         self.e2 = createExperimentBlank()
-        self.e2.institution.set(institutions.objects.filter(name="one"))
+        self.e2.institution.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
         self.e2.save()
 
         es1 = addSessionBlank(self.e2)    
@@ -301,17 +307,17 @@ class recruiteTestCase(TestCase):
         updateSessionDay(session_day_data,esd1.id)
 
         temp_u = self.user_list[3]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
 
         temp_u = self.user_list[4]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
 
         temp_u = self.user_list[5]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id)     
 
@@ -326,7 +332,7 @@ class recruiteTestCase(TestCase):
         updateSessionDay(session_day_data,esd1.id)
 
         temp_u = self.user_list[6]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
 
@@ -341,7 +347,7 @@ class recruiteTestCase(TestCase):
         updateSessionDay(session_day_data,esd1.id)
 
         temp_u = self.user_list[7]
-        es1.addUser(temp_u.id,staff_u,True)
+        es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
     
@@ -404,26 +410,36 @@ class recruiteTestCase(TestCase):
         
         self.assertEqual(len(e_users),len(u_list))
 
-    #one or more
+    #one or more experiments
     def testExperienceCountOnePlus(self):
         """Test experience count 1+ experience""" 
         logger = logging.getLogger(__name__)
 
         d_now_minus_one = self.d_now - timedelta(days=1)
 
+        #logger.info("here:" + str(d_now_minus_one))
+
         e=self.e1
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
         updateSessionDay(session_day_data,esd1.id)
 
-        esd1.experiment_session_day_users_set.all().filter(user__id=1).update(attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user__id=2).update(bumped=True,confirmed=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        completeSession({},esd1.id)
 
         e=self.e2
         es=self.e2.ES.first()
+
+        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+
+        #logger.info("here:" + str(esdu.attended))
 
         es.recruitment_params.experience_constraint=True
         es.recruitment_params.experience_min = 1
@@ -435,7 +451,788 @@ class recruiteTestCase(TestCase):
 
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
-        logger.info("Users not confirmed for experiment with no experience:")
+        logger.info("Users not confirmed for experiment with 1 experience:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #one or more experiments
+    def testExperienceCountOnePlusCanceled(self):
+        """Test experience count 1+ experience canceled experiment""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        cancelSession({},es.id)
+        completeSession({},esd1.id)
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+
+        #logger.info("here:" + str(esdu.attended))
+
+        es.recruitment_params.experience_constraint=True
+        es.recruitment_params.experience_min = 1
+        es.recruitment_params.experience_max = 1000
+        es.recruitment_params.save()
+
+        e_users = []
+       
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users not confirmed for experiment with 1 experience:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #no shows
+    def testNoShowViolations(self):
+        """Test no show violations""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        completeSession({},esd1.id)
+
+        esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[2])
+
+        self.p.noShowCutoff = 1
+        self.p.save()
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that do not have 1 no show within last 90 days:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #no shows in canceled experiment
+    def testNoShowViolationsCanceled(self):
+        """Test no show violation for canceled experiment""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+       
+        cancelSession({},es.id)
+        completeSession({},esd1.id)
+
+        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+
+        self.p.noShowCutoff = 1
+        self.p.save()
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that do not have 1 no show within last 90 days:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #recruit subjects with one required institution
+    def testOneInstitutionRequired(self):
+        """Test one institution required""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+       
+        completeSession({},esd1.id)
+
+        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        es.recruitment_params.institutions_include.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.save()
+
+        e_users = []
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #recruit subjects with multiple institution requirments
+    def testTwoInstitutionRequired(self):
+        """Test two institutions required""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #setup experiment 1, insitution "one"
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        completeSession({},esd1.id)
+
+        #setup experiment 2 institution "one" and "three"
+        e=self.e2
+        es=self.e2.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[3])
+        cancelAcceptInvitation({"id":es.id},self.user_list[4])
+        cancelAcceptInvitation({"id":es.id},self.user_list[5])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        completeSession({},esd1.id)
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.institutions_include.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        
+        # esd1 = es1.ESD.first()
+
+        e_users = []
+        e_users.append(self.user_list[3])
+        e_users.append(self.user_list[4])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one and three:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #recruit subjects with multiple required institution canceled session
+    def testTwoInstitutionRequiredCanceled(self):
+        """Test two institutions required session canceled""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #setup experiment 1, insitution "one"
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        completeSession({},esd1.id)
+
+        #setup experiment 2 institution "one" and "three"
+        e=self.e2
+        es=self.e2.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[3])
+        cancelAcceptInvitation({"id":es.id},self.user_list[4])
+        cancelAcceptInvitation({"id":es.id},self.user_list[5])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+
+        cancelSession({},es.id)
+        completeSession({},esd1.id)
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.institutions_include.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+
+        esd1 = es.ESD.first()
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        
+        # esd1 = es1.ESD.first()
+
+        e_users = []
+        # e_users.append(self.user_list[3])
+        # e_users.append(self.user_list[4])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one and three:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #recuit subjects that have comitted for required insiution but not attended at recruit time   
+    def testOneInstitutionFutureComitted(self):
+        """Test one institution required""" 
+        logger = logging.getLogger(__name__)
+
+        #d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        es.recruitment_params.institutions_include.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.save()
+
+        e_users = []
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],True)
+
+        logger.info("Users that done institution one:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+    
+    #recruit subjects excluding one institution
+    def testOneInstitutionExluded(self):
+        """Test one institution excluded""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+       
+        completeSession({},esd1.id)
+
+        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.save()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[2])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that have not done institution one:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+    #recruit subjects excluding two institutions if in all
+    def testTwoInstitutionExcludedInAll(self):
+        """Test two institutions excluded if in all""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #setup experiment 1, insitution "one"
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        completeSession({},esd1.id)
+
+        #setup experiment 2 institution "one" and "three"
+        e=self.e2
+        es=self.e2.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[3])
+        cancelAcceptInvitation({"id":es.id},self.user_list[4])
+        cancelAcceptInvitation({"id":es.id},self.user_list[5])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        completeSession({},esd1.id)
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        
+        # esd1 = es1.ESD.first()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[5])
+        e_users.append(self.user_list[6])
+        e_users.append(self.user_list[7])
+
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one and three:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+
+     #recruit subjects excluding two institutions if in all
+    
+    #recruit subjects excluding two institutions if in one
+    def testTwoInstitutionExcludedInOne(self):
+        """Test two institutions excluded if in one""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #setup experiment 1, insitution "one"
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        completeSession({},esd1.id)
+
+        #setup experiment 2 institution "one" and "three"
+        e=self.e2
+        es=self.e2.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[3])
+        cancelAcceptInvitation({"id":es.id},self.user_list[4])
+        cancelAcceptInvitation({"id":es.id},self.user_list[5])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        completeSession({},esd1.id)
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.institutions_exclude_all=False
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        
+        # esd1 = es1.ESD.first()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[5])
+        e_users.append(self.user_list[6])
+        e_users.append(self.user_list[7])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one and three:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))   
+
+    #recruit subjects excluding two institutions if in one future conflict
+    def testTwoInstitutionExcludedInOneFutureConflict(self):
+        """Test two institutions excluded if in one, future conflict""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #setup experiment 1, insitution "one"
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+
+        completeSession({},esd1.id)
+
+        #setup experiment 2 institution "one" and "three", exclude two experience
+        e=self.e2
+        es=self.e2.ES.first()
+        esd1 = es.ESD.first()
+
+        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="two"))
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.institutions_exclude_all=False
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 02:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        
+        # esd1 = es1.ESD.first()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[5])
+        e_users.append(self.user_list[6])
+        e_users.append(self.user_list[7])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Users that done institution one and three:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))   
+
+    #check time overlap
+    def testSessionOverlap(self):
+        """Test that subjects can not commit two sessions at same time""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_plus_two = self.d_now + timedelta(days=2)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+
+        esd1 = es1.ESD.first()
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 03:45 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[5])
+        e_users.append(self.user_list[7])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],True)
+
+        logger.info("Users that done institution one:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+
+        #all users not in experiment that have been in at least one other session
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+    
+    #check time overlap with canceled session
+    def testSessionOverlapCanceled(self):
+        """Test that subjects can not commit two sessions at same time""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_plus_two = self.d_now + timedelta(days=2)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        cancelSession({},self.e2.ES.first().id)
+
+        #test experiment
+        e3 = createExperimentBlank()
+        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.save()
+       
+        es1 = addSessionBlank(e3)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+
+        esd1 = es1.ESD.first()
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 03:45 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[3])
+        e_users.append(self.user_list[4])
+        e_users.append(self.user_list[5])
+        e_users.append(self.user_list[7])
+
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],True)
+
+        logger.info("Users that done institution one:")
         logger.info(e_users)
         logger.info("Valid users that can be added:")
         logger.info(u_list)
