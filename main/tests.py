@@ -188,7 +188,7 @@ class subjectTypeTestCase(TestCase):
 
         self.assertEqual(c, len(User.objects.all()))
 
-#test experience count
+#test recruitment parameters
 class recruiteTestCase(TestCase):
     e1 = None         #experiments
     e2 = None
@@ -1937,9 +1937,9 @@ class recruiteTestCase(TestCase):
 
         u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
-        logger.info("Users that done institution one and three:")
+        logger.info("Expected Users:")
         logger.info(e_users)
-        logger.info("Valid users that can be added:")
+        logger.info("Returned Users:")
         logger.info(u_list)
 
         #all users not in experiment that have been in at least one other session
@@ -2045,9 +2045,9 @@ class recruiteTestCase(TestCase):
 
         u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
-        logger.info("Users that done institution one and three:")
+        logger.info("Expected Users:")
         logger.info(e_users)
-        logger.info("Valid users that can be added:")
+        logger.info("Returned Users:")
         logger.info(u_list)
 
         #all users not in experiment that have been in at least one other session
@@ -2055,4 +2055,169 @@ class recruiteTestCase(TestCase):
             self.assertIn(u, u_list)
         
         self.assertEqual(len(e_users),len(u_list))
-   
+
+#test school constraints
+class schoolTestCase(TestCase):
+    e=None #experiment
+    user_list=[]      #list of user
+
+    def setUp(self):
+        logger = logging.getLogger(__name__)
+
+        p = parameters()
+        p.save()
+        
+        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d.save()
+
+        a = accounts(name="a",number="1.0",department=d)
+        a.save()
+
+        l=locations(name="l",address="room")
+        l.save()
+
+        i1=institutions(name="one")
+        i1.save()
+        i2=institutions(name="two")
+        i2.save()
+        i3=institutions(name="three")
+        i3.save()
+
+        s=schools.objects.first()
+        s.email_filter.set(email_filters.objects.all())
+
+        self.user_list=[]
+        #create 5 subjects, 3 undergrad two graduates
+        for g in range(4):
+
+            if g<=1:
+                user_name = "g"+str(g)+"@chapman.edu"
+            else:
+                user_name = "g"+str(g)+"@gmail.com"
+
+            temp_st=""
+            if g<=2:
+                temp_st =  subject_types.objects.get(id=1)
+            else:
+                temp_st =  subject_types.objects.get(id=2)
+
+            u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          temp_st,False,True,account_types.objects.get(id=2))
+            
+            logger.info(u)
+
+            u.is_active = True
+            u.profile.email_confirmed = 'yes'
+
+            u.profile.save()
+            u.save()
+
+            u.profile.setup_email_filter()
+
+            self.user_list.append(u)
+        
+        self.e = createExperimentBlank()
+        self.e.institution.set(institutions.objects.filter(name="one"))
+        self.e.save()
+
+    #no school contraints
+    def testSchoolsNoContraint(self):
+        """Test no school contraints""" 
+        logger = logging.getLogger(__name__)
+
+        es = addSessionBlank(self.e)    
+        es.recruitment_params.reset_settings()
+        es.recruitment_params.gender.set(genders.objects.all())
+        es.recruitment_params.subject_type.set(subject_types.objects.all())
+
+        es.recruitment_params.schools_include_constraint=False
+        es.recruitment_params.schools_exclude_constraint=False
+        es.recruitment_params.save()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[3])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #all users should be valid without school contraints
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+    
+    #exclude school
+    def testSchoolsExclude(self):
+        """Test school exclude contraints""" 
+        logger = logging.getLogger(__name__)
+
+        es = addSessionBlank(self.e)    
+        es.recruitment_params.reset_settings()
+        es.recruitment_params.gender.set(genders.objects.all())
+        es.recruitment_params.subject_type.set(subject_types.objects.all())
+
+        es.recruitment_params.schools_include_constraint=False
+        es.recruitment_params.schools_exclude_constraint=True
+        es.recruitment_params.schools_exclude.set(schools.objects.filter(id=1))
+        es.recruitment_params.save()
+
+        e_users = []
+        #e_users.append(self.user_list[0])
+        #e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[3])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #all users should be valid without school contraints
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
+    
+    #include only from selected schools
+    def testSchoolsInclude(self):
+        """Test school include contraints""" 
+        logger = logging.getLogger(__name__)
+
+        es = addSessionBlank(self.e)    
+        es.recruitment_params.reset_settings()
+        es.recruitment_params.gender.set(genders.objects.all())
+        es.recruitment_params.subject_type.set(subject_types.objects.all())
+
+        es.recruitment_params.schools_include_constraint=True
+        es.recruitment_params.schools_exclude_constraint=False
+        es.recruitment_params.schools_include.set(schools.objects.filter(id=1))
+        es.recruitment_params.save()
+
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        #e_users.append(self.user_list[2])
+        #e_users.append(self.user_list[3])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #all users should be valid without school contraints
+        for u in e_users:
+            self.assertIn(u, u_list)
+        
+        self.assertEqual(len(e_users),len(u_list))
