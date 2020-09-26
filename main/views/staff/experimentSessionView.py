@@ -164,6 +164,14 @@ def sendMessage(data,id):
 
 #cancel session
 def cancelSession(data,id):
+    '''
+        Cancel session
+        :param data: empty {}
+        :type data:dict
+
+        :param id:Experiment Session ID
+        :type id:int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Cancel Session")
     logger.info(data)

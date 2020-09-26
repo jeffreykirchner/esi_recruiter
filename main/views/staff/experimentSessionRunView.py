@@ -257,6 +257,15 @@ def savePayouts(data,id):
 
 #close session and prevent further editing
 def completeSession(data,id):
+    '''
+        Complete session after all earnings have been entered
+        :param data: empty {}
+        :type data:dict
+
+        :param data: Experiment Session Day ID
+        :type data:int
+
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Complete Session")
     logger.info(data)

@@ -85,6 +85,7 @@ class recruitment_parameters(models.Model):
         self.save()
 
     #clear all of the parameters out
+    #changing defaults will break tests
     def reset_settings(self):
         self.actual_participants = 1
         self.registration_cutoff =1 

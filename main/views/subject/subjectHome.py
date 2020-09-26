@@ -132,6 +132,15 @@ def acceptInvitation(data,u):
 
 #return invitations for subject
 def cancelAcceptInvitation(data,u):    
+    '''
+    Subject cancels invitation acceptance 
+    
+    :param data: Form data{"id":experiment session id}
+    :type data: dict
+
+    :param u: Subject User
+    :type u: django.contrib.auth.models.User
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Cancel accept invitation")    
     logger.info(data)

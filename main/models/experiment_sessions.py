@@ -362,11 +362,11 @@ class experiment_sessions(models.Model):
             
 
             --table of users that have the correct experiment include experience
-            experiments_include_user AS(SELECT user_experiments.user_id as id
-                                        FROM user_experiments
-                                        INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments.experiments_id
-                                        GROUP BY user_experiments.user_id
-                                        HAVING count(user_experiments.user_id) >= {ei_c}),
+            experiments_include_user AS(SELECT user_experiments_past.user_id as id
+                                        FROM user_experiments_past
+                                        INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments_past.experiments_id
+                                        GROUP BY user_experiments_past.user_id
+                                        HAVING count(user_experiments_past.user_id) >= {ei_c}),
             '''
 
         #experiments exclude strings
@@ -524,9 +524,32 @@ class experiment_sessions(models.Model):
                         FROM user_experiments_gte_zero
                         WHERE auth_user.id = user_experiments_gte_zero.id) AND 
                 '''
-                
-        #user experiments list
-        user_experiments_str = '''
+
+        #user experiments past only
+        user_experiments_past_str = ""
+        if ei_c > 0:
+            user_experiments_past_str= f'''
+                --table of users and experiments they have been in or commited to be in
+                user_experiments_past AS (SELECT main_experiments.id as experiments_id,
+                                                main_experiment_sessions.id as experiment_sessions_id,
+                                                main_experiment_session_day_users.user_id as user_id
+                                FROM main_experiments
+                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+                                WHERE main_experiment_sessions.canceled = FALSE AND
+                                      main_experiment_session_day_users.attended = TRUE
+                                '''
+
+            if len(u_list) > 0:
+                user_experiments_past_str +=f''' AND
+                                    main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
+                    '''
+
+            user_experiments_past_str +='''),'''
+
+        #user experiments list past and future
+        user_experiments_str = f'''
             --table of users and experiments they have been in or commited to be in
             user_experiments AS (SELECT main_experiments.id as experiments_id,
                                             main_experiment_sessions.id as experiment_sessions_id,
@@ -535,18 +558,15 @@ class experiment_sessions(models.Model):
                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
                             INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                             INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                            WHERE main_experiment_sessions.canceled = FALSE AND'''
+                            WHERE main_experiment_sessions.canceled = FALSE AND
+                                  (main_experiment_session_day_users.attended = TRUE OR
+                                    (main_experiment_session_day_users.confirmed = TRUE AND 
+                                     main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
+                            '''
 
         if len(u_list) > 0:
-            user_experiments_str +=f'''(main_experiment_session_day_users.attended = TRUE OR
-                                      (main_experiment_session_day_users.confirmed = TRUE AND 
-                                            main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-                                       main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
-                '''
-        else:
-            user_experiments_str +=f'''(main_experiment_session_day_users.attended = TRUE OR
-                                      (main_experiment_session_day_users.confirmed = TRUE AND
-                                            main_experiment_session_days.date_end BETWEEN  CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
+            user_experiments_str +=f''' AND
+                                  main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
                 '''
 
         if testExperiment > 0:
@@ -702,23 +722,22 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_gender.recruitment_parameters_id
                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = {id}),
-        
-            ''' \
-            + user_during_session_time_str \
-            + user_institutions_str \
-            + user_institutions_past_str \
-            + institutions_include_with_str \
-            + institutions_exclude_with_str \
-            + schools_include_with_str \
-            + schools_exclude_with_str \
-            + user_experiments_str \
-            + experiments_exclude_with_str \
-            + experiments_include_with_str \
-            + user_current_sesion_str\
-            + no_show_str\
-            + user_exeriments_count_str\
-            + f'''
             
+            {user_during_session_time_str}
+            {user_institutions_str}
+            {user_institutions_past_str}
+            {institutions_include_with_str}
+            {institutions_exclude_with_str}
+            {schools_include_with_str}
+            {schools_exclude_with_str}
+            {user_experiments_past_str}
+            {user_experiments_str}
+            {experiments_exclude_with_str}
+            {experiments_include_with_str}
+            {user_current_sesion_str}
+            {no_show_str}
+            {user_exeriments_count_str}
+
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
                                         FROM main_recruitment_parameters_subject_type
@@ -736,14 +755,14 @@ class experiment_sessions(models.Model):
 
             INNER JOIN main_profile ON main_profile.user_id = auth_user.id
 
-            WHERE '''\
-            + institutions_exclude_user_where_str \
-            + institutions_include_user_where_str \
-            + experiments_exclude_user_where_str \
-            + experiments_include_user_where_str \
-            + schools_exclude_user_where_str \
-            + schools_include_user_where_str \
-            + '''
+            WHERE 
+            {institutions_exclude_user_where_str}
+            {institutions_include_user_where_str}
+            {experiments_exclude_user_where_str}
+            {experiments_include_user_where_str}
+            {schools_exclude_user_where_str}
+            {schools_include_user_where_str}
+
             --user's gender is on the list
             EXISTS(SELECT 1                                                   
                     FROM genders_include	
@@ -764,12 +783,10 @@ class experiment_sessions(models.Model):
                     FROM user_during_session_time
                     WHERE auth_user.id = user_during_session_time.user_id) AND
 
-            '''\
-            + user_not_in_session_already \
-            + user_exeriments_count_where \
-            + allow_multiple_participations_str \
-            + users_to_search_for \
-            + '''      
+            {user_not_in_session_already}
+            {user_exeriments_count_where}
+            {allow_multiple_participations_str}
+            {users_to_search_for}    
             is_staff = FALSE AND                                             --subject cannot be an admin memeber
             is_active = TRUE  AND                                            --acount is activated
             blackballed = FALSE AND                                          --subject has not been blackballed  
