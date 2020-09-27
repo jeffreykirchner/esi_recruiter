@@ -355,7 +355,7 @@ class recruiteTestCase(TestCase):
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id)
     
-    #subject g0 is unassinged
+        #subject g0 is unassinged
 
     #constraint disabled
     def testExperienceCountOff(self):
