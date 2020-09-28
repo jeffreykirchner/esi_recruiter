@@ -56,75 +56,87 @@ def getCurrentInvitations(data,u):
 
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
+    '''
+    Subject cancels invitation acceptance 
+    
+    :param data: Form data{"id":experiment session id}
+    :type data: dict
+
+    :param u: Subject User
+    :type u: django.contrib.auth.models.User
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Accept invitation")    
     logger.info(data)
 
-    es_id = data["id"]
-
-    # try:
-    qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
-    qs = qs.filter(id = es_id).first()                               #session being accepted
-
     failed=False
 
-    if qs:
+    try:
+        es_id = data["id"]
 
-        #check that session has not started
-        if qs.hoursUntilFirstStart() <= -0.25:
-            logger.info("Invitation failed session started")             
-            logger.info("User: " + str(u.id))
+        qs = u.profile.sessions_upcoming(False,datetime.now(pytz.utc) - timedelta(hours=1))
+        qs = qs.filter(id = es_id).first()                               #session being accepted
 
-            failed=True
+        if qs:
 
-        #check session not already full
-        if qs.getFull(): 
-            logger.info("Invitation failed accept session full")             
-            logger.info("User: " + str(u.id))
-            failed=True
-        
-        #check user is not already attending a recruitment violation
-        if not failed:
-            user_list_valid = qs.getValidUserList([{'id':u.id}],False,0,0,[],False)
+            #check that session has not started
+            if qs.hoursUntilFirstStart() <= -0.25:
+                logger.info("Invitation failed session started")             
+                logger.info("User: " + str(u.id))
 
-            if not u in user_list_valid:
-                logger.info("Invitation failed recruitment violation")             
+                failed=True
+
+            #check session not already full
+            if qs.getFull(): 
+                logger.info("Invitation failed accept session full")             
                 logger.info("User: " + str(u.id))
                 failed=True
-        
-        #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
-        if not failed:
-            if u.profile.check_for_future_constraints(qs):
-                failed=True
-
-        #do a backup check that user has not already done this experiment, if prohibited
-        if not failed:
-            esdu = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
-                                            user__id=u.id).first()
             
-            if esdu.getAlreadyAttended():
-                logger.info("Invitation failed, user has already done this experiment")
-                logger.info("User: " + str(u.id) + ", attending session: " + str(esdu.id))
-                failed=True
-        
-        #update confirmed status
-        if not failed:
-            logger.info("Accept Not Failed")
-            experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
-                                            user__id=u.id)\
-                                    .update(confirmed=True)
+            #check user is not already attending a recruitment violation
+            if not failed:
+                user_list_valid = qs.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False)
+                logger.info( "Valid user list: " + str(user_list_valid))
+                if not u in user_list_valid:
+                    logger.info("Invitation failed recruitment violation")             
+                    logger.info("User: " + str(u.id))
+                    failed=True
+            
+            # #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
+            # if not failed:
+            #     if u.profile.check_for_future_constraints(qs):
+            #         failed=True
+            #         logger.info("Invitation failed future violation")
+
+            #do a backup check that user has not already done this experiment, if prohibited
+            if not failed:
+                esdu = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                                user__id=u.id).first()
+                
+                if esdu.getAlreadyAttended():
+                    logger.info("Invitation failed, user has already done this experiment")
+                    logger.info("User: " + str(u.id) + ", attending session: " + str(esdu.id))
+                    failed=True
+            
+            #update confirmed status
+            if not failed:
+                logger.info("Accept Not Failed")
+                experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                                                user__id=u.id)\
+                                        .update(confirmed=True)
+            else:
+                logger.info("Accept Failed") 
+
         else:
-            logger.info("Accept Failed") 
+            logger.info("Invitation not found")             
+            logger.info("User: " + str(u.id))
+            failed=True
 
-    else:
-        logger.info("Invitation not found")             
-        logger.info("User: " + str(u.id))
+    except Exception  as e:
+        logger.info("Accept invitation error")             
+        logger.info("User: " + str(u.id))    
+        logger.info(e)
+
         failed=True
-
-    # except Exception  as e:
-    #     logger.info("Accept invitation error")             
-    #     logger.info("User: " + str(u.id))    
-    #     logger.info(e)
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
