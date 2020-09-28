@@ -394,16 +394,16 @@ def getManuallyAddSubject(data,id,request):
     failed = False
 
     #check the subject not already in session
-    esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
-                                                       experiment_session_day__experiment_session__id = id) \
-                                                   .exists()   
-    if esdu:
-        failed=True
+    # esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
+    #                                                    experiment_session_day__experiment_session__id = id) \
+    #                                                .exists()   
+    # if esdu:
+    #     failed=True
     
     #check user is still valid
     if not failed:
        
-        u_list = es.getValidUserList([{'id':u["id"]}],False,0,0,[],False)
+        u_list = es.getValidUserList([{'id':u["id"]}],True,0,0,[],False)
 
         if len(u_list) == 0:
             failed=True
