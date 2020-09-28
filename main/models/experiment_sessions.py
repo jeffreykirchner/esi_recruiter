@@ -15,6 +15,7 @@ from django.db.models.signals import post_delete
 from django.db.models import Q,F,Value as V,Count
 
 from . import genders,subject_types,institutions,experiments,parameters,recruitment_parameters,parameters
+import main
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
@@ -153,13 +154,22 @@ class experiment_sessions(models.Model):
     #check if this session can be deleted    
     def allowDelete(self):
 
-        ESD = self.ESD.all()    
+        #if subjects have been invited, session cannot be deleted
+        if main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id).count() > 0:
+            return False
+        else:
+            return True
+        
+        # if self.canceled and 
+           
 
-        for e in ESD:
-            if not e.allowDelete():
-                return False
+        # ESD = self.ESD.all()    
 
-        return True
+        # for e in ESD:
+        #     if not e.allowDelete():
+        #         return False
+
+       # return True
 
     #check if any of the session days are complete
     def allowEdit(self):
