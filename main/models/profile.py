@@ -40,6 +40,8 @@ class profile(models.Model):
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected",default=False)                                #true if a w9 tax form was collected from subject
     nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien",default=False)                           #true is subject is a not a US Citizen or US Resident
 
+    consentRequired = models.BooleanField(verbose_name="Consent Form Required",default=True)                         #true if the subject must agree to the current consent form  
+
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
