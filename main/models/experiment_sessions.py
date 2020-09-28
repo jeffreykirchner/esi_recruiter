@@ -913,7 +913,10 @@ class experiment_sessions(models.Model):
         user_list_valid_check = True
 
         if not esdu.confirmed:
-            user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0,[],False)
+            #user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0,[],False)
+
+            user_list_valid = self.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False)
+
             if not u in user_list_valid:
                 user_list_valid_check=False
 
