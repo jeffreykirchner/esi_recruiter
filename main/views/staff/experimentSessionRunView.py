@@ -83,8 +83,6 @@ def getStripeReaderCheckin(data,id):
     except:
         status="Card Read Error"
 
-
-
     if status == "":
         # try:            
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
@@ -93,27 +91,7 @@ def getStripeReaderCheckin(data,id):
                                                     .select_related('user')\
                                                     .first()
         
-        if esdu:
-            if esdu.getAlreadyAttended():
-                esdu.attended = False
-                esdu.bumped = True
-
-                status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
-                logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
-            else:     
-                esdu.attended = True
-                esdu.bumped = False
-
-                status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
-
-            esdu.save()
-            logger.info(esdu)            
-        else:           
-            status = "No subject found."
-        # except:
-        #     logger.info("error")
-        #     status = "No subject found."
-
+        status = attendSubjectAction(esdu,id)
 
     esd = experiment_session_days.objects.get(id=id)
 
@@ -345,25 +323,52 @@ def attendSubject(u,data,id):
     status=""
 
     if u.is_superuser:
-        if esdu.getAlreadyAttended():
-            esdu.attended=False
-            esdu.bumped=True
-
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
-
-            logger.info("Double experiment checkin attempt:user " + str(esdu.user.id) + ", " + " ESDU " + str(esdu.id))
-        else:
-            esdu.attended=True
-            esdu.bumped=False
-
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
-        esdu.save()
+        status = attendSubjectAction(esdu,id)
     else:
         logger.info("Attend Subject Error, non super user")
 
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
+
+#mark subject as attended
+def attendSubjectAction(esdu,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Attend Subject Action")
+    logger.info(esdu)
+
+    status=""
+
+    #check subject session day exists
+    if esdu:
+        #check that subject has agreed to consent form
+        if esdu.user.profile.consentRequired:
+            esdu.bumped = False
+            esdu.attended = False
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " must agree to the consent form."
+            logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+
+        #backup check that subject has not already done this experiment if excluded
+        elif esdu.getAlreadyAttended():
+            esdu.attended = False
+            esdu.bumped = True
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
+            logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+        else:     
+            esdu.attended = True
+            esdu.bumped = False
+
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now attending."
+
+        esdu.save()          
+    else:           
+        status = "No subject found."
+
+    return status
+
+
 
 #mark subject as bumped
 def bumpSubject(data,id):    

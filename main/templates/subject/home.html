@@ -49,8 +49,6 @@
                 },
 
                 acceptConsentForm:function(id,index){
-                                       
-                    app.$data.upcomingInvitations[index].waiting=true;
 
                     axios.post('/subjectHome/', {
                                     action :"acceptConsentForm",                                                                                                                                                                
@@ -66,7 +64,6 @@
                 acceptInvitation:function(id,index){
                     //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-                    
                     app.$data.upcomingInvitations[index].waiting=true;
 
                     axios.post('/subjectHome/', {
@@ -143,7 +140,11 @@
                     }
                     else
                     {
-                        $('#consentModal').modal().hide();
+                        if(($("#consentModal").data('bs.modal') || {})._isShown)
+                        {
+                            $('#consentModal').modal('toggle');
+                        }
+                        //
                     }
                 },
 
