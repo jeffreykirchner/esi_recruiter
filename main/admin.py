@@ -62,27 +62,16 @@ class ProfileAdmin(admin.ModelAdmin):
 
             user_list = User.objects.filter(profile__in = queryset).filter(is_active=True).exclude(is_staff = True)      
 
-            # queryset_active = queryset.filter(user__is_active=True).exclude(user__is_staff = True)
-
             queryset_active_profile = list(queryset.filter(user__is_active = True).exclude(user__is_staff = True).select_related('user'))
             updated_users = user_list.update(is_active = False)
 
-            updated3 = sendMassEmailVerify(queryset_active_profile,request)
-
-            #updated2 = queryset_active_profile.update(email_confirmed="no")
-            #updated = queryset_active.update(is_active=False)            
+            updated3 = sendMassEmailVerify(queryset_active_profile,request)         
 
             self.message_user(request, ngettext(
                   '%d user was deactivated.',
                   '%d users were deactivated.',
                   updated_users,
             ) % updated_users, messages.SUCCESS)
-
-            # self.message_user(request, ngettext(
-            #       '%d profile was deactivated.',
-            #       '%d profiles were deactivated.',
-            #       updated2,
-            # ) % updated2, messages.SUCCESS)
 
             self.message_user(request,"Emails Sent: " + str(updated3['mailCount']) + " " + updated3['errorMessage'], messages.SUCCESS)
 
@@ -137,11 +126,23 @@ class ProfileAdmin(admin.ModelAdmin):
                   c,
             ) % c, messages.SUCCESS)
 
+      #set all selected users to agree to consent form before continuing
+      def consent_form_required(self, request, queryset):
+
+            updated = queryset.exclude(user__is_staff = 1).update(consentRequired=True)
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      consent_form_required.short_description = "Require selected users to agree to consent form"
+
       apply_email_filter.short_description = "Apply email filters to selected profiles"    
 
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
-      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,deactivate_all,activate_all]
+      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,deactivate_all,activate_all,consent_form_required]
       list_display = ['__str__','studentWorker','blackballed','email_filter']
       list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')
 

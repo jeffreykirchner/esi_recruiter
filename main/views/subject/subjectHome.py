@@ -17,10 +17,11 @@ def subjectHome(request):
    
     
     # logger.info("some info")
+    u=request.user  
 
     if request.method == 'POST':     
 
-        u=request.user  
+       
         #u=User.objects.get(id=11330)  #tester
 
         data = json.loads(request.body.decode('utf-8'))
@@ -33,12 +34,15 @@ def subjectHome(request):
             return cancelAcceptInvitation(data,u)
         elif data["action"] == "showAllInvitations":
             return showAllInvitations(data,u)
+        elif data["action"] == "acceptConsentForm":
+            return acceptConsentForm(data,u)
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
         p = parameters.objects.first()
 
         labManager = p.labManager
+        
         return render(request,'subject/home.html',{"labManager":labManager})      
 
 #return invitations for subject
@@ -47,12 +51,45 @@ def getCurrentInvitations(data,u):
     logger.info("Get current invitations")    
     logger.info(data)
 
+    p = parameters.objects.first()
+
     failed=False
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
+    consentRequired = u.profile.consentRequired
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"pastAcceptedInvitations":pastAcceptedInvitations,"failed":failed}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "pastAcceptedInvitations":pastAcceptedInvitations,
+                         "consentRequired":consentRequired,
+                         "consentFormText":p.consentForm,
+                         "failed":failed}, safe=False)
+
+def acceptConsentForm(data,u):
+    '''
+    Subject cancels invitation acceptance 
+    
+    :param data: Form data{} empty
+    :type data: dict
+
+    :param u: Subject User
+    :type u: django.contrib.auth.models.User
+    '''
+
+    logger = logging.getLogger(__name__)
+    logger.info("Accept consent form")    
+    logger.info(data)
+
+    u.profile.consentRequired=False
+    u.profile.save()
+
+    upcomingInvitations = u.profile.sorted_session_list_upcoming()
+    consentRequired = u.profile.consentRequired
+
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "consentRequired":consentRequired,
+                         "failed":"false"}, safe=False)
+
 
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
@@ -78,19 +115,25 @@ def acceptInvitation(data,u):
         qs = qs.filter(id = es_id).first()                               #session being accepted
 
         if qs:
+            #subject cannot attend before consent form accepted
+            if u.profile.consentRequired:
+                logger.info("Consent required before accept") 
+                failed=True
 
             #check that session has not started
-            if qs.hoursUntilFirstStart() <= -0.25:
-                logger.info("Invitation failed session started")             
-                logger.info("User: " + str(u.id))
+            if not failed:
+                if qs.hoursUntilFirstStart() <= -0.25:
+                    logger.info("Invitation failed session started")             
+                    logger.info("User: " + str(u.id))
 
-                failed=True
+                    failed=True
 
             #check session not already full
-            if qs.getFull(): 
-                logger.info("Invitation failed accept session full")             
-                logger.info("User: " + str(u.id))
-                failed=True
+            if not failed:
+                if qs.getFull(): 
+                    logger.info("Invitation failed accept session full")             
+                    logger.info("User: " + str(u.id))
+                    failed=True
             
             #check user is not already attending a recruitment violation
             if not failed:
@@ -139,8 +182,11 @@ def acceptInvitation(data,u):
         failed=True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
+    consentRequired = u.profile.consentRequired
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"failed":failed}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "consentRequired":consentRequired,
+                         "failed":failed}, safe=False)
 
 #return invitations for subject
 def cancelAcceptInvitation(data,u):    
@@ -203,8 +249,11 @@ def cancelAcceptInvitation(data,u):
         logger.info(e)
 
     upcomingInvitations=u.profile.sorted_session_list_upcoming()
+    consentRequired = u.profile.consentRequired
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,"failed":failed}, safe=False)
+    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "consentRequired":consentRequired,
+                         "failed":failed}, safe=False)
 
 #return list of past declined invitations
 def showAllInvitations(data,u):    
