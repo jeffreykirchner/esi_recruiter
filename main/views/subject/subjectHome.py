@@ -91,7 +91,6 @@ def acceptConsentForm(data,u):
                          "consentRequired":consentRequired,
                          "failed":"false"}, safe=False)
 
-
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
     '''
