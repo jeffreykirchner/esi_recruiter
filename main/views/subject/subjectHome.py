@@ -65,9 +65,10 @@ def getCurrentInvitations(data,u):
                          "consentFormText":p.consentForm,
                          "failed":failed}, safe=False)
 
+#subject accepts consent form
 def acceptConsentForm(data,u):
     '''
-    Subject cancels invitation acceptance 
+    Subject accepts consent form
     
     :param data: Form data{} empty
     :type data: dict
