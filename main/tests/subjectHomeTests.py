@@ -84,6 +84,7 @@ class subjectHomeTestCase(TestCase):
 
         self.u.is_active = True
         self.u.profile.email_confirmed = 'yes'
+        self.u.profile.consentRequired = False
 
         self.u.profile.save()
         self.u.save()
@@ -149,6 +150,23 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(cancelAcceptInvitation({"id":self.es2.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
     
+    #subject must have agreed to consent form before accepting
+    def testConfirmAttendenceConsentRequired(self):
+        """Test subject consent required acceptence""" 
+        logger = logging.getLogger(__name__)
+
+        self.u.profile.consentRequired = True
+        self.u.profile.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+
+        self.u.profile.consentRequired = False
+        self.u.profile.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
     #subject cancels attendence within 24 hours
     def testCancelAttendenceWithin24Hours(self):
         """Test subject cancel within 24 hours""" 

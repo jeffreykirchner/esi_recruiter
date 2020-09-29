@@ -19,6 +19,8 @@
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
                 lastActionFailed:false,
+                consentRequired:false,
+                consentFormText:"",
             },
 
             methods:{
@@ -29,6 +31,7 @@
                                 .then(function (response) {    
                                     
                                     app.takeUpcomingInvitations(response);
+                                    app.$data.consentFormText = response.data.consentFormText;
                                     
                                     app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                                 
@@ -44,11 +47,23 @@
                                     console.log(error);                                    
                                 });                        
                 },
+
+                acceptConsentForm:function(id,index){
+
+                    axios.post('/subjectHome/', {
+                                    action :"acceptConsentForm",                                                                                                                                                                
+                                })
+                                .then(function (response) {     
+                                    app.takeUpcomingInvitations(response);                                                                     
+                                })
+                                .catch(function (error) {
+                                    console.log(error);                                    
+                                });                        
+                },
                 
                 acceptInvitation:function(id,index){
                     //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-                    
                     app.$data.upcomingInvitations[index].waiting=true;
 
                     axios.post('/subjectHome/', {
@@ -103,6 +118,8 @@
                 },
                 
                 takeUpcomingInvitations:function(response){
+
+                    app.$data.consentRequired=response.data.consentRequired; 
                     app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
                     for(var i=0;i<app.$data.upcomingInvitations.length;i++)
@@ -114,8 +131,21 @@
                             temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date);
                         }                        
                     }
-
+                    
                     app.$data.lastActionFailed = response.data.failed;
+
+                    if(app.$data.consentRequired)
+                    {
+                        $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
+                    }
+                    else
+                    {
+                        if(($("#consentModal").data('bs.modal') || {})._isShown)
+                        {
+                            $('#consentModal').modal('toggle');
+                        }
+                        //
+                    }
                 },
 
                 formatDate: function(value){
@@ -327,5 +357,8 @@
             </div>                    
         </div>                
     </div>
-</div>    
+</div>
+
+{%include "modals/consentModal.html"%}
+
 {%endblock content%}
