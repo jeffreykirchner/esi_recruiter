@@ -368,8 +368,6 @@ def attendSubjectAction(esdu,id):
 
     return status
 
-
-
 #mark subject as bumped
 def bumpSubject(data,id):    
     logger = logging.getLogger(__name__)
