@@ -70,6 +70,15 @@ def getSession(data,id):
 
 #get data from the strip reader for subject checkin
 def getStripeReaderCheckin(data,id):
+    '''
+    Check subject in with strip reader
+
+    :param data: Form data{"value":stripe reader input, ###=##}
+    :type data: dict
+
+    :param id: Experiment session day id
+    :type id: int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Stripe Reader Checkin")
     logger.info(data)
@@ -77,21 +86,29 @@ def getStripeReaderCheckin(data,id):
     status = ""    
 
     try:
-        v = data["value"].split("=")
-        chapmanID = int(v[0])
-        logger.info(id)
+        if "=" in data["value"]:
+            v = data["value"].split("=")
+            chapmanID = int(v[0])
+            logger.info(id)
+        else:
+            status="Card Read Error"
+            logger.info("Stripe Reader Error, no equals")
     except:
         status="Card Read Error"
+        logger.info("Stripe Reader card read error")
 
     if status == "":
         # try:            
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
                                                             user__profile__chapmanID__icontains = chapmanID,
                                                             confirmed = True)\
-                                                    .select_related('user')\
-                                                    .first()
+                                                    .select_related('user')
         
-        status = attendSubjectAction(esdu,id)
+        if len(esdu)>1:
+            status= "Error: Multiple users found" 
+            logger.info("Stripe Reader Error, multiple users found")
+        else:
+            status = attendSubjectAction(esdu.first(),id)
 
     esd = experiment_session_days.objects.get(id=id)
 
@@ -303,10 +320,10 @@ def attendSubject(u,data,id):
     '''
         Mark subject as attended in a session day
 
-        :param u: user object
+        :param u: request user object
         :type u:django.contrib.auth.models.User
 
-        :param data: dict from user screen
+        :param data: {id:experiment_session_day_users.id}
         :type data:dict
 
         :param id:experiment session day id
@@ -350,10 +367,17 @@ def attendSubjectAction(esdu,id):
             logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #backup check that subject has not already done this experiment if excluded
+        elif not esdu.confirmed:
+            esdu.attended = False
+            esdu.bumped = False
+            
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
+            logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+
         elif esdu.getAlreadyAttended():
             esdu.attended = False
             esdu.bumped = True
-
+            
             status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
             logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
         else:     
@@ -376,28 +400,55 @@ def bumpSubject(data,id):
 
     esdu = experiment_session_day_users.objects.get(id=data['id'])
 
-    esdu.attended=False
-    esdu.bumped=True
-    esdu.save()
+    status=""
+    if esdu:
+        if esdu.confirmed:
+            esdu.attended=False
+            esdu.bumped=True
 
-    esd = experiment_session_days.objects.get(id=id)
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
+        else:
+            esdu.attended = False
+            esdu.bumped = False           
 
-    status = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
+            status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
+            logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+
+        esdu.save()
+    else:
+        status = esdu.user.last_name + ", " + esdu.user.first_name + " was not found."
+        logger.info("Bump Error, subject not found")
+
+    esd = experiment_session_days.objects.get(id=id)    
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
 
 #mark subject as no show
 def noShowSubject(data,id):    
+    '''
+    Set subject to "No Show" status
+
+    :param data: Form data{"id":experiment session day user id}
+    :type data: dict
+
+    :param id: Experiment session day id
+    :type id: int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("No Show")
     logger.info(data)
 
     esdu = experiment_session_day_users.objects.get(id=data['id'])
 
-    esdu.attended=False
-    esdu.bumped=False
-    esdu.save()
+    status = "success"
+    
+    if esdu:
+        esdu.attended=False
+        esdu.bumped=False
+        esdu.save()
+    else:
+        status = "fail"
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo()  }, safe=False)
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status}, safe=False)
