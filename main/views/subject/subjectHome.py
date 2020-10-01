@@ -162,7 +162,7 @@ def acceptInvitation(data,u):
             
             #update confirmed status
             if not failed:
-                logger.info("Accept Not Failed")
+                logger.info("Accept Success")
                 experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=True)

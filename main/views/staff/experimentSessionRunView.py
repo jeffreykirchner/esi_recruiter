@@ -135,6 +135,15 @@ def getPayPalExport(data,id):
 
 #automatically randomly bump exccess subjects
 def autoBump(data,id):
+    '''
+        mark all attended subjects as bumped
+
+        :param data: empty {}
+        :type data:dict
+
+        :param data: Experiment Session Day ID
+        :type data:int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Auto Bump")
     logger.info(data)
@@ -156,10 +165,12 @@ def autoBump(data,id):
             if not e.user.profile.bumped_from_last_session(e.id):
                 esdu_attended_not_bumped.append(e)
 
-        #logger.info(esdu_attended_not_bumped)
+        logger.info("Auto bump: available list " + str( esdu_attended_not_bumped))
 
         if bumpsNeeded>len(esdu_attended_not_bumped):
                 bumpsNeeded = len(esdu_attended_not_bumped)
+
+        logger.info("Auto bump: bumps needed " + str(bumpsNeeded))
 
         if bumpsNeeded > 0:        
 
@@ -180,6 +191,16 @@ def autoBump(data,id):
 
 #bump all subjects marked as attended
 def bumpAll(data,id):
+    '''
+        mark all attended subjects as bumped
+
+        :param data: empty {}
+        :type data:dict
+
+        :param data: Experiment Session Day ID
+        :type data:int
+    '''
+
     logger = logging.getLogger(__name__)
     logger.info("Bump All")
     logger.info(data)
@@ -203,7 +224,7 @@ def bumpAll(data,id):
 def backgroundSave(data,id):
     '''
         Automaically save earnings in background
-        :param data: empty {id:id,earing:earings,showUpFee:showUpFee}
+        :param data: {id:id,earing:earings,showUpFee:showUpFee}
         :type data:dict
 
         :param data: Experiment Session Day ID

@@ -207,7 +207,7 @@ class profile(models.Model):
 
         if ESDU_last:        
             if ESDU_last.bumped:
-                logger.info(ESDU_last.experiment_session_day.date)
+                logger.info("Bumped from last: User " + str(self.user.id) + ", date " +  str(ESDU_last.experiment_session_day.date))
                 return True
             else:
                 return False

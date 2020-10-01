@@ -104,6 +104,9 @@ class subjectHomeTestCase(TestCase):
         self.es1.recruitment_params.reset_settings()
         self.es1.recruitment_params.gender.set(genders.objects.all())
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.registration_cutoff = 5
+        self.es1.recruitment_params.save()
+        self.es1.save()
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -123,6 +126,9 @@ class subjectHomeTestCase(TestCase):
         self.es2.recruitment_params.reset_settings()
         self.es2.recruitment_params.gender.set(genders.objects.all())
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es2.recruitment_params.registration_cutoff = 5
+        self.es2.recruitment_params.save()
+        self.es2.save()
         esd1 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -226,8 +232,26 @@ class subjectHomeTestCase(TestCase):
         """Test subject confirm in same experiment twice""" 
         logger = logging.getLogger(__name__)
 
+        temp_es1 = addSessionBlank(self.e1)    
+        temp_es1.recruitment_params.reset_settings()
+        temp_es1.recruitment_params.gender.set(genders.objects.all())
+        temp_es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        temp_es1.recruitment_params.registration_cutoff = 5
+        temp_es1.recruitment_params.save()
+        temp_es1.save()
+        esd1 = temp_es1.ESD.first()
+
+        d_now_plus_two = self.d_now + timedelta(days=2)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 01:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        self.assertEqual(temp_es1.getConfirmedCount(),0)
+
+        temp_es1.addUser(self.u.id,self.staff_u,True)
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
 
-        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        r = json.loads(acceptInvitation({"id":temp_es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])

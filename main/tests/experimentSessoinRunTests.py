@@ -11,7 +11,8 @@ from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
 from main.views.staff.experimentSessionRunView import getStripeReaderCheckin,noShowSubject,attendSubject,bumpSubject,noShowSubject,fillDefaultShowUpFee
-from main.views.staff.experimentSessionRunView import fillEarningsWithFixed,completeSession,savePayouts,backgroundSave,bumpAll
+from main.views.staff.experimentSessionRunView import fillEarningsWithFixed,completeSession,savePayouts,backgroundSave,bumpAll,autoBump,completeSession
+from main.views.subject.subjectHome import cancelAcceptInvitation,acceptInvitation
 
 from datetime import datetime,timedelta
 import pytz
@@ -125,6 +126,9 @@ class sessionRunTestCase(TestCase):
         self.es1.recruitment_params.reset_settings()
         self.es1.recruitment_params.gender.set(genders.objects.all())
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.registration_cutoff = 5
+        self.es1.recruitment_params.save()
+        self.es1.save()
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -150,20 +154,23 @@ class sessionRunTestCase(TestCase):
         self.es2.recruitment_params.reset_settings()
         self.es2.recruitment_params.gender.set(genders.objects.all())
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
-        esd1 = self.es2.ESD.first()
+        self.es2.recruitment_params.registration_cutoff = 5
+        self.es2.recruitment_params.save()
+        self.es2.save()
+        esd2 = self.es2.ESD.first()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        updateSessionDay(session_day_data,esd1.id)
+        session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd2.id)
         self.assertEqual(self.es2.getConfirmedCount(),0)
 
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u.id).first()
         changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id)
 
         #add subject 2
-        self.es1.addUser(self.u2.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
+        self.es2.addUser(self.u2.id,self.staff_u,True)
+        temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
         changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
 
     #check subject in with stripe reader
@@ -526,7 +533,7 @@ class sessionRunTestCase(TestCase):
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        #save attend subject's pay out
+        #bump all attended subjects
         r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])   
 
@@ -534,7 +541,9 @@ class sessionRunTestCase(TestCase):
         self.assertEquals("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
         self.assertEquals(esdu.bumped,True)
+        self.assertEquals(esdu2.bumped,False)
 
         #junk data
         r = json.loads(bumpAll({},esd1.id+50).content.decode("UTF-8"))
@@ -544,6 +553,122 @@ class sessionRunTestCase(TestCase):
     def testAutoBump(self):
         """Test auto bump""" 
         logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(esdu.bumped,False)
+        self.assertEquals(esdu2.bumped,False)
+
+        #try auto bump subjects that were previously bumped
+        r = json.loads(cancelAcceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(cancelAcceptInvitation({"id":self.es1.id},self.u2).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        d_now = self.d_now
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y") + ' 01:00 am -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+
+        esdu.confirmed=True
+        esdu.save()
+
+        esdu2.confirmed=True
+        esdu2.save()
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(bumpAll({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esd2 = self.es2.ESD.first()
+        r = json.loads(acceptInvitation({"id":self.es2.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(acceptInvitation({"id":self.es2.id},self.u2).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(autoBump({},esd2.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd2.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd2.id,user__id = self.u2.id).first()
+
+        self.assertEquals(esdu.bumped,False)
+        self.assertEquals(esdu2.bumped,False)
+
+        #bump 1 of two
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        # r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        # self.assertEquals("success",r['status'])
+
+        # r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        # self.assertEquals("success",r['status'])
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(autoBump({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(True if esdu.bumped != esdu2.bumped else False,True)
+
+        #bump 0 of two
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(autoBump({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(esdu.bumped,False)
+        self.assertEquals(esdu2.bumped,False)
+
+        #test junk input
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(autoBump({},esd2.id+50).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(esdu.bumped,False)
+        self.assertEquals(esdu2.bumped,False)
+
+
+
+
+
 
 
 
