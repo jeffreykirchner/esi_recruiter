@@ -156,9 +156,15 @@ class sessionRunTestCase(TestCase):
         updateSessionDay(session_day_data,esd1.id)
         self.assertEqual(self.es2.getConfirmedCount(),0)
 
+        #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
         changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id)
+
+        #add subject 2
+        self.es1.addUser(self.u2.id,self.staff_u,True)
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
+        changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
 
     #check subject in with stripe reader
     def testStripeReaderCheckin(self):
@@ -431,6 +437,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(completeSession({},esd1.id+50).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
 
+    #test save payouts
     def testSavePayouts(self):
         """Test save payouts""" 
         logger = logging.getLogger(__name__)
@@ -470,6 +477,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(savePayouts(p,esd1.id).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
     
+    #test background save
     def testBackgroundSave(self):
         """Test background save payouts""" 
         logger = logging.getLogger(__name__)
@@ -509,6 +517,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(backgroundSave(p,esd1.id).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
 
+    #test bump all
     def testBumpAll(self):
         """Test bump all""" 
         logger = logging.getLogger(__name__)
@@ -530,6 +539,11 @@ class sessionRunTestCase(TestCase):
         #junk data
         r = json.loads(bumpAll({},esd1.id+50).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
+    
+    #test auto bump
+    def testAutoBump(self):
+        """Test auto bump""" 
+        logger = logging.getLogger(__name__)
 
 
 

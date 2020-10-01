@@ -139,34 +139,44 @@ def autoBump(data,id):
     logger.info("Auto Bump")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    json_info=""
+    status="success"
 
-    esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
+    try:
+        esd = experiment_session_days.objects.get(id=id)
 
-    attendedCount = esdu_attended.count()
-    bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
+        esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
 
-    esdu_attended_not_bumped=[]
+        attendedCount = esdu_attended.count()
+        bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
 
-    for e in esdu_attended:
-        if not e.user.profile.bumped_from_last_session(e.id):
-            esdu_attended_not_bumped.append(e)
+        esdu_attended_not_bumped=[]
 
-    #logger.info(esdu_attended_not_bumped)
+        for e in esdu_attended:
+            if not e.user.profile.bumped_from_last_session(e.id):
+                esdu_attended_not_bumped.append(e)
 
-    if bumpsNeeded>len(esdu_attended_not_bumped):
-            bumpsNeeded = len(esdu_attended_not_bumped)
+        #logger.info(esdu_attended_not_bumped)
 
-    if bumpsNeeded > 0:        
+        if bumpsNeeded>len(esdu_attended_not_bumped):
+                bumpsNeeded = len(esdu_attended_not_bumped)
 
-        randomSample = random.sample(esdu_attended_not_bumped, bumpsNeeded)
-        
-        for u in randomSample:
-            u.attended = False
-            u.bumped = True
-            u.save()    
-    
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+        if bumpsNeeded > 0:        
+
+            randomSample = random.sample(esdu_attended_not_bumped, bumpsNeeded)
+            
+            for u in randomSample:
+                u.attended = False
+                u.bumped = True
+                u.save() 
+
+        json_info = esd.json_runInfo() 
+    except Exception  as e:   
+        logger.info("Auto bump error")
+        logger.info(e)
+        status = "fail"
+
+    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
 
 #bump all subjects marked as attended
 def bumpAll(data,id):
@@ -183,6 +193,7 @@ def bumpAll(data,id):
                                             .update(attended = False,bumped = True) 
         json_info=esd.json_runInfo()
     except Exception  as e:
+        logger.info("Bump all error")
         logger.info(e)
         status = "fail"
 
