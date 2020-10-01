@@ -255,3 +255,48 @@ class subjectHomeTestCase(TestCase):
 
         r = json.loads(acceptInvitation({"id":temp_es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
+
+    #test accept when the session is full
+    def testSessionNotFull(self):
+        """Test accept when the session is full""" 
+        logger = logging.getLogger(__name__)
+
+        self.es1.recruitment_params.registration_cutoff = 1
+        self.es1.recruitment_params.save()
+
+        esd1 = self.es1.ESD.first()
+
+        temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+        
+        logger.info(temp_u)
+
+        temp_u.is_active = True
+        temp_u.profile.email_confirmed = 'yes'
+        temp_u.profile.consentRequired = False
+
+        temp_u.profile.save()
+        temp_u.save()
+
+        temp_u.profile.setup_email_filter()
+
+        self.es1.addUser(temp_u.id,self.staff_u,True)
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},temp_u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+
+        #change limit to 2
+        self.es1.recruitment_params.registration_cutoff = 2
+        self.es1.recruitment_params.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+
+
