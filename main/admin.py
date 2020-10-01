@@ -11,6 +11,7 @@ from main.models import *
 from main.views import sendMassEmailVerify
 from datetime import datetime,timedelta
 import pytz
+import logging
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -82,7 +83,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = 1).update(blackballed=0)
+            updated = queryset.exclude(user__is_staff = True).update(blackballed=0)
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -94,7 +95,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #confirm all active user's emails
       def confirm_active_email(self, request, queryset):
 
-            updated = queryset.filter(user__is_active = 1).update(email_confirmed="yes")
+            updated = queryset.filter(user__is_active = True).update(email_confirmed="yes")
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -106,7 +107,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #clear everyone from blackballs status
       def un_confirm_emails(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = 1).update(email_confirmed='no')
+            updated = queryset.exclude(user__is_staff = True).update(email_confirmed='no')
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -127,11 +128,12 @@ class ProfileAdmin(admin.ModelAdmin):
                   '%d users were updated.',
                   c,
             ) % c, messages.SUCCESS)
+      apply_email_filter.short_description = "Apply email filters to selected profiles" 
 
       #set all selected users to agree to consent form before continuing
       def consent_form_required(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = 1).update(consentRequired=True)
+            updated = queryset.exclude(user__is_staff = True).update(consentRequired=True)
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -142,22 +144,30 @@ class ProfileAdmin(admin.ModelAdmin):
 
       #activate users who were attended within last two years
       def activate_recent_users(self, request, queryset):
+            logger = logging.getLogger(__name__)
+            logger.info("activate_recent_users")
+
             d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
 
-            qs = experiment_session_day_users.filter(Q(attended = True) | Q(bumped = True))\
+            qs = experiment_session_day_users.objects.filter(Q(attended = True) | Q(bumped = True))\
                                              .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
-                                             .values("user")
+                                             .values_list("user__id",flat=True)
 
-            updated = queryset.filter(user__in = qs)
+            logger.info("Number of users found: " + str(len(qs)))
+
+            q_list = queryset.filter(user__id__in = qs)
+            updated = User.objects.filter(profile__in = q_list).update(is_active = True)
+
+            # for i in updated:
+            #       i.user.is_active = True
+            #       i.save()
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
                   '%d users were updated.',
                   updated,
             ) % updated, messages.SUCCESS)
-      consent_form_required.short_description = "Activate users who attended in past two years"
-
-      apply_email_filter.short_description = "Apply email filters to selected profiles"    
+      activate_recent_users.short_description = "Activate users who attended in past two years"   
 
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
