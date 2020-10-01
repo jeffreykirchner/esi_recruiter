@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
 from main.views import sendMassEmailVerify
+from datetime import datetime,timedelta
+import pytz
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -138,11 +140,29 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       consent_form_required.short_description = "Require selected users to agree to consent form"
 
+      #activate users who were attended within last two years
+      def activate_recent_users(self, request, queryset):
+            d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
+
+            qs = experiment_session_day_users.filter(Q(attended = True) | Q(bumped = True))\
+                                             .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
+                                             .values("user")
+
+            updated = queryset.filter(user__in = qs)
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      consent_form_required.short_description = "Activate users who attended in past two years"
+
       apply_email_filter.short_description = "Apply email filters to selected profiles"    
 
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
-      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,deactivate_all,activate_all,consent_form_required]
+      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
+                 deactivate_all,activate_all,consent_form_required,activate_recent_users]
       list_display = ['__str__','studentWorker','blackballed','email_filter']
       list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')
 
