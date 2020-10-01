@@ -174,14 +174,31 @@ def bumpAll(data,id):
     logger.info("Bump All")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
-    esd.experiment_session_day_users_set.filter(attended=True) \
-                                        .update(attended = False,bumped = True) 
+    json_info=""
+    status="success"
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+    try:
+        esd = experiment_session_days.objects.get(id=id)
+        esd.experiment_session_day_users_set.filter(attended=True) \
+                                            .update(attended = False,bumped = True) 
+        json_info=esd.json_runInfo()
+    except Exception  as e:
+        logger.info(e)
+        status = "fail"
+
+    return JsonResponse({"sessionDay" :  json_info,"status":status}, safe=False)
 
 #save the payouts when user changes them
 def backgroundSave(data,id):
+    '''
+        Automaically save earnings in background
+        :param data: empty {id:id,earing:earings,showUpFee:showUpFee}
+        :type data:dict
+
+        :param data: Experiment Session Day ID
+        :type data:int
+    '''
+
     logger = logging.getLogger(__name__)
     logger.info("Background Save")
     logger.info(data)
@@ -191,25 +208,35 @@ def backgroundSave(data,id):
     #time_start = datetime.now()
 
     esdu_list=[]
+    status="success"
 
     for p in payoutList:
         #logger.info(p)
-        esdu  = experiment_session_day_users.objects.get(id = p['id'])
+        esdu  = experiment_session_day_users.objects.filter(id = p['id']).first()
 
-        try:
-            esdu.earnings = max(0,Decimal(p['earnings']))
-            esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
-        except (ValueError, DecimalException):
-            logger.info("Background Save Error : ")
-            logger.info(p)
-            esdu.earnings = 0
-            esdu.show_up_fee = 0
-        
-        esdu_list.append(esdu)
+        if esdu:
+            try:
+                esdu.earnings = max(0,Decimal(p['earnings']))
+                esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+            except Exception  as e:
+                logger.info("Background Save Error : ")
+                logger.info(e)
+                logger.info(p)
+                esdu.earnings = 0
+                esdu.show_up_fee = 0
+                status = "fail"
+            
+            esdu_list.append(esdu)
+        else:
+            logger.info("Baground save error user not found")
+            status = "fail"
 
-    experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
-
-    status="success"
+    try:    
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+    except Exception  as e:
+        logger.info(e)
+        status = "fail"
+    
 
     #time_end = datetime.now()
     #time_span = time_end-time_start
@@ -220,6 +247,14 @@ def backgroundSave(data,id):
 
 #save the currently entered payouts
 def savePayouts(data,id):
+    '''
+        Complete session after all earnings have been entered
+        :param data: empty {id:id,earing:earings,showUpFee:showUpFee}
+        :type data:dict
+
+        :param data: Experiment Session Day ID
+        :type data:int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Save Payouts")
     logger.info(data)
@@ -228,27 +263,42 @@ def savePayouts(data,id):
 
     esdu_list = []
 
+    status="success"
+
     for p in payoutList:
         #logger.info(p)
-        esdu  = experiment_session_day_users.objects.get(id = p['id'])
+        esdu  = experiment_session_day_users.objects.filter(id = p['id']).first()
 
-        try:
-            esdu.earnings = max(0,Decimal(p['earnings']))
-            esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+        if esdu:
+            try:
+                esdu.earnings = max(0,Decimal(p['earnings']))
+                esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
 
-        except (ValueError, DecimalException):
-            logger.info("Background Save Error : ")
-            logger.info(p)
-            esdu.earnings = 0
-            esdu.show_up_fee = 0
+            except Exception  as e:
+                logger.info("Save Error : ")
+                logger.info(p)
+                logger.info(e)
+                esdu.earnings = 0
+                esdu.show_up_fee = 0
+                status = "fail"
+            
+            esdu_list.append(esdu)
+        else:
+            logger.info("Save payouts error user not found")
+            status = "fail"
         
-        esdu_list.append(esdu)
-    
-    experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+    json_info=""
 
-    esd = experiment_session_days.objects.get(id=id)
+    try:
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+        esd = experiment_session_days.objects.get(id=id)
+        json_info = esd.json_runInfo()
+    except Exception  as e:
+        logger.info("Save payouts error : ")
+        logger.info(e)
+        status="fail"
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
 
 #close session and prevent further editing
 def completeSession(data,id):
@@ -265,55 +315,106 @@ def completeSession(data,id):
     logger.info("Complete Session")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    status=""
+    json_info=""
 
-    esd.complete = not esd.complete
-    esd.save()
+    try:
+        esd = experiment_session_days.objects.get(id=id)
 
-    #clear any extra earnings fields entered
-    if esd.complete:
-        esdu = esd.experiment_session_day_users_set.all().filter(attended = False,bumped=False)
-        esdu.update(earnings = 0, show_up_fee=0)
+        esd.complete = not esd.complete
+        esd.save()
 
-        esdu = esd.experiment_session_day_users_set.all().filter(bumped=True)
-        esdu.update(earnings = 0)
+        #clear any extra earnings fields entered
+        if esd.complete:
+            esdu = esd.experiment_session_day_users_set.all().filter(attended = False,bumped=False)
+            esdu.update(earnings = 0, show_up_fee=0)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+            esdu = esd.experiment_session_day_users_set.all().filter(bumped=True)
+            esdu.update(earnings = 0)
+        
+        status="success"
+        json_info = esd.json_runInfo()
+    except Exception  as e:
+        logger.info("Fill earnings with fixed amount error : ")
+        logger.info(e)
+        status="fail"
+
+    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
 def fillEarningsWithFixed(data,id):
+    '''
+    Set all attended subjects earnings to specified amount
+
+    :param data: Form data{"amount":earnings}
+    :type data: dict
+
+    :param id: Experiment session day id
+    :type id: int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Fill Earnings with fixed amount")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
-
-    amount = data["amount"]
+    status=""
+    json_info=""
 
     try:
+        esd = experiment_session_days.objects.get(id=id)
+
+        amount = data["amount"]
+
         esd.experiment_session_day_users_set.filter(attended=True) \
-                                        .update(earnings = Decimal(amount))
-
-    except (ValueError, DecimalException):
+                                            .update(earnings = Decimal(amount))
+        
+        status="success"
+        json_info = esd.json_runInfo()
+    except Exception  as e:
         logger.info("Fill earnings with fixed amount error : ")
+        logger.info(e)
+        status="fail"
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+    return JsonResponse({"sessionDay" : json_info,"status" : status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
 def fillDefaultShowUpFee(data,id):
+    '''
+    Set attended subjects bump fee to default
+
+    :param data: Form data{} empty
+    :type data: dict
+
+    :param id: Experiment session day id
+    :type id: int
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Fill Default Show Up Fee")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    status=""
+    json_info=""
 
-    showUpFee = esd.experiment_session.experiment.showUpFee
+    try:
+        esd = experiment_session_days.objects.get(id=id)
 
-    esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)) \
-                                        .update(show_up_fee = showUpFee)
+        showUpFee = esd.experiment_session.experiment.showUpFee
+        #logger.info(showUpFee)
 
+        esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)) \
+                                            .update(show_up_fee = showUpFee)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
+        #logger.info(esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)))
+        
+        status="success"
+        json_info = esd.json_runInfo()
+    except Exception  as e:
+        logger.info("fill Default Show Up Fee error")             
+        logger.info("ID: " + str(id))    
+        logger.info(e)
+
+        status="fail"
+
+    return JsonResponse({"sessionDay" : json_info,"status" : status }, safe=False)
 
 #mark subject as attended
 def attendSubject(u,data,id):
@@ -333,7 +434,7 @@ def attendSubject(u,data,id):
     logger.info("Attend Subject")
     logger.info(data)
     
-    esdu = experiment_session_day_users.objects.get(id=data['id'])
+    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
 
     logger.info(data)
 
@@ -393,31 +494,44 @@ def attendSubjectAction(esdu,id):
     return status
 
 #mark subject as bumped
-def bumpSubject(data,id):    
+def bumpSubject(data,id):   
+    '''
+        Mark subject as attended in a session day
+
+        :param data: {id:experiment_session_day_users.id}
+        :type data:dict
+
+        :param id:experiment session day id
+        :type id:main.models.experiment_session_day
+    '''
+
     logger = logging.getLogger(__name__)
     logger.info("Bump Subject")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.get(id=data['id'])
+    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
 
     status=""
+
     if esdu:
         if esdu.confirmed:
             esdu.attended=False
             esdu.bumped=True
 
             status = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
+            status="success"
         else:
             esdu.attended = False
             esdu.bumped = False           
 
             status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
             logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+            status="fail"
 
         esdu.save()
-    else:
-        status = esdu.user.last_name + ", " + esdu.user.first_name + " was not found."
+    else:        
         logger.info("Bump Error, subject not found")
+        status="fail"
 
     esd = experiment_session_days.objects.get(id=id)    
 
@@ -438,15 +552,17 @@ def noShowSubject(data,id):
     logger.info("No Show")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.get(id=data['id'])
+    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
 
-    status = "success"
+    status = ""
     
     if esdu:
         esdu.attended=False
         esdu.bumped=False
         esdu.save()
+        status = "success"
     else:
+        logger.info("Now Show Error, subject not found")
         status = "fail"
 
     esd = experiment_session_days.objects.get(id=id)

@@ -10,7 +10,8 @@ from main.models import genders,experiments,subject_types,account_types,majors,\
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
-from main.views.staff.experimentSessionRunView import getStripeReaderCheckin,noShowSubject,attendSubject,bumpSubject
+from main.views.staff.experimentSessionRunView import getStripeReaderCheckin,noShowSubject,attendSubject,bumpSubject,noShowSubject,fillDefaultShowUpFee
+from main.views.staff.experimentSessionRunView import fillEarningsWithFixed,completeSession,savePayouts,backgroundSave,bumpAll
 
 from datetime import datetime,timedelta
 import pytz
@@ -236,7 +237,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
-        #none user user manaul check in 
+        #none super user user manaul check in 
         self.staff_u.is_superuser=False
         self.staff_u.save()
 
@@ -245,7 +246,15 @@ class sessionRunTestCase(TestCase):
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
+
+        #attend subject not exists
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id+50},esd1.id).content.decode("UTF-8"))
+        self.assertNotIn("is now attending",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
     
+    #test bumping subjects
     def testBumpSubject(self):
         """Test bump subjects""" 
         logger = logging.getLogger(__name__)
@@ -254,20 +263,285 @@ class sessionRunTestCase(TestCase):
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
         #bump subject
-        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
-        self.assertIn("is now bumped",r['status'])
+        r = json.loads(bumpSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #bump subject not exists
-        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id+50},esd1.id).content.decode("UTF-8"))
-        self.assertNotIn("is now bumped",r['status'])
+        r = json.loads(bumpSubject({"id":esdu.id+50},esd1.id).content.decode("UTF-8"))
+        self.assertNotIn("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #bump subject not confirmed
+        esdu.confirmed=False
+        esdu.save()
+        r = json.loads(bumpSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertNotIn("success",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+    #test no showing subjects
+    def testNoShowSubject(self):
+        """Test no show subjects""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+
+        r = json.loads(noShowSubject({"id":esdu.id+50},esd1.id).content.decode("UTF-8"))
+        self.assertNotEquals("success",r['status'])
+
+    def testFillEarningsWithFixedAmount(self):
+        """Test fill earning with fixed amount""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        #one confirmed, one no show
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(float(esdu.earnings),6.23)
+        self.assertEquals(float(esdu2.earnings),0)
+
+        #bumped
+        r = json.loads(bumpSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+        self.assertEquals(float(esdu2.earnings),0)
+
+        #session not found
+        r = json.loads(fillEarningsWithFixed({},esd1.id+50).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+    
+    def testFillDefaultShowUpFee(self):
+        """Test fill default show up fees""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        #one confirmed, one no show
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(fillDefaultShowUpFee({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(esdu.show_up_fee,esd1.experiment_session.experiment.showUpFee)
+        self.assertEquals(esdu2.show_up_fee,0)
+
+        #bumped
+        r = json.loads(bumpSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(fillDefaultShowUpFee({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+        self.assertEquals(esdu2.show_up_fee,esd1.experiment_session.experiment.showUpFee)
+
+        #session not found
+        r = json.loads(fillDefaultShowUpFee({},esd1.id+50).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+    def testCompleteSession(self):
+        """Test complete session""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        #fill with earnings then bump, check earnings removed
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(bumpSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(completeSession({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(float(esdu.earnings),6.23)
+        self.assertEquals(float(esdu2.earnings),0)
+
+        #check now show earnings bump fee
+        r = json.loads(completeSession({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu2.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(fillDefaultShowUpFee({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(completeSession({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEquals(float(esdu.earnings),0)
+        self.assertEquals(float(esdu.earnings),0)
+
+        #test invalid session day
+        r = json.loads(completeSession({},esd1.id+50).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+    def testSavePayouts(self):
+        """Test save payouts""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+
+        #save attend subject's pay out
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        p = {"payoutList" : [{"id":esdu.id,"earnings":6.23,"showUpFee":7.00}]}
+
+        r = json.loads(savePayouts(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+
+        self.assertEquals(float(esdu.earnings),6.23)
+        self.assertEquals(float(esdu.show_up_fee),7.00)
+
+        #try to save junk
+        p = {"payoutList" : [{"id":esdu.id,"earnings":"a","showUpFee":"b"}]}
+
+        r = json.loads(savePayouts(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+        #save to user that does not exist
+        p = {"payoutList" : [{"id":esdu.id + 50,"earnings":6.23,"showUpFee":7.00}]}
+
+        r = json.loads(savePayouts(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+        #save junk
+        p = {"payoutList" : [{"id":esdu.id + 50,"showUpFee":7.00}]}
+
+        r = json.loads(savePayouts(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+    
+    def testBackgroundSave(self):
+        """Test background save payouts""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+
+        #save attend subject's pay out
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        p = {"payoutList" : [{"id":esdu.id,"earnings":6.23,"showUpFee":7.00}]}
+
+        r = json.loads(backgroundSave(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+
+        self.assertEquals(float(esdu.earnings),6.23)
+        self.assertEquals(float(esdu.show_up_fee),7.00)
+
+        #try to save junk
+        p = {"payoutList" : [{"id":esdu.id,"earnings":"a","showUpFee":"b"}]}
+
+        r = json.loads(backgroundSave(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+        #save to user that does not exist
+        p = {"payoutList" : [{"id":esdu.id + 50,"earnings":6.23,"showUpFee":7.00}]}
+
+        r = json.loads(backgroundSave(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+        #save junk
+        p = {"payoutList" : [{"id":esdu.id + 50,"showUpFee":7.00}]}
+
+        r = json.loads(backgroundSave(p,esd1.id).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+    def testBumpAll(self):
+        """Test bump all""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        #save attend subject's pay out
+        r = json.loads(attendSubject(self.staff_u,{"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])   
+
+        r = json.loads(bumpAll({},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        self.assertEquals(esdu.bumped,True)
+
+        #junk data
+        r = json.loads(bumpAll({},esd1.id+50).content.decode("UTF-8"))
+        self.assertEquals("fail",r['status'])
+
+
+
+
+
+
+
+
+
+
+
+
 
         
 
