@@ -65,9 +65,10 @@ def getCurrentInvitations(data,u):
                          "consentFormText":p.consentForm,
                          "failed":failed}, safe=False)
 
+#subject accepts consent form
 def acceptConsentForm(data,u):
     '''
-    Subject cancels invitation acceptance 
+    Subject accepts consent form
     
     :param data: Form data{} empty
     :type data: dict
@@ -89,7 +90,6 @@ def acceptConsentForm(data,u):
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
                          "consentRequired":consentRequired,
                          "failed":"false"}, safe=False)
-
 
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
@@ -162,7 +162,7 @@ def acceptInvitation(data,u):
             
             #update confirmed status
             if not failed:
-                logger.info("Accept Not Failed")
+                logger.info("Accept Success")
                 experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=True)

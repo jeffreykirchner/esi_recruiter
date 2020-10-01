@@ -278,6 +278,9 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.registration_cutoff = 5
+        es1.recruitment_params.save()
+        es1.save()
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -303,6 +306,9 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.registration_cutoff = 5
+        es1.recruitment_params.save()
+        es1.save()
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': str(esd1.id), 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -329,6 +335,9 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.registration_cutoff = 5
+        es1.recruitment_params.save()
+        es1.save()
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l2.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:30 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}   
@@ -345,6 +354,9 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.registration_cutoff = 5
+        es1.recruitment_params.save()
+        es1.save()
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 06:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}   

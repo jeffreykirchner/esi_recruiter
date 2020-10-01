@@ -104,6 +104,9 @@ class subjectHomeTestCase(TestCase):
         self.es1.recruitment_params.reset_settings()
         self.es1.recruitment_params.gender.set(genders.objects.all())
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.registration_cutoff = 5
+        self.es1.recruitment_params.save()
+        self.es1.save()
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -123,6 +126,9 @@ class subjectHomeTestCase(TestCase):
         self.es2.recruitment_params.reset_settings()
         self.es2.recruitment_params.gender.set(genders.objects.all())
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es2.recruitment_params.registration_cutoff = 5
+        self.es2.recruitment_params.save()
+        self.es2.save()
         esd1 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -226,8 +232,71 @@ class subjectHomeTestCase(TestCase):
         """Test subject confirm in same experiment twice""" 
         logger = logging.getLogger(__name__)
 
+        temp_es1 = addSessionBlank(self.e1)    
+        temp_es1.recruitment_params.reset_settings()
+        temp_es1.recruitment_params.gender.set(genders.objects.all())
+        temp_es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        temp_es1.recruitment_params.registration_cutoff = 5
+        temp_es1.recruitment_params.save()
+        temp_es1.save()
+        esd1 = temp_es1.ESD.first()
+
+        d_now_plus_two = self.d_now + timedelta(days=2)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 01:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        updateSessionDay(session_day_data,esd1.id)
+        self.assertEqual(temp_es1.getConfirmedCount(),0)
+
+        temp_es1.addUser(self.u.id,self.staff_u,True)
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(acceptInvitation({"id":temp_es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+
+    #test accept when the session is full
+    def testSessionNotFull(self):
+        """Test accept when the session is full""" 
+        logger = logging.getLogger(__name__)
+
+        self.es1.recruitment_params.registration_cutoff = 1
+        self.es1.recruitment_params.save()
+
+        esd1 = self.es1.ESD.first()
+
+        temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+        
+        logger.info(temp_u)
+
+        temp_u.is_active = True
+        temp_u.profile.email_confirmed = 'yes'
+        temp_u.profile.consentRequired = False
+
+        temp_u.profile.save()
+        temp_u.save()
+
+        temp_u.profile.setup_email_filter()
+
+        self.es1.addUser(temp_u.id,self.staff_u,True)
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},temp_u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
+
+        #change limit to 2
+        self.es1.recruitment_params.registration_cutoff = 2
+        self.es1.recruitment_params.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+
+
