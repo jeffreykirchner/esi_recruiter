@@ -121,7 +121,7 @@ class experiment_session_day_users(models.Model):
         s.append(self.user.email)
         s.append(totalEarnings)
         s.append("USD")
-        s.append(self.user.profile.chapmanID)
+        s.append(self.user.profile.studentID)
         s.append("Session Day ID: " + str(self.experiment_session_day.id))
 
         return s
@@ -148,7 +148,7 @@ class experiment_session_day_users(models.Model):
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),
-                        "chapmanID":self.user.profile.chapmanID,
+                        "studentID":self.user.profile.studentID,
                         "bumpedFromLast":self.user.profile.bumped_from_last_session(self.id)},                 
                 }
 

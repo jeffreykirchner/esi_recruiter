@@ -36,7 +36,7 @@ def updateProfile(request):
                 u.email=form.cleaned_data['email'].strip().lower()
                 u.username=u.email
 
-                u.profile.chapmanID=form.cleaned_data['chapman_id'].strip()
+                u.profile.studentID=form.cleaned_data['chapman_id'].strip()
                 u.profile.gender=form.cleaned_data['gender']
                 u.profile.subjecType = form.cleaned_data['subject_type']
                 u.profile.studentWorker = form.cleaned_data['studentWorker']
@@ -63,7 +63,7 @@ def updateProfile(request):
             form = profileFormUpdate(
                 initial={'first_name': request.user.first_name,
                          'last_name': request.user.last_name,
-                         'chapman_id': request.user.profile.chapmanID,
+                         'chapman_id': request.user.profile.studentID,
                          'email':request.user.email,
                          'gender':request.user.profile.gender.id,
                          'phone':request.user.profile.phone,

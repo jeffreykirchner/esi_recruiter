@@ -15,7 +15,7 @@ class userInfoForm(forms.Form):
     email = forms.EmailField(label='Email Address',
                                 widget=forms.TextInput(attrs={"v-on:change":"userChange"}))
 
-    chapmanID = forms.CharField(label='Chapman ID',
+    studentID = forms.CharField(label='Chapman ID',
                                 required=False,
                                 widget=forms.TextInput(attrs={"v-on:change":"userChange"}))
 

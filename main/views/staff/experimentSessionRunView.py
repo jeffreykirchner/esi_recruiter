@@ -88,7 +88,7 @@ def getStripeReaderCheckin(data,id):
     try:
         if "=" in data["value"]:
             v = data["value"].split("=")
-            chapmanID = int(v[0])
+            studentID = int(v[0])
             logger.info(id)
         else:
             status="Card Read Error"
@@ -100,7 +100,7 @@ def getStripeReaderCheckin(data,id):
     if status == "":
         # try:            
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
-                                                            user__profile__chapmanID__icontains = chapmanID,
+                                                            user__profile__studentID__icontains = studentID,
                                                             confirmed = True)\
                                                     .select_related('user')
         

@@ -31,7 +31,7 @@ class profile(models.Model):
     subject_type = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
-    chapmanID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
+    studentID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
     email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
     blackballed = models.BooleanField(verbose_name="Blackballed",default=False)                                      #if a subject is blackballed they will not be auto recruited
     phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
@@ -46,7 +46,7 @@ class profile(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return "%s, %s | Chapman ID: %s" % (self.user.last_name,self.user.first_name,self.chapmanID)
+        return "%s, %s | Chapman ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)
 
     class Meta:
         verbose_name = 'Profile'
@@ -243,7 +243,7 @@ class profile(models.Model):
             "first_name":self.user.first_name.capitalize(),   
             "last_name":self.user.last_name.capitalize(), 
             "email":self.user.email,
-            "chapmanID":self.chapmanID,                 
+            "studentID":self.studentID,                 
         }
 
     #json version of model, full
@@ -253,7 +253,7 @@ class profile(models.Model):
             "first_name":self.user.first_name.capitalize(),   
             "last_name":self.user.last_name, 
             "email":self.user.email,
-            "chapmanID":self.chapmanID, 
+            "studentID":self.studentID, 
             "type":self.type.json(),  
             "gender":self.gender.json(),
             "email_confirmed":self.email_confirmed,  

@@ -80,7 +80,7 @@ def getNoShows(request,data):
                     Q(ESDU__experiment_session_day__date__gte = d))\
                 .annotate(noShows = Count('id'))\
                 .filter(noShows__gte = p.noShowCutoff)\
-                .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active","profile__blackballed")
+                .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
 
     #logger.info(users.query)
 
@@ -103,7 +103,7 @@ def getBlackBalls(request,data):
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                 .filter(profile__blackballed=True) \
                 .select_related('profile') \
-                .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active","profile__blackballed")
+                .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
     
     if activeOnly:
         users = users.filter(is_active = True)
@@ -143,10 +143,10 @@ def lookup(value,returnJSON,activeOnly):
                       .filter(Q(last_name__icontains = value) |
                               Q(first_name__icontains = value) |
                               Q(email__icontains = value) |
-                              Q(profile__chapmanID__icontains = value) |
+                              Q(profile__studentID__icontains = value) |
                               Q(profile__type__name__icontains = value))\
                       .select_related('profile')\
-                      .values("id","first_name","last_name","email","profile__chapmanID","profile__type__name","is_active","profile__blackballed")
+                      .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
 
 
     if activeOnly:

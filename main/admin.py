@@ -170,7 +170,7 @@ class ProfileAdmin(admin.ModelAdmin):
       activate_recent_users.short_description = "Activate users who attended in past two years"   
 
       ordering = ['user__last_name','user__first_name']
-      search_fields = ['user__last_name','user__first_name','chapmanID','user__email']
+      search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
                  deactivate_all,activate_all,consent_form_required,activate_recent_users]
       list_display = ['__str__','studentWorker','blackballed','email_filter']

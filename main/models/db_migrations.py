@@ -404,7 +404,7 @@ def migrate_subjects1():
         #                         is_active=False,
         #                         is_superuser=False) 
 
-        #         u.profile.chapmanID = c[1]
+        #         u.profile.studentID = c[1]
         #         u.profile.email_confirmed = "no"
         #         u.profile.blackballed = c[9]
         #         u.profile.gender_id = c[6]
@@ -454,7 +454,7 @@ def migrate_subjects2():
 
 
         objs = (profile(user_id = c[0],
-                        chapmanID = c[1],
+                        studentID = c[1],
                         email_confirmed = "no",
                         blackballed = c[6],
                         gender_id = c[3],

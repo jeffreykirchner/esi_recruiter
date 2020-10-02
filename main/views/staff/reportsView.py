@@ -157,7 +157,7 @@ def studentReport(data):
                 e_list +=  "($" + str(f'{temp_e:.2f}') + ") " +\
                            str(j.experiment_session_day.date.astimezone(tz).strftime("%-m/%#d/%Y")) 
             
-            output_text=[u.profile.chapmanID,
+            output_text=[u.profile.studentID,
                              u.last_name + ', ' + u.first_name,
                              u.email,
                              u.profile.nonresidentAlien,

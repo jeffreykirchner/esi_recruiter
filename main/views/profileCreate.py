@@ -77,7 +77,7 @@ def profileCreate(request):
 
     return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
 
-def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gender,phone,major,subject_type,studentWorker,isActive,accountType):
+def profileCreateUser(username,email,password,firstName,lastName,studentID,gender,phone,major,subject_type,studentWorker,isActive,accountType):
     logger = logging.getLogger(__name__) 
 
     u = User.objects.create_user(username = username,
@@ -90,7 +90,7 @@ def profileCreateUser(username,email,password,firstName,lastName,chapmanID,gende
     u.save()
 
     p = profile(user = u,
-                chapmanID = chapmanID,
+                studentID = studentID,
                 gender=gender,
                 type=accountType,
                 phone=phone,
