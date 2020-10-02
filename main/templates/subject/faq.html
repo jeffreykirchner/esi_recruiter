@@ -1,0 +1,104 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ["[[", "]]"],
+            el: '#root',        
+            data:{
+                faq:[],
+            },
+
+            methods:{
+                //get attended and upcoming sessions
+                getFaqs:function(){
+                    axios.post('/faq/', {
+                        status :"getFaqs" ,                                                                                                                             
+                    })
+                    .then(function (response) {     
+                        app.$data.faq =  response.data.faq;                    
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        app.$data.searching=false;
+                    });                        
+                },
+
+                formatDate: function(value){
+                        if (value) {        
+                            //console.log(value);                    
+                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                        }
+                        else{
+                            return "date format error";
+                        }
+                    },    
+            },
+
+            mounted: function(){
+                    this.getFaqs();                    
+            },
+        });
+
+        
+    });
+</script>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-lg-center">
+    <div class="col col-lg-6">
+        <div class="card">                  
+            <div class="card-header">
+                <div class="row">
+                    <div class ="col" style="text-decoration: underline;">
+                        Frequently Asked Questions
+                    </div>
+                    <div class ="col" style="text-align: right;">
+                        Need Help?
+                    </div>                    
+               </div>
+               <div class="row">
+                    <div class ="col" style="text-align: right;">
+                        <a href= "mailto:{{labManager.email}}">{{labManager.email}}<a>
+                    </div>                    
+                </div>                                                                 
+            </div>
+            <div class="card-body">     
+
+                <div class="accordion" id="accordion">          
+                    <div class="card" v-for="(f,index) in faq" v-bind:key="f.id">
+
+                        <div class="card-header" v-bind:id="'heading' + index">
+                            <h2 class="mb-0">
+                              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" v-bind:data-target="'#collapse'+index" aria-expanded="false" aria-controls="collapseOne">
+                                [[f.question]]
+                              </button>
+                            </h2>
+                        </div>
+
+                        <div v-bind:id="'collapse'+index" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                            <div class="card-body">
+                                <span v-html = "f.answer"><span>
+                            </div>
+                        </div>
+
+                    </div>  
+
+                </div>
+                
+            </div>                    
+        </div>                
+    </div>
+</div>    
+
+
+{%endblock content%}

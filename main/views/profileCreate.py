@@ -42,6 +42,7 @@ def profileCreate(request):
     #migrate_session_users3()  #***
 
     #migrate_parameters() #***
+    #migrate_faqs() #****
 
     token=""
     status="update"            #either filling out the form or 

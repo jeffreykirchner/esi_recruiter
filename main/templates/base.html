@@ -57,6 +57,10 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="{% url 'reports'%}">Reports <i class="fas fa-scroll fa-xs"></i></a>                           
                         </li>
+                        {%else%}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'faqView'%}">FAQ</span></a>
+                        </li>
                         {%endif%}
                     </ul>                     
 
@@ -77,7 +81,10 @@
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
                         <a class="nav-link" href="{% url 'profileCreate'%}">Sign Up</span></a>
-                    </li>                                         
+                    </li>        
+                    <li class="nav-item active">                                 
+                        <a class="nav-link" href="{% url 'faqView'%}">FAQ</span></a>
+                    </li>
                 </ul>
                 {% endif %}
             </div>

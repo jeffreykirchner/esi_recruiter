@@ -29,8 +29,9 @@ from main.models import institutions,\
                                 majors, \
                                 parameters, \
                                 recruitment_parameters,\
-                                email_filters, \
-                                profile
+                                email_filters,\
+                                profile,\
+                                faq
                         
 
 #migrate old data base over to new database
@@ -989,3 +990,34 @@ def migrate_parameters():
                 p.consentForm = c[0]
  
         p.save()
+
+def migrate_faqs():
+        print("migrate faqs")
+
+        faq.objects.all().delete()
+
+        cursorFAQ = connections['old'].cursor()
+        cursorFAQ.execute('''select active,question,answer,order_idx from faqs''')
+
+        objs = (faq(question=c[1],
+                answer=c[2],
+                active=c[0],
+                order=c[3]
+                ) for c in cursorFAQ.fetchall())
+
+        cursorFAQ.close()
+
+        batch_size=500
+        # print(objs)
+
+        counter=0
+
+        while True:
+                batch = list(islice(objs, batch_size))
+
+                if not batch:
+                        break
+
+                faq.objects.bulk_create(batch, batch_size)
+                counter+=batch_size
+
