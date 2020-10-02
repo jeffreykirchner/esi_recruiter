@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm
+from main.forms import parametersForm,faqForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
@@ -23,7 +23,17 @@ admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
 
+
 admin.site.site_header = settings.ADMIN_SITE_HEADER
+
+class faqAdmin(admin.ModelAdmin):
+            
+      form = faqForm
+
+      actions = []
+      list_display = ['__str__','active']
+
+admin.site.register(faq,faqAdmin)
 
 class parametersadmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):

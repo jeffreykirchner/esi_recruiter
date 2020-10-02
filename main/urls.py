@@ -31,4 +31,5 @@ urlpatterns = [
 
     #subject
     path('subjectHome/',views.subjectHome,name='subjectHome'),
+    path('faq/',views.faqView,name='faqView'),
 ]
