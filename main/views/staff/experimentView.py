@@ -93,13 +93,20 @@ def addSession(data,id):
     logger.info("Add Session")
     logger.info(data) 
 
+    status = ""
+
     e = experiments.objects.get(id=id) 
 
-    es = addSessionBlank(e)
+    #experiment must have an institution set before adding a session
+    if len(e.institution.all()) == 0:
+        status="Error: Please specify the institution parameter"
+    else:
+        es = addSessionBlank(e)
 
-    return JsonResponse({ "sessions" : e.json_sessions(),},safe=False)
+    return JsonResponse({ "sessions" : e.json_sessions(),"status":status},safe=False)
     #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
 
+#create empty experiment
 def addSessionBlank(e):
     logger = logging.getLogger(__name__)
     logger.info("Add Session Blank")

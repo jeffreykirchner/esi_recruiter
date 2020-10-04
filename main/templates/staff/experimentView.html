@@ -62,7 +62,8 @@
                     errorsText:"",
                     cancelModal:true,    
                     recruitmentTitle:"Recruitment Parameters (default)",
-                    session:{confirmedCount:0}, //recruitment form parameter  
+                    session:{confirmedCount:0}, //recruitment form parameter
+                    addSessionErrorText:"",  
                 },
         
                 methods:{            
@@ -228,6 +229,7 @@
 
                                 app.$data.sessions = response.data.sessions.experiment_sessions;
                                 app.$data.addSessionButtonText ='Add <i class="fas fa-plus fa-xs"></i>';
+                                app.$data.addSessionErrorText = response.data.status;
 
                                 //window.location.href = response.data.url;            
                             })
@@ -482,7 +484,8 @@
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
                                 <th width="25%">
-                                    Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></span></button> 
+                                    Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
+                                    <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
                                 </th>
                                 <th width="25%" style="text-align: center;">
                                     Status
