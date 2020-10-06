@@ -5,10 +5,10 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiment_session_day_users,parameters
+from main.models import experiment_session_day_users,parameters,help_docs
 from datetime import datetime, timedelta,timezone
 import pytz
-from django.db.models import Q
+from django.db.models import CharField,Q,F,Value as V
 
 @login_required
 @user_is_subject
@@ -42,8 +42,16 @@ def subjectHome(request):
         p = parameters.objects.first()
 
         labManager = p.labManager
+
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+            helpText = "No help doc was found."
         
-        return render(request,'subject/home.html',{"labManager":labManager})      
+        return render(request,'subject/home.html',{"labManager":labManager,
+                                                   "helpText":helpText})      
 
 #return invitations for subject
 def getCurrentInvitations(data,u):    

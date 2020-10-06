@@ -9,9 +9,11 @@ from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.conf import settings
-from main.models import account_types,profile
+from main.models import account_types,profile,help_docs
 from . import profileCreateSendEmail
 from datetime import timedelta
+from django.db.models import CharField,Q,F,Value as V
+from django.urls import reverse
 
 import logging
 
@@ -20,6 +22,7 @@ from main.models.db_migrations import *
 #user account info
 
 def profileCreate(request):
+    logger = logging.getLogger(__name__) 
 
     #migrate_institutions()
     #migrate_departments()
@@ -76,7 +79,18 @@ def profileCreate(request):
     else:
         form = profileForm()
 
-    return render(request,'profileCreate.html',{'form': form,'status':status,'token':token})    
+    logger.info(reverse('profile'))
+    try:
+        helpText = help_docs.objects.annotate(rp = V(reverse('profile'),output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+    except Exception  as e:   
+        helpText = "No help doc was found."
+
+    return render(request,'profileCreate.html',{'form': form,
+                                                'status':status,
+                                                'helpText':helpText,
+                                                'token':token})    
 
 def profileCreateUser(username,email,password,firstName,lastName,studentID,gender,phone,major,subject_type,studentWorker,isActive,accountType):
     logger = logging.getLogger(__name__) 

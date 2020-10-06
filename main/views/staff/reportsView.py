@@ -6,20 +6,19 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from main.forms import pettyCashForm,studentReportForm
-from main.models import departments,experiment_session_days,accounts,parameters,experiment_session_day_users
+from main.models import departments,experiment_session_days,accounts,parameters,experiment_session_day_users,help_docs
 import csv
 import pytz
 from django.utils.timezone import make_aware
 from django.http import HttpResponse
-from django.db.models import Avg, Count, Min, Sum, Q,F
+from django.db.models import Avg, Count, Min, Sum, Q,F,CharField,Value as V
 from django.db.models import Case,Value,When,DecimalField
 from datetime import datetime, timedelta,timezone
 
 @login_required
 @user_is_staff
 def reportsView(request):
-    logger = logging.getLogger(__name__) 
-    
+    logger = logging.getLogger(__name__)     
 
     if request.method == 'POST':       
 
@@ -34,9 +33,17 @@ def reportsView(request):
     else:      
         p = parameters.objects.first()
 
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+            helpText = "No help doc was found."
+
         return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
                                                     "studentReportForm" : studentReportForm(),
-                                                    "maxAnnualEarnings":p.maxAnnualEarnings})      
+                                                    "maxAnnualEarnings":p.maxAnnualEarnings,
+                                                    "helpText":helpText})      
 
 #generate the petty cash csv report
 def studentReport(data):

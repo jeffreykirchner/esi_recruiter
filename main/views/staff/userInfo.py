@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q
+from django.db.models import CharField,Q,F,Value as V
 from django.db.models.functions import Lower
 from main.forms import userInfoForm
 from django.http import Http404
 from django.db import IntegrityError
 import logging
-from main.models import profile_note
+from main.models import profile_note,help_docs
 
 @login_required
 @user_is_staff
@@ -37,9 +37,17 @@ def userInfo(request,id=None):
             return deleteNote(request,data,id)         
                    
     else:     
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
         u=User.objects.get(id=id) 
         return render(request,'staff/userInfo.html',{"u":u,
                                                      "id":id,
+                                                     "helpText":helpText,
                                                      "experiments":u.ESDU.all() })  
 
 #store a note about the user
