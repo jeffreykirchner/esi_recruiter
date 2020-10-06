@@ -5,10 +5,11 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiments,experiment_session_days,schools,accounts,recruitment_parameters,parameters,genders,subject_types
+from main.models import experiments,experiment_session_days,schools,accounts,\
+                        recruitment_parameters,parameters,genders,subject_types,help_docs
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Lower
-from django.db.models import Q
+from django.db.models import Q,F, Value,CharField
 from django.db.models import Count
 from django.shortcuts import redirect
 import main
@@ -37,8 +38,15 @@ def experimentSearch(request):
             return deleteExperiment(data)     
            
         return JsonResponse({"status" :  "error"},safe=False)       
-    else:      
-        return render(request,'staff/experimentSearch.html',{"u":"" ,"id":""})      
+    else:
+        try:
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
+        return render(request,'staff/experimentSearch.html',{"helpText":helpText,"id":""})      
 
 #create experiment
 def createExperiment(data):

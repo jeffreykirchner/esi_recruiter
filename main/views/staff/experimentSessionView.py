@@ -12,7 +12,8 @@ from main.models import experiment_session_days, \
                         parameters,\
                         experiment_session_messages,\
                         experiment_session_invitations,\
-                        recruitment_parameters
+                        recruitment_parameters,\
+                        help_docs
 from main.forms import recruitmentParametersForm,experimentSessionForm2
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -81,11 +82,19 @@ def experimentSessionView(request,id):
 
     else: #GET             
 
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
         return render(request,
                       'staff/experimentSessionView.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
                        'form2':experimentSessionForm2(),                                                               
                        'id': id,
+                       'helpText':helpText,
                        'session':experiment_sessions.objects.get(id=id)})
 
 #get session info the show screen at load

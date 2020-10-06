@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm,faqForm
+from main.forms import parametersForm,faqForm,helpDocForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
@@ -25,6 +25,15 @@ admin.site.register(subject_types)
 
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
+
+class helpDocAdmin(admin.ModelAdmin):
+            
+      form = helpDocForm
+
+      actions = []
+      list_display = ['title','path']
+
+admin.site.register(help_docs,helpDocAdmin)
 
 class faqAdmin(admin.ModelAdmin):
             
