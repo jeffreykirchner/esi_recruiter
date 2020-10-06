@@ -144,7 +144,19 @@
                             }
 
                             str+='</span>';
-                            $("#div_id_" + e).append(str);    
+                            $("#div_id_" + e).append(str); 
+
+                            var elmnt = document.getElementById("div_id_" + e);
+                            elmnt.scrollIntoView(); 
+
+                            //scroll error into view
+                            if(e == "institution")
+                            {
+                                var myElement = document.getElementById('id_errors_institution');
+                                var topPos = myElement.offsetTop;
+                                document.getElementById('institution_list_area').scrollTop = topPos;
+                            }
+
                         }
                     },                   
 
