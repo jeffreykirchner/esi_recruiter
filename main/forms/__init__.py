@@ -11,3 +11,4 @@ from .parametersForm import *
 from .pettyCashForm import *
 from .studentReportForm import *
 from .faqForm import *
+from .helpDocForm import *

@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from main.forms import profileFormUpdate
 from . import profileCreateSendEmail
+from django.db.models import CharField,Q,F,Value as V
+from main.models import help_docs
 
 from django.conf import settings
 
@@ -76,8 +78,16 @@ def updateProfile(request):
     except u.DoesNotExist:
         raise Http404('Profile not found')
 
+    try:
+        helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                .filter(rp__icontains = F('path')).first().text
+
+    except Exception  as e:   
+        helpText = "No help doc was found."
+
     return render(request,'profile.html',{'form': form,
                                           'status':status,
+                                          'helpText':helpText,
                                           'emailVerificationRequired':emailVerificationRequired})    
 
 

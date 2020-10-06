@@ -7,10 +7,11 @@ from django.http import JsonResponse
 import logging
 from datetime import datetime,timedelta
 import calendar
-from main.models import experiment_session_days,locations,parameters
+from main.models import experiment_session_days,locations,parameters,help_docs
 from django.utils.timezone import make_aware
 import pytz
 from django.utils import timezone
+from django.db.models import CharField,Q,F,Value as V
 
 @login_required
 @user_is_staff
@@ -29,8 +30,16 @@ def calendarView(request):
             return changeMonth(request,data)
            
             return JsonResponse({"response" :  "some json"},safe=False)       
-    else:      
-        return render(request,'staff/calendar.html',{"u":"" ,"id":""})      
+    else:   
+
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+            helpText = "No help doc was found."
+
+        return render(request,'staff/calendar.html',{"helpText":helpText ,"id":""})      
 
 #get current month
 def getMonth(request,data):

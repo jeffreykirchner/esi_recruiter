@@ -13,7 +13,8 @@ from main.models import experiments, \
                         schools, \
                         institutions, \
                         genders, \
-                        parameters
+                        parameters,\
+                        help_docs
 from main.forms import experimentForm1,recruitmentParametersForm
 from django.http import JsonResponse
 from django.core import serializers
@@ -22,10 +23,12 @@ import json
 from django.db.models import prefetch_related_objects
 from django.urls import reverse
 import logging
+from django.db.models import Count, F, Value,CharField
 
 @login_required
 @user_is_staff
 def experimentView(request,id):
+    logger = logging.getLogger(__name__) 
        
     status = "" 
 
@@ -45,11 +48,20 @@ def experimentView(request,id):
            return removeSession(data,id)
     else: #GET       
 
+        try:
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                .filter(rp__icontains = F('path')).first().text
+        except Exception  as e:   
+            helpText = "No help doc was found."
+
+        logger.info(request.path)
+
         return render(request,
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
                        'updateRecruitmentParametersForm':recruitmentParametersForm(),                      
-                       'id': id})
+                       'id': id,
+                       'helpText':helpText})
 
 #get the eperiment info
 def getExperiment(data,id):

@@ -22,12 +22,12 @@ from pytz import timezone
 class experiment_session_days(models.Model):
     experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE,related_name='ESD')
     location = models.ForeignKey(locations,on_delete=models.CASCADE)
-    account = models.ForeignKey(accounts,on_delete=models.CASCADE)
+    account = models.ForeignKey(accounts,on_delete=models.CASCADE)      #finanical account used to pay subjects from
 
     date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
-    auto_reminder = models.SmallIntegerField (default=1)                #finanical account used to pay subjects from
+    auto_reminder = models.SmallIntegerField (default=1)                #send reminder emails to subject 24 hours before experiment
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminderEmailSent = models.BooleanField(default=False)              #true once the reminder email is sent to subjects
 

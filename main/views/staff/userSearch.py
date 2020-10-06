@@ -13,7 +13,7 @@ from main import views
 import logging
 from django.db.models import OuterRef, Subquery
 from django.db.models import Count
-from main.models import parameters
+from main.models import parameters,help_docs
 from datetime import datetime, timedelta,timezone
 from . import sendMassEmail
 
@@ -34,8 +34,15 @@ def userSearch(request):
             return sendEmail(request,data)
 
     else:
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
         activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__email_confirmed = 'yes').count()
-        return render(request,'staff/userSearch.html',{"activeCount":activeCount})     
+        return render(request,'staff/userSearch.html',{"activeCount":activeCount,"helpText":helpText})     
 
 #send an email to active users
 def sendEmail(request,data):

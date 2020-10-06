@@ -6,14 +6,14 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from decimal import *
-from django.db.models import Q,F
+from django.db.models import Q,F,CharField,Value
 import random
 import csv
 from django.http import HttpResponse
 from datetime import datetime, timedelta,timezone
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.models import experiment_session_days,experiment_session_day_users,profile
+from main.models import experiment_session_days,experiment_session_day_users,profile,help_docs
 
 @login_required
 @user_is_staff
@@ -54,9 +54,19 @@ def experimentSessionRunView(request,id=None):
             return getStripeReaderCheckin(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
-    else:      
+    else:
+
+        try:
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                    .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
         esd = experiment_session_days.objects.get(id=id)
-        return render(request,'staff/experimentSessionRunView.html',{"sessionDay":esd ,"id":id})  
+        return render(request,'staff/experimentSessionRunView.html',{"sessionDay":esd ,
+                                                                     "id":id,
+                                                                     "helpText":helpText})  
 
 #return the session info to the client
 def getSession(data,id):    
