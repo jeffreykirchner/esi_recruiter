@@ -29,7 +29,7 @@ class experiment_session_days(models.Model):
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
     auto_reminder = models.SmallIntegerField (default=1)                #send reminder emails to subject 24 hours before experiment
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
-    reminderEmailSent = models.BooleanField(default=False)              #true once the reminder email is sent to subjects
+    reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -147,7 +147,7 @@ class experiment_session_days(models.Model):
     #send a reminder email to all subjects in session day
     def sendReminderEmail(self):
 
-        self.reminderEmailSent=True
+        self.reminder_email_sent=True
         self.save()
 
         logger = logging.getLogger(__name__)

@@ -36,7 +36,7 @@ class experimentSessionForm2(forms.ModelForm):
 
     class Meta:
         model = experiment_session_days
-        exclude=['experiment_session','showUpFee_legacy','canceled','date_end']
+        exclude=['experiment_session','showUpFee_legacy','canceled','date_end','reminder_email_sent']
     
     #convert to date to utc time zone
     def clean_date(self):
