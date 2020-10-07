@@ -132,8 +132,8 @@ class sessionRunTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        updateSessionDay(session_day_data,esd1.id)
-        self.assertEqual(self.es1.getConfirmedCount(),0)
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #add subject 1
         self.es1.addUser(self.u.id,self.staff_u,True)
@@ -160,8 +160,8 @@ class sessionRunTestCase(TestCase):
         esd2 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        updateSessionDay(session_day_data,esd2.id)
-        self.assertEqual(self.es2.getConfirmedCount(),0)
+        r = json.loads(updateSessionDay(session_day_data,esd2.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
@@ -571,7 +571,8 @@ class sessionRunTestCase(TestCase):
         d_now = self.d_now
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y") + ' 01:00 am -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        updateSessionDay(session_day_data,esd1.id)
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         esdu.confirmed=True
         esdu.save()

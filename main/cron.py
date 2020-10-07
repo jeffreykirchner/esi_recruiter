@@ -31,3 +31,5 @@ class checkForReminderEmails(CronJobBase):
         else:            
             for e in esd_list:
                 e.sendReminderEmail()
+        
+        return esd_list
