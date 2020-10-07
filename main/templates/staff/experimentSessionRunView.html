@@ -97,6 +97,12 @@
 
                 //export a csv file for paypal mass payment
                 payPalExport:function(){
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        confirm("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+                    
                     app.$data.paypalExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                    
                     axios.post('/experimentSessionRun/{{id}}/', {
