@@ -47,25 +47,29 @@ def userSearch(request):
 #send an email to active users
 def sendEmail(request,data):
     logger = logging.getLogger(__name__)
-    logger.info("Send Message")
+    logger.info("Send message to all active users")
     logger.info(data)
 
-    subjectText =  data["subject"]
-    messageText = data["text"]
+    if request.user.is_superuser:
 
-    users_list = User.objects.filter(is_active = True, profile__email_confirmed = 'yes',profile__type__id = 2)
+        subjectText =  data["subject"]
+        messageText = data["text"]
 
-    emailList = []
-    
-    for i in users_list:
-        emailList.append({"email":i.email,"first_name":i.first_name})        
+        users_list = User.objects.filter(is_active = True, profile__email_confirmed = 'yes',profile__type__id = 2)
 
-    mailResult = sendMassEmail(emailList,subjectText, messageText)
+        emailList = []
+        
+        for i in users_list:
+            emailList.append({"email":i.email,"first_name":i.first_name})        
 
-    logger.info(emailList)
+        mailResult = sendMassEmail(emailList,subjectText, messageText)
+
+        logger.info(emailList)
+    else:
+        logger.info("Send message to all active users error, not super user : user " + str(request.user.id))
+        mailResult = {"mailCount":0,"errorMessage":"You are not an elevated user."}
 
     return JsonResponse({"mailResult":mailResult}, safe=False)
-
 
 #get a list of no show violators
 def getNoShows(request,data):
