@@ -930,6 +930,7 @@ class experiment_sessions(models.Model):
             "id":self.id,                                  
             "experiment_session_days" : [{"id" : esd.id,
                                           "date":esd.date,
+                                          "date_end":esd.date_end,
                                           "hours_until_start": esd.hoursUntilStart(),
                                           "hours_until_start_str":  str(int(esd.hoursUntilStart())) + " hours<br>" + 
                                                                        str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes' 

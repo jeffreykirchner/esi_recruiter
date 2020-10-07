@@ -37,7 +37,8 @@
                                 
                                     for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
                                     {
-                                        app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date);
+                                        app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,null);
+
                                         app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings + 
                                                                                                    app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
                                         app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
@@ -107,7 +108,7 @@
 
                                     for(var i=0;i<app.$data.allInvitations.length;i++)
                                     {
-                                        app.$data.allInvitations[i].date = app.formatDate(app.$data.allInvitations[i].date);                                       
+                                        app.$data.allInvitations[i].date = app.formatDate(app.$data.allInvitations[i].date,null);                                       
                                     }
                                     
                                     app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
@@ -128,7 +129,7 @@
 
                         for(var j=0;j<temp_s.experiment_session_days.length;j++)
                         {
-                            temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date);
+                            temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,temp_s.experiment_session_days[j].date_end);
                         }                        
                     }
                     
@@ -148,14 +149,18 @@
                     }
                 },
 
-                formatDate: function(value){
+                formatDate: function(value,value2){
                         if (value) {        
                             //console.log(value);       
                             rValue =   moment(String(value)).local().format('dddd');
                             rValue +=   "<br>";
                             rValue +=   moment(String(value)).local().format('M/D/YYYY');   
                             rValue += "<br>";
-                            rValue += moment(String(value)).local().format('h:mm a');       
+                            rValue += moment(String(value)).local().format('h:mm a'); 
+                            if(value2 != null)
+                            {
+                                rValue += " to " + moment(String(value2)).local().format('h:mm a'); 
+                            }      
                             return rValue;
                         }
                         else{
