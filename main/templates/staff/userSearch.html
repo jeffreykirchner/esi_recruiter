@@ -195,7 +195,7 @@
 
 {%block content%}
 <div class="row justify-content-lg-center">
-    <div class="col col-lg-8">
+    <div class="col col-lg-6">
         <div class="card">                  
             <div class="card-header">
                 Search Users 
@@ -264,12 +264,10 @@
                         <th width="35%">
                             Name
                         </th> 
-                        <th width="30%" style="text-align: center;">
+                        <th width="65%" style="text-align: center;">
                             Info
                         </th>                                                      
-                        <th width="35%" style="text-align: center;">
-                            Control
-                        </th>
+                        
                     </thead>
 
                     <tbody id="userList">                                                  
@@ -279,9 +277,7 @@
                             </td>
                             <td style="text-align: center;">                                        
                                 <span v-html="u.email + '<br>ID: ' + u.profile__studentID + '<br>' + u.profile__type__name.toUpperCase()"></span>                                         
-                            </td>                               
-                            <td>
-                            </td>                            
+                            </td>                                                           
                         </tr>                                                    
                     </tbody>
                     
