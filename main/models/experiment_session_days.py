@@ -146,11 +146,21 @@ class experiment_session_days(models.Model):
 
     #send a reminder email to all subjects in session day
     def sendReminderEmail(self):
+        logger = logging.getLogger(__name__)
+
+        #don't send remind if it has already been sent
+        if self.reminder_email_sent:
+            logger.info("Send Reminder emails error already sent: session " + str(self.experiment_session) + ", session day " + str(self.id))
+            return False
+        
+        #don't send remind if it has already been sent
+        if self.experiment_session.canceled:
+            logger.info("Send Reminder emails error session canceled: session " + str(self.experiment_session) + ", session day " + str(self.id))
+            return False
 
         self.reminder_email_sent=True
         self.save()
-
-        logger = logging.getLogger(__name__)
+        
         p = parameters.objects.first()
         logger.info("Send Reminder emails to: session " + str(self.experiment_session) + ", session day " + str(self.id))
         
@@ -169,6 +179,8 @@ class experiment_session_days(models.Model):
 
         mailResult = main.views.staff.sendMassEmail(emailList,subjectText, messageText)
         logger.info(mailResult)
+
+        return True
 
     #get small json object
     def json_min(self):

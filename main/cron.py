@@ -21,6 +21,7 @@ class checkForReminderEmails(CronJobBase):
         esd_list = experiment_session_days.objects.filter(date__lte = t_now_plus_24,
                                                           date__gte = t_now_plus_20,
                                                           reminder_email_sent = False,
+                                                          experiment_session__canceled = False,
                                                           auto_reminder = True)      
                                                           
         logger.info(esd_list) 
