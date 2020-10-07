@@ -9,13 +9,13 @@ import re
 class profileFormUpdate(forms.Form):
     first_name = forms.CharField(label='First Name', max_length=100)
     last_name = forms.CharField(label='Last Name', max_length=100)
-    chapman_id = forms.CharField(label='Chapman ID', max_length=25,required=False)  
+    chapman_id = forms.CharField(label='Student ID (Leave blank if non-student)', max_length=25,required=False)  
     email = forms.EmailField(label='Email Address (Verification required.)')
     phone = forms.CharField(label = "Phone Number (ex: 5556667777)",max_length = 15)
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
                                      queryset=genders.objects.all(),
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
-    major = forms.ModelChoiceField(label="Major",
+    major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
                                      queryset=majors.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"profile.major"}))
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",

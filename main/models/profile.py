@@ -46,7 +46,7 @@ class profile(models.Model):
     updated= models.DateTimeField(auto_now= True)
 
     def __str__(self):
-        return "%s, %s | Chapman ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)
+        return "%s, %s | Student ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)
 
     class Meta:
         verbose_name = 'Profile'
