@@ -31,8 +31,8 @@ class profile(models.Model):
     subject_type = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
-    studentID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000")                       #student ID number
-    email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                 #yes/code/no
+    studentID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000",null=True,blank=True)  #student ID number
+    email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                #yes/code/no
     blackballed = models.BooleanField(verbose_name="Blackballed",default=False)                                      #if a subject is blackballed they will not be auto recruited
     phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
     studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)                                  #true is subject is a student worker
