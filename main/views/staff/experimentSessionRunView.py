@@ -554,30 +554,32 @@ def bumpSubject(data,id):
     esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
 
     status=""
+    statusMessage=""
 
     if esdu:
         if esdu.confirmed:
             esdu.attended=False
             esdu.bumped=True
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
+            statusMessage = esdu.user.last_name + ", " + esdu.user.first_name + " is now bumped."
             status="success"
         else:
             esdu.attended = False
             esdu.bumped = False           
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
+            statusMessage = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
             logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
             status="fail"
 
         esdu.save()
-    else:        
-        logger.info("Bump Error, subject not found")
+    else:       
+        statusMessage =  "Bump Error, subject not found"
+        logger.info(statusMessage)
         status="fail"
 
     esd = experiment_session_days.objects.get(id=id)    
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status,"statusMessage": statusMessage}, safe=False)
 
 #mark subject as no show
 def noShowSubject(data,id):    

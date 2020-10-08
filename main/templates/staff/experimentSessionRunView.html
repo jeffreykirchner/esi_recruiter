@@ -180,7 +180,7 @@
                         })
                         .then(function (response) {     
                             app.$data.sessionDay = response.data.sessionDay;  
-                            app.$data.stripeReaderStatus= response.data.status;                                                               
+                            app.$data.stripeReaderStatus= response.data.statusMessage;                                                               
                         })
                         .catch(function (error) {
                             console.log(error);                                   
