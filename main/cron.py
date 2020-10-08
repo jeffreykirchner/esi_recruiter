@@ -32,4 +32,4 @@ class checkForReminderEmails(CronJobBase):
             for e in esd_list:
                 e.sendReminderEmail()
         
-        return str(list(esd_list))
+        return list(esd_list)

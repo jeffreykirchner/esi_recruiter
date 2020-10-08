@@ -250,12 +250,6 @@ class experiment_session_days(models.Model):
 
             user_list_valid_clean=[]
             if u_list_u2_json != []:
-                # user_list_valid = self.experiment_session.getValidUserList(u_list_u2_json,False,0,0,[],False) 
-
-                # #check that attending will violate other experiments already attending
-                # for u in user_list_valid:
-                #     if not u.profile.check_for_future_constraints(self.experiment_session):
-                #         user_list_valid_clean.append(u)
                 user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False)
 
             logger.info("Valid List")

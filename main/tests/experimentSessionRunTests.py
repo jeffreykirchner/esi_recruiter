@@ -138,12 +138,15 @@ class sessionRunTestCase(TestCase):
         #add subject 1
         self.es1.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
 
         #add subject 2
         self.es1.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
@@ -166,12 +169,16 @@ class sessionRunTestCase(TestCase):
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
 
         #add subject 2
         self.es2.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
 
     #check subject in with stripe reader
     def testStripeReaderCheckin(self):
@@ -219,7 +226,9 @@ class sessionRunTestCase(TestCase):
         self.assertEquals("success",r['status'])
 
         #check in unconfirmed
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
         r = json.loads(getStripeReaderCheckin({"value":"00123456=1234"},esd1.id).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 

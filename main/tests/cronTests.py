@@ -137,12 +137,14 @@ class cronTests(TestCase):
         #add subject 1
         self.es1.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #add subject 2
         self.es1.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        changeConfirmationStatus({"userId":self.u2.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
@@ -165,12 +167,14 @@ class cronTests(TestCase):
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #add subject 2
         self.es2.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
     #test that cron reminder
     def testReminderEmail(self):
@@ -206,7 +210,8 @@ class cronTests(TestCase):
 
         #test cron job
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es1.id)
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         esd1.reminder_email_sent=False
         esd1.save()
@@ -220,6 +225,7 @@ class cronTests(TestCase):
 
         #unsent experiment in 23 hours
         r = cj.do()
+        #logger.info(r)
         self.assertEquals(1,len(r))
 
         #sent experiment in 23 hours

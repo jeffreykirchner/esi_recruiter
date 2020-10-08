@@ -21,20 +21,27 @@ import json
 # Create your tests here.
 #test gender
 class GenderTestCase(TestCase):
+    staff_u=None
+    p=None
+    d_now = None      #date time now
+    l1=None           #locations
+    l2=None
+    account1=None     #accounts 
+
     def setUp(self):
         logger = logging.getLogger(__name__)
 
-        p = parameters()
-        p.save()
+        self.p = parameters()
+        self.p.save()
         
         d = departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
-        a = accounts(name="a",number="1.0",department=d)
-        a.save()
+        self.account1 = accounts(name="a",number="1.0",department=d)
+        self.account1.save()
 
-        l=locations(name="l",address="room")
-        l.save()
+        self.l1=locations(name="l",address="room")
+        self.l1.save()
 
         i1=institutions(name="one")
         i1.save()
@@ -45,6 +52,18 @@ class GenderTestCase(TestCase):
 
         s=schools.objects.get(id=1)
         s.email_filter.set(email_filters.objects.all())
+
+        #staff user
+        user_name = "s1@chapman.edu"
+        temp_st =  subject_types.objects.get(id=3)
+        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                            genders.objects.first(),"7145551234",majors.objects.first(),\
+                            temp_st,False,True,account_types.objects.get(id=1))
+        self.staff_u.is_superuser=True
+        self.staff_u.save()
+
+        self.p.labManager=self.staff_u
+        self.p.save()
 
         #create 4 gendered users
         for g in genders.objects.all():
@@ -79,11 +98,15 @@ class GenderTestCase(TestCase):
         es_women_only.recruitment_params.reset_settings()
         es_women_only.recruitment_params.gender.set(genders.objects.filter(name="Female"))
         es_women_only.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
+        esd1 = es_women_only.ESD.first()
        
         u_list = es_women_only.getValidUserList_forward_check([],True,0,0,[],False)
         c=len(u_list)
 
         self.assertEqual(c, len(genders.objects.filter(name="Female")))
+
+        #try add to session       
+       
 
     def testAll(self):
         """Test all genders are recruited""" 
@@ -126,6 +149,7 @@ class subjectTypeTestCase(TestCase):
 
         s=schools.objects.first()
         s.email_filter.set(email_filters.objects.all())
+        
 
         #create 5 subjects, 3 undergrad two graduates
         for g in range(5):
@@ -2068,6 +2092,30 @@ class recruiteTestCase(TestCase):
             self.assertIn(u, u_list)
         
         self.assertEqual(len(e_users),len(u_list))
+
+    #test if changing gender parameters prevents confirmation
+    def testGenderChangeConfirm(self):
+        """Test changing gender requirments then confirming""" 
+        logger = logging.getLogger(__name__)
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+        
+        temp_u = self.user_list[1]
+        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        #remove all genders
+        es.recruitment_params.gender.clear()
+        es.save()
+        esd1 = es.ESD.first()
+
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        self.assertEqual(es.recruitment_params.gender.count(),0)
 
 #test school constraints
 class schoolTestCase(TestCase):

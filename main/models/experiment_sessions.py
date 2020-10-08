@@ -722,16 +722,31 @@ class experiment_sessions(models.Model):
                     FROM user_current_sesion
                     WHERE user_current_sesion.user_id = auth_user.id) AND 
             '''
-
-        str1=f'''          	  									
-            WITH
-            --table of genders required in session
-            genders_include AS (SELECT genders_id
+        
+        #check genders
+        gender_with_str=""
+        gender_where_str=""
+        if checkAlreadyIn:
+            #only check genders during invitation phase
+            gender_with_str=f'''
+                --table of genders required in session
+                genders_include AS (SELECT genders_id
                                 FROM main_recruitment_parameters_gender
                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_gender.recruitment_parameters_id
                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
                                 WHERE main_experiment_sessions.id = {id}),
-            
+            '''
+
+            gender_where_str=f'''
+                --user's gender is on the list
+                EXISTS(SELECT 1                                                   
+                    FROM genders_include	
+                    WHERE main_profile.gender_id = genders_include.genders_id) AND 
+            '''
+
+        str1=f'''          	  									
+            WITH
+            {gender_with_str}
             {user_during_session_time_str}
             {user_institutions_str}
             {user_institutions_past_str}
@@ -771,11 +786,7 @@ class experiment_sessions(models.Model):
             {experiments_include_user_where_str}
             {schools_exclude_user_where_str}
             {schools_include_user_where_str}
-
-            --user's gender is on the list
-            EXISTS(SELECT 1                                                   
-                    FROM genders_include	
-                    WHERE main_profile.gender_id = genders_include.genders_id) AND   
+            {gender_where_str}             
 
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   

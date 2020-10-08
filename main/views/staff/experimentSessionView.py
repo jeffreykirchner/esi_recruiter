@@ -318,22 +318,17 @@ def changeConfirmationStatus(data,id):
 
     esdu = experiment_session_day_users.objects.get(id = esduId)                                  
     
+    failed = False
+
     if newStatus == "confirm":
         es = experiment_sessions.objects.get(id=id)
 
-        failed = False
-
         #check user is still valid
-        #u_list = es.getValidUserList([{'id':esdu.user.id}],False,0,0,[],False)
         u_list = es.getValidUserList_forward_check([{'id':esdu.user.id}],False,0,0,[],False)
 
         if not esdu.user in u_list:
             failed=True
-        
-        #check that attending will not violate another attending experiment for this user
-        # if not failed:
-        #     if esdu.user.profile.check_for_future_constraints(es):
-        #         failed=True
+            logger.info("Status change fail user not in vaild list user:" + str(esdu.user.id) + " session " + str(id))
 
         if not failed:
             esdu.confirmed = True
@@ -344,7 +339,7 @@ def changeConfirmationStatus(data,id):
     esdu.save()
 
     es = experiment_sessions.objects.get(id=id)
-    return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
+    return JsonResponse({"status":"success" if not failed else "fail","es_min":es.json_esd(True)}, safe=False)
 
 #manually search for users to add to session
 def getSearchForSubject(data,id):
