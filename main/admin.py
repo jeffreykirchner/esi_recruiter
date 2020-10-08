@@ -12,6 +12,8 @@ from main.views import sendMassEmailVerify
 from datetime import datetime,timedelta
 import pytz
 import logging
+from django.db.models import Q,F,Value as V,Count
+from django.contrib.auth.hashers import make_password
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -123,7 +125,7 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       confirm_active_email.short_description = "Manually confirm selected active user's emails"
 
-      #clear everyone from blackballs status
+      #un confirm all selected email address
       def un_confirm_emails(self, request, queryset):
 
             updated = queryset.exclude(user__is_staff = True).update(email_confirmed='no')
@@ -149,7 +151,7 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % c, messages.SUCCESS)
       apply_email_filter.short_description = "Apply email filters to selected profiles" 
 
-      #set all selected users to agree to consent form before continuing
+      #require all selected users to agree to consent form before attending another experiment
       def consent_form_required(self, request, queryset):
 
             updated = queryset.exclude(user__is_staff = True).update(consentRequired=True)
@@ -177,10 +179,6 @@ class ProfileAdmin(admin.ModelAdmin):
             q_list = queryset.filter(user__id__in = qs)
             updated = User.objects.filter(profile__in = q_list).update(is_active = True)
 
-            # for i in updated:
-            #       i.user.is_active = True
-            #       i.save()
-
             self.message_user(request, ngettext(
                   '%d user was updated.',
                   '%d users were updated.',
@@ -188,10 +186,34 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       activate_recent_users.short_description = "Activate users who attended in past two years"   
 
+      #set selected users up to be test subejects
+
+      def setup_test_users(self, request, queryset):
+            logger = logging.getLogger(__name__)
+            logger.info("setup_test_users")
+
+            updated = queryset.exclude(user__is_staff = True).update(consentRequired=False,
+                                                                     blackballed=False,
+                                                                     email_confirmed='yes',
+                                                                     paused=False)
+
+            pw =  make_password("esi2008esi")
+            for p in queryset.exclude(user__is_staff = True):
+                  p.user.password = pw
+                  p.user.is_active=True
+                  p.user.save()
+
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      setup_test_users.short_description = "Setup users as test subjects, pw = 'esi2008esi'."
+
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
-                 deactivate_all,activate_all,consent_form_required,activate_recent_users]
+                 deactivate_all,activate_all,consent_form_required,activate_recent_users,setup_test_users]
       list_display = ['__str__','studentWorker','blackballed','email_filter']
       list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')
 

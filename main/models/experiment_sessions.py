@@ -807,9 +807,9 @@ class experiment_sessions(models.Model):
             {user_exeriments_count_where}
             {allow_multiple_participations_str}
             {users_to_search_for}    
-            is_staff = FALSE AND                                             --subject cannot be an admin memeber
-            is_active = TRUE  AND                                            --acount is activated
-            blackballed = FALSE AND                                          --subject has not been blackballed  
+            auth_user.is_staff = FALSE AND                                   --subject cannot be an admin memeber
+            auth_user.is_active = TRUE  AND                                  --acount is activated
+            main_profile.blackballed = FALSE AND                             --subject has not been blackballed  
             main_profile.type_id = 2 AND                                     --only subjects 
             main_profile.email_confirmed = 'yes' AND                          --the email address has been confirmed
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
