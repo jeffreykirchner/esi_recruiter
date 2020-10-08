@@ -24,6 +24,7 @@ from django.db.models import prefetch_related_objects
 from django.urls import reverse
 import logging
 from django.db.models import Count, F, Value,CharField
+from datetime import datetime,timedelta
 
 @login_required
 @user_is_staff
@@ -114,6 +115,15 @@ def addSession(data,id):
         status="Error: Please specify the institution parameter"
     else:
         es = addSessionBlank(e)
+
+        #set default date time 1 day after last session day
+        lastSD = es.experiment.getLastSessionDay()
+
+        if lastSD:
+            n_dt = lastSD.date + timedelta(days=1)
+            esd = es.ESD.first()
+            esd.date = n_dt
+            esd.save()
 
     return JsonResponse({ "sessions" : e.json_sessions(),"status":status},safe=False)
     #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 

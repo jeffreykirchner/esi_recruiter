@@ -85,6 +85,10 @@ class experiments(models.Model):
             return  esd.date.astimezone(tz).strftime("%-m/%#d/%Y")
         else:
             return "No Sessions"
+    
+    #get last session day
+    def getLastSessionDay(self):
+        return main.models.experiment_session_days.objects.filter(experiment_session__experiment = self).order_by('-date').first()
 
     #return true if at least one subject in one session has confirmed
     def checkForConfirmation(self):
