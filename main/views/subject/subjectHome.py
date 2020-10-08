@@ -97,7 +97,7 @@ def acceptConsentForm(data,u):
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
                          "consentRequired":consentRequired,
-                         "failed":"false"}, safe=False)
+                         "failed":False}, safe=False)
 
 #subject has accepted an invitation
 def acceptInvitation(data,u):    
