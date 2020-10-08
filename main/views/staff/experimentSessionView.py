@@ -273,21 +273,7 @@ def inviteSubjects(data,id,request):
     es.save()
 
     #store invitation
-    recruitment_params = recruitment_parameters()
-    recruitment_params.setup(es.recruitment_params)
-    recruitment_params.save()
-
-    m = experiment_session_invitations()
-    m.experiment_session = es
-    m.subjectText = subjectText
-    m.messageText = messageText
-    m.mailResultSentCount = mailResult['mailCount']
-    m.mailResultErrorText = mailResult['errorMessage']  
-    m.recruitment_params = recruitment_params
-
-    m.save()
-    m.users.add(*userPkList)
-    m.save()
+    storeInvitation(id,userPkList,subjectText,messageText,mailResult['mailCount'],mailResult['errorMessage'])    
 
     invitationCount=es.experiment_session_invitations_set.count()
 
@@ -296,6 +282,29 @@ def inviteSubjects(data,id,request):
                          "userFails":userFails,
                          "invitationCount":invitationCount,
                          "es_min":es.json_esd(True)}, safe=False)
+
+#store invitation
+def storeInvitation(id,userPkList,subjectText,messageText,mailCount,errorMessage):
+    logger = logging.getLogger(__name__)
+    logger.info("store invitation")
+
+    es = experiment_sessions.objects.get(id=id)
+
+    recruitment_params = recruitment_parameters()
+    recruitment_params.setup(es.recruitment_params)
+    recruitment_params.save()
+
+    m = experiment_session_invitations()
+    m.experiment_session = es
+    m.subjectText = subjectText
+    m.messageText = messageText
+    m.mailResultSentCount = mailCount
+    m.mailResultErrorText =  errorMessage
+    m.recruitment_params = recruitment_params
+
+    m.save()
+    m.users.add(*userPkList)
+    m.save()
 
 #change subject's confirmation status
 def changeConfirmationStatus(data,id):
@@ -404,50 +413,45 @@ def getManuallyAddSubject(data,id,request):
 
     status = "success"
     failed = False
-
-    #check the subject not already in session
-    # esdu = experiment_session_day_users.objects.filter(user__id = u["id"],
-    #                                                    experiment_session_day__experiment_session__id = id) \
-    #                                                .exists()   
-    # if esdu:
-    #     failed=True
-    
-    #check user is still valid
-    if not failed:
        
-        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
+    u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
 
-        if len(u_list) == 0:
-            failed=True
-    
-    #check that this session would not violate other attended experiments by this subject
-    # if not failed:
-    #     if User.objects.get(id=u["id"]).profile.check_for_future_constraints(es):
-    #         failed=True
-
+    if len(u_list) == 0:
+        failed=True
 
     mailResult =  {"mailCount":0,"errorMessage":""}   
-
+    
     if not failed:
-
-        subjectText = ""
-
-        if es.ESD.count() == 1:
-            subjectText = p.invitationTextSubject
-        else:
-            subjectText = p.invitationTextMultiDaySubject
-
+        subjectText=""
+        messageText=""
+       
         es.addUser(u["id"],request.user,True)
         es.save()
 
         if sendInvitation:
-            mailResult = sendMassEmail([u], subjectText, es.getInvitationEmail())
+            if es.ESD.count() == 1:
+                subjectText = p.invitationTextSubject
+            else:
+                subjectText = p.invitationTextMultiDaySubject
+
+            messageText = es.getInvitationEmail()
+
+            mailResult = sendMassEmail([u], subjectText, messageText)
         else:
             mailResult =  {"mailCount":0,"errorMessage":""}    
-    else:
-        status = "fail"    
 
-    return JsonResponse({"status":status,"mailResult":mailResult,"user":u,"es_min":es.json_esd(True)}, safe=False)
+        #store invitation
+        storeInvitation(id,[u["id"]],subjectText,messageText,mailResult['mailCount'],mailResult['errorMessage']) 
+    else:
+        status = "fail"   
+
+    invitationCount=es.experiment_session_invitations_set.count()
+
+    return JsonResponse({"status":status,
+                         "mailResult":mailResult,
+                         "user":u,
+                         "invitationCount":invitationCount,
+                         "es_min":es.json_esd(True)}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):

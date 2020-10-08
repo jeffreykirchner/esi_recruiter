@@ -887,6 +887,8 @@
                             {                                               
                                 app.$data.searchAddResult = "Subject added, an invitation was sent.";                                 
                             }      
+
+                            app.$data.session.invitationCount = response.data.invitationCount;
                             
                         })
                         .catch(function (error) {

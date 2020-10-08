@@ -247,7 +247,6 @@ class experiment_sessions(models.Model):
 
         return u_list
 
-
     #return a list of all valid users that can participate
     #u_list confine search to list, empty for all subjects
     #checkAlreadyIn checks if a subject is already added to session
