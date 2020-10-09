@@ -255,6 +255,7 @@ def cancelAcceptInvitation(data,u):
         logger.info("Cancel invitation error")             
         logger.info("User: " + str(u.id))    
         logger.info(e)
+        failed=True
 
     upcomingInvitations=u.profile.sorted_session_list_upcoming()
     consentRequired = u.profile.consentRequired

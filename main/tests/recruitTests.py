@@ -464,8 +464,8 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        #r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -517,8 +517,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -571,8 +572,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -622,8 +624,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -676,8 +679,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -729,8 +733,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -816,8 +821,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -906,8 +912,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1022,8 +1029,8 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        #cancelAcceptInvitation({"id":es.id},self.user_list[1])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1076,8 +1083,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1193,8 +1201,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1283,8 +1292,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1451,8 +1461,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1504,8 +1515,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1605,8 +1617,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1710,8 +1723,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1844,8 +1858,8 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        #r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -1894,8 +1908,9 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        cancelAcceptInvitation({"id":es.id},self.user_list[1])
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 11:00 am -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
