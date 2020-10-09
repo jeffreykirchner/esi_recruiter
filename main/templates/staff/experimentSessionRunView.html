@@ -45,6 +45,7 @@
                 stripeReaderSpinner:"",
                 stripeReaderValue:"",
                 stripeReaderStatus:"",
+                autoAddUsers:false,                         //automatically add users if they are not checked in
             },
 
             methods:{
@@ -437,7 +438,15 @@
                 <!-- stripe reader -->
                 <div v-if='sessionDay.complete === false'>
                     <div class="row align-items-left">
-                        <div class = "col-md-4 offset-md-4">
+                        <div class = "col-md-4" style="text-align: right;">
+                            
+                             <div class="form-check" v-if='isAdmin'>
+                                <input type="checkbox" class="form-check-input" id="autoAdd" v-model='autoAddUsers'>
+                                <label class="form-check-label" for="autoAdd">Auto add subjects</label>
+                              </div>
+                            
+                        </div>
+                        <div class = "col-md-4">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                 <span class="input-group-text">Stripe Reader</span>

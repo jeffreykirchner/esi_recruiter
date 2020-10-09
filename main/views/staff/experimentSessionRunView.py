@@ -120,6 +120,7 @@ def getStripeReaderCheckin(data,id):
         else:
             status = attendSubjectAction(esdu.first(),id)
 
+
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
