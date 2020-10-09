@@ -590,7 +590,14 @@ def addSessionDay(data,id):
         esd.setup(es,u_list)
         esd.save()
 
-        es.save()    
+        es.save()
+
+        lastSD = es.experiment.getLastSessionDay()
+
+        if lastSD:
+            n_dt = lastSD.date + timedelta(days=1)
+            esd.date = n_dt
+            esd.save()    
 
     return JsonResponse({"status":"success","session":es.json()}, safe=False)
 
