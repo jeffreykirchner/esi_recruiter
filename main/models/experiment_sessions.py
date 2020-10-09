@@ -51,6 +51,15 @@ class experiment_sessions(models.Model):
                  "user_first_name":i['user__first_name'],
                  "user_last_name":i['user__last_name'],} for i in l ]
 
+    #check if specifed user is in this sessoin
+    def checkUserInSession(self,check_user):
+
+        for e in self.ESD.all():
+            if e.checkUserInSession(check_user):
+                return True
+
+        return False
+
     #build an invition email given the experiment session
     def getInvitationEmail(self):
 

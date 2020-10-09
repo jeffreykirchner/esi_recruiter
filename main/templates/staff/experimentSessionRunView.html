@@ -46,6 +46,7 @@
                 stripeReaderValue:"",
                 stripeReaderStatus:"",
                 autoAddUsers:false,                         //automatically add users if they are not checked in
+                ignoreConstraints:false,                    //ignore recruitment constraints and add user
             },
 
             methods:{
@@ -83,7 +84,9 @@
 
                     axios.post('/experimentSessionRun/{{id}}/', {
                              action :"stripeReaderCheckin" ,
-                             value:app.$data.stripeReaderValue,                                                                                                                            
+                             value:app.$data.stripeReaderValue,    
+                             autoAddUsers:app.$data.autoAddUsers,   
+                             ignoreConstraints:app.$data.ignoreConstraints,                                                                                                                        
                          })
                          .then(function (response) {                                
                             app.$data.sessionDay = response.data.sessionDay;   
@@ -440,10 +443,14 @@
                     <div class="row align-items-left">
                         <div class = "col-md-4" style="text-align: right;">
                             
-                             <div class="form-check" v-if='isAdmin'>
+                            <div class="form-check" v-if='isAdmin'>
                                 <input type="checkbox" class="form-check-input" id="autoAdd" v-model='autoAddUsers'>
-                                <label class="form-check-label" for="autoAdd">Auto add subjects</label>
-                              </div>
+                                <label class="form-check-label" for="autoAdd">Automatically add subjects</label>
+                            </div>
+                            <div class="form-check" v-if='isAdmin'>
+                                <input type="checkbox" class="form-check-input" id="ignoreConstraints" v-model='ignoreConstraints'>
+                                <label class="form-check-label" for="ignoreConstraints">Ignore recruitment constraints</label>
+                            </div>
                             
                         </div>
                         <div class = "col-md-4">

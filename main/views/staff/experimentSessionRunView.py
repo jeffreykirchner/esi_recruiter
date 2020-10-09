@@ -14,6 +14,7 @@ from datetime import datetime, timedelta,timezone
 from django.core.exceptions import ObjectDoesNotExist
 
 from main.models import experiment_session_days,experiment_session_day_users,profile,help_docs
+from main.views.staff.experimentSessionView import getManuallyAddSubject,changeConfirmationStatus
 
 @login_required
 @user_is_staff
@@ -51,7 +52,7 @@ def experimentSessionRunView(request,id=None):
         elif data["action"] == "fillEarningsWithFixed":
             return fillEarningsWithFixed(data,id)
         elif data["action"]=="stripeReaderCheckin":
-            return getStripeReaderCheckin(data,id)
+            return getStripeReaderCheckin(data,id,request.user)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:
@@ -79,11 +80,11 @@ def getSession(data,id):
     return JsonResponse({"sessionDay" : esd.json_runInfo() }, safe=False)
 
 #get data from the strip reader for subject checkin
-def getStripeReaderCheckin(data,id):
+def getStripeReaderCheckin(data,id,request_user):
     '''
     Check subject in with strip reader
 
-    :param data: Form data{"value":stripe reader input, ###=##}
+    :param data: Form data{"value":stripe reader input ###=##,"autoAddUsers":True/False,"ignoreConstraints":"True/False"}
     :type data: dict
 
     :param id: Experiment session day id
@@ -92,6 +93,9 @@ def getStripeReaderCheckin(data,id):
     logger = logging.getLogger(__name__)
     logger.info("Stripe Reader Checkin")
     logger.info(data)
+
+    autoAddUser = data["autoAddUsers"]
+    ignoreConstraints = data["ignoreConstraints"]
 
     status = ""    
 
@@ -108,7 +112,7 @@ def getStripeReaderCheckin(data,id):
         logger.info("Stripe Reader card read error")
 
     if status == "":
-        # try:            
+                    
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
                                                             user__profile__studentID__icontains = studentID,
                                                             confirmed = True)\
@@ -118,12 +122,69 @@ def getStripeReaderCheckin(data,id):
             status= "Error: Multiple users found" 
             logger.info("Stripe Reader Error, multiple users found")
         else:
-            status = attendSubjectAction(esdu.first(),id)
+            if autoAddUser and request_user.is_superuser :
+                status = autoAddSubject(studentID,id,request_user,ignoreConstraints)
+                #status = r['status']
+            
+            if status=="":
+                status = attendSubjectAction(esdu.first(),id)
 
 
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
+
+def autoAddSubject(studentID,id,request_user,ignoreConstraints):
+    logger = logging.getLogger(__name__)
+    logger.info("Auto add subject")
+    logger.info(studentID)
+
+    status = ""
+
+    p = profile.objects.filter(studentID__icontains = studentID)
+    esd = experiment_session_days.objects.get(id=id)
+
+    if len(p)>1:
+        #multiple users found
+        status= "Error, Multiple users found: "
+
+        for u in p:
+            status += str(u) + " "
+
+        logger.info(status)
+        
+    elif len(p) == 0:
+        #no subject found
+        status= "Error: No subject found with ID: " + str(studentID)
+    else:
+        #one subject found
+        p = p.first()
+
+        #check for recruitment violations
+        r = json.loads(getManuallyAddSubject({"user":{"id":p.user.id},"sendInvitation":False},
+                                             esd.experiment_session.id,
+                                             request_user,
+                                             ignoreConstraints).content.decode("UTF-8"))
+        if not "success" in r['status']:
+            status = "Could not add subject: Recruitment Violation"
+        else:
+            #confirm newly added user
+            temp_esdu = esd.experiment_session_day_users_set.filter(user__id = p.user.id).first()
+
+            if not temp_esdu:
+                status = "The subject could not be added to the session, try manual add."
+            else:
+                r = json.loads(changeConfirmationStatus({"userId":p.user.id,
+                                                        "confirmed":"confirm",
+                                                        "esduId":temp_esdu.id},
+                                                        esd.experiment_session.id,
+                                                        ignoreConstraints).content.decode("UTF-8"))
+                
+                if not "success" in r['status']:
+                    status = "Subject added but manual confirmation is required."
+    
+
+    return status
 
 #return paypal CSV
 def getPayPalExport(data,id):
@@ -510,7 +571,7 @@ def attendSubjectAction(esdu,id):
             status = esdu.user.last_name + ", " + esdu.user.first_name + " must agree to the consent form."
             logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
-        #backup check that subject has not already done this experiment if excluded
+        #check if user has confirmed for session
         elif not esdu.confirmed:
             esdu.attended = False
             esdu.bumped = False
@@ -518,12 +579,15 @@ def attendSubjectAction(esdu,id):
             status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
             logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
+        #backup check that subject has not already done this experiment if excluded
         elif esdu.getAlreadyAttended():
             esdu.attended = False
             esdu.bumped = True
             
             status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
             logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+        
+        #attend subject
         else:     
             esdu.attended = True
             esdu.bumped = False

@@ -9,7 +9,7 @@ from main.models import genders,experiments,subject_types,account_types,majors,\
                         experiment_session_day_users    
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
-from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
+from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession,removeSubject
 from main.views.staff.experimentSessionRunView import getStripeReaderCheckin,noShowSubject,attendSubject,bumpSubject,noShowSubject,fillDefaultShowUpFee
 from main.views.staff.experimentSessionRunView import fillEarningsWithFixed,completeSession,savePayouts,backgroundSave,bumpAll,autoBump,completeSession
 from main.views.subject.subjectHome import cancelAcceptInvitation,acceptInvitation
@@ -31,6 +31,7 @@ class sessionRunTestCase(TestCase):
 
     u=None            #user
     u2=None
+    u3=None
 
     d_now = None      #date time now
     l1=None           #locations
@@ -111,6 +112,22 @@ class sessionRunTestCase(TestCase):
         self.u2.save()
 
         self.u2.profile.setup_email_filter()
+
+        #subject 3
+        self.u3 = profileCreateUser("u3@chapman.edu","u3@chapman.edu","zxcvb1234asdf","first","last","00121212",\
+                    genders.objects.first(),"7145551234",majors.objects.first(),\
+                    subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+        
+        logger.info(self.u2)
+
+        self.u3.is_active = True
+        self.u3.profile.email_confirmed = 'yes'
+        self.u3.profile.consentRequired = False
+
+        self.u3.profile.save()
+        self.u3.save()
+
+        self.u3.profile.setup_email_filter()
         
         #sessions
         self.d_now = datetime.now(pytz.utc)
@@ -138,14 +155,14 @@ class sessionRunTestCase(TestCase):
         #add subject 1
         self.es1.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
         #add subject 2
         self.es1.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #setup experiment three days from now
@@ -169,14 +186,14 @@ class sessionRunTestCase(TestCase):
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
         #add subject 2
         self.es2.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
@@ -191,49 +208,103 @@ class sessionRunTestCase(TestCase):
         self.assertIsInstance(esdu,experiment_session_day_users)
 
         #check leading zeros
-        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234"},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},
+                                               esd1.id,
+                                               self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check no zeros
-        r = json.loads(getStripeReaderCheckin({"value":"123456=1234"},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"123456=1234",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check no equals
-        r = json.loads(getStripeReaderCheckin({"value":"123456"},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"123456",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check wrong number
-        r = json.loads(getStripeReaderCheckin({"value":"56456565"},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"56456565",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check checkin similar id numbers
-        r = json.loads(getStripeReaderCheckin({"value":"1234="},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"1234=",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check in unconfirmed
-        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":esdu.id},self.es1.id).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234"},esd1.id).content.decode("UTF-8"))
+        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
+
+        #check add to sessin
+        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+                                                   "autoAddUsers":True,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        #check add again:
+        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+                                                   "autoAddUsers":True,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertNotIn("is now attending",r['status'])
+
+        #check recruitment violation
+        #remove user 3 from sessoin
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        r = json.loads(changeConfirmationStatus({"userId":self.u3.id,"confirmed":"unconfirm","esduId":esdu.id},self.es1.id,False).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        r = json.loads(removeSubject({"userId":self.u3.id,
+                                      "esduId":"",},self.es1.id).content.decode("UTF-8"))
+        self.assertIn("success",r['status'])
+
+        #remove all genders
+        self.es1.recruitment_params.gender.clear()
+        self.es1.recruitment_params.save()
+
+        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+                                                   "autoAddUsers":True,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertNotIn("is now attending",r['status'])
+
+        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+                                                   "autoAddUsers":True,
+                                                   "ignoreConstraints":True},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
 
     #allow super user to manually check subject in
     def testAttendSubject(self):

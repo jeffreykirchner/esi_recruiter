@@ -52,6 +52,9 @@ class experiment_session_days(models.Model):
 
         return u_list
 
+    def checkUserInSession(self,check_user):
+        return self.experiment_session_day_users_set.filter(user=check_user).exists()
+
     #add user to session day
     def addUser(self,userID,staffUser,manuallyAdded):
         esdu = main.models.experiment_session_day_users()

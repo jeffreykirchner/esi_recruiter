@@ -64,9 +64,9 @@ def experimentSessionView(request,id):
         elif data["status"] == "searchForSubject":
             return getSearchForSubject(data,id)
         elif data["status"] == "manuallyAddSubject":
-            return getManuallyAddSubject(data,id,request)    
+            return getManuallyAddSubject(data,id,request.user,False)    
         elif data["status"] == "changeConfirmation":
-            return changeConfirmationStatus(data,id)     
+            return changeConfirmationStatus(data,id,False)     
         elif data["status"] == "inviteSubjects":
             return inviteSubjects(data,id,request)
         elif data["status"] == "showUnconfirmedSubjects":
@@ -307,7 +307,7 @@ def storeInvitation(id,userPkList,subjectText,messageText,mailCount,errorMessage
     m.save()
 
 #change subject's confirmation status
-def changeConfirmationStatus(data,id):
+def changeConfirmationStatus(data,id,ignoreConstraints):
     logger = logging.getLogger(__name__)
     logger.info("Change subject's confirmation status")
     logger.info(data)
@@ -324,11 +324,12 @@ def changeConfirmationStatus(data,id):
         es = experiment_sessions.objects.get(id=id)
 
         #check user is still valid
-        u_list = es.getValidUserList_forward_check([{'id':esdu.user.id}],False,0,0,[],False)
+        if not ignoreConstraints:
+            u_list = es.getValidUserList_forward_check([{'id':esdu.user.id}],False,0,0,[],False)
 
-        if not esdu.user in u_list:
-            failed=True
-            logger.info("Status change fail user not in vaild list user:" + str(esdu.user.id) + " session " + str(id))
+            if not esdu.user in u_list:
+                failed=True
+                logger.info("Status change fail user not in vaild list user:" + str(esdu.user.id) + " session " + str(id))
 
         if not failed:
             esdu.confirmed = True
@@ -391,7 +392,22 @@ def getSearchForSubject(data,id):
     return JsonResponse({"status":"success","users":json.dumps(list(users_list),cls=DjangoJSONEncoder)}, safe=False)
 
 #manually add a single subject
-def getManuallyAddSubject(data,id,request):
+def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
+    '''
+        Manually add a subject to a session
+
+        :param data: Form data{"user":{"id":user id}, "sendInvitation":True/False}
+        :type data: dict
+
+        :param id: Experiment session id
+        :type id: int
+
+        :param request_user: User requesting the manual add
+        :type id: django.contrib.auth.models.User
+
+        :param ignoreConstraints: Bypass recuritment check when adding
+        :type id: boolean
+    '''
 
     logger = logging.getLogger(__name__)
     logger.info("Manually add subject")
@@ -408,11 +424,15 @@ def getManuallyAddSubject(data,id,request):
 
     status = "success"
     failed = False
-       
-    u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
 
-    if len(u_list) == 0:
-        failed=True
+    #check that user does not violate recruitment constraints
+    if not ignoreConstraints:   
+        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
+
+        if len(u_list) == 0:
+            failed=True
+    elif es.checkUserInSession(User.objects.get(id = u["id"])):
+         failed=True
 
     mailResult =  {"mailCount":0,"errorMessage":""}   
     
@@ -420,7 +440,7 @@ def getManuallyAddSubject(data,id,request):
         subjectText=""
         messageText=""
        
-        es.addUser(u["id"],request.user,True)
+        es.addUser(u["id"],request_user,True)
         es.save()
 
         if sendInvitation:
@@ -630,6 +650,16 @@ def updateSessionDay(data,id):
 
 #remove subject from session day 
 def removeSubject(data,id):
+    '''
+        Remove subject from session
+
+        :param data: Form data{"userId":user id, "esduId":experiment session day id}
+        :type data: dict
+
+        :param id: Experiment session id
+        :type id: int
+
+    '''
     logger = logging.getLogger(__name__)
     logger.info("Remove subject from session")
     logger.info(data)
@@ -640,14 +670,18 @@ def removeSubject(data,id):
     esdu=experiment_session_day_users.objects.filter(user__id = userId,
                                                      experiment_session_day__experiment_session__id = id)
 
+    status = "success"
+
     logger.info(esdu)
     #delete sessions users only if they have not earned money
     for i in esdu:
         if i.allowDelete():
-            i.delete()            
+            i.delete()    
+        else:
+            status="fail"        
 
     es = experiment_sessions.objects.get(id=id)
-    return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
+    return JsonResponse({"status":status,"es_min":es.json_esd(True)}, safe=False)
     
 
     

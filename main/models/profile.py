@@ -6,7 +6,7 @@ from django.core.validators import RegexValidator
 from django.db.models import F,Q
 
 from main.models import *
-from main.models import institutions,parameters,experiment_sessions
+from main.models import institutions,parameters,experiment_sessions,profile
 from . import email_filters
 
 import main
