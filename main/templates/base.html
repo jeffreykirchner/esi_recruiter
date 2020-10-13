@@ -40,11 +40,15 @@
             }
 
             var btn = document.getElementById("helpButton");
-            btn.addEventListener("click", showHelp);
 
-            $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
-                })
+            if(btn)
+            {
+                btn.addEventListener("click", showHelp);
+
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                    })
+            }
          });
         </script>
 
