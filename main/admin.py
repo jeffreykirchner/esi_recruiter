@@ -99,7 +99,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
             self.message_user(request,"Emails Sent: " + str(updated3['mailCount']) + " " + updated3['errorMessage'], messages.SUCCESS)
 
-      deactivate_all.short_description = "Deactivate selected subjects and re-invite"
+      deactivate_all.short_description = "Deactivate selected active subjects and re-invite"
 
       #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
