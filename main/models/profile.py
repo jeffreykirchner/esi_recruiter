@@ -3,7 +3,7 @@ import logging
 import traceback
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.db.models import F,Q
+from django.db.models import F,Q,Sum
 
 from main.models import *
 from main.models import institutions,parameters,experiment_sessions,profile
@@ -213,6 +213,57 @@ class profile(models.Model):
                 return False
         else:
             return False
+
+    #ytd payouts
+    def get_ytd_payouts(self):
+        logger = logging.getLogger(__name__)
+        logger.info("ytd earnings")
+
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+
+        #create a new tz aware date time
+        s_date = datetime.now(tz)
+
+        #replace with non aware info
+        s_date = s_date.replace(day=1,month=1, hour=0,minute=0,second=0,microsecond=1)
+
+        r1 = main.models.experiment_session_day_users.objects.filter(attended = True)\
+                                                             .filter(experiment_session_day__date__gte = s_date)\
+                                                             .filter(user = self.user)
+                                                                  
+                                            #  .annotate(totalBumps = Sum(Case(When(experiment_session_day_users__bumped = 1,
+                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
+                                            #                                  When(experiment_session_day_users__attended = 1,
+                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
+                                            #                                  default=Value(0)  )))\
+                                            #  .filter(account__in = dpt.accounts_set.all(),
+                                            #          date__gte=s_date,
+                                            #          date__lte=e_date)\
+                                            #  .filter(Q(totalEarnings__gt = 0) | 
+                                            #          Q(totalBumps__gt = 0))\
+                                            #  .select_related('experiment_session__experiment','account')\
+                                            #  .order_by('date')
+        r2 = main.models.experiment_session_day_users.objects.filter(bumped = True)\
+                                                             .filter(experiment_session_day__date__gte = s_date)\
+                                                             .filter(user = self.user)
+
+        total_earnings = 0
+        total_bumps = 0 
+
+        for i in r1:
+            total_earnings += i.earnings
+            total_bumps += i.show_up_fee
+
+        for i in r2:
+            total_bumps += i.show_up_fee 
+
+        logger.info(r1)
+        logger.info(r2)
+        
+        temp_e = total_earnings + total_bumps
+
+        return "$" + f'{temp_e:.2f}'
 
     #return true if adding user to session creates recruitment violations in other future  accepted experiments
     def check_for_future_constraints(self,es):
