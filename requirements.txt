@@ -17,6 +17,7 @@ pylint-django==2.2.0
 pylint-plugin-utils==0.6
 PyMySQL==0.9.3
 pytz==2020.1
+psycopg2==2.8.6
 requests==2.24.0
 six==1.15.0
 sqlparse==0.3.1
