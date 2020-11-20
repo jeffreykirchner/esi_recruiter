@@ -49,7 +49,7 @@
                                 });                        
                 },
 
-                acceptConsentForm:function(id,index){
+                acceptConsentForm:function(){
 
                     axios.post('/subjectHome/', {
                                     action :"acceptConsentForm",                                                                                                                                                                
@@ -144,8 +144,7 @@
                         if(($("#consentModal").data('bs.modal') || {})._isShown)
                         {
                             $('#consentModal').modal('toggle');
-                        }
-                        //
+                        }                        
                     }
                 },
 
