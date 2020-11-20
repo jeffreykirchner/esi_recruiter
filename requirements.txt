@@ -15,7 +15,7 @@ mccabe==0.6.1
 #pylint==2.5.3
 #pylint-django==2.2.0
 #pylint-plugin-utils==0.6
-PyMySQL==0.9.3
+#PyMySQL==0.9.3
 pytz==2020.1
 psycopg2-binary
 requests==2.24.0
