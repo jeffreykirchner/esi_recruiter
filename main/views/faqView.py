@@ -11,11 +11,6 @@ import logging
 from main.models import faq,parameters
 
 def faqView(request):
-    
-        
-    # logger.info(u.ESDU.all())
-    # for i in u.ESDU.all():
-    #     logger.info(i)
 
     if request.method == 'POST':       
 
@@ -25,8 +20,10 @@ def faqView(request):
             return getFaqs(data)       
                    
     else:     
-        p = parameters.objects.first()
-        labManager = p.labManager
+        logger = logging.getLogger(__name__) 
+        logger.info("Run Crons View")
+       
+        
 
         return render(request,'subject/faq.html',{"labManager":labManager})  
 
