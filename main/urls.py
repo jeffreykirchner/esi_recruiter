@@ -4,6 +4,7 @@ from django.views.generic.base import RedirectView
 from django.conf.urls import include,url
 from django.conf import settings
 from . import views
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     #admin site
@@ -34,6 +35,6 @@ urlpatterns = [
     path('faq/',views.faqView,name='faqView'),
 
     #cron
-    path('runCrons/',views.runCronsView,name='runCronsView'),
+    path('runCrons/',csrf_exempt(views.runCronsView),name='runCronsView'),
 
 ]
