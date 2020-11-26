@@ -134,11 +134,12 @@ def addSessionBlank(e):
     logger.info("Add Session Blank")
 
     es=experiment_sessions()
-    es.experiment=e           
+    es.experiment=e    
+    es.invitationText = e.invitationText    
     es.save()
 
     es.setupRecruitment()
-    es.save()
+    es.save()    
 
     #create experiment session day, attach to session
     esd=experiment_session_days()

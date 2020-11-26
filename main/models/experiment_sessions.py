@@ -24,6 +24,7 @@ class experiment_sessions(models.Model):
     canceled=models.BooleanField(default=False)
 
     recruitment_params = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)
+    invitation_text = models.CharField(max_length = 10000,default = "")                                 #text of email invitation subjects receive
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -67,7 +68,7 @@ class experiment_sessions(models.Model):
        
         message = ""
 
-        message = self.experiment.invitationText
+        message = self.invitation_text
         message = message.replace("[confirmation link]",p.siteURL)
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
@@ -1002,6 +1003,7 @@ class experiment_sessions(models.Model):
             "allowDelete":self.allowDelete(),
             "allowEdit":self.allowEdit(),
             "confirmedCount":self.getConfirmedCount(),
+            "invitationText":self.invitation_text,
         }
 
 #delete recruitment parameters when deleted

@@ -288,8 +288,7 @@
                         app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
                         axios.post('/experimentSession/{{id}}/', {
-                            status:"inviteSubjects",    
-                            subjectInvitations:app.$data.subjectInvitations,                                                     
+                            status:"inviteSubjects",                                                                       
                         })
                         .then(function (response) {                                   
 
