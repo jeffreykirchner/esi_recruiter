@@ -20,11 +20,9 @@ def faqView(request):
             return getFaqs(data)       
                    
     else:     
-        logger = logging.getLogger(__name__) 
-        logger.info("Run Crons View")
-       
+        p = parameters.objects.first()
+        labManager = p.labManager      
         
-
         return render(request,'subject/faq.html',{"labManager":labManager})  
 
 #get the session and notes subject has participated in
