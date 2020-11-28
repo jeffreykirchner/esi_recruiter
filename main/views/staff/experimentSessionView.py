@@ -78,7 +78,9 @@ def experimentSessionView(request,id):
         elif data["status"] == "showMessages":
             return showMessages(data,id) 
         elif data["status"] == "showInvitations":
-            return showInvitations(data,id)            
+            return showInvitations(data,id)  
+        elif data["status"] == "updateInvitationText":
+            return updateInvitationText(data,id)         
 
     else: #GET             
 
@@ -690,5 +692,25 @@ def removeSubject(data,id):
     es = experiment_sessions.objects.get(id=id)
     return JsonResponse({"status":status,"es_min":es.json_esd(True)}, safe=False)
     
+#update invitation text
+def updateInvitationText(data,id):
+    '''
+        update initation text for session
 
-    
+        :param data: Form data{"invitationRawText":session.invitationRawText,}
+        :type data: dict
+
+        :param id: Experiment session id
+        :type id: int
+
+    '''
+    logger = logging.getLogger(__name__)
+    logger.info("Update Session Invitation Text")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)     
+
+    es.invitation_text = data["invitationRawText"]
+    es.save()
+
+    return JsonResponse({"invitationText":es.getInvitationEmail(),}, safe=False) 
