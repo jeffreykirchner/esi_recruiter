@@ -27,8 +27,11 @@
                     </div>
                 </div>                                                   
             </div>
-            <div class="modal-footer">
-                             
+            <div class="modal-footer">   
+                <button type="button" class="btn btn-outline-primary" v-on:click = "fillInvitationWithDefault()">
+                    Fill with experiment default
+                </button>
+
                 <button type="button" class="btn btn-outline-primary" v-on:click = "updateInvitationText()">
                     <span v-html="updateInvitationButtonText"></span>
                 </button>

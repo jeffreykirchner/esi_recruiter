@@ -123,6 +123,7 @@
                     buttonText2:"Update",
                     updateInvitationButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     subjectsCaption1:"Confirmed",
+                    experiment_invitation_text:"",
                     options: {
                         // https://momentjs.com/docs/#/displaying/
                         format: 'MM/DD/YYYY hh:mm a ZZ',
@@ -225,9 +226,8 @@
                             })
                             .then(function (response) {                                                                   
                                 app.$data.session= response.data.session;
-                                app.$data.recruitment_params= response.data.recruitment_params; 
-                                // app.$data.experiment =  response.data.experiment;                                                            
-                                // app.$data.loading=false; 
+                                app.$data.experiment_invitation_text = response.data.experiment_invitation_text;
+                                app.$data.recruitment_params= response.data.recruitment_params;                                
                                 app.updateDisplayLists();
                                 app.$data.showLoadingSpinner=false;
 
@@ -493,6 +493,11 @@
                                 console.log(error);
                                 //app.$data.searching=false;                                                              
                             });                        
+                    },
+
+                    //fill inviation text with experiment default
+                    fillInvitationWithDefault:function(){
+                        app.$data.session.invitationRawText = app.$data.experiment_invitation_text;
                     },
 
                     //displays to the form errors

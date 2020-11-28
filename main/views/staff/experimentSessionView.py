@@ -110,6 +110,7 @@ def getSesssion(data,id):
     logger.info(es.recruitment_params)
 
     return JsonResponse({"session" :  es.json(),
+                         "experiment_invitation_text" : es.experiment.invitationText,
                          "recruitment_params":es.recruitment_params.json()}, safe=False)
 
 #show all messages sent to confirmed users
