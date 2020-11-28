@@ -24,6 +24,7 @@ class experiment_sessions(models.Model):
     canceled=models.BooleanField(default=False)
 
     recruitment_params = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)
+    invitation_text = models.CharField(max_length = 10000,default = "")                                 #text of email invitation subjects receive
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -62,12 +63,14 @@ class experiment_sessions(models.Model):
 
     #build an invition email given the experiment session
     def getInvitationEmail(self):
+        logger = logging.getLogger(__name__)
 
         p = parameters.objects.first()
        
         message = ""
 
-        message = self.experiment.invitationText
+        message = str(self.invitation_text)
+
         message = message.replace("[confirmation link]",p.siteURL)
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
@@ -78,12 +81,14 @@ class experiment_sessions(models.Model):
     
     #build an reminder email given the experiment session
     def getReminderEmail(self):
-
+        logger = logging.getLogger(__name__)
+   
         p = parameters.objects.first()
        
         message = ""
 
         message = self.experiment.reminderText
+
         message = message.replace("[confirmation link]",p.siteURL)
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
@@ -995,6 +1000,7 @@ class experiment_sessions(models.Model):
             "canceled":self.canceled,
             "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
+            "invitationRawText" : self.invitation_text,
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
             "messageCount": self.experiment_session_messages_set.count(),

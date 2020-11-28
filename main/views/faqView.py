@@ -20,6 +20,7 @@ def faqView(request):
             return getFaqs(data)       
                    
     else:     
+
         p = parameters.objects.first()
         labManager = p.labManager      
         

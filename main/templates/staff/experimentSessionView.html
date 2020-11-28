@@ -50,7 +50,7 @@
                     searchAddResult:"",    
                     findButtonText:"Find",   
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
-                    inviteButtonText:"Invite <i class='fa fa-users fa-xs'></i>",
+                    inviteButtonText:"Invite <i class='fa fa-users'></i>",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                     cancelSessionButtonText:'Cancel Session <i class="fa fa-ban fa-xs"></i>',
                     searchResultsEmptyText:"",           //show when no results found from manual add
@@ -60,7 +60,8 @@
                     emailMessageList:"",                 //emails for send message    
                     sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
                     session:{
-                             invitationText:"",
+                             invitationText:"",                         //invitation text with variables filled in 
+                             invitationRawText:"",                      //invitation text with editable variables             
                              messageCount:"",                           //number of email messages sent out
                              invitationCount:"",                        //number of invition groups sent out
                              allowDelete:false,                         //allow session to be deleted or canceled
@@ -120,6 +121,7 @@
                     genders_list:"",        
                     buttonText1:"Update",  
                     buttonText2:"Update",
+                    updateInvitationButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     subjectsCaption1:"Confirmed",
                     options: {
                         // https://momentjs.com/docs/#/displaying/
@@ -288,8 +290,8 @@
                         app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
                         axios.post('/experimentSession/{{id}}/', {
-                            status:"inviteSubjects",    
-                            subjectInvitations:app.$data.subjectInvitations,                                                     
+                            status:"inviteSubjects",     
+                            subjectInvitations:app.$data.subjectInvitations,                                                                
                         })
                         .then(function (response) {                                   
 
@@ -371,7 +373,7 @@
                             s += "<center><span style='color:gray;'>Total Found: " + totalValid + "<span><center>";
 
                             app.$data.subjectInvitationList = s;  
-                            app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";    
+                            app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";    
 
                             if(s=="") app.$data.inviteResultsEmptyText="No Users Found<br><br>";                       
                             //app.updateDisplayLists();
@@ -384,7 +386,7 @@
                     //clear subjects to invite
                     clearSubjectsToInvite: function(){
                         app.$data.subjectInvitationList ="";
-                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";   
+                        app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";   
                         app.$data.inviteResultsEmptyText="";                      
                         },
 
@@ -464,6 +466,28 @@
                                     app.displayErrors(response.data.errors);
                                 }                                  
                                
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                //app.$data.searching=false;                                                              
+                            });                        
+                    },
+
+                    //update the session day parameters
+                    updateInvitationText: function(){
+
+                       app.$data.updateInvitationButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        axios.post('/experimentSession/{{id}}/', {
+                                status:"updateInvitationText",   
+                                invitationRawText : app.$data.session.invitationRawText,                                                          
+                            })
+                            .then(function (response) {
+                                app.$data.session.invitationText = response.data.invitationText;
+                                
+                                app.$data.updateInvitationButtonText ='Update <i class="fas fa-sign-in-alt"></i>';
+                                $('#editInvitationTextModal').modal('toggle');
+                            
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -581,7 +605,7 @@
                         app.$data.subjectInvitationCount = 0;               
                         app.$data.subjectInvitationList = "";    
                         
-                        app.$data.inviteButtonText="Invite <i class='fa fa-users fa-xs'></i>";
+                        app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";
                     },
 
                     // fire when cancel session model is shown
@@ -621,6 +645,22 @@
                     hideCancelSession:function(){   
 
                         
+                    },
+
+                     // fire when invite subjects subjects model is shown
+                     showEditInvitation:function(id){    
+                        $('#editInvitationTextModal').modal('show');
+                        // app.clearMainFormErrors();
+                    },
+
+                     //fire when hide invite subjects  model, cancel action if nessicary
+                    hideEditInvitation:function(){       
+                                   
+                    },
+
+                    //invitation text changed, put * in buttonn text
+                    invitationTextChange:function(){
+                        app.$data.updateInvitationButtonText="Update <i class='fas fa-sign-in-alt'></i> *";
                     },
 
                     // fire when invite subjects subjects model is shown
@@ -1047,6 +1087,7 @@
                     $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
                     $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
+                    $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
                 },                 
         
             });
@@ -1423,59 +1464,8 @@
     </div>
 </div>
 
-<!-- invite subjects to sesssion modal-->
-<div class="modal" id="inviteSubjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="inviteSubjects" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">                
-                <h5 class="modal-title" id="exampleModalLongTitle">Invite Subjects</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>               
-            </div>
-            <div class="modal-body">   
-                <div class="row">
-                    <div class = "col col-md-3">
-                    </div>
-                    <div class = "col col-md-6">                                                   
-                        <div class="input-group mb-3">
-                            <input id="findInvitesInput" v-on:keyup.enter="findSubjectsToInvite()" v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find</button>
-                                <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear</button>
-                            </div>
-                        </div>
-                        <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>                        
-                    </div>
-                    <div class = "col col-md-3">
-                    </div>
-                </div>   
-                <div class="row">
-                    <div class = "col">
-                        <textarea  v-model="session.invitationText" id="invitationText1" rows="5" cols="100%" disabled></textarea>
-                    </div>
-                </div>
-                <hr>                
-                <div class="row">
-                    <div class="col">
-                        <span v-html="subjectInvitationList"></span>
-                    </div>
-                </div>                            
-            </div>
-            <div class="modal-footer">
-                <div v-if="session.canceled">
-                    <div style="text-align: center;color: red;">Session Canceled</div>
-                </div>
-                <div v-else>
-                    <button v-on:click="inviteSubjects()" type="button" class="btn btn-outline-success">
-                        <span v-html="inviteButtonText"></span>
-                    </button>
-                </div>               
-            </div>
-        </div>
-    </div>
-</div>
-
+{%include "modals/invitationModal.html"%}
+{%include "modals/editInvitationTextModal.html"%}
 {%include "modals/recruitmentModal.html"%}
 
 <!-- setup modal -->
