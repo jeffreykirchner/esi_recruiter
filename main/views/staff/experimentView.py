@@ -135,7 +135,7 @@ def addSessionBlank(e):
 
     es=experiment_sessions()
     es.experiment=e    
-    es.invitationText = e.invitationText    
+    es.invitation_text = e.invitationText    
     es.save()
 
     es.setupRecruitment()
