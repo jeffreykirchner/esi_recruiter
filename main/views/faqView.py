@@ -20,10 +20,10 @@ def faqView(request):
             return getFaqs(data)       
                    
     else:     
-        
-        p = parameters.objects.first()
-        labManager = p.labManager        
 
+        p = parameters.objects.first()
+        labManager = p.labManager      
+        
         return render(request,'subject/faq.html',{"labManager":labManager})  
 
 #get the session and notes subject has participated in
