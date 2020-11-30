@@ -31,7 +31,9 @@ from main.models import institutions,\
                                 recruitment_parameters,\
                                 email_filters,\
                                 profile,\
-                                faq
+                                faq,\
+                                traits,\
+                                profile_trait
                         
 
 #migrate old data base over to new database
@@ -94,6 +96,55 @@ def migrate_schools():
                 school.save()
 
         cursor.close()
+
+def migrate_traits():
+        print("Migrate Traits")
+
+        traits.objects.all().delete()
+
+        cursor = connections['old'].cursor()
+        cursor.execute('''select id,name,description from traits''')               
+
+        for c in cursor.fetchall():
+                id,name,description=c
+
+                trait=traits(id=id,name=name,description=description)
+                trait.save()
+
+        cursor.close()
+
+def migrate_profile_traits():
+        
+        self.migrate_traits()
+
+        print("Migrate Profile Traits")
+
+        profile_trait.objects.all().delete()
+
+        cursor = connections['old'].cursor()
+        cursor.execute('''select student_id,trait_id,value from traits_students''')        
+
+        objs = (profile_trait(my_profile_id = User.objects.get(id=c[0]).profile.id,
+                        trait_id=c[1],
+                        value=c[2],                        
+                        ) for c in cursor.fetchall())       
+
+        cursor.close()
+
+        print("Profile traits fetched")
+
+        batch_size=750
+        # print(objs)
+
+        counter=0
+
+        while True:
+                batch = list(islice(objs, batch_size))
+                if not batch:
+                        break
+                profile_trait.objects.bulk_create(batch, batch_size)
+                counter+=batch_size
+                print(counter)
 
 def migrate_recruitment_parameters():
         print("Start of experiments")       

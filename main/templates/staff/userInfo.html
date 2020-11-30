@@ -20,10 +20,13 @@
                 session_day_upcoming:[{id:"0"}],
                 invitations:[{id:"0"}],
                 institutions:[],
+                subject_traits:[],
                 notes:[],
                 institutionsList:"",
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
+                showTraitsButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
+                noTraitsFoundText:'',
                 noteText:'',
                 su:{%if user.is_superuser%}true{%else%}false{%endif%},
             },
@@ -109,6 +112,24 @@
                         }); 
                 },
 
+                //show traits
+                showTraits:function(){
+                    app.$data.showTraitsButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+
+                    axios.post('/userInfo/{{id}}/', {
+                            status :"getTraits",                                                                                                                        
+                        })
+                        .then(function (response) {     
+                            app.$data.subject_traits = response.data.subject_traits;
+                            app.$data.noTraitsFoundText = "No traits found"
+                                                       
+                            app.$data.showTraitsButtonText='Show <i class="fa fa-eye fa-xs"></i>';
+                        })
+                        .catch(function (error) {
+                            console.log(error);                            
+                        });
+                },
+
                 //delete the selected note
                 deleteNote:function(id){
                     axios.post('/userInfo/{{id}}/', {
@@ -154,7 +175,6 @@
                     
                 },
 
-
                 formatDate: function(value){
                         if (value) {        
                             //console.log(value);                    
@@ -198,94 +218,93 @@
                 </span>
                                                                  
             </div>
-            <div class="card-body">               
-             
-                <form id="userForm">                                            
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">Email:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.email}}</span>
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-right">Email Confirmed:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;"></span>No</span>{%endif%}</span>
-                        </div>                
+            <div class="card-body">              
+                                  
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">Email:</span>                            
                     </div>
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">Major:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.profile.major}}</span>
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-right">Gender:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.profile.gender}}</span>
-                        </div>               
+                    <div class = "col"> 
+                        <span class="float-left">{{u.email}}</span>
                     </div>
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">Enrollment Status:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.profile.subject_type}}</span>
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-right">Student Worker:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
-                        </div>               
+                    <div class = "col"> 
+                        <span class="float-right">Email Confirmed:</span>                            
                     </div>
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">Phone:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.profile.phone}}</span>
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-right">Blackballed:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
-                        </div>               
+                    <div class = "col"> 
+                        <span class="float-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;"></span>No</span>{%endif%}</span>
+                    </div>                
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">Major:</span>                            
                     </div>
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">Student ID:</span>                            
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{{u.profile.studentID}}</span>
-                        </div>   
-                        <div class = "col"> 
-                            <span class="float-right">Active:</span>                             
-                        </div>
-                        <div class = "col"> 
-                            <span class="float-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
-                        </div>                                    
+                    <div class = "col"> 
+                        <span class="float-left">{{u.profile.major}}</span>
                     </div>
-                    <div class = "row">
-                        <div class = "col"> 
-                            <span class="float-right">YTD Earnings</span>                     
-                        </div>
-                        <div class = "col"> 
-                            {{u.profile.get_ytd_payouts}}
-                        </div> 
-                        <div class = "col"> 
-                            <span class="float-right">In Institutions:</span>                             
-                        </div>
-                        <div class = "col"> 
-                            <span v-html="institutionsList"></span> 
-                        </div>
+                    <div class = "col"> 
+                        <span class="float-right">Gender:</span>                            
                     </div>
-                </form>
+                    <div class = "col"> 
+                        <span class="float-left">{{u.profile.gender}}</span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">Enrollment Status:</span>                            
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{{u.profile.subject_type}}</span>
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-right">Student Worker:</span>                            
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">Phone:</span>                            
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{{u.profile.phone}}</span>
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-right">Blackballed:</span>                            
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                    </div>               
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">Student ID:</span>                            
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{{u.profile.studentID}}</span>
+                    </div>   
+                    <div class = "col"> 
+                        <span class="float-right">Active:</span>                             
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+                    </div>                                    
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">YTD Earnings</span>                     
+                    </div>
+                    <div class = "col"> 
+                        {{u.profile.get_ytd_payouts}}
+                    </div> 
+                    <div class = "col"> 
+                        <span class="float-right">In Institutions:</span>                             
+                    </div>
+                    <div class = "col"> 
+                        <span v-html="institutionsList"></span> 
+                    </div>
+                </div>
+                
                 <br>
                 <br>
                 {%if u.profile.type.id == 2%}                
@@ -459,6 +478,44 @@
                             <td>[[noInvitationsFoundText]]</td>
                         </tr>
                     </tfoot>                                    
+                </table>
+                <!-- traits table -->
+                <table class="table table-hover table-condensed">
+                    <caption style="caption-side:top;text-align: center;">Traits</caption>
+
+                    <thead>
+                        <th width="35%">
+                            Name
+
+                            <button id="showTraits" type="button" class="btn btn-primary btn-sm" v-on:click ="showTraits()">
+                                <span v-html="showTraitsButtonText"></span>
+                            </button> 
+                        </th> 
+                        <th width="30%" style="text-align: center;">
+                            Value
+                        </th>                                                      
+                        <th width="35%" style="text-align: center;">
+                            Date
+                        </th>
+                    </thead>
+                    <tbody>                        
+                        <tr v-for="(s,index) in subject_traits" v-bind:key="s.id">
+                            <td>                                
+                                [[s.name]]
+                            </td>
+                            <td  style="text-align: center;">                                                                
+                                [[s.value]]                                  
+                            </td>
+                            <td  style="text-align: center;">  
+                                [[s.date]]                                                              
+                            </td>
+                        </tr>                        
+                    </tbody>
+                    <tfoot v-if="subject_traits.length === 0">
+                        <tr>
+                            <td>[[noTraitsFoundText]]</td>
+                        </tr>
+                    </tfoot>
                 </table>
                 {%endif%}
             </div>                    

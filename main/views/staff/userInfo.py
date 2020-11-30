@@ -33,7 +33,9 @@ def userInfo(request,id=None):
         elif data["status"] == "makeNote":
             return makeNote(request,data,id) 
         elif data["status"] == "deleteNote":
-            return deleteNote(request,data,id)         
+            return deleteNote(request,data,id)       
+        elif data["status"] == "getTraits":
+            return getTraits(data,id) 
                    
     else:     
         try:
@@ -95,14 +97,26 @@ def getInvitations(data,id):
 #get the session and notes subject has participated in
 def getSessions(data,id):
     logger = logging.getLogger(__name__) 
-    logger.info("Get sessions")
+    logger.info("User Info: Get sessions")
     logger.info(data)
 
     u=User.objects.get(id=id)
 
     return JsonResponse({"session_day_attended" :  u.profile.sorted_session_day_list_earningsOnly(),
-                                 "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(True),
-                                 "institutions" : u.profile.get_institution_list(),
-                                 "notes" : u.profile.get_notes(),
-                                 },safe=False,
-                                )
+                         "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(True),
+                         "institutions" : u.profile.get_institution_list(),
+                         "notes" : u.profile.get_notes(),
+                            },safe=False,
+                        )
+
+#get the traits for this subject
+def getTraits(data,id):
+    logger = logging.getLogger(__name__) 
+    logger.info("User Info: Get Traits")
+    logger.info(data)
+
+    u=User.objects.get(id=id)
+
+    return JsonResponse({"subject_traits" :  u.profile.sorted_trait_list(),
+                            },safe=False,
+                        )
