@@ -17,7 +17,7 @@ class profile_trait(models.Model):
     updated= models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return f'trait {self.trait.name} score {self.score}'
+        return f'{self.my_profile.user.last_name}, {self.my_profile.user.first_name} : {self.trait.name} | {self.value}'
 
     class Meta:
         verbose_name = 'Profile Trait'
