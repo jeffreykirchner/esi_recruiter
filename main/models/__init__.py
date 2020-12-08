@@ -22,6 +22,8 @@ from .experiment_session_messages import *
 from .experiment_session_invitations import * 
 from .faq import *
 from .help_docs import *
+from .traits import *
+from .profile_trait import *
 
 #should be last
 from .db_migrations import *   

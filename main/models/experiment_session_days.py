@@ -101,23 +101,27 @@ class experiment_session_days(models.Model):
     #get user readable string of session date
     def getDateString(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
     
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p %z")
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p %z")
 
     #get the local time of experiment start
     def getStartTimeString(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
         p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
         endTime = self.date + timedelta(minutes = self.length)
-        return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
+        return  endTime.astimezone(tz).strftime("%-I:%M %p")    
 
     #hours until start
     def hoursUntilStart(self):

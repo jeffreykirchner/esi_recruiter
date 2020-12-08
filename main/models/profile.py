@@ -154,7 +154,15 @@ class profile(models.Model):
                                     .order_by('-first_date')]
 
         return out_lst
-        
+
+    #get sorted list of traits
+    def sorted_trait_list(self):
+        logger = logging.getLogger(__name__) 
+
+        pt_list = self.profile_traits.order_by('trait__name')
+
+        return [pt.json() for pt in pt_list]
+
     #get full invitation list
     def sorted_session_day_list_full(self):
         logger = logging.getLogger(__name__) 
