@@ -35,7 +35,7 @@ def userInfo(request,id=None):
         elif data["status"] == "deleteNote":
             return deleteNote(request,data,id)       
         elif data["status"] == "getTraits":
-            return getTraits(data,id) 
+            return getTraits(data,id)  
                    
     else:     
         try:
