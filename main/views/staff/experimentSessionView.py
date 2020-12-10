@@ -13,8 +13,10 @@ from main.models import experiment_session_days, \
                         experiment_session_messages,\
                         experiment_session_invitations,\
                         recruitment_parameters,\
-                        help_docs
-from main.forms import recruitmentParametersForm,experimentSessionForm2
+                        help_docs,\
+                        Recruitment_parameters_trait_constraint,\
+                        Traits
+from main.forms import recruitmentParametersForm,experimentSessionForm2,TraitConstraintForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
@@ -81,6 +83,14 @@ def experimentSessionView(request,id):
             return showInvitations(data,id)  
         elif data["status"] == "updateInvitationText":
             return updateInvitationText(data,id)         
+        elif data["status"] == "addTrait":
+           return addTrait(data,id)
+        elif data["status"] == "deleteTrait":
+           return deleteTrait(data,id)
+        elif data["status"] == "updateTrait":
+           return updateTrait(data,id)
+        elif data["status"] == "updateRequireAllTraitContraints":
+           return updateRequireAllTraitContraints(data,id)
 
     else: #GET             
 
@@ -94,7 +104,8 @@ def experimentSessionView(request,id):
         return render(request,
                       'staff/experimentSessionView.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
-                       'form2':experimentSessionForm2(),                                                               
+                       'form2':experimentSessionForm2(),      
+                       'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
                        'helpText':helpText,
                        'session':experiment_sessions.objects.get(id=id)})
@@ -715,3 +726,82 @@ def updateInvitationText(data,id):
     es.save()
 
     return JsonResponse({"invitationText":es.getInvitationEmail(),}, safe=False) 
+
+#add new trait constraint to parameters
+def addTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Add Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    tc = Recruitment_parameters_trait_constraint()
+    tc.recruitment_parameter = es.recruitment_params
+    tc.trait = Traits.objects.first()
+    tc.save()
+
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#delete trait constraint
+def deleteTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Delete Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    t_id = data["id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+
+    if tc:
+        tc.first().delete()
+
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#update trait
+def updateTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    t_id = data["trait_id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+
+    form_data_dict = {} 
+
+    for field in data["formData"]:
+        form_data_dict[field["name"]] = field["value"]
+
+    form = TraitConstraintForm(form_data_dict,instance=tc)
+
+    if form.is_valid():
+                                    
+        form.save()    
+                                    
+        return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+    else:
+        print("invalid form2")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
+
+#update requireAllTraitContraints
+def updateRequireAllTraitContraints(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update Require All Trait Constraints")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    v = data["value"]
+
+    if v==True:
+        es.recruitment_params.trait_constraints_require_all=True
+    else:
+        es.recruitment_params.trait_constraints_require_all=False
+    
+    es.recruitment_params.save()
+    
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)

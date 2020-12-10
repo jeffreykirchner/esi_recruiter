@@ -45,6 +45,7 @@
                             experiments_exclude:[],
                             experiments_include:[],
                             trait_constraints:[],
+                            trait_constraints_require_all:false,
                         },
                     current_trait:{
                         id:0,
@@ -352,6 +353,21 @@
                             });
                     },
 
+                    //update require all trait constraints
+                    updateRequireAllTraitContraints:function(){
+                        axios.post('/experiment/{{id}}/', {
+                                status : "updateRequireAllTraitContraints", 
+                                value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;         
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
                     //format date to human readable
                     formatDate: function(value){
                         if (value) {
@@ -395,6 +411,7 @@
                         //app.clearMainFormErrors();
                     },
 
+                    //fire when hide edit traits
                     hideEditTraits:function(){
                         // if(app.$data.cancelModal)
                         // {

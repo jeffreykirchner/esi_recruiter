@@ -23,7 +23,8 @@ class Recruitment_parameters_trait_constraint(models.Model):
     def json(self):
         return{
             "id":self.id,
-            "name":self.trait.name,
+            "name":f'{self.trait.name} {self.min_value}-{self.max_value}',
+            "trait_name":self.trait.name,
             "trait_id":self.trait.id,
             "min_value":self.min_value,
             "max_value":self.max_value,

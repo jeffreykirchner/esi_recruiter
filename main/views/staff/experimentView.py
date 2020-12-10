@@ -55,6 +55,8 @@ def experimentView(request,id):
            return deleteTrait(data,id)
         elif data["status"] == "updateTrait":
            return updateTrait(data,id)
+        elif data["status"] == "updateRequireAllTraitContraints":
+           return updateRequireAllTraitContraints(data,id)
 
     else: #GET       
 
@@ -288,7 +290,7 @@ def deleteTrait(data,id):
 #update trait
 def updateTrait(data,id):
     logger = logging.getLogger(__name__)
-    logger.info("Delete Trait Constraint")
+    logger.info("Update Trait Constraint")
     logger.info(data)
 
     e = experiments.objects.get(id=id)
@@ -312,3 +314,23 @@ def updateTrait(data,id):
     else:
         print("invalid form2")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
+
+#update requireAllTraitContraints
+def updateRequireAllTraitContraints(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update Require All Trait Constraints")
+    logger.info(data)
+
+    e = experiments.objects.get(id=id)
+
+    v = data["value"]
+
+    if v==True:
+        e.recruitment_params_default.trait_constraints_require_all=True
+    else:
+        e.recruitment_params_default.trait_constraints_require_all=False
+    
+    e.recruitment_params_default.save()
+    e = experiments.objects.get(id=id)
+    
+    return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)

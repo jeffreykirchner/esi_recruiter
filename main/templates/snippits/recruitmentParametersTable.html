@@ -116,7 +116,7 @@
 </div>
 <div class = "row">
     <div class="col col-md-4 text-right">
-        Trait Constraints:
+        Trait Constraints (<span v-if="recruitment_params.trait_constraints_require_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col col-md-8">    
         <span v-html="trait_constraint_list"></span>
