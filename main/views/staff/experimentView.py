@@ -14,8 +14,10 @@ from main.models import experiments, \
                         institutions, \
                         genders, \
                         parameters,\
-                        help_docs
-from main.forms import experimentForm1,recruitmentParametersForm
+                        help_docs, \
+                        Recruitment_parameters_trait_constraint,\
+                        Traits
+from main.forms import experimentForm1,recruitmentParametersForm,TraitConstraintForm
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
@@ -47,6 +49,13 @@ def experimentView(request,id):
            return addSession(data,id)
         elif data["status"] == "remove":
            return removeSession(data,id)
+        elif data["status"] == "addTrait":
+           return addTrait(data,id)
+        elif data["status"] == "deleteTrait":
+           return deleteTrait(data,id)
+        elif data["status"] == "updateTrait":
+           return updateTrait(data,id)
+
     else: #GET       
 
         try:
@@ -60,6 +69,7 @@ def experimentView(request,id):
         return render(request,
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
+                      'traitConstraintForm':TraitConstraintForm(),
                        'updateRecruitmentParametersForm':recruitmentParametersForm(),                      
                        'id': id,
                        'helpText':helpText})
@@ -242,4 +252,63 @@ def updateRecruitmentParameters(data,id):
     else:
         print("invalid form2")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)    
-    
+
+#add new trait constraint to parameters
+def addTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Add Trait Constraint")
+    logger.info(data)
+
+    e = experiments.objects.get(id=id)
+
+    tc = Recruitment_parameters_trait_constraint()
+    tc.recruitment_parameter = e.recruitment_params_default
+    tc.trait = Traits.objects.first()
+    tc.save()
+
+    return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
+
+#delete trait constraint
+def deleteTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Delete Trait Constraint")
+    logger.info(data)
+
+    e = experiments.objects.get(id=id)
+
+    t_id = data["id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+
+    if tc:
+        tc.first().delete()
+
+    return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
+
+#update trait
+def updateTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Delete Trait Constraint")
+    logger.info(data)
+
+    e = experiments.objects.get(id=id)
+
+    t_id = data["trait_id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+
+    form_data_dict = {} 
+
+    for field in data["formData"]:
+        form_data_dict[field["name"]] = field["value"]
+
+    form = TraitConstraintForm(form_data_dict,instance=tc)
+
+    if form.is_valid():
+                                    
+        form.save()    
+                                    
+        return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
+    else:
+        print("invalid form2")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)

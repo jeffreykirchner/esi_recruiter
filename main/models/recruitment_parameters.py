@@ -194,6 +194,9 @@ class recruitment_parameters(models.Model):
 
         return s
 
+    def trait_list(self):
+        return [i.json() for i in self.trait_constraints.all()]
+
     def json(self):
         return{
             "id":self.id,
@@ -225,5 +228,5 @@ class recruitment_parameters(models.Model):
             "schools_exclude_full" : [i.json() for i in self.schools_exclude.all()],
             "schools_include_constraint" : 1 if self.schools_include_constraint else 0,
             "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
-
+            "trait_constraints": self.trait_list(),
         }

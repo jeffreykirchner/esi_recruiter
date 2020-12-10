@@ -59,7 +59,7 @@ class parametersadmin(admin.ModelAdmin):
 
 admin.site.register(parameters, parametersadmin)
 
-@admin.register(traits)
+@admin.register(Traits)
 class traitsAdmin(admin.ModelAdmin):
       ordering = ['name']
 
