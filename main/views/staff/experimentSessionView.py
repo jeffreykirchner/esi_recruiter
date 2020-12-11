@@ -339,11 +339,11 @@ def changeConfirmationStatus(data,id,ignoreConstraints):
 
         #check user is still valid
         if not ignoreConstraints:
-            u_list = es.getValidUserList_forward_check([{'id':esdu.user.id}],False,0,0,[],False)
+            u_list = es.getValidUserList_forward_check([{'id':userID}],False,0,0,[],False,1)
 
             if not esdu.user in u_list:
                 failed=True
-                logger.info("Status change fail user not in vaild list user:" + str(esdu.user.id) + " session " + str(id))
+                logger.info("Status change fail user not in vaild list user:" + str(userID) + " session " + str(id))
 
         if not failed:
             esdu.confirmed = True
@@ -372,7 +372,7 @@ def getSearchForSubject(data,id):
 
     if len(users_list)>0:
         #user_list_valid = es.getValidUserList(users_list,True,0,0,[],False) 
-        user_list_valid = es.getValidUserList_forward_check(users_list,True,0,0,[],False)    
+        user_list_valid = es.getValidUserList_forward_check(users_list,True,0,0,[],False,len(users_list))    
 
     for u in users_list:
         u['valid'] = 0
@@ -441,7 +441,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 
     #check that user does not violate recruitment constraints
     if not ignoreConstraints:   
-        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
+        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False,1)
 
         if len(u_list) == 0:
             failed=True
@@ -492,7 +492,8 @@ def findSubjectsToInvite(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False)
+    u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False,number)
+
 
     #u_list = es.getValidUserListDjango([],True,0)
 

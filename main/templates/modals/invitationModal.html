@@ -15,7 +15,7 @@
                     </div>
                     <div class = "col col-6">                                                   
                         <div class="input-group mb-3">
-                            <input id="findInvitesInput" v-on:keyup.enter="findSubjectsToInvite()" v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2">
+                            <input id="findInvitesInput" v-on:keyup.enter="findSubjectsToInvite()" v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2" min="0">
                             <div class="input-group-append">
                                 <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find <i class="fas fa-search"></i></button>
                                 <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear <i class="fas fa-eraser"></i></button>

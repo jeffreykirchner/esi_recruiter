@@ -257,10 +257,10 @@ class experiment_session_days(models.Model):
 
             user_list_valid_clean=[]
             if u_list_u2_json != []:
-                user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False)
+                user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False,len(u_list_u2_json))
 
-            logger.info("Valid List")
-            logger.info(user_list_valid_clean)       
+            #logger.info()
+            logger.info(f'Valid list session day {self.id}, {user_list_valid_clean}')       
 
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
