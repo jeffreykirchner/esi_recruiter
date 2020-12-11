@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta,timezone
 import pytz
 from random import randrange
+from django.contrib.auth.models import User
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -888,10 +889,22 @@ class experiment_sessions(models.Model):
         return user_list_valid_clean
 
     def getValidUserList_check_experience(self,u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_experience")
 
         if self.recruitment_params.experience_constraint:
-            #valid_user_list = User.objects.filter
-            pass
+            valid_count_list = User.objects.annotate(session_count = Count('ESDU',filter =Q(ESDU__attended = True)))\
+                                          .filter(is_active = True)\
+                                          .filter(session_count__gte=self.recruitment_params.experience_min)\
+                                          .filter(session_count__lte=self.recruitment_params.experience_max)
+            
+            valid_user_list = []
+
+            for u in u_list:
+                if u in valid_count_list:
+                    valid_user_list.append(u)
+
+            return valid_user_list
         else:
             return u_list
 
