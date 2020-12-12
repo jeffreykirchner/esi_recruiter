@@ -906,6 +906,16 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_trait_constraints")
 
+        constraint_list = self.recruitment_params.trait_constraints
+
+        if len(constraint_list) == 0:
+            return u_list
+        else:
+            if self.recruitment_params.trait_constraints_require_all:
+                pass
+            else:
+                pass
+
     #check that users have the correct number of past or upcoming
     def getValidUserList_check_experience(self,u_list,pk_list,testExperiment):
         logger = logging.getLogger(__name__)
@@ -923,12 +933,14 @@ class experiment_sessions(models.Model):
 
             #return count of any session day subject attened
             #or sessions they have confirmed for in the future that have not been canceled
-            valid_count_list = User.objects.annotate(session_count = Count('ESDU',filter = (Q(ESDU__attended = True) | 
-                                                                                           (Q(ESDU__confirmed = True) & 
-                                                                                             Q(ESDU__experiment_session_day__date__gte = datetime.now(pytz.UTC)) &
-                                                                                             Q(ESDU__experiment_session_day__date__lte = last_date) &
-                                                                                             Q(ESDU__experiment_session_day__experiment_session__canceled = False) )) & 
-                                                                                           ~Q(ESDU__experiment_session_day__experiment_session = self) ))\
+            valid_count_list = User.objects.annotate(session_count = Count('ESDU__experiment_session_day__experiment_session__experiment',
+                                                                              distinct=True,
+                                                                              filter = (Q(ESDU__attended = True) | 
+                                                                                        (Q(ESDU__confirmed = True) & 
+                                                                                            Q(ESDU__experiment_session_day__date__gte = datetime.now(pytz.UTC)) &
+                                                                                            Q(ESDU__experiment_session_day__date__lte = last_date) &
+                                                                                            Q(ESDU__experiment_session_day__experiment_session__canceled = False) )) & 
+                                                                                        ~Q(ESDU__experiment_session_day__experiment_session = self) ))\
                                           .filter(is_active = True)\
                                           .filter(session_count__gte=e_min)\
                                           .filter(session_count__lte=e_max)\
