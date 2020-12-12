@@ -915,19 +915,21 @@ class experiment_sessions(models.Model):
         if len(constraint_list_traits_ids) == 0:
             return u_list
         else:
+            #create dictionary of target traits
+            tc = {}
+            for i in self.recruitment_params.trait_constraints.all():
+                tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
+
+            #list to be returned of valid users
+            valid_list_2 = []
+
+            #subject must meet all trait requirments
             if self.recruitment_params.trait_constraints_require_all:
-                #count list of users that have trait set
+                #count list of users that have full trait set
                 valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
                                          .filter(trait_count = len(trait_list))\
                                          .filter(pk__in = pk_list)\
                                          .prefetch_related('profile__profile_traits')
-
-                #create dictionary of target traits
-                tc = {}
-                for i in self.recruitment_params.trait_constraints.all():
-                    tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
-
-                valid_list_2 = []                
 
                 #create new list of users that have traits within target range
                 for u in valid_list:
@@ -943,9 +945,28 @@ class experiment_sessions(models.Model):
                     if valid:
                         valid_list_2.append(u)
                         
-                return list(valid_list_2)
+                # return list(valid_list_2)
             else:
-                pass
+                #subject must meet one of the trait requirments 
+
+                #count list of users that have at least one trait in set
+                valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
+                                         .filter(trait_count__gte = 1)\
+                                         .filter(pk__in = pk_list)\
+                                         .prefetch_related('profile__profile_traits')
+
+                for u in valid_list:
+                    valid = False
+
+                    for i in u.profile.profile_traits.filter(trait__in = tc):
+                        temp_tc = tc.get(i.trait)
+                        
+                        if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
+                            valid=True
+                            break    
+
+                    if valid:
+                        valid_list_2.append(u)
         
             return list(valid_list)    
 
