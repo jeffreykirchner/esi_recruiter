@@ -488,7 +488,10 @@ def findSubjectsToInvite(data,id):
     logger.info("Find subjects to invite")
     logger.info(data)
 
-    number = int(data["number"])
+    if data["number"] == "":
+        number = 0
+    else:
+        number = int(data["number"])
 
     es = experiment_sessions.objects.get(id=id)
 
@@ -503,22 +506,22 @@ def findSubjectsToInvite(data,id):
     #     if not u.profile.check_for_future_constraints(es):
     #         u_list_2.append(u)
 
-    totalValid = len(u_list_2)
+    #totalValid = len(u_list_2)
 
-    logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
+    # logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
 
-    if number > len(u_list_2):
-        usersSmall = u_list_2
-    else:  
-        usersSmall = random.sample(u_list_2,number)
+    # if number > len(u_list_2):
+    #     usersSmall = u_list_2
+    # else:  
+    #     usersSmall = random.sample(u_list_2,number)
 
-    prefetch_related_objects(usersSmall,'profile')
+    prefetch_related_objects(u_list_2,'profile')
 
-    usersSmall2 = [u.profile.json_min() for u in usersSmall]
+    usersSmall2 = [u.profile.json_min() for u in u_list_2]
 
     return JsonResponse({"subjectInvitations" : usersSmall2,
                          "status":"success",
-                         "totalValid":str(totalValid)}, safe=False)
+                         "totalValid":len(u_list_2)}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):

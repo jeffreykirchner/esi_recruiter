@@ -207,13 +207,13 @@ class ProfileAdmin(admin.ModelAdmin):
                                                                      blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)
-
+            
             pw =  make_password("esi2008esi")
             for p in queryset.exclude(user__is_staff = True):
                   p.user.password = pw
                   p.user.is_active=True
                   p.user.save()
-
+                 
             self.message_user(request, ngettext(
                   '%d user was updated.',
                   '%d users were updated.',

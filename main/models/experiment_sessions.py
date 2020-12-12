@@ -197,7 +197,7 @@ class experiment_sessions(models.Model):
         return True
 
     #do getValidUserList but in Django DB functions
-    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment):
+    def getValidUserListDjango_old(self,u_list,checkAlreadyIn,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session (django DB fuctions) " + str(self))
 
@@ -866,7 +866,7 @@ class experiment_sessions(models.Model):
         user_list_valid = self.getValidUserList(u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL) 
 
         #check experience constraints
-        user_list_valid = self.getValidUserList_check_experience(user_list_valid)
+        user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
 
         logger.info(f'getValidUserList_forward_check found {len(user_list_valid)}')
 
@@ -888,23 +888,51 @@ class experiment_sessions(models.Model):
         
         return user_list_valid_clean
 
-    def getValidUserList_check_experience(self,u_list):
+    #do django validation of user list
+    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+
+        pk_list = []
+
+        for u in u_list:                
+            pk_list.append(u.id)
+
+
+        #check experience count
+        u_list = self.getValidUserList_check_experience(u_list,pk_list,testExperiment)
+
+        return u_list
+
+    #check that users have the correct number of past or upcoming
+    def getValidUserList_check_experience(self,u_list,pk_list,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_experience")
 
         if self.recruitment_params.experience_constraint:
-            valid_count_list = User.objects.annotate(session_count = Count('ESDU',filter =Q(ESDU__attended = True)))\
+            e_min = self.recruitment_params.experience_min
+            e_max = self.recruitment_params.experience_max
+
+            if testExperiment:
+                e_min -=1
+                e_max -=1
+
+            last_date = self.getLastDate()
+
+            valid_count_list = User.objects.annotate(session_count = Count('ESDU',filter = (Q(ESDU__attended = True) | 
+                                                                                           (Q(ESDU__confirmed = True) & 
+                                                                                             Q(ESDU__experiment_session_day__date__gte = datetime.now(pytz.UTC)) &
+                                                                                             Q(ESDU__experiment_session_day__date__lte = last_date) &
+                                                                                             Q(ESDU__experiment_session_day__experiment_session__canceled = False) )) & 
+                                                                                           ~Q(ESDU__experiment_session_day__experiment_session = self) ))\
                                           .filter(is_active = True)\
-                                          .filter(session_count__gte=self.recruitment_params.experience_min)\
-                                          .filter(session_count__lte=self.recruitment_params.experience_max)
+                                          .filter(session_count__gte=e_min)\
+                                          .filter(session_count__lte=e_max)\
+                                          .filter(pk__in = pk_list)
             
-            valid_user_list = []
+            #valid_user_list = []
 
-            for u in u_list:
-                if u in valid_count_list:
-                    valid_user_list.append(u)
+            
 
-            return valid_user_list
+            return list(valid_count_list)
         else:
             return u_list
 

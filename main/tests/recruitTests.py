@@ -516,9 +516,9 @@ class recruiteTestCase(TestCase):
         
         self.assertEqual(len(e_users),len(u_list))
 
-    #one or more experiments
-    def testExperienceCountOnePlusCanceled(self):
-        """Test experience count 1+ experience canceled experiment""" 
+    #one or more experiments canceled experiment in past
+    def testExperienceCountOnePlusCanceledPast(self):
+        """Test experience count 1+ experience canceled experiment past""" 
         logger = logging.getLogger(__name__)
 
         d_now_minus_one = self.d_now - timedelta(days=1)
@@ -556,7 +556,56 @@ class recruiteTestCase(TestCase):
         es.recruitment_params.experience_max = 1000
         es.recruitment_params.save()
 
-        e_users = []
+        e_users = [self.user_list[1]]
+       
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Users not confirmed for experiment with 1 experience:")
+        logger.info(e_users)
+        logger.info("Valid users that can be added:")
+        logger.info(u_list)
+    
+    #one or more experiments canceled experiment in future
+    def testExperienceCountOnePlusCanceledFuture(self):
+        """Test experience count 1+ experience canceled experiment future""" 
+        logger = logging.getLogger(__name__)
+
+        d_now_plus_one = self.d_now + timedelta(days=1)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e1
+        es=self.e1.ES.first()
+        esd1 = es.ESD.first()
+
+        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=False,attended=False)
+
+        cancelSession({},es.id)
+        completeSession({},esd1.id)
+
+        e=self.e2
+        es=self.e2.ES.first()
+
+        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+
+        #logger.info("here:" + str(esdu.attended))
+
+        es.recruitment_params.experience_constraint=True
+        es.recruitment_params.experience_min = 1
+        es.recruitment_params.experience_max = 1000
+        es.recruitment_params.save()
+
+        e_users = [self.user_list[1]]
        
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
 
