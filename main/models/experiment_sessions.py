@@ -902,6 +902,10 @@ class experiment_sessions(models.Model):
 
         return u_list
 
+    def getValidUserList_trait_constraints(self,u_list,pk_list,testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_trait_constraints")
+
     #check that users have the correct number of past or upcoming
     def getValidUserList_check_experience(self,u_list,pk_list,testExperiment):
         logger = logging.getLogger(__name__)
@@ -917,6 +921,8 @@ class experiment_sessions(models.Model):
 
             last_date = self.getLastDate()
 
+            #return count of any session day subject attened
+            #or sessions they have confirmed for in the future that have not been canceled
             valid_count_list = User.objects.annotate(session_count = Count('ESDU',filter = (Q(ESDU__attended = True) | 
                                                                                            (Q(ESDU__confirmed = True) & 
                                                                                              Q(ESDU__experiment_session_day__date__gte = datetime.now(pytz.UTC)) &
