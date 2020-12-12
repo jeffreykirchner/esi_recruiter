@@ -125,15 +125,15 @@ def getCalendarJson(month,year):
     last_day = datetime.strptime(str(cal[-1][-1]) + " 23:59:59 -0000","%Y-%m-%d %H:%M:%S %z")
 
 
-    logger.info(first_day)
-    logger.info(last_day)
+    #logger.info(first_day)
+    #logger.info(last_day)
 
     s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
                                                          date__lte = last_day)\
                                                  .order_by("date")\
                                                  .select_related('experiment_session','experiment_session__experiment','location'))
 
-    logger.info(s_list)
+    #logger.info(s_list)
 
     for w in cal:
         new_week=[]
