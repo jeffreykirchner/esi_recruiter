@@ -916,28 +916,30 @@ class experiment_sessions(models.Model):
             return u_list
         else:
             if self.recruitment_params.trait_constraints_require_all:
+                #count list of users that have trait set
                 valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
                                          .filter(trait_count = len(trait_list))\
                                          .filter(pk__in = pk_list)\
                                          .prefetch_related('profile__profile_traits')
-                
-                #valid_list = list(valid_list) 
 
+                #create dictionary of target traits
                 tc = {}
                 for i in self.recruitment_params.trait_constraints.all():
                     tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
 
                 valid_list_2 = []                
 
+                #create new list of users that have traits within target range
                 for u in valid_list:
                     valid = True
 
-                    for i in u.profile.profile_traits.all():
-                        temp_tc = tc.get(i.trait,-1)
-                        if temp_tc !=-1:
-                            if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
-                                valid=False
-                                break                    
+                    for i in u.profile.profile_traits.filter(trait__in = tc):
+                        temp_tc = tc.get(i.trait)
+                        
+                        if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
+                            valid=False
+                            break    
+
                     if valid:
                         valid_list_2.append(u)
                         
