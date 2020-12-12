@@ -899,6 +899,7 @@ class experiment_sessions(models.Model):
 
         #check experience count
         u_list = self.getValidUserList_check_experience(u_list,pk_list,testExperiment)
+        u_list = self.getValidUserList_trait_constraints(u_list,pk_list,testExperiment)
 
         return u_list
 
@@ -906,15 +907,45 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_trait_constraints")
 
-        constraint_list = self.recruitment_params.trait_constraints
+        constraint_list_traits_ids = self.recruitment_params.trait_constraints.values_list("trait__id",flat=True)
+        logger.info(constraint_list_traits_ids)
+        trait_list = main.models.Traits.objects.filter(pk__in = constraint_list_traits_ids)
+        logger.info(trait_list)
 
-        if len(constraint_list) == 0:
+        if len(constraint_list_traits_ids) == 0:
             return u_list
         else:
             if self.recruitment_params.trait_constraints_require_all:
-                pass
+                valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
+                                         .filter(trait_count = len(trait_list))\
+                                         .filter(pk__in = pk_list)\
+                                         .prefetch_related('profile__profile_traits')
+                
+                #valid_list = list(valid_list) 
+
+                tc = {}
+                for i in self.recruitment_params.trait_constraints.all():
+                    tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
+
+                valid_list_2 = []                
+
+                for u in valid_list:
+                    valid = True
+
+                    for i in u.profile.profile_traits.all():
+                        temp_tc = tc.get(i.trait,-1)
+                        if temp_tc !=-1:
+                            if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
+                                valid=False
+                                break                    
+                    if valid:
+                        valid_list_2.append(u)
+                        
+                return list(valid_list_2)
             else:
                 pass
+        
+            return list(valid_list)    
 
     #check that users have the correct number of past or upcoming
     def getValidUserList_check_experience(self,u_list,pk_list,testExperiment):
@@ -933,7 +964,7 @@ class experiment_sessions(models.Model):
 
             #return count of any session day subject attened
             #or sessions they have confirmed for in the future that have not been canceled
-            valid_count_list = User.objects.annotate(session_count = Count('ESDU__experiment_session_day__experiment_session__experiment',
+            valid_list = User.objects.annotate(session_count = Count('ESDU__experiment_session_day__experiment_session__experiment',
                                                                               distinct=True,
                                                                               filter = (Q(ESDU__attended = True) | 
                                                                                         (Q(ESDU__confirmed = True) & 
@@ -941,7 +972,6 @@ class experiment_sessions(models.Model):
                                                                                             Q(ESDU__experiment_session_day__date__lte = last_date) &
                                                                                             Q(ESDU__experiment_session_day__experiment_session__canceled = False) )) & 
                                                                                         ~Q(ESDU__experiment_session_day__experiment_session = self) ))\
-                                          .filter(is_active = True)\
                                           .filter(session_count__gte=e_min)\
                                           .filter(session_count__lte=e_max)\
                                           .filter(pk__in = pk_list)
@@ -950,7 +980,7 @@ class experiment_sessions(models.Model):
 
             
 
-            return list(valid_count_list)
+            return list(valid_list)
         else:
             return u_list
 

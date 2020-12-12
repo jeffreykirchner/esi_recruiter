@@ -7,7 +7,7 @@ import logging
 class TraitConstraintForm(forms.ModelForm):
 
     trait = forms.ModelChoiceField(label="Trait",
-                                     queryset=Traits.objects.filter(),
+                                     queryset=Traits.objects.order_by("name"),
                                      widget=forms.Select(attrs={"v-model":"current_trait.trait_id"}))
 
     min_value = forms.DecimalField(label='Minimum Allowed Value',
