@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from main.views.profileCreate import profileCreateUser
 from main.models import genders,experiments,subject_types,account_types,majors,\
                         parameters,accounts,departments,locations,institutions,schools,email_filters,\
-                        experiment_session_day_users    
+                        experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
@@ -2193,10 +2193,270 @@ class recruiteTestCase(TestCase):
 
         self.assertEqual(es.recruitment_params.gender.count(),0)
 
+#test trait constrints
+class traitConstraintTestCase(TestCase):
+    e=None #experiment
+    user_list=[]      #list of user
+    staff_u=None
+    t1 = None
+    t2 = None
+
+    def setUp(self):
+        logger = logging.getLogger(__name__)
+
+        p = parameters()
+        p.save()
+        
+        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d.save()
+
+        a = accounts(name="a",number="1.0",department=d)
+        a.save()
+
+        l=locations(name="l",address="room")
+        l.save()
+
+        i1=institutions(name="one")
+        i1.save()
+        i2=institutions(name="two")
+        i2.save()
+        i3=institutions(name="three")
+        i3.save()
+
+        s=schools.objects.first()
+        s.email_filter.set(email_filters.objects.all())
+
+        #staff user
+        user_name = "s1@chapman.edu"
+        temp_st =  subject_types.objects.get(id=3)
+        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          temp_st,False,True,account_types.objects.get(id=1))
+        self.staff_u.is_superuser=True
+        self.staff_u.save()
+        
+        p.labManager=self.staff_u
+        p.save()
+
+        self.user_list=[]
+        #create 5 subjects, 3 undergrad two graduates
+        for g in range(4):
+
+            if g<=1:
+                user_name = "g"+str(g)+"@chapman.edu"
+            else:
+                user_name = "g"+str(g)+"@gmail.com"
+
+            temp_st=""
+            if g<=2:
+                temp_st =  subject_types.objects.get(id=1)
+            else:
+                temp_st =  subject_types.objects.get(id=2)
+
+            u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          temp_st,False,True,account_types.objects.get(id=2))
+            
+            logger.info(u)
+
+            u.is_active = True
+            u.profile.email_confirmed = 'yes'
+
+            u.profile.save()
+            u.save()
+
+            u.profile.setup_email_filter()
+
+            self.user_list.append(u)
+        
+        self.e = createExperimentBlank()
+        self.e.institution.set(institutions.objects.filter(name="one"))
+        self.e.save()
+
+        self.d_now = datetime.now(pytz.utc)
+        d_now_plus_one = self.d_now + timedelta(days=1)
+        d_now_plus_two = self.d_now + timedelta(days=2)
+
+        self.t1 = Traits()
+        self.t1.name="trait 1"
+        self.t1.save()
+
+        self.t2 = Traits()
+        self.t2.name="trait 2"
+        self.t2.save()
+
+        pt = profile_trait()
+        pt.trait = self.t1
+        pt.value = 5
+        pt.my_profile = self.user_list[1].profile
+        pt.save()
+
+        pt = profile_trait()
+        pt.trait = self.t2
+        pt.value = 7
+        pt.my_profile = self.user_list[1].profile
+        pt.save()
+
+        pt = profile_trait()
+        pt.trait = self.t1
+        pt.value = 1
+        pt.my_profile = self.user_list[2].profile
+        pt.save()
+
+        es1 = addSessionBlank(self.e)    
+        es1.recruitment_params.reset_settings()
+        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.registration_cutoff = 5
+        es1.recruitment_params.save()
+        es1.save()
+        esd1 = es1.ESD.first()
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(l.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(a.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+    
+    #no trait constraints
+    def testNoConstraints(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        e_users = []
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+        e_users.append(self.user_list[3])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+    #One trait constraints
+    def testOneConstraints(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 10
+        tc.min_value = 0
+        tc.trait = self.t1
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        #check 1 and 2 valid
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #check 1 only valid
+        tc.min_value = 5
+        tc.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+
+    #no trait constraints
+    def testTwoConstraints(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 10
+        tc.min_value = 0
+        tc.trait = self.t1
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        tc2 = Recruitment_parameters_trait_constraint()
+        tc2.max_value = 10
+        tc2.min_value = 0
+        tc2.trait = self.t2
+        tc2.recruitment_parameter = es.recruitment_params
+        tc2.save()
+
+        #check 1 and 2 valid
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+        e_users.append(self.user_list[2])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #require both constraints
+        es.recruitment_params.trait_constraints_require_all = True
+        es.recruitment_params.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        #check that one of two traits passes
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = es.recruitment_params.trait_constraints.first()
+        tc.min_value = 9
+        tc.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+
+
+
 #test school constraints
 class schoolTestCase(TestCase):
     e=None #experiment
     user_list=[]      #list of user
+    staff_u=None
 
     def setUp(self):
         logger = logging.getLogger(__name__)
@@ -2257,6 +2517,18 @@ class schoolTestCase(TestCase):
         self.e = createExperimentBlank()
         self.e.institution.set(institutions.objects.filter(name="one"))
         self.e.save()
+
+        #staff user
+        user_name = "s1@chapman.edu"
+        temp_st =  subject_types.objects.get(id=3)
+        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          temp_st,False,True,account_types.objects.get(id=1))
+        self.staff_u.is_superuser=True
+        self.staff_u.save()
+        
+        p.labManager=self.staff_u
+        p.save()
 
     #no school contraints
     def testSchoolsNoContraint(self):
