@@ -1,0 +1,92 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
+        var app = new Vue({
+        
+            delimiters: ['[[', ']]'],
+            el: '#root',        
+            data:{
+                //sessions:[],
+                file: '',
+            },
+
+            methods:{
+                uploadCSV:function(){
+                    axios.post('/traits/{{id}}/', {
+                                action :"uploadCSV" ,                                                                                                                             
+                            })
+                            .then(function (response) {     
+                                                                                
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                        },
+                
+                handleFileUpload:function(){
+                    app.$data.file = this.$refs.file.files[0];
+                },
+                
+                getReport:function(){
+                    axios.post('/traits/{{id}}/', {
+                                action :"getReport" ,                                                                                                                             
+                            })
+                            .then(function (response) {     
+                                                                                
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                        },
+            },
+
+            mounted: function(){
+                    //this.getUser();                    
+            },
+        });
+
+    });
+
+    </script>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-lg-center">
+    
+        <div class="col col-lg-6">
+            <div class="card">                  
+                <div class="card-header">
+                   Upload New Traits                                                 
+                </div>
+                <div class="card-body">               
+                    <label>File
+                        <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
+                      </label>
+                        <button v-on:click="uploadCSV()">Send</button>
+                </div>                    
+            </div>                
+        </div>
+
+        <div class="col col-lg-6">
+            <div class="card">                  
+                <div class="card-header">
+                   Download Report                                                 
+                </div>
+                <div class="card-body">               
+    
+                </div>                    
+            </div>                
+        </div>
+
+    </div>
+</div>    
+{%endblock content%}
