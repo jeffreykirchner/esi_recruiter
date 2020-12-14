@@ -15,13 +15,39 @@ def traitsView(request):
 
     if request.method == 'POST':       
 
-        data = json.loads(request.body.decode('utf-8'))
+        f = request.FILES['file']
 
-        if data["action"] == "action1":
-            pass
+        logger.info(f"File to be uploaded {f}")
+
+        v=""
+
+        for chunk in f.chunks():
+            v+=str(chunk.decode("utf-8"))
+        
+        logger.info(v)
+        logger.info(v.splitlines())
+
+
+        data = json.loads(request.body.decode('utf-8'))
+        u = request.user
+
+        if data["action"] == "uploadCSV":
+            return takeCSVUpload(data,u)
         elif data["action"] == "action2":
             pass
            
-            return JsonResponse({"response" :  "some json"},safe=False)       
+        return JsonResponse({"response" :  "fail"},safe=False)     
+
     else:      
-        return render(request,'staff/traits.html',{"u":None ,"id":None})      
+        return render(request,'staff/traits.html',{"u":None ,"id":None}) 
+
+def takeCSVUpload(data,u):
+    logger = logging.getLogger(__name__) 
+    logger.info("Take trait CSV upload")
+    logger.info(data)
+
+    status = "success"
+   
+
+    return JsonResponse({"status" :  status,
+                                },safe=False)

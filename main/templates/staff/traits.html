@@ -19,9 +19,16 @@
 
             methods:{
                 uploadCSV:function(){
-                    axios.post('/traits/{{id}}/', {
-                                action :"uploadCSV" ,                                                                                                                             
-                            })
+                    let formData = new FormData();
+                    formData.append('file', app.$data.file);
+
+                    axios.post('/traits/', formData,
+                            {
+                                headers: {
+                                    'Content-Type': 'multipart/form-data'
+                                    }
+                                } 
+                            )
                             .then(function (response) {     
                                                                                 
                             })
@@ -36,7 +43,7 @@
                 },
                 
                 getReport:function(){
-                    axios.post('/traits/{{id}}/', {
+                    axios.post('/traits/', {
                                 action :"getReport" ,                                                                                                                             
                             })
                             .then(function (response) {     
