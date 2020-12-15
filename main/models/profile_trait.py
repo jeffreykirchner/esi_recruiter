@@ -20,6 +20,9 @@ class profile_trait(models.Model):
         return f'{self.my_profile.user.last_name}, {self.my_profile.user.first_name} : {self.trait.name} | {self.value}'
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['my_profile', 'trait'], name='unique_PT')
+        ]
         verbose_name = 'Profile Trait'
         verbose_name_plural = 'Profile Traits'
 

@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 
+from main.models import Traits,profile_trait
+
 @login_required
 @user_is_staff
 def traitsView(request):
@@ -17,24 +19,47 @@ def traitsView(request):
 
         f = request.FILES['file']
 
-        logger.info(f"File to be uploaded {f}")
+        #check for file upload
+        if f !="":
 
-        v=""
+            status = "success"
+            message = ""
 
-        for chunk in f.chunks():
-            v+=str(chunk.decode("utf-8"))
-        
-        logger.info(v)
-        logger.info(v.splitlines())
+            logger.info(f"File to be uploaded {f}")
 
+            v=""
 
-        data = json.loads(request.body.decode('utf-8'))
-        u = request.user
+            for chunk in f.chunks():
+                v+=str(chunk.decode("utf-8"))
+            
+            v=v.splitlines()
+            logger.info(v)
 
-        if data["action"] == "uploadCSV":
-            return takeCSVUpload(data,u)
-        elif data["action"] == "action2":
-            pass
+            if v[0][0] !="num":
+                status = "fail"
+                message = "Invalid Format"
+
+            #create any new traits that do not exist
+            for i in v[0]:
+                for j in i:
+                    if j != "num" and j != "chapmanid" and j != "fullname":
+                        t = Traits.objects.filter(name = j).first()
+
+                        if not t:
+                            t_new = Traits()
+                            t_new.name = j
+                            t_new.save()
+
+            return JsonResponse({"response" : status,"message":message},safe=False) 
+
+        else:
+            data = json.loads(request.body.decode('utf-8'))
+            u = request.user
+
+            if data["action"] == "uploadCSV":
+                return takeCSVUpload(data,u)
+            elif data["action"] == "action2":
+                pass
            
         return JsonResponse({"response" :  "fail"},safe=False)     
 
