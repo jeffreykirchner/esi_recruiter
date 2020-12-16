@@ -14,6 +14,7 @@ import pytz
 import logging
 from django.db.models import Q,F,Value as V,Count
 from django.contrib.auth.hashers import make_password
+from django.db.models.functions import Lower
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -61,18 +62,18 @@ admin.site.register(parameters, parametersadmin)
 
 @admin.register(Traits)
 class traitsAdmin(admin.ModelAdmin):
-      ordering = ['name']
+      ordering = [Lower('name')]
 
 @admin.register(profile_trait)
 class profile_traitAdmin(admin.ModelAdmin):
-      ordering = ['my_profile__user__last_name','my_profile__user__first_name','trait__name']
+      ordering = [Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'),Lower('trait__name')]
       fields = ['value']
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
 class UserAdmin(admin.ModelAdmin):
 
-      ordering = ['last_name','first_name']
+      ordering = [Lower('last_name'),Lower('first_name')]
       search_fields = ['last_name','first_name','email']
       list_display = ['last_name', 'first_name','email','is_active','is_staff']
       actions = []

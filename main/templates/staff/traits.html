@@ -15,10 +15,20 @@
             data:{
                 //sessions:[],
                 file: '',
+                file_name:'Choose File',
+                upload_messaage:'',
+                upload_button_text:'Upload <i class="fas fa-upload"></i>',
             },
 
             methods:{
                 uploadCSV:function(){
+
+                    if(app.$data.file == "")
+                        return;
+
+                    app.$data.upload_messaage = "";
+                    app.$data.upload_button_text = '<i class="fas fa-spinner fa-spin"></i>';
+
                     let formData = new FormData();
                     formData.append('file', app.$data.file);
 
@@ -30,6 +40,9 @@
                                 } 
                             )
                             .then(function (response) {     
+
+                                app.$data.upload_messaage = response.data.message;
+                                app.$data.upload_button_text= 'Upload <i class="fas fa-upload"></i>'
                                                                                 
                             })
                             .catch(function (error) {
@@ -40,6 +53,7 @@
                 
                 handleFileUpload:function(){
                     app.$data.file = this.$refs.file.files[0];
+                    app.$data.file_name = app.$data.file.name;
                 },
                 
                 getReport:function(){
@@ -68,22 +82,46 @@
 
 {%block content%}
 <div class="row justify-content-lg-center">
-    
-        <div class="col col-lg-6">
+        <div class="col col-lg-1">
+        </div>
+        <div class="col col-lg-4">
             <div class="card">                  
                 <div class="card-header">
-                   Upload New Traits                                                 
+                   Upload New Traits
+                   {%if user.is_superuser%}
+                        <a href="/admin/main/traits/" style="float: right;">Manage Traits</a> 
+                    {%endif%}                                                 
                 </div>
-                <div class="card-body">               
-                    <label>File
-                        <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
-                      </label>
-                        <button v-on:click="uploadCSV()">Send</button>
+                <div class="card-body">            
+                    <div class="row">
+                        <div class = "col" style="text-align: center;">
+                            
+                            <!-- <label>File
+                                <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
+                            </label> -->
+
+                            <div class="custom-file">
+                                <input type="file" ref="file" class="custom-file-input" id="file" v-on:change="handleFileUpload()">
+                                <label class="custom-file-label" for="file">[[file_name]]</label>
+                            </div>                            
+                        </div>   
+                    </div>
+                    <div class="row mt-2">
+                        <div class = "col" style="text-align: center;">
+                            <button class="btn btn-outline-primary" v-on:click="uploadCSV()"><span v-html="upload_button_text"></span></button>
+                        </div>   
+                    </div>
+                    <div class="row mt-4">
+                        <div class = "col">
+                            <span v-html="upload_messaage"></span>
+                        </div>
+                    </div>
+                    
                 </div>                    
             </div>                
         </div>
 
-        <div class="col col-lg-6">
+        <div class="col col-lg-4">
             <div class="card">                  
                 <div class="card-header">
                    Download Report                                                 
@@ -92,6 +130,8 @@
     
                 </div>                    
             </div>                
+        </div>
+        <div class="col col-lg-1">
         </div>
 
     </div>
