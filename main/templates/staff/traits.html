@@ -17,7 +17,9 @@
                 file: '',
                 file_name:'Choose File',
                 upload_messaage:'',
+                download_messaage:'',
                 upload_button_text:'Upload <i class="fas fa-upload"></i>',
+                download_button_text:'Generate <i class="fas fa-scroll fa-xs"></i>',
             },
 
             methods:{
@@ -57,11 +59,39 @@
                 },
                 
                 getReport:function(){
+                    app.$data.download_messaage = "";
+                    app.$data.download_button_text = '<i class="fas fa-spinner fa-spin"></i>';
+
                     axios.post('/traits/', {
-                                action :"getReport" ,                                                                                                                             
+                                action :"getReport",  
+                                formData : $("#traitReportForm").serializeArray(),                                                                                                                           
                             })
-                            .then(function (response) {     
-                                                                                
+                            .then(function (response) {    
+                                
+                                status=response.data.status;                                                                  
+
+                                app.clearMainFormErrors();
+
+                                if(status=="fail")
+                                {                         
+                                    app.displayErrors(response.data.errors);             
+                                }
+                                else
+                                {                                                                       
+                                    console.log(response.data);
+
+                                    var downloadLink = document.createElement("a");
+                                    var blob = new Blob(["\ufeff", response.data]);
+                                    var url = URL.createObjectURL(blob);
+                                    downloadLink.href = url;
+                                    downloadLink.download = "Student_Report_" + app.$data.studentReport.studentReport_startDate + "_to_"+ app.$data.studentReport.studentReport_endDate + ".csv";
+
+                                    document.body.appendChild(downloadLink);
+                                    downloadLink.click();
+                                    document.body.removeChild(downloadLink);
+                                }
+                             
+                                app.$data.download_button_text = 'Generate <i class="fas fa-scroll fa-xs"></i>';
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -96,14 +126,11 @@
                     <div class="row">
                         <div class = "col" style="text-align: center;">
                             
-                            <!-- <label>File
-                                <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
-                            </label> -->
-
                             <div class="custom-file">
                                 <input type="file" ref="file" class="custom-file-input" id="file" v-on:change="handleFileUpload()">
                                 <label class="custom-file-label" for="file">[[file_name]]</label>
-                            </div>                            
+                            </div> 
+
                         </div>   
                     </div>
                     <div class="row mt-2">
@@ -115,8 +142,7 @@
                         <div class = "col">
                             <span v-html="upload_messaage"></span>
                         </div>
-                    </div>
-                    
+                    </div>                    
                 </div>                    
             </div>                
         </div>
@@ -126,8 +152,24 @@
                 <div class="card-header">
                    Download Report                                                 
                 </div>
-                <div class="card-body">               
-    
+                <div class="card-body">
+                    <form id="traitReportForm">               
+                        <div class="row">
+                            <div class = "col" style="text-align: center;">
+                                {{ traitReportForm.traits|as_crispy_field }}
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row mt-2">
+                        <div class = "col" style="text-align: center;">
+                            <button class="btn btn-outline-primary" v-on:click="getReport()"><span v-html="download_button_text"></span></button>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class = "col">
+                            <span v-html="download_messaage"></span>
+                        </div>
+                    </div>
                 </div>                    
             </div>                
         </div>

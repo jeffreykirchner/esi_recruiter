@@ -13,3 +13,4 @@ from .studentReportForm import *
 from .faqForm import *
 from .helpDocForm import *
 from .traitConstraintForm import *
+from .traitReportForm import * 

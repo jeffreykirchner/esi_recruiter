@@ -4,8 +4,10 @@ from main.decorators import user_is_staff
 import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.http import HttpResponse
 import logging
 from django.utils.safestring import mark_safe
+from main.forms import traitReportForm
 
 from main.models import Traits,profile_trait,profile
 
@@ -28,16 +30,53 @@ def traitsView(request):
             data = json.loads(request.body.decode('utf-8'))
             
 
-            if data["action"] == "uploadCSV":
-                return takeCSVUpload(data,u)
+            if data["action"] == "getReport":
+                return getReport(data,u)
             elif data["action"] == "action2":
                 pass
            
         return JsonResponse({"response" :  "fail"},safe=False)     
 
     else:      
-        return render(request,'staff/traits.html',{"u":None ,"id":None}) 
 
+        return render(request,'staff/traits.html',{"traitReportForm":traitReportForm()}) 
+
+#get CSV file users with specified traits
+def getReport(data,u):
+
+    logger = logging.getLogger(__name__)
+    logger.info("Get Trait Report CSV")
+    logger.info(data)
+
+    form_data_dict = {}
+    traitsList=[]
+
+    for field in data["formData"]:
+        if field["name"] == "traits":
+            traitsList.append(field["value"])
+        else:
+            form_data_dict[field["name"]] = field["value"]
+    
+    form_data_dict["traits"] = traitsList
+    
+    form = traitReportForm(form_data_dict)
+
+    if form.is_valid():
+
+        traits_list = form.cleaned_data['traits']
+
+        csv_response = HttpResponse(content_type='text/csv')
+        csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+        writer = csv.writer(csv_response)
+
+
+        return csv_response
+    else:
+        logger.info("invalid trait report form")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
+
+#take CSV file upload and store traits from it
 def takeCSVUpload(f,u):
     logger = logging.getLogger(__name__) 
     logger.info("Take trait CSV upload")
@@ -84,9 +123,10 @@ def takeCSVUpload(f,u):
 
             r = v[i]
 
-            p = profile.objects.filter(studentID__icontains = int(r[1])).first()
+            p = profile.objects.filter(studentID__icontains = int(r[1]))
 
-            if p:
+            if len(p) == 1:
+                p = p.first()
                 # try:
                 for j in range(3,len(r)):
                     #find trait and profile 
