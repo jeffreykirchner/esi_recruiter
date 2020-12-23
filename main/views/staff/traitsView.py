@@ -11,6 +11,8 @@ from main.forms import traitReportForm
 import csv
 
 from main.models import Traits,profile_trait,profile
+from django.db.models import F
+from django.db.models.functions import Lower
 
 @login_required
 @user_is_staff
@@ -74,20 +76,81 @@ def getReport(data,u):
     if form.is_valid():
 
         active_only = data["active_only"]
-
         traits_list = form.cleaned_data['traits']
+
+        t_list = profile_trait.objects.filter(trait__in = traits_list) \
+                                      .select_related('my_profile__user__first_name',
+                                                      'my_profile__user__last_name',
+                                                      'my_profile__studentID',
+                                                      'my_profile__user__is_active',
+                                                      'my_profile__id',
+                                                      'trait__name',
+                                                      'trait__id') \
+                                      .values('trait__name',
+                                              'trait__id',
+                                              'value',
+                                              'my_profile__user__first_name',
+                                              'my_profile__user__last_name',
+                                              'my_profile__studentID',
+                                              'my_profile__id') \
+                                      .order_by(Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'))
+        
+        if active_only:
+            t_list = t_list.filter(my_profile__user__is_active = True)
+
+        logger.info(t_list)
+
+        u_list = {}
+
+        traits_list_ids = traits_list.values_list('id',flat=True)
+        
+        
+        for i in t_list:
+            #setup empty list
+            v=None
+
+            if u_list.get(i['my_profile__id'],-1) == -1:
+                u_list[i['my_profile__id']] = {"last_name" : i['my_profile__user__last_name'],
+                                               "first_name" : i['my_profile__user__first_name'],
+                                               "student_id" : i['my_profile__studentID'],
+                                               "traits":{}}
+
+                v = u_list.get(i['my_profile__id'])
+            
+                for j in traits_list_ids:
+                    v["traits"][j] = None
+            else:
+                v = u_list.get(i['my_profile__id'])
+
+            v["traits"][i['trait__id']] = i['value']
+        
+
+        logger.info(u_list)
 
         csv_response = HttpResponse(content_type='text/csv')
         csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
         writer = csv.writer(csv_response)
 
-        headerText = ['ID','Name','Email']
+        headerText = ['Student ID','Last Name','First Name']
 
         for i in traits_list:
             headerText.append(i)
 
         writer.writerow(headerText)
+
+        for u_id in u_list:
+            u = u_list.get(u_id)
+            t=[]
+
+            t.append(u['student_id'])
+            t.append(u['last_name'])
+            t.append(u['first_name'])
+
+            for i in traits_list:
+                t.append(u['traits'][i.id])
+
+            writer.writerow(t)
 
         return csv_response
     else:
