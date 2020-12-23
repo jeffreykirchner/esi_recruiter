@@ -20,6 +20,8 @@
                 download_messaage:'',
                 upload_button_text:'Upload <i class="fas fa-upload"></i>',
                 download_button_text:'Generate <i class="fas fa-scroll fa-xs"></i>',
+                active_only:true,
+                select_all_value:true,
             },
 
             methods:{
@@ -64,17 +66,18 @@
 
                     axios.post('/traits/', {
                                 action :"getReport",  
-                                formData : $("#traitReportForm").serializeArray(),                                                                                                                           
+                                formData : $("#traitReportForm").serializeArray(),    
+                                active_only:app.$data.active_only,                                                                                                                       
                             })
                             .then(function (response) {    
                                 
                                 status=response.data.status;                                                                  
 
-                                app.clearMainFormErrors();
+                                //app.clearMainFormErrors();
 
                                 if(status=="fail")
                                 {                         
-                                    app.displayErrors(response.data.errors);             
+                                    //app.displayErrors(response.data.errors);             
                                 }
                                 else
                                 {                                                                       
@@ -84,7 +87,7 @@
                                     var blob = new Blob(["\ufeff", response.data]);
                                     var url = URL.createObjectURL(blob);
                                     downloadLink.href = url;
-                                    downloadLink.download = "Student_Report_" + app.$data.studentReport.studentReport_startDate + "_to_"+ app.$data.studentReport.studentReport_endDate + ".csv";
+                                    downloadLink.download = "Traits_Report.csv";
 
                                     document.body.appendChild(downloadLink);
                                     downloadLink.click();
@@ -98,7 +101,19 @@
                                 app.$data.searching=false;
                             });                        
                         },
+                
+                //select all traits
+                selectAll:function(){
+                    checkboxes = document.getElementsByName('traits');
+
+                    for(var i=0, n=checkboxes.length;i<n;i++) {
+                        checkboxes[i].checked = app.$data.select_all_value;
+                    }
+
+                    app.$data.select_all_value = !app.$data.select_all_value;
+                },
             },
+
 
             mounted: function(){
                     //this.getUser();                    
@@ -155,14 +170,25 @@
                 <div class="card-body">
                     <form id="traitReportForm">               
                         <div class="row">
-                            <div class = "col" style="text-align: center;">
-                                {{ traitReportForm.traits|as_crispy_field }}
+                            <div class = "col border" style="text-align: left;">
+                                <div id="trait_list_area" class = "overflow-auto" style="height: 600px;">
+                                    {{ traitReportForm.traits|as_crispy_field }}
+                                </div>
                             </div>
                         </div>
                     </form>
                     <div class="row mt-2">
                         <div class = "col" style="text-align: center;">
-                            <button class="btn btn-outline-primary" v-on:click="getReport()"><span v-html="download_button_text"></span></button>
+                            <button class="btn btn-outline-primary" v-on:click="selectAll()" title="Select all traits.">Select All <i class="fas fa-check-double"></i></button>
+                        </div>
+                        <div class = "col" style="text-align: center;">
+                            <button class="btn btn-outline-primary" v-on:click="getReport()" title="Generate report for selected traits."><span v-html="download_button_text"></span></button>
+                        </div>
+                        <div class = "col" style="text-align: center;">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="activeOnly" v-model="active_only" >
+                                <label class="form-check-label" for="activeOnly" title = "Limit report to active users only.">Active Only</label>
+                              </div>
                         </div>
                     </div>
                     <div class="row mt-4">

@@ -8,6 +8,7 @@ from django.http import HttpResponse
 import logging
 from django.utils.safestring import mark_safe
 from main.forms import traitReportForm
+import csv
 
 from main.models import Traits,profile_trait,profile
 
@@ -21,10 +22,17 @@ def traitsView(request):
     if request.method == 'POST':      
 
         u = request.user
-        f = request.FILES['file']
+
+        f=""
+        
+        try:
+            f = request.FILES['file']
+        except Exception  as e: 
+            logger.info(f'traitsView no file upload: {e}')
+            f = -1
 
         #check for file upload
-        if f !="":
+        if f != -1:
             return takeCSVUpload(f,u)
         else:
             data = json.loads(request.body.decode('utf-8'))
@@ -58,10 +66,14 @@ def getReport(data,u):
             form_data_dict[field["name"]] = field["value"]
     
     form_data_dict["traits"] = traitsList
+
+    logger.info(form_data_dict)
     
     form = traitReportForm(form_data_dict)
 
     if form.is_valid():
+
+        active_only = data["active_only"]
 
         traits_list = form.cleaned_data['traits']
 
@@ -70,6 +82,12 @@ def getReport(data,u):
 
         writer = csv.writer(csv_response)
 
+        headerText = ['ID','Name','Email']
+
+        for i in traits_list:
+            headerText.append(i)
+
+        writer.writerow(headerText)
 
         return csv_response
     else:
