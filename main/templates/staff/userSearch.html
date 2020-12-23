@@ -202,9 +202,9 @@
                 
                 <span class="float-right">
                     {%if user.is_superuser%}
-                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">
-                        Email <i class="fa fa-envelope fa-xs" aria-hidden="true"></i>
-                    </button> 
+                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">
+                            Email <i class="fa fa-envelope fa-xs" aria-hidden="true"></i>
+                        </button> 
                     {%endif%}
                     Active Users: {{activeCount|intcomma}}
                 </span>  
