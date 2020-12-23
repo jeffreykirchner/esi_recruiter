@@ -24,6 +24,7 @@ from .faq import *
 from .help_docs import *
 from .traits import *
 from .profile_trait import *
+from .recruitment_parameters_trait_constraint import *
 
 #should be last
 from .db_migrations import *   

@@ -44,7 +44,15 @@
                             institutions_include:[],
                             experiments_exclude:[],
                             experiments_include:[],
-                        },                    
+                            trait_constraints:[],
+                            trait_constraints_require_all:false,
+                        },
+                    current_trait:{
+                        id:0,
+                        trait_id:0,
+                        min_value:0,
+                        max_vaue:0,
+                    },                    
                     sessions:{},  
                     parameters:{},                          
                     institutions_list:"",
@@ -55,10 +63,13 @@
                     include_schools_list:"",
                     exclude_schools_list:"", 
                     subject_type_list:"",
-                    genders_list:"",              
+                    genders_list:"",     
+                    trait_constraint_list:"",         
                     buttonText1:"Update",
                     buttonText2:"Update",     
                     addSessionButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
+                    addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
+                    updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     errorsText:"",
                     cancelModal:true,    
                     recruitmentTitle:"Recruitment Parameters (default)",
@@ -80,6 +91,12 @@
                             $("#id_" + item).attr("class","form-control");
                             $("#id_errors_" + item).remove();
                         }
+
+                        for(var item in app.$data.current_trait)
+                        {
+                            $("#id_" + item).attr("class","form-control");
+                            $("#id_errors_" + item).remove();
+                        }
                     },
 
                     //update recruitment display lists
@@ -95,6 +112,7 @@
                         app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
+                        app.$data.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
                         app.$data.experiment.showUpFee =  parseFloat(app.$data.experiment.showUpFee).toFixed(2); 
                     },
 
@@ -225,7 +243,7 @@
                             })
                             .catch(function (error) {
                                 console.log(error);
-                                app.$data.searching=false;
+
                             });                        
                     },
 
@@ -264,9 +282,90 @@
                                 })
                                 .catch(function (error) {
                                     console.log(error);
-                                    app.$data.searching=false;
                                 });
                         }
+                    },
+
+                    //add trait
+                    addTrait:function(){
+                        app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experiment/{{id}}/', {
+                                status : "addTrait" ,                                                                                                                                                             
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;  
+                                app.updateDisplayLists();      
+                                app.$data.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //update trait
+                    updateTrait:function(){
+                        app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experiment/{{id}}/', {
+                                status : "updateTrait",
+                                trait_id:app.$data.current_trait.id,
+                                formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
+                            })
+                            .then(function (response) {                                   
+                                
+                                status=response.data.status;                               
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {
+                                    app.$data.recruitment_params = response.data.recruitment_params;  
+                                    app.updateDisplayLists();   
+                                    $('#updateTraitModal').modal('toggle');   
+                                }
+                                else
+                                {
+                                    app.$data.cancelModal=true;                           
+                                    app.displayErrors(response.data.errors);
+                                }
+
+                                app.$data.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //delete trait
+                    deleteTrait:function(id){
+                        
+                        axios.post('/experiment/{{id}}/', {
+                                status : "deleteTrait", 
+                                id:id,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;  
+                                app.updateDisplayLists();       
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //update require all trait constraints
+                    updateRequireAllTraitContraints:function(){
+                        axios.post('/experiment/{{id}}/', {
+                                status : "updateRequireAllTraitContraints", 
+                                value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;         
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     },
 
                     //format date to human readable
@@ -304,6 +403,23 @@
                         app.$data.buttonText2="Update *";
                     },                   
 
+                    //fire when edit trait model needs to be shown
+                    showEditTraits:function(){
+                        // app.$data.cancelModal=true;
+                        // app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
+                        $('#editTraitsModal').modal('show');
+                        //app.clearMainFormErrors();
+                    },
+
+                    //fire when hide edit traits
+                    hideEditTraits:function(){
+                        // if(app.$data.cancelModal)
+                        // {
+                        //     Object.assign(app.$data.recruitment_params, app.$data.recruitmentParamsBeforeEdit);
+                        //     app.$data.recruitmentParamsBeforeEdit=null;
+                        // }
+                    },
+
                     // fire when edit experiment model is shown, save copy for cancel
                     showEditExperiment:function(){
                         app.$data.cancelModal=true;
@@ -318,6 +434,29 @@
                         {
                             Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
                             app.$data.experimentBeforeEdit=null;
+                        }
+                    },
+
+                    // fire when edit trait model is shown
+                    showUpdateTrait:function(id,index){
+
+                        tc = app.$data.recruitment_params.trait_constraints[index];
+
+                        app.$data.cancelModal=true;
+                        app.$data.current_trait.id = id;
+                        app.$data.current_trait.min_value = tc.min_value;
+                        app.$data.current_trait.max_value = tc.max_value;
+                        app.$data.current_trait.trait_id = tc.trait_id;
+
+                        $('#updateTraitModal').modal('show');
+                        app.clearMainFormErrors();
+                    },
+
+                    //fire when edit experiment model hides, cancel action if nessicary
+                    hideUpdateTrait:function(){
+                        if(app.$data.cancelModal)
+                        {
+                           
                         }
                     },
 
@@ -364,6 +503,8 @@
                     this.getExperiment();
                     $('#setupModalCenter').on("hidden.bs.modal", this.hideEditExperiment);
                     $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
+                    $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
+                    $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
                 },                 
         
             });
@@ -571,5 +712,7 @@
 
 {%include "modals/experimentSetupModal.html"%}
 {%include "modals/recruitmentModal.html"%}
+{%include "modals/editTraitsModal.html"%}
+{%include "modals/updateTraitModal.html"%}
 
 {%endblock content%}
