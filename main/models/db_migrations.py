@@ -32,7 +32,7 @@ from main.models import institutions,\
                                 email_filters,\
                                 profile,\
                                 faq,\
-                                Traits,\
+                                traits,\
                                 profile_trait
                         
 
@@ -100,7 +100,7 @@ def migrate_schools():
 def migrate_traits():
         print("Migrate Traits")
 
-        Traits.objects.all().delete()
+        traits.objects.all().delete()
 
         cursor = connections['old'].cursor()
         cursor.execute('''select id,name,description from traits''')               
@@ -108,7 +108,7 @@ def migrate_traits():
         for c in cursor.fetchall():
                 id,name,description=c
 
-                trait=Traits(id=id,name=name,description=description)
+                trait=traits(id=id,name=name,description=description)
                 trait.save()
 
         cursor.close()
