@@ -33,6 +33,8 @@ class helpDocAdmin(admin.ModelAdmin):
             
       form = helpDocForm
 
+      ordering = [Lower('title')]
+
       actions = []
       list_display = ['title','path']
 

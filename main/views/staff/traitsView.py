@@ -10,8 +10,8 @@ from django.utils.safestring import mark_safe
 from main.forms import traitReportForm
 import csv
 
-from main.models import Traits,profile_trait,profile
-from django.db.models import F
+from main.models import Traits,profile_trait,profile,help_docs
+from django.db.models import F,Value,CharField
 from django.db.models.functions import Lower
 
 @login_required
@@ -49,7 +49,16 @@ def traitsView(request):
 
     else:      
 
-        return render(request,'staff/traits.html',{"traitReportForm":traitReportForm()}) 
+        try:
+            logger.info(request.path)
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                .filter(rp__icontains = F('path')).first().text
+        except Exception  as e:   
+            logger.info(f'{e}')
+            helpText = "No help doc was found."
+
+        return render(request,'staff/traits.html',{"traitReportForm":traitReportForm(),
+                                                   "helpText":helpText}) 
 
 #get CSV file users with specified traits
 def getReport(data,u):
