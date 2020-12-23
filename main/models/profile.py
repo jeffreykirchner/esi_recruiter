@@ -280,18 +280,17 @@ class profile(models.Model):
 
         qs_attending = self.sessions_upcoming(True,es.getFirstDate())
 
-        #ignore canceled experiments
+        #ignore cancel experiments
         qs_attending = qs_attending.filter(canceled=False)
 
         i_list = es.experiment.institution.values_list("id",flat=True)
 
         for s in qs_attending:
             user_list_valid = s.getValidUserList([{'id':self.user.id}],False,es.experiment.id,es.id,i_list,False)
-            user_list_valid = s.getValidUserListDjango(user_list_valid,False,es.experiment.id,es.id,i_list,False)
 
             if not self.user in user_list_valid:
                 logger.info("Invitation failed attended recruitment violation")             
-                logger.info(f'User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {es.experiment.id}')
+                logger.info("User: " + str(self.user.id) + ", attending session: " + str(s.id) + " , violation experiment: " + str(es.experiment.id) )
                 return True
                         
         return False

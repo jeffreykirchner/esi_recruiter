@@ -40,9 +40,6 @@ class recruitment_parameters(models.Model):
     schools_include_constraint  =  models.BooleanField(default=True)
     schools_exclude_constraint  =  models.BooleanField(default=False)
 
-    #trait constraints
-    trait_constraints_require_all = models.BooleanField(default=False)
-
     timestamp = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now= True)   
 
@@ -85,9 +82,6 @@ class recruitment_parameters(models.Model):
         self.schools_include_constraint  =  es.schools_include_constraint
         self.schools_exclude_constraint  = es.schools_exclude_constraint
 
-        self.trait_constraints.set(es.trait_constraints.all())
-        self.trait_constraints_require_all = es.trait_constraints_require_all
-
         self.save()
 
     #clear all of the parameters out
@@ -125,13 +119,9 @@ class recruitment_parameters(models.Model):
         self.schools_include_constraint=False
         self.schools_exclude_constraint=False
 
-        #trait constraints
-        self.trait_constraints.all().delete()
-        self.trait_constraints_require_all = False
-
         self.save()
 
-    #display string for recruietment history table
+    #display string for 
     def json_displayString(self):
         s=""
 
@@ -202,20 +192,7 @@ class recruitment_parameters(models.Model):
             s +=  st.title + " | "        
         s += "<br>"
 
-        s += "Trait Constraints "
-        if self.trait_constraints_require_all:
-           s+= "(All): | "
-        else:
-            s+= "(1+): | "
-
-        for t in self.trait_constraints.all():
-            s+= f'{s.trait.name} {s.min_value}-{s.max_value}'
-        s += "<br>"
-
         return s
-
-    def trait_list(self):
-        return [i.json() for i in self.trait_constraints.all()]
 
     def json(self):
         return{
@@ -248,6 +225,5 @@ class recruitment_parameters(models.Model):
             "schools_exclude_full" : [i.json() for i in self.schools_exclude.all()],
             "schools_include_constraint" : 1 if self.schools_include_constraint else 0,
             "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
-            "trait_constraints": self.trait_list(),
-            "trait_constraints_require_all":self.trait_constraints_require_all,
+
         }

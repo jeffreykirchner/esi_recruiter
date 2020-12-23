@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from main.views.profileCreate import profileCreateUser
 from main.models import genders,experiments,subject_types,account_types,majors,\
                         parameters,accounts,departments,locations,institutions,schools,email_filters,\
-                        experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
+                        experiment_session_day_users    
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
@@ -100,7 +100,7 @@ class GenderTestCase(TestCase):
         es_women_only.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
         esd1 = es_women_only.ESD.first()
        
-        u_list = es_women_only.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es_women_only.getValidUserList_forward_check([],True,0,0,[],False)
         c=len(u_list)
 
         self.assertEqual(c, len(genders.objects.filter(name="Female")))
@@ -118,7 +118,7 @@ class GenderTestCase(TestCase):
         es_all.recruitment_params.gender.set(genders.objects.all())
         es_all.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
 
-        u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False)
         c=len(u_list)
                
         self.assertEqual(c, len(genders.objects.all()))
@@ -191,7 +191,7 @@ class subjectTypeTestCase(TestCase):
         es.recruitment_params.gender.set(genders.objects.all())
         es.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
        
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
         c=len(u_list)
 
         self.assertEqual(c, len(User.objects.filter(profile__subject_type=subject_types.objects.get(id=1)))) 
@@ -208,7 +208,7 @@ class subjectTypeTestCase(TestCase):
         es.recruitment_params.gender.set(genders.objects.all())
         es.recruitment_params.subject_type.set(subject_types.objects.all())
        
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
         c=len(u_list)
 
         self.assertEqual(c, len(User.objects.all()))
@@ -275,16 +275,15 @@ class recruiteTestCase(TestCase):
                           genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st,False,True,account_types.objects.get(id=2))
             
-            logger.info(f'{u} {u.id}')
+            logger.info(u)
 
             u.is_active = True
             u.profile.email_confirmed = 'yes'
-            u.profile.paused = False           
-
-            u.profile.setup_email_filter()
 
             u.profile.save()
             u.save()
+
+            u.profile.setup_email_filter()
 
             self.user_list.append(u)
         
@@ -315,14 +314,12 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[1]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
 
         temp_u = self.user_list[2]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False)
 
         #setup experiment with one session three subjects, one confirmed, +2 day
         self.e2 = createExperimentBlank()
@@ -336,7 +333,6 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
-        logger.info(f'Session 1 id {es1.id}')
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': str(esd1.id), 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
@@ -346,20 +342,17 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[3]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
 
         temp_u = self.user_list[4]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
 
         temp_u = self.user_list[5]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))  
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False)     
 
         # #add overlapping session in another room
         es1 = addSessionBlank(self.e2)    
@@ -369,7 +362,6 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
-        logger.info(f'Session 2 id {es1.id}')
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l2.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:30 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}   
@@ -379,8 +371,7 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[6]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
 
         #3rd session later 1 player
         es1 = addSessionBlank(self.e2)    
@@ -390,7 +381,6 @@ class recruiteTestCase(TestCase):
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
-        logger.info(f'Session 3 id {es1.id}')
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 06:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}   
@@ -400,8 +390,7 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[7]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
     
         #subject g0 is unassinged
 
@@ -416,7 +405,7 @@ class recruiteTestCase(TestCase):
         es.recruitment_params.experience_constraint=False
         es.recruitment_params.save()
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         e_users = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = e.id,
                                                               confirmed=True)\
@@ -445,12 +434,11 @@ class recruiteTestCase(TestCase):
         es.recruitment_params.experience_max = 0
         es.recruitment_params.save()
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         e_users = []
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[2])
-        #e_users.append(self.user_list[7])
 
         logger.info("Users not confirmed for experiment with no experience:")
         logger.info(e_users)
@@ -503,7 +491,7 @@ class recruiteTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[1])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users not confirmed for experiment with 1 experience:")
         logger.info(e_users)
@@ -516,9 +504,9 @@ class recruiteTestCase(TestCase):
         
         self.assertEqual(len(e_users),len(u_list))
 
-    #one or more experiments canceled experiment in past
-    def testExperienceCountOnePlusCanceledPast(self):
-        """Test experience count 1+ experience canceled experiment past""" 
+    #one or more experiments
+    def testExperienceCountOnePlusCanceled(self):
+        """Test experience count 1+ experience canceled experiment""" 
         logger = logging.getLogger(__name__)
 
         d_now_minus_one = self.d_now - timedelta(days=1)
@@ -556,58 +544,9 @@ class recruiteTestCase(TestCase):
         es.recruitment_params.experience_max = 1000
         es.recruitment_params.save()
 
-        e_users = [self.user_list[1]]
+        e_users = []
        
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Users not confirmed for experiment with 1 experience:")
-        logger.info(e_users)
-        logger.info("Valid users that can be added:")
-        logger.info(u_list)
-    
-    #one or more experiments canceled experiment in future
-    def testExperienceCountOnePlusCanceledFuture(self):
-        """Test experience count 1+ experience canceled experiment future""" 
-        logger = logging.getLogger(__name__)
-
-        d_now_plus_one = self.d_now + timedelta(days=1)
-
-        #logger.info("here:" + str(d_now_minus_one))
-
-        e=self.e1
-        es=self.e1.ES.first()
-        esd1 = es.ESD.first()
-
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
-        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
-        # self.assertFalse(r['failed'])
-
-        #move session 1 experiment 1 into past so experience is counted
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
-
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=False,attended=False)
-
-        cancelSession({},es.id)
-        completeSession({},esd1.id)
-
-        e=self.e2
-        es=self.e2.ES.first()
-
-        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
-
-        #logger.info("here:" + str(esdu.attended))
-
-        es.recruitment_params.experience_constraint=True
-        es.recruitment_params.experience_min = 1
-        es.recruitment_params.experience_max = 1000
-        es.recruitment_params.save()
-
-        e_users = [self.user_list[1]]
-       
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users not confirmed for experiment with 1 experience:")
         logger.info(e_users)
@@ -659,7 +598,7 @@ class recruiteTestCase(TestCase):
         self.p.noShowCutoff = 1
         self.p.save()
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that do not have 1 no show within last 90 days:")
         logger.info(e_users)
@@ -714,7 +653,7 @@ class recruiteTestCase(TestCase):
         self.p.noShowCutoff = 1
         self.p.save()
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that do not have 1 no show within last 90 days:")
         logger.info(e_users)
@@ -766,7 +705,7 @@ class recruiteTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[1])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one:")
         logger.info(e_users)
@@ -854,7 +793,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[3])
         e_users.append(self.user_list[4])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -945,7 +884,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[3])
         e_users.append(self.user_list[4])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -1034,7 +973,7 @@ class recruiteTestCase(TestCase):
         # e_users.append(self.user_list[3])
         # e_users.append(self.user_list[4])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -1064,7 +1003,7 @@ class recruiteTestCase(TestCase):
 
         e_users = []
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],True)
 
         logger.info("Users that done institution one:")
         logger.info(e_users)
@@ -1116,7 +1055,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[2])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that have not done institution one:")
         logger.info(e_users)
@@ -1232,7 +1171,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[7])
 
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -1325,7 +1264,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[6])
         e_users.append(self.user_list[7])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -1402,7 +1341,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[6])
         e_users.append(self.user_list[7])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Users that done institution one and three:")
         logger.info(e_users)
@@ -1447,7 +1386,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[5])
         e_users.append(self.user_list[7])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],True)
 
         logger.info("Users that done institution one:")
         logger.info(e_users)
@@ -1496,7 +1435,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[5])
         e_users.append(self.user_list[7])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],True)
 
         logger.info("Users that done institution one:")
         logger.info(e_users)
@@ -1548,7 +1487,7 @@ class recruiteTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[1])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],True)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -1650,7 +1589,7 @@ class recruiteTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[1])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -1756,7 +1695,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[3])
         e_users.append(self.user_list[4])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -1863,7 +1802,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[3])
         e_users.append(self.user_list[4])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -1893,7 +1832,7 @@ class recruiteTestCase(TestCase):
 
         e_users = []
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],True)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -1942,7 +1881,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[2])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -2048,7 +1987,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[7])
 
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -2156,7 +2095,7 @@ class recruiteTestCase(TestCase):
         e_users.append(self.user_list[6])
         e_users.append(self.user_list[7])
 
-        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es1.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -2193,270 +2132,10 @@ class recruiteTestCase(TestCase):
 
         self.assertEqual(es.recruitment_params.gender.count(),0)
 
-#test trait constrints
-class traitConstraintTestCase(TestCase):
-    e=None #experiment
-    user_list=[]      #list of user
-    staff_u=None
-    t1 = None
-    t2 = None
-
-    def setUp(self):
-        logger = logging.getLogger(__name__)
-
-        p = parameters()
-        p.save()
-        
-        d = departments(name="d",charge_account="ca",petty_cash="0")
-        d.save()
-
-        a = accounts(name="a",number="1.0",department=d)
-        a.save()
-
-        l=locations(name="l",address="room")
-        l.save()
-
-        i1=institutions(name="one")
-        i1.save()
-        i2=institutions(name="two")
-        i2.save()
-        i3=institutions(name="three")
-        i3.save()
-
-        s=schools.objects.first()
-        s.email_filter.set(email_filters.objects.all())
-
-        #staff user
-        user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
-        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
-        self.staff_u.is_superuser=True
-        self.staff_u.save()
-        
-        p.labManager=self.staff_u
-        p.save()
-
-        self.user_list=[]
-        #create 5 subjects, 3 undergrad two graduates
-        for g in range(4):
-
-            if g<=1:
-                user_name = "g"+str(g)+"@chapman.edu"
-            else:
-                user_name = "g"+str(g)+"@gmail.com"
-
-            temp_st=""
-            if g<=2:
-                temp_st =  subject_types.objects.get(id=1)
-            else:
-                temp_st =  subject_types.objects.get(id=2)
-
-            u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=2))
-            
-            logger.info(u)
-
-            u.is_active = True
-            u.profile.email_confirmed = 'yes'
-
-            u.profile.save()
-            u.save()
-
-            u.profile.setup_email_filter()
-
-            self.user_list.append(u)
-        
-        self.e = createExperimentBlank()
-        self.e.institution.set(institutions.objects.filter(name="one"))
-        self.e.save()
-
-        self.d_now = datetime.now(pytz.utc)
-        d_now_plus_one = self.d_now + timedelta(days=1)
-        d_now_plus_two = self.d_now + timedelta(days=2)
-
-        self.t1 = Traits()
-        self.t1.name="trait 1"
-        self.t1.save()
-
-        self.t2 = Traits()
-        self.t2.name="trait 2"
-        self.t2.save()
-
-        pt = profile_trait()
-        pt.trait = self.t1
-        pt.value = 5
-        pt.my_profile = self.user_list[1].profile
-        pt.save()
-
-        pt = profile_trait()
-        pt.trait = self.t2
-        pt.value = 7
-        pt.my_profile = self.user_list[1].profile
-        pt.save()
-
-        pt = profile_trait()
-        pt.trait = self.t1
-        pt.value = 1
-        pt.my_profile = self.user_list[2].profile
-        pt.save()
-
-        es1 = addSessionBlank(self.e)    
-        es1.recruitment_params.reset_settings()
-        es1.recruitment_params.gender.set(genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.registration_cutoff = 5
-        es1.recruitment_params.save()
-        es1.save()
-        esd1 = es1.ESD.first()
-
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(l.id)}, {'name': 'date', 'value': d_now_plus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(a.id)}, {'name': 'auto_reminder', 'value': '1'}], 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
-    
-    #no trait constraints
-    def testNoConstraints(self):
-        logger = logging.getLogger(__name__)
-
-        es = self.e.ES.first()
-        e_users = []
-        e_users.append(self.user_list[0])
-        e_users.append(self.user_list[1])
-        e_users.append(self.user_list[2])
-        e_users.append(self.user_list[3])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-    #One trait constraints
-    def testOneConstraints(self):
-        logger = logging.getLogger(__name__)
-
-        es = self.e.ES.first()
-        
-        es.recruitment_params.trait_constraints_require_all = False
-        es.recruitment_params.save()
-
-        tc = Recruitment_parameters_trait_constraint()
-        tc.max_value = 10
-        tc.min_value = 0
-        tc.trait = self.t1
-        tc.recruitment_parameter = es.recruitment_params
-        tc.save()
-
-        #check 1 and 2 valid
-        e_users = []
-        
-        e_users.append(self.user_list[1])
-        e_users.append(self.user_list[2])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-        #check 1 only valid
-        tc.min_value = 5
-        tc.save()
-
-        e_users = []
-        
-        e_users.append(self.user_list[1])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-
-    #no trait constraints
-    def testTwoConstraints(self):
-        logger = logging.getLogger(__name__)
-
-        es = self.e.ES.first()
-        
-        es.recruitment_params.trait_constraints_require_all = False
-        es.recruitment_params.save()
-
-        tc = Recruitment_parameters_trait_constraint()
-        tc.max_value = 10
-        tc.min_value = 0
-        tc.trait = self.t1
-        tc.recruitment_parameter = es.recruitment_params
-        tc.save()
-
-        tc2 = Recruitment_parameters_trait_constraint()
-        tc2.max_value = 10
-        tc2.min_value = 0
-        tc2.trait = self.t2
-        tc2.recruitment_parameter = es.recruitment_params
-        tc2.save()
-
-        #check 1 and 2 valid
-        e_users = []
-        
-        e_users.append(self.user_list[1])
-        e_users.append(self.user_list[2])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-        #require both constraints
-        es.recruitment_params.trait_constraints_require_all = True
-        es.recruitment_params.save()
-
-        e_users = []
-        
-        e_users.append(self.user_list[1])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-        #check that one of two traits passes
-        es.recruitment_params.trait_constraints_require_all = False
-        es.recruitment_params.save()
-
-        tc = es.recruitment_params.trait_constraints.first()
-        tc.min_value = 9
-        tc.save()
-
-        e_users = []
-        
-        e_users.append(self.user_list[1])
-
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
-
-        logger.info("Expected Users:")
-        logger.info(e_users)
-        logger.info("Returned Users:")
-        logger.info(u_list)
-
-
-
-
 #test school constraints
 class schoolTestCase(TestCase):
     e=None #experiment
     user_list=[]      #list of user
-    staff_u=None
 
     def setUp(self):
         logger = logging.getLogger(__name__)
@@ -2517,18 +2196,6 @@ class schoolTestCase(TestCase):
         self.e = createExperimentBlank()
         self.e.institution.set(institutions.objects.filter(name="one"))
         self.e.save()
-
-        #staff user
-        user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
-        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
-        self.staff_u.is_superuser=True
-        self.staff_u.save()
-        
-        p.labManager=self.staff_u
-        p.save()
 
     #no school contraints
     def testSchoolsNoContraint(self):
@@ -2550,7 +2217,7 @@ class schoolTestCase(TestCase):
         e_users.append(self.user_list[2])
         e_users.append(self.user_list[3])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -2584,7 +2251,7 @@ class schoolTestCase(TestCase):
         e_users.append(self.user_list[2])
         e_users.append(self.user_list[3])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
@@ -2618,7 +2285,7 @@ class schoolTestCase(TestCase):
         #e_users.append(self.user_list[2])
         #e_users.append(self.user_list[3])
 
-        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False)
 
         logger.info("Expected Users:")
         logger.info(e_users)
