@@ -27,9 +27,13 @@ class experiment_session_days(models.Model):
     date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
-    auto_reminder = models.SmallIntegerField (default=1)                #send reminder emails to subject 24 hours before experiment
+    auto_reminder = models.BooleanField (default=True)                  #send reminder emails to subject 24 hours before experiment
+    enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
+
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
+
+
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
