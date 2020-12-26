@@ -104,7 +104,8 @@
                     showInvitationListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show invitation list                          
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
-                                        auto_reminder:1,
+                                        auto_reminder:true,
+                                        enable_time:true,
                                         canceled:0,
                                         date_raw:"",
                                         date:"",
@@ -1604,59 +1605,7 @@
 {%include "modals/recruitmentModal.html"%}
 {%include "modals/editTraitsModal.html"%}
 {%include "modals/updateTraitModal.html"%}
-
-<!-- setup modal -->
-<div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupParameters" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Session Day Parameters </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                    <form id="mainForm2">
-                        <!-- setup parameters -->
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.location | as_crispy_field }}                            
-                            </div>
-                            <div class = "col"> 
-                                <div id="div_id_date" class="form-group">
-                                    <label for="id_date" class="requiredField">
-                                        Date and Time<span class="asteriskField">*</span>
-                                    </label>
-                                    <div>
-                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2" v-bind:disabled="session.confirmedCount > 0"></date-picker>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>                              
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.length | as_crispy_field }}                            
-                            </div>
-                            <div class = "col"> 
-                                {{form2.account | as_crispy_field }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.auto_reminder | as_crispy_field }}  
-                            </div>
-
-                        </div>
-                    </form> <!-- recruitment parameters form -->                                            
-                </div>
-            <div class="modal-footer">                
-                <button type="button" class="btn btn-outline-primary" v-on:click = "updateSessionDay()">
-                    <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+{%include "modals/sessionDayModal.html"%}
 
 <!-- view subjects modal -->
 <div class="modal" id="subjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="subjectsParameters" aria-hidden="true">

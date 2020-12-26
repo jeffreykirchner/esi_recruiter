@@ -634,7 +634,7 @@ class experiment_sessions(models.Model):
         for d in es.ESD.all():
             if tempS != "":
                 tempS += ''' OR '''
-            tempS+= '''(main_experiment_session_days.date <= \'''' + str(d.date_end) + '''\' AND \'''' + str(d.date) + '''\' <= main_experiment_session_days.date_end )'''
+            tempS+= f'''(main_experiment_session_days.date <= \'{d.date_end}\' AND \'{d.date}\' <= main_experiment_session_days.date_end )'''
 
         user_during_session_time_str+= tempS
 
@@ -900,9 +900,23 @@ class experiment_sessions(models.Model):
         #check experience count
         u_list = self.getValidUserList_check_experience(u_list,pk_list,testExperiment)
         u_list = self.getValidUserList_trait_constraints(u_list,pk_list,testExperiment)
+        u_list = self.getValidUserList_date_time_overlap(u_list,pk_list,testSession)
 
         return u_list
 
+    #return valid subset of users that are not already participating at this date and time
+    def getValidUserList_date_time_overlap(self,u_list,pk_list,testSession):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_date_time_overlap")
+
+        u_list_overlap = main.models.experiment_session_days.objects.all()
+
+
+
+        return u_list
+        
+
+    #return valid subset of u_list that conforms to trait constraints
     def getValidUserList_trait_constraints(self,u_list,pk_list,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_trait_constraints")
