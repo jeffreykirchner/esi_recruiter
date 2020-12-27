@@ -917,8 +917,7 @@ class experiment_sessions(models.Model):
         #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
         #date range constraints for all session days
         d_query = reduce(or_, ((Q(date__lte = esd.date_end) & \
-                                Q(date_end__gte = esd.date) & \
-                                Q(enable_time = True)) for esd in self.ESD.all()))
+                                Q(date_end__gte = esd.date)) for esd in self.ESD.all()))
 
         #find overlaping session days with this session's days
         session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
@@ -956,7 +955,7 @@ class experiment_sessions(models.Model):
             if u.id not in user_overlap:
                 u_list_updated.append(u)
 
-        logger.info(f'getValidUserList_date_time_overlap valid user: {list(u_list_updated)}')
+        #logger.info(f'getValidUserList_date_time_overlap valid user: {list(u_list_updated)}')
        
         return u_list_updated
         
