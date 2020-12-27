@@ -19,6 +19,9 @@ from django.db.models import Q,F,Value as V,Count
 from . import genders,subject_types,institutions,experiments,parameters,recruitment_parameters,parameters
 import main
 
+from functools import reduce
+from operator import or_
+
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
@@ -620,34 +623,34 @@ class experiment_sessions(models.Model):
 
         #list of users who are already doing an experiment during this time
         #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
-        user_during_session_time_str = f'''
-            --table of users who are already doing an expeirment at this time
-             user_during_session_time AS (SELECT auth_user.id as user_id
-                            FROM auth_user
-                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
-                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                            WHERE main_experiment_sessions.id != {id} AND 
-                                  main_experiment_session_day_users.confirmed = TRUE AND 
-                                  ('''
-        tempS = ""
-        for d in es.ESD.all():
-            if tempS != "":
-                tempS += ''' OR '''
-            tempS+= f'''(main_experiment_session_days.date <= \'{d.date_end}\' AND \'{d.date}\' <= main_experiment_session_days.date_end )'''
+        # user_during_session_time_str = f'''
+        #     --table of users who are already doing an expeirment at this time
+        #      user_during_session_time AS (SELECT auth_user.id as user_id
+        #                     FROM auth_user
+        #                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+        #                     WHERE main_experiment_sessions.id != {id} AND 
+        #                           main_experiment_session_day_users.confirmed = TRUE AND 
+        #                           ('''
+        # tempS = ""
+        # for d in es.ESD.all():
+        #     if tempS != "":
+        #         tempS += ''' OR '''
+        #     tempS+= f'''(main_experiment_session_days.date <= \'{d.date_end}\' AND \'{d.date}\' <= main_experiment_session_days.date_end )'''
 
-        user_during_session_time_str+= tempS
+        # user_during_session_time_str+= tempS
 
-        user_during_session_time_str +=''' ) AND 
-                                       '''
+        # user_during_session_time_str +=''' ) AND 
+        #                                '''
 
-        if len(u_list) > 0:
-            user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
-                                           '''
+        # if len(u_list) > 0:
+        #     user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
+        #                                    '''
 
-        user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
-                                            ),
-        '''        
+        # user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
+        #                                     ),
+        # '''        
 
         #table of users who have no show violations
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
@@ -765,7 +768,7 @@ class experiment_sessions(models.Model):
         str1=f'''          	  									
             WITH
             {gender_with_str}
-            {user_during_session_time_str}
+            
             {user_institutions_str}
             {user_institutions_past_str}
             {institutions_include_with_str}
@@ -825,9 +828,9 @@ class experiment_sessions(models.Model):
                     WHERE auth_user.id = now_shows.id) AND
 
             --check user has time slot open
-            NOT EXISTS(SELECT 1
-                    FROM user_during_session_time
-                    WHERE auth_user.id = user_during_session_time.user_id) AND
+            --NOT EXISTS(SELECT 1
+            --        FROM user_during_session_time
+            --        WHERE auth_user.id = user_during_session_time.user_id) AND
 
             {user_not_in_session_already}
             {user_exeriments_count_where}
@@ -909,13 +912,54 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_date_time_overlap")
 
-        u_list_overlap = main.models.experiment_session_days.objects.all()
+        logger.info(f'getValidUserList_date_time_overlap test session: {testSession}')
 
+        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
+        #date range constraints for all session days
+        d_query = reduce(or_, ((Q(date__lte = esd.date_end) & \
+                                Q(date_end__gte = esd.date) & \
+                                Q(enable_time = True)) for esd in self.ESD.all()))
 
+        #find overlaping session days with this session's days
+        session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
+                                                                    .exclude(experiment_session__id = self.id)\
+                                                                    .filter(d_query)\
+                                                                    .filter(enable_time = True)
 
-        return u_list
+        session_overlap = list(session_overlap)
+
+        #add test session days in
+        if testSession>0:
+            test_session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__id = testSession)\
+                                                                              .filter(d_query)\
+                                                                              .filter(enable_time = True)
+
+            test_session_overlap = list(test_session_overlap)
+
+            for i in test_session_overlap:
+                session_overlap.append(i)
+                                                                   
+
+        logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
+
+        #find list of users in overlapping sessions who are not eligable
+        user_overlap = main.models.experiment_session_day_users.objects.filter(experiment_session_day__in = session_overlap)\
+                                                                       .filter(confirmed = True)\
+                                                                       .values_list("user_id",flat=True)
+
+        logger.info(f'getValidUserList_date_time_overlap user overlap: {list(user_overlap)}')
+
+        #remove invalid users from list
+        u_list_updated = []
+
+        for u in u_list:
+            if u.id not in user_overlap:
+                u_list_updated.append(u)
+
+        logger.info(f'getValidUserList_date_time_overlap valid user: {list(u_list_updated)}')
+       
+        return u_list_updated
         
-
     #return valid subset of u_list that conforms to trait constraints
     def getValidUserList_trait_constraints(self,u_list,pk_list,testExperiment):
         logger = logging.getLogger(__name__)
