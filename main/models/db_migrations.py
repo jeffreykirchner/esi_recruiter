@@ -687,7 +687,7 @@ def migrate_sessions():
                                         length = c[4],
                                         date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                               
                                         account_id = c[5],
-                                        auto_reminder = c[6],
+                                        auto_reminder = True if c[6]==1 else False,
                                         complete = not c[7]
                                         ) for c in cursor.fetchall())       
         cursor.close()
@@ -735,7 +735,7 @@ def migrate_sessions():
                                         length=c[4],        
                                         date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                       
                                         account_id=c[5],
-                                        auto_reminder = c[6]
+                                        auto_reminder = True if c[6]==1 else False,
                                         ) for c in cursor.fetchall())       
 
         cursor.close()

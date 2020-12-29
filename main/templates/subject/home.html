@@ -37,7 +37,10 @@
                                 
                                     for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
                                     {
-                                        app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,null);
+                                        app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
+                                                                                                   null,
+                                                                                                   app.$data.pastAcceptedInvitations[i].enable_time,
+                                                                                                   null);
 
                                         app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings + 
                                                                                                    app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
@@ -108,7 +111,10 @@
 
                                     for(var i=0;i<app.$data.allInvitations.length;i++)
                                     {
-                                        app.$data.allInvitations[i].date = app.formatDate(app.$data.allInvitations[i].date,null);                                       
+                                        app.$data.allInvitations[i].date = app.formatDate(app.$data.allInvitations[i].date,
+                                                                                          null,
+                                                                                          app.$data.allInvitations[i].enable_time,
+                                                                                          null);                                       
                                     }
                                     
                                     app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
@@ -129,7 +135,10 @@
 
                         for(var j=0;j<temp_s.experiment_session_days.length;j++)
                         {
-                            temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,temp_s.experiment_session_days[j].date_end);
+                            temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,
+                                                                                    temp_s.experiment_session_days[j].date_end,
+                                                                                    temp_s.experiment_session_days[j].enable_time,
+                                                                                    temp_s.experiment_session_days[j].length);
                         }                        
                     }
                     
@@ -148,18 +157,31 @@
                     }
                 },
 
-                formatDate: function(value,value2){
+                formatDate: function(value,value2,enable_time,length){
                         if (value) {        
                             //console.log(value);       
                             rValue =   moment(String(value)).local().format('dddd');
                             rValue +=   "<br>";
                             rValue +=   moment(String(value)).local().format('M/D/YYYY');   
                             rValue += "<br>";
-                            rValue += moment(String(value)).local().format('h:mm a'); 
-                            if(value2 != null)
+
+                            if(enable_time)
                             {
-                                rValue += " to " + moment(String(value2)).local().format('h:mm a'); 
-                            }      
+                                rValue += moment(String(value)).local().format('h:mm a'); 
+                                if(value2 != null)
+                                {
+                                    rValue += " to " + moment(String(value2)).local().format('h:mm a'); 
+                                }  
+                            }
+                            else
+                            {
+                                rValue += "Anytime";
+                                
+                                if(length != null)
+                                {
+                                    rValue += ", " + length + " min";
+                                }
+                            }    
                             return rValue;
                         }
                         else{
@@ -333,7 +355,7 @@
                             </td>
                             <td  style="text-align: center;">  
                                 <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
-                                <div v-else-if="s.confirmed" style="color: red;"><span v-html="'Canceled'"></span></div>  
+                                <div v-else-if="s.canceled" style="color: red;"><span v-html="'Canceled'"></span></div>  
                                 <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
                                 <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
                                 <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               

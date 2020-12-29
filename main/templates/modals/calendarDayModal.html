@@ -19,7 +19,13 @@
                         </div>
                         <div class="row" v-for="(s,index) in l.sessions" v-bind:key="s.id">
                             <div class="col-md-3 offset-md-1" v-bind:class="{is_canceled:s.canceled }">
-                                [[s.startTime]]-[[s.endTime]]                                
+                                <div v-if = "s.enable_time">
+                                    [[s.startTime]]-[[s.endTime]]
+                                </div>
+                                <div v-else>
+                                    Anytime
+                                </div>
+                                                                
                             </div>
                             <div class="col">
                                 <span v-html="'<a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'"></span>                               
