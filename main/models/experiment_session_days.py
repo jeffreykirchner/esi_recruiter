@@ -207,6 +207,7 @@ class experiment_session_days(models.Model):
             "session_id":self.experiment_session.id,
             "confirmedCount": confirmedCount,
             "totalCount": totalCount,
+            "enable_time":self.enable_time,
         }
 
     #info to send to session run page

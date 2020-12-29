@@ -33,7 +33,8 @@ class experimentSessionForm2(forms.ModelForm):
     enable_time = forms.ChoiceField(label="Enable Meeting Time",                                       
                                        choices=(('true',"Yes"),('false',"No")),                                                   
                                        widget = forms.RadioSelect(attrs={"v-model":"currentSessionDay.enable_time",
-                                                                                   "v-on:change":"mainFormChange2"}))
+                                                                                   "v-on:change":"mainFormChange2",
+                                                                                   "v-bind:disabled":"session.confirmedCount > 0"}))
 
     class Meta:
         model = experiment_session_days
