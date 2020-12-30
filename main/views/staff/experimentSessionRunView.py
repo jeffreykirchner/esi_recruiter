@@ -24,13 +24,14 @@ def experimentSessionRunView(request,id=None):
     # logger.info("some info")
 
     if request.method == 'POST':       
-
+        
         try:
-            #check for incoming file
+        #check for incoming file
             f = request.FILES['file']
-            return takeEarningsUpload(f,id)
+            return takeEarningsUpload(f,id,request)
         except Exception  as e: 
             logger.info(f'experimentSessionRunView no file upload: {e}')
+            # return JsonResponse({"response" :  "error"},safe=False)
 
         #no incoming file
         data = json.loads(request.body.decode('utf-8'))
@@ -105,7 +106,8 @@ def getStripeReaderCheckin(data,id,request_user):
     autoAddUser = data["autoAddUsers"]
     ignoreConstraints = data["ignoreConstraints"]
 
-    status = ""    
+    status = ""
+    studentID = None    
 
     try:
         if "=" in data["value"]:
@@ -121,10 +123,7 @@ def getStripeReaderCheckin(data,id,request_user):
 
     if status == "":
                     
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = id,
-                                                            user__profile__studentID__icontains = studentID,
-                                                            confirmed = True)\
-                                                    .select_related('user')
+        esdu = getSubjectByID(id,studentID)
         
         if len(esdu)>1:
             status= "Error: Multiple users found" 
@@ -137,10 +136,17 @@ def getStripeReaderCheckin(data,id,request_user):
             if status=="":
                 status = attendSubjectAction(esdu.first(),id)
 
-
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
+
+#get subjects by student id
+def getSubjectByID(id,studentID):
+
+    return  experiment_session_day_users.objects.filter(experiment_session_day__id = id,
+                                                        user__profile__studentID__icontains = studentID,
+                                                        confirmed = True)\
+                                                    .select_related('user')
 
 #automatically add subject when during card swipe
 def autoAddSubject(studentID,id,request_user,ignoreConstraints):
@@ -175,13 +181,13 @@ def autoAddSubject(studentID,id,request_user,ignoreConstraints):
                                              request_user,
                                              ignoreConstraints).content.decode("UTF-8"))
         if not "success" in r['status']:
-            status = "Could not add subject: Recruitment Violation"
+            status = f"Error: Could not add {p.user.last_name},{p.user.first_name}: Recruitment Violation"
         else:
             #confirm newly added user
             temp_esdu = esd.experiment_session_day_users_set.filter(user__id = p.user.id).first()
 
             if not temp_esdu:
-                status = "The subject could not be added to the session, try manual add."
+                status = f"{p.user.last_name},{p.user.first_name} could not be added to the session, try manual add."
             else:
                 r = json.loads(changeConfirmationStatus({"userId":p.user.id,
                                                         "confirmed":"confirm",
@@ -190,9 +196,7 @@ def autoAddSubject(studentID,id,request_user,ignoreConstraints):
                                                         ignoreConstraints).content.decode("UTF-8"))
                 
                 if not "success" in r['status']:
-                    status = "Subject added but manual confirmation is required."
-    
-
+                    status = f"{p.user.last_name},{p.user.first_name} added but manual confirmation is required."
     return status
 
 #return paypal CSV
@@ -687,28 +691,99 @@ def noShowSubject(data,id):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status}, safe=False)
 
-def takeEarningsUpload(f,id):
+#upload subject earnings from a file
+def takeEarningsUpload(f,id,request):
     logger = logging.getLogger(__name__) 
     logger.info("Upload earnings")
+
+    #logger.info(f)
     
     esd = experiment_session_days.objects.get(id=id)
+    request_user = request.user
 
     #format incoming data
     v=""
 
     for chunk in f.chunks():
-        v+=str(chunk.decode("utf-8"))
+        v+=str(chunk.decode("utf-8-sig"))
 
-    message = "Earnings Imported."
+    logger.info(v)
+
+    message = ""
 
     try:
         
-        logger.info(v)       
-   
-        #message = ps.setup_from_dict(v)
+        #parse incoming file
+        v=v.splitlines()
+
+        for i in range(len(v)):
+            v[i] = v[i].split(',')
+
+            v[i][0] = int(v[i][0])
+            v[i][1] = float(v[i][1].replace('$',''))
+
+            if len(v[i])>2:
+                v[i][2] = float(v[i][2].replace('$',''))
+            else:
+
+                v[i].append(-1)
+
+        logger.info(v)   
+
+        esdu_list = []
+
+        #store earnings
+        for i in v:
+            esdu = getSubjectByID(id,i[0])
+
+            # logger.info(esdu.count())
+
+            m = ""
+
+            if esdu.count() > 1:
+                m = f'Error: More than one user found for ID {i[0]}<br>'
+            elif esdu.count() == 0:
+                #try to manually add user
+                if request_user.is_superuser:
+                    m = autoAddSubject(i[0],id,request_user,False)
+
+                    if m!="":
+                        m+= "<br>"
+
+                    esdu = getSubjectByID(id,i[0])
+                else:
+                    m = f'Error: No user found for ID {i[0]}<br>'
+            
+            if m.find("Error") == -1:
+                if m != "":
+                    message += m
+
+                #logger.info(esdu)
+                esdu = esdu.first()
+
+                m = attendSubjectAction(esdu,id)
+
+                if m.find("is now attending") != -1:
+
+                    esdu.earnings = max(0,Decimal(i[1]))
+                    if i[2] != -1:
+                        esdu.show_up_fee = max(0,Decimal(i[2]))
+
+                    esdu_list.append(esdu)
+                else:
+                    message += m + "<br>"
+            else:
+                message += m
+
+        logger.info(f'Earnings import list: {esdu_list}')
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee','attended'])
+
     except Exception as e:
-        message = f"Failed to load parameter set: {e}"
+        message = f"Failed to load earnings: {e}"
         logger.info(message)       
+
+    if message == "":
+        message = "Earnings Imported"
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),
                          "message":message,

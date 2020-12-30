@@ -433,8 +433,7 @@
                                 app.$data.uploadEarningsMessage = response.data.message;
 
                                 app.$data.uploadEarningsButtonText= 'Upload <i class="fas fa-upload"></i>';
-                                // app.$data.upload_file = null;
-                                //app.$data.upload_file_name='Choose File';
+                                app.$data.sessionDay = response.data.sessionDay; 
 
                                                                                 
                             })
@@ -686,7 +685,8 @@
                                         </button>                                     
                                     </td>
                                     <td>     
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()"
+                                                title ="Upload an earnings formatted file.">
                                             Upload Earnings <i class="fas fa-upload"></i>
                                         </button>
                                     </td>
