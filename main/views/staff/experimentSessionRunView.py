@@ -25,6 +25,14 @@ def experimentSessionRunView(request,id=None):
 
     if request.method == 'POST':       
 
+        try:
+            #check for incoming file
+            f = request.FILES['file']
+            return takeEarningsUpload(f,id)
+        except Exception  as e: 
+            logger.info(f'experimentSessionRunView no file upload: {e}')
+
+        #no incoming file
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getSession":
@@ -134,6 +142,7 @@ def getStripeReaderCheckin(data,id,request_user):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status }, safe=False)
 
+#automatically add subject when during card swipe
 def autoAddSubject(studentID,id,request_user,ignoreConstraints):
     logger = logging.getLogger(__name__)
     logger.info("Auto add subject")
@@ -677,3 +686,30 @@ def noShowSubject(data,id):
     esd = experiment_session_days.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(),"status":status}, safe=False)
+
+def takeEarningsUpload(f,id):
+    logger = logging.getLogger(__name__) 
+    logger.info("Upload earnings")
+    
+    esd = experiment_session_days.objects.get(id=id)
+
+    #format incoming data
+    v=""
+
+    for chunk in f.chunks():
+        v+=str(chunk.decode("utf-8"))
+
+    message = "Earnings Imported."
+
+    try:
+        
+        logger.info(v)       
+   
+        #message = ps.setup_from_dict(v)
+    except Exception as e:
+        message = f"Failed to load parameter set: {e}"
+        logger.info(message)       
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo(),
+                         "message":message,
+                                },safe=False)

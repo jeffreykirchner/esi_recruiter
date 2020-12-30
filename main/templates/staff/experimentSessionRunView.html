@@ -28,7 +28,7 @@
                 waitButtonText : '<i class="fas fa-spinner fa-spin"></i>',
                 dateText:'<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>',
                 saveButtonText: 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>',
-                fillShowUpFeeButtonText : "Fill show-up fee: $",
+                fillShowUpFeeButtonText : "Fill Bonus: $",
                 completeSessionButtonText : 'Complete Session <i class="fas fa-check"></i>',
                 openSessionButtonText : 'Re-Open Session <i class="fas fa-book-open"></i>',
                 bumpAllButtonText : 'Bump All <i class="fas fa-user-slash"></i>',
@@ -47,6 +47,10 @@
                 stripeReaderStatus:"",
                 autoAddUsers:false,                         //automatically add users if they are not checked in
                 ignoreConstraints:false,                    //ignore recruitment constraints and add user
+                upload_file: null,
+                upload_file_name:'Choose File',
+                uploadEarningsButtonText:'Upload <i class="fas fa-upload"></i>',
+                uploadEarningsMessage:'',
             },
 
             methods:{
@@ -278,7 +282,7 @@
                         .then(function (response) {     
                             app.$data.sessionDay = response.data.sessionDay;    
 
-                            app.$data.fillShowUpFeeButtonText = "Fill show-up fee: $" + app.$data.sessionDay.defaultShowUpFee;                            
+                            app.$data.fillShowUpFeeButtonText = "Fill Bonus: $" + app.$data.sessionDay.defaultShowUpFee;                            
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -286,7 +290,7 @@
                 },
 
                  //fill subjects with default show up fee from experiments model
-                 fillEarningsWithFixed:function(){
+                fillEarningsWithFixed:function(){
 
                     if(app.$data.fillEarningsWithValue=="") return;
 
@@ -406,6 +410,57 @@
                     window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/bumps/', '_blank');
                 },
 
+                uploadEarnings:function(){
+
+                    if(app.$data.upload_file == null)
+                        return;
+
+                    app.$data.uploadEarningsMessage = "";
+                    app.$data.uploadEarningsButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    let formData = new FormData();
+                    formData.append('file', app.$data.upload_file);
+
+                    axios.post('/experimentSessionRun/{{id}}/', formData,
+                            {
+                                headers: {
+                                    'Content-Type': 'multipart/form-data'
+                                    }
+                                } 
+                            )
+                            .then(function (response) {     
+
+                                app.$data.uploadEarningsMessage = response.data.message;
+
+                                app.$data.uploadEarningsButtonText= 'Upload <i class="fas fa-upload"></i>';
+                                // app.$data.upload_file = null;
+                                //app.$data.upload_file_name='Choose File';
+
+                                                                                
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                app.$data.searching=false;
+                            });                        
+                        },
+
+                handleFileUpload:function(){
+                    app.$data.upload_file = this.$refs.file.files[0];
+                    //$('parameterFileUpload').val("");
+                    app.$data.upload_file_name = app.$data.upload_file.name;
+
+                },
+
+                //fire when show upload earnings
+                showUploadEarnings:function(){
+                    app.$data.uploadEarningsMessage = "";
+                    $('#uploadEarningsModal').modal('show');
+                },
+
+                hideUploadEarnings:function(){
+                },
+                
+
                 //format date to human readable
                 formatDate: function(value){
                     if (value) {        
@@ -420,7 +475,8 @@
 
             mounted: function(){
                     this.getSession();       
-                    window.setTimeout(this.stripeReaderCheckin, 250);             
+                    window.setTimeout(this.stripeReaderCheckin, 250);      
+                    $('#hideUploadEarnings').on("hidden.bs.modal", this.hideEditSubject);       
             },
         });
 
@@ -445,11 +501,11 @@
                             
                             <div class="form-check" v-if='isAdmin'>
                                 <input type="checkbox" class="form-check-input" id="autoAdd" v-model='autoAddUsers'>
-                                <label class="form-check-label" for="autoAdd">Automatically add subjects</label>
+                                <label class="form-check-label" for="autoAdd" title="Add user to session after card swipe.">Automatically add subjects</label>
                             </div>
                             <div class="form-check" v-if='isAdmin'>
                                 <input type="checkbox" class="form-check-input" id="ignoreConstraints" v-model='ignoreConstraints'>
-                                <label class="form-check-label" for="ignoreConstraints">Ignore recruitment constraints</label>
+                                <label class="form-check-label" for="ignoreConstraints" title="Force-add user to session even if not eligible.">Ignore recruitment constraints</label>
                             </div>
                             
                         </div>
@@ -458,7 +514,7 @@
                                 <div class="input-group-prepend">
                                 <span class="input-group-text">Stripe Reader</span>
                                 </div>
-                                <input type="password" placeholder="Cursor Here" class="form-control" aria-label="Stripe Reader" v-model="stripeReaderValue">
+                                <input type="password" placeholder="Cursor Here" class="form-control" aria-label="Stripe Reader" v-model="stripeReaderValue" title="Put the mouse cursor here and swipe the subject's id card to check-in.">
                                 <div class="input-group-append">
                                 <span class="input-group-text"><span v-html="stripeReaderSpinner"></span></span>
                                 </div>
@@ -487,10 +543,10 @@
                                     ID Number 
                                 </th>
                                 <th width=15%  style="text-align: center;">  
-                                    Earnings($)
+                                    Earnings ($)
                                 </th> 
                                 <th width=15%  style="text-align: center;">  
-                                    Show-up Fee($)
+                                    On-Time<br>Bonus ($)
                                 </th>   
                                 <th width=15%  style="text-align: center;">  
                                     Status
@@ -517,7 +573,7 @@
                                             </div>
                                             <div v-else>
                                                 <input type="number" class="form-control" style="text-align: center;" v-model="esdu.earnings"
-                                                    v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
+                                                    v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter experiment earnings here.">
                                             </div>
                                         </div>                                                                                                                  
                                     </td>                                    
@@ -528,7 +584,7 @@
                                             </div>
                                             <div v-else>
                                                 <input type="number" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
-                                                   v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)">
+                                                   v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter on-time bonus here.">
                                             </div>                                           
                                         </div>                                        
                                     </td>
@@ -544,20 +600,21 @@
                                             </div>
                                             <div v-else-if="esdu.attended">
                                                 <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
-                                                        v-on:click = "bumpSubject(esdu.id,index)">
+                                                        v-on:click = "bumpSubject(esdu.id,index)" title="Change subject's status to 'Bumped'.">
                                                     <span v-html='bumpButtonText'></span>
                                                 </button>
                                                 <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div> 
                                             </div>
                                             <div v-else-if="esdu.bumped">
                                                 <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
-                                                        v-on:click = "noShowSubject(esdu.id,index)">
+                                                        v-on:click = "noShowSubject(esdu.id,index)" title="Change subject's status to 'No Show'.">
                                                     <span v-html='noShowButtonText'></span>
                                                 </button>
                                                 <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div>
                                             </div>
                                             <div v-else-if="isAdmin">
-                                                <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "attendSubject(esdu.id,index)">
+                                                <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
+                                                        v-on:click = "attendSubject(esdu.id,index)" title="Change subject's status to 'Attended'.">
                                                     <span v-html='attendButtonText'></span>
                                                 </button>
                                             </div>
@@ -572,7 +629,8 @@
                                     </td>
                                     <td>
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
+                                                    title="Save payouts to the database.">
                                                 <span v-html='saveButtonText'></span> 
                                             </button>
                                         </div>                                        
@@ -580,7 +638,8 @@
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
                                             <div class="input-group input-group-sm">
-                                                <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill" aria-describedby="basic-addon2" v-model="fillEarningsWithValue">
+                                                <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
+                                                       aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
                                                 <div class="input-group-append">
                                                   <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
                                                       <span v-html="fillEarningsWithFixedButtonText"></span>
@@ -591,21 +650,24 @@
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
+                                                    title="Fill all present subject's on-time bonuses with the specified amount." >
                                                 <span v-html='fillShowUpFeeButtonText'></span> 
                                             </button>
                                         </div>                                                                                
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
+                                                    title = "Randomly bump extra subjects.">
                                                 <span v-html='autoBumpButtonText'></span> 
                                             </button>
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()"
+                                                    title = "Bump all subjects.">
                                                 <span v-html='bumpAllButtonText'></span> 
                                             </button>
                                         </div>
@@ -620,11 +682,13 @@
                                             </div>
                                             <div v-else>
                                                 <span v-html='completeSessionButtonText'></span>
-                                            </div>
-                                            
+                                            </div>                                            
                                         </button>                                     
                                     </td>
-                                    <td>                                        
+                                    <td>     
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()">
+                                            Upload Earnings <i class="fas fa-upload"></i>
+                                        </button>
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <button type="button" class="btn btn-link btn-sm" v-on:click="printPayouts()">
@@ -637,7 +701,8 @@
                                         </button>                                        
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
+                                                title="Export a PayPal mass payment file."  >
                                             <span v-html='paypalExportButtonText'></span> 
                                         </button>                                        
                                     </td>
@@ -655,4 +720,7 @@
         </div>                
     </div>
 </div>    
+
+{%include "modals/uploadEarningsModal.html"%}
+
 {%endblock content%}
