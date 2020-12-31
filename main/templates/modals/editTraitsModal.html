@@ -1,0 +1,58 @@
+{% load crispy_forms_tags %}
+<!-- setup modal -->  
+<div class="modal" id="editTraitsModal" tabindex="-1" role="dialog" aria-labelledby="editTraitsModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+           
+            <div class="modal-body">    
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <th>
+                            Trait                             
+                        </th>
+                        <th style="text-align: center;">
+                            Min Value Allowed
+                        </th>
+                        <th style="text-align: center;">
+                            Max Value Allowed
+                        </th> 
+                        <th style="text-align: center;">
+                            Control
+                        </th>
+                    </thead>           
+                    <tbody id="subjectList">                                                  
+                        <tr v-for="(t,index) in recruitment_params.trait_constraints" v-bind:key="t.id">
+                            <td> 
+                                <span v-html="t.trait_name"></span>                                      
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-html="t.min_value"></span>                                      
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-html="t.max_value"></span>                                      
+                            </td>
+                            <td style="text-align: center;"> 
+                                <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
+                                    Edit <i class="far fa-edit"></i>  
+                                </button> 
+                                <button v-bind:id="'deleteTrait' + t.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteTrait(t.id)" title="Delete trait">
+                                    Delete <i class="fas fa-user-minus fa-xs"></i>  
+                                </button>                                      
+                            </td>
+                        </tr>
+                    </tbody>  
+                </table>                                              
+            </div>
+            <div class="modal-footer">  
+                <div class="form-check mr-auto">
+                    <input type="checkbox" class="form-check-input" v-on:change="updateRequireAllTraitContraints()" v-model="recruitment_params.trait_constraints_require_all" id="trait_constraints_require_all">
+                    <label class="form-check-label" for="trait_constraints_require_all">Require All</label>
+                </div>
+                
+                <button class="btn btn-outline-success" type="button" v-on:click = "addTrait()">
+                    <span v-html="addTraitButtonText"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

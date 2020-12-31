@@ -270,11 +270,18 @@
                     },
 
                     //format date to human readable
-                    formatDate: function(value){
+                    formatDate: function(value,date_only){
                         if (value) {
                             //return value;
                             //console.log(value);
-                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                            if(date_only)
+                            {
+                                return moment(String(value)).local().format('M/D/YYYY');
+                            }
+                            else
+                            {
+                                return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                            }
                         }
                         else{
                             return "date format error";
@@ -514,7 +521,13 @@
                                     <td>
                                         <span v-for="(d,index) in s.experiment_session_days">
                                             <div>
-                                                <span v-html="formatDate(d.date)"></span>  
+                                                <span v-if="d.enable_time">
+                                                    <span v-html="formatDate(d.date,false)"></span>
+                                                </span>
+                                                <span v-else>
+                                                    <span v-html="formatDate(d.date,true)"></span> Anytime
+                                                </span>
+                                                  
                                                 <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
                                             </div>                                                                                                                                                                             
                                         </span>

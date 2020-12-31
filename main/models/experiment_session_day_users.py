@@ -87,6 +87,7 @@ class experiment_session_day_users(models.Model):
             "canceled": self.experiment_session_day.experiment_session.canceled,
             "session_id":self.experiment_session_day.experiment_session.id,
             "date":self.experiment_session_day.date,
+            "enable_time":self.experiment_session_day.enable_time,
             "attended":self.attended,
             "bumped":self.bumped,
             "earnings": self.earnings,

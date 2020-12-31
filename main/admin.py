@@ -32,6 +32,8 @@ class helpDocAdmin(admin.ModelAdmin):
             
       form = helpDocForm
 
+      ordering = [Lower('title')]
+
       actions = []
       list_display = ['title','path']
 
@@ -58,6 +60,17 @@ class parametersadmin(admin.ModelAdmin):
       actions = []
 
 admin.site.register(parameters, parametersadmin)
+
+@admin.register(traits)
+class traitsAdmin(admin.ModelAdmin):
+      ordering = ['name']
+
+@admin.register(profile_trait)
+class profile_traitAdmin(admin.ModelAdmin):
+      ordering = ['my_profile__user__last_name','my_profile__user__first_name','trait__name']
+      fields = ['value']
+
+      search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
 class UserAdmin(admin.ModelAdmin):
 
@@ -215,7 +228,7 @@ class ProfileAdmin(admin.ModelAdmin):
       actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
                  deactivate_all,activate_all,consent_form_required,activate_recent_users,setup_test_users]
       list_display = ['__str__','studentWorker','blackballed','email_filter']
-      list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')
+      list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')     
 
 
 admin.site.unregister(User)

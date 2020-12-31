@@ -192,6 +192,16 @@ class recruitment_parameters(models.Model):
             s +=  st.title + " | "        
         s += "<br>"
 
+        s += "Trait Constraints "
+        if self.trait_constraints_require_all:
+           s+= "(All): | "
+        else:
+            s+= "(1+): | "
+
+        for t in self.trait_constraints.all():
+            s+= f'{t.trait.name} {t.min_value}-{t.max_value} | '
+        s += "<br>"
+
         return s
 
     def json(self):

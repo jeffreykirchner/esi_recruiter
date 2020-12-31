@@ -27,10 +27,13 @@ def profileCreate(request):
     #migrate_institutions()
     #migrate_departments()
     #migrate_accounts()
+    #migrate_traits()
+    
     #migrate_schools()  #***
 
     #migrate_subjects1()   #***
     #migrate_subjects2()
+    #migrate_profile_traits() #***
    
     #migrate_experiments()
     #migrate_recruitment_parameters() #***

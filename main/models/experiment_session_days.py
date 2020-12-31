@@ -27,9 +27,13 @@ class experiment_session_days(models.Model):
     date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
-    auto_reminder = models.SmallIntegerField (default=1)                #send reminder emails to subject 24 hours before experiment
+    auto_reminder = models.BooleanField (default=True)                  #send reminder emails to subject 24 hours before experiment
+    enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
+
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
+
+
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -101,23 +105,27 @@ class experiment_session_days(models.Model):
     #get user readable string of session date
     def getDateString(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
     
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%#m/%#d/%Y %#I:%M %p %z")
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p %z")
 
     #get the local time of experiment start
     def getStartTimeString(self):
         p = parameters.objects.first()
-        return  self.date.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
         p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
         endTime = self.date + timedelta(minutes = self.length)
-        return  endTime.astimezone(timezone(p.subjectTimeZone)).strftime("%-I:%M %p")    
+        return  endTime.astimezone(tz).strftime("%-I:%M %p")    
 
     #hours until start
     def hoursUntilStart(self):
@@ -199,6 +207,7 @@ class experiment_session_days(models.Model):
             "session_id":self.experiment_session.id,
             "confirmedCount": confirmedCount,
             "totalCount": totalCount,
+            "enable_time":self.enable_time,
         }
 
     #info to send to session run page
@@ -213,6 +222,7 @@ class experiment_session_days(models.Model):
             "experiment_session_days_user" : self.json_runInfoUserList(),            
             "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
             "complete":self.complete,
+            "enable_time":self.enable_time,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
             "requiredCount" : self.experiment_session.recruitment_params.actual_participants,
@@ -284,6 +294,7 @@ class experiment_session_days(models.Model):
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
+            "enable_time":self.enable_time,
             "experiment_session_days_user" : [{"id":i.id,            
                                                 "confirmed":i.bumped,
                                                 "user":{"id" : i.user.id,
