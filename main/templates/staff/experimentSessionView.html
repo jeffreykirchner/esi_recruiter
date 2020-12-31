@@ -83,14 +83,7 @@
                             institutions_include:[],
                             experiments_exclude:[],
                             experiments_include:[],
-                            trait_constraints:[],
                         },
-                    current_trait:{
-                        id:0,
-                        trait_id:0,
-                        min_value:0,
-                        max_vaue:0,
-                    },
                     recruitmentTitle:"Recruitment Parameters",
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
@@ -126,13 +119,10 @@
                     include_schools_list:"",
                     exclude_schools_list:"",
                     subject_type_list:"",
-                    trait_constraint_list:"", 
                     genders_list:"",        
                     buttonText1:"Update",  
                     buttonText2:"Update",
                     updateInvitationButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
-                    addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
-                    updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     subjectsCaption1:"Confirmed",
                     experiment_invitation_text:"",
                     options: {
@@ -206,7 +196,6 @@
                         app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
                         app.$data.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
                         app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
-                        app.$data.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
                         
@@ -1230,8 +1219,6 @@
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
                     $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
-                    $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
-                    $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
                 },                 
         
             });
