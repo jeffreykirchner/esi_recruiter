@@ -122,7 +122,7 @@ class recruitmentParametersForm(forms.ModelForm):
     class Meta:
         model=recruitment_parameters
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['trait_constraints_require_all']
+        exclude=[]
 
     def clean_registration_cutoff(self):
         registration_cutoff = self.data['registration_cutoff']

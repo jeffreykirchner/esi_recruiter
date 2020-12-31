@@ -8,4 +8,3 @@ from .experimentSessionPayoutsView import *
 from .calendarView import *
 from .experimentSearchView import *
 from .reportsView import *
-from .traitsView import *

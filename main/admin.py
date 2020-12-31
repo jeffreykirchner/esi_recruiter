@@ -14,7 +14,6 @@ import pytz
 import logging
 from django.db.models import Q,F,Value as V,Count
 from django.contrib.auth.hashers import make_password
-from django.db.models.functions import Lower
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -62,20 +61,20 @@ class parametersadmin(admin.ModelAdmin):
 
 admin.site.register(parameters, parametersadmin)
 
-@admin.register(Traits)
+@admin.register(traits)
 class traitsAdmin(admin.ModelAdmin):
-      ordering = [Lower('name')]
+      ordering = ['name']
 
 @admin.register(profile_trait)
 class profile_traitAdmin(admin.ModelAdmin):
-      ordering = [Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'),Lower('trait__name')]
+      ordering = ['my_profile__user__last_name','my_profile__user__first_name','trait__name']
       fields = ['value']
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
 class UserAdmin(admin.ModelAdmin):
 
-      ordering = [Lower('last_name'),Lower('first_name')]
+      ordering = ['last_name','first_name']
       search_fields = ['last_name','first_name','email']
       list_display = ['last_name', 'first_name','email','is_active','is_staff']
       actions = []
@@ -210,13 +209,13 @@ class ProfileAdmin(admin.ModelAdmin):
                                                                      blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)
-            
+
             pw =  make_password("esi2008esi")
             for p in queryset.exclude(user__is_staff = True):
                   p.user.password = pw
                   p.user.is_active=True
                   p.user.save()
-                 
+
             self.message_user(request, ngettext(
                   '%d user was updated.',
                   '%d users were updated.',
