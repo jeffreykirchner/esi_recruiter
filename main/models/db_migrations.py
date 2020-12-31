@@ -32,7 +32,7 @@ from main.models import institutions,\
                                 email_filters,\
                                 profile,\
                                 faq,\
-                                traits,\
+                                Traits,\
                                 profile_trait
                         
 
@@ -100,7 +100,7 @@ def migrate_schools():
 def migrate_traits():
         print("Migrate Traits")
 
-        traits.objects.all().delete()
+        Traits.objects.all().delete()
 
         cursor = connections['old'].cursor()
         cursor.execute('''select id,name,description from traits''')               
@@ -108,7 +108,7 @@ def migrate_traits():
         for c in cursor.fetchall():
                 id,name,description=c
 
-                trait=traits(id=id,name=name,description=description)
+                trait=Traits(id=id,name=name,description=description)
                 trait.save()
 
         cursor.close()
@@ -687,7 +687,7 @@ def migrate_sessions():
                                         length = c[4],
                                         date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                               
                                         account_id = c[5],
-                                        auto_reminder = c[6],
+                                        auto_reminder = True if c[6]==1 else False,
                                         complete = not c[7]
                                         ) for c in cursor.fetchall())       
         cursor.close()
@@ -735,7 +735,7 @@ def migrate_sessions():
                                         length=c[4],        
                                         date_end = make_aware(c[3],pytz.timezone("america/los_angeles")) + timedelta(minutes = int(c[4])),                                                       
                                         account_id=c[5],
-                                        auto_reminder = c[6]
+                                        auto_reminder = True if c[6]==1 else False,
                                         ) for c in cursor.fetchall())       
 
         cursor.close()

@@ -13,8 +13,10 @@ from main.models import experiment_session_days, \
                         experiment_session_messages,\
                         experiment_session_invitations,\
                         recruitment_parameters,\
-                        help_docs
-from main.forms import recruitmentParametersForm,experimentSessionForm2
+                        help_docs,\
+                        Recruitment_parameters_trait_constraint,\
+                        Traits
+from main.forms import recruitmentParametersForm,experimentSessionForm2,TraitConstraintForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
@@ -81,6 +83,14 @@ def experimentSessionView(request,id):
             return showInvitations(data,id)  
         elif data["status"] == "updateInvitationText":
             return updateInvitationText(data,id)         
+        elif data["status"] == "addTrait":
+           return addTrait(data,id)
+        elif data["status"] == "deleteTrait":
+           return deleteTrait(data,id)
+        elif data["status"] == "updateTrait":
+           return updateTrait(data,id)
+        elif data["status"] == "updateRequireAllTraitContraints":
+           return updateRequireAllTraitContraints(data,id)
 
     else: #GET             
 
@@ -94,7 +104,8 @@ def experimentSessionView(request,id):
         return render(request,
                       'staff/experimentSessionView.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
-                       'form2':experimentSessionForm2(),                                                               
+                       'form2':experimentSessionForm2(),      
+                       'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
                        'helpText':helpText,
                        'session':experiment_sessions.objects.get(id=id)})
@@ -328,11 +339,11 @@ def changeConfirmationStatus(data,id,ignoreConstraints):
 
         #check user is still valid
         if not ignoreConstraints:
-            u_list = es.getValidUserList_forward_check([{'id':esdu.user.id}],False,0,0,[],False)
+            u_list = es.getValidUserList_forward_check([{'id':userID}],False,0,0,[],False,1)
 
             if not esdu.user in u_list:
                 failed=True
-                logger.info("Status change fail user not in vaild list user:" + str(esdu.user.id) + " session " + str(id))
+                logger.info("Status change fail user not in vaild list user:" + str(userID) + " session " + str(id))
 
         if not failed:
             esdu.confirmed = True
@@ -361,7 +372,7 @@ def getSearchForSubject(data,id):
 
     if len(users_list)>0:
         #user_list_valid = es.getValidUserList(users_list,True,0,0,[],False) 
-        user_list_valid = es.getValidUserList_forward_check(users_list,True,0,0,[],False)    
+        user_list_valid = es.getValidUserList_forward_check(users_list,True,0,0,[],False,len(users_list))    
 
     for u in users_list:
         u['valid'] = 0
@@ -430,7 +441,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 
     #check that user does not violate recruitment constraints
     if not ignoreConstraints:   
-        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False)
+        u_list = es.getValidUserList_forward_check([{'id':u["id"]}],True,0,0,[],False,1)
 
         if len(u_list) == 0:
             failed=True
@@ -477,11 +488,15 @@ def findSubjectsToInvite(data,id):
     logger.info("Find subjects to invite")
     logger.info(data)
 
-    number = int(data["number"])
+    if data["number"] == "":
+        number = 0
+    else:
+        number = int(data["number"])
 
     es = experiment_sessions.objects.get(id=id)
 
-    u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False)
+    u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False,number)
+
 
     #u_list = es.getValidUserListDjango([],True,0)
 
@@ -491,22 +506,22 @@ def findSubjectsToInvite(data,id):
     #     if not u.profile.check_for_future_constraints(es):
     #         u_list_2.append(u)
 
-    totalValid = len(u_list_2)
+    #totalValid = len(u_list_2)
 
-    logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
+    # logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
 
-    if number > len(u_list_2):
-        usersSmall = u_list_2
-    else:  
-        usersSmall = random.sample(u_list_2,number)
+    # if number > len(u_list_2):
+    #     usersSmall = u_list_2
+    # else:  
+    #     usersSmall = random.sample(u_list_2,number)
 
-    prefetch_related_objects(usersSmall,'profile')
+    prefetch_related_objects(u_list_2,'profile')
 
-    usersSmall2 = [u.profile.json_min() for u in usersSmall]
+    usersSmall2 = [u.profile.json_min() for u in u_list_2]
 
     return JsonResponse({"subjectInvitations" : usersSmall2,
                          "status":"success",
-                         "totalValid":str(totalValid)}, safe=False)
+                         "totalValid":len(u_list_2)}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):
@@ -640,11 +655,14 @@ def updateSessionDay(data,id):
         logger.info("Cannot change session date or length when subjects have confirmed")
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
+        form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
 
     form = experimentSessionForm2(form_data_dict,instance=esd)   
 
     if form.is_valid():
         esd.save()
+        if not esd.enable_time:
+            esd.date = esd.date.replace(hour=23,minute=59, second=59)
         esd.date_end = esd.date + timedelta(minutes = esd.length)
         esd.save()
         
@@ -715,3 +733,82 @@ def updateInvitationText(data,id):
     es.save()
 
     return JsonResponse({"invitationText":es.getInvitationEmail(),}, safe=False) 
+
+#add new trait constraint to parameters
+def addTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Add Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    tc = Recruitment_parameters_trait_constraint()
+    tc.recruitment_parameter = es.recruitment_params
+    tc.trait = Traits.objects.first()
+    tc.save()
+
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#delete trait constraint
+def deleteTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Delete Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    t_id = data["id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+
+    if tc:
+        tc.first().delete()
+
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#update trait
+def updateTrait(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update Trait Constraint")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    t_id = data["trait_id"]
+
+    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+
+    form_data_dict = {} 
+
+    for field in data["formData"]:
+        form_data_dict[field["name"]] = field["value"]
+
+    form = TraitConstraintForm(form_data_dict,instance=tc)
+
+    if form.is_valid():
+                                    
+        form.save()    
+                                    
+        return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+    else:
+        print("invalid form2")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
+
+#update requireAllTraitContraints
+def updateRequireAllTraitContraints(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Update Require All Trait Constraints")
+    logger.info(data)
+
+    es = experiment_sessions.objects.get(id=id)
+
+    v = data["value"]
+
+    if v==True:
+        es.recruitment_params.trait_constraints_require_all=True
+    else:
+        es.recruitment_params.trait_constraints_require_all=False
+    
+    es.recruitment_params.save()
+    
+    return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)

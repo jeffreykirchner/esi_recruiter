@@ -83,7 +83,14 @@
                             institutions_include:[],
                             experiments_exclude:[],
                             experiments_include:[],
+                            trait_constraints:[],
                         },
+                    current_trait:{
+                        id:0,
+                        trait_id:0,
+                        min_value:0,
+                        max_vaue:0,
+                    },
                     recruitmentTitle:"Recruitment Parameters",
                     subjectInvitations:[],                     //list of subject invitations
                     subjectInvitationCount:0,                  //binding to invition count input box
@@ -97,7 +104,8 @@
                     showInvitationListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show invitation list                          
                     currentSessionDay:{ account:0,
                                         actual_participants:0,
-                                        auto_reminder:1,
+                                        auto_reminder:true,
+                                        enable_time:true,
                                         canceled:0,
                                         date_raw:"",
                                         date:"",
@@ -118,10 +126,13 @@
                     include_schools_list:"",
                     exclude_schools_list:"",
                     subject_type_list:"",
+                    trait_constraint_list:"", 
                     genders_list:"",        
                     buttonText1:"Update",  
                     buttonText2:"Update",
                     updateInvitationButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
+                    addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
+                    updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     subjectsCaption1:"Confirmed",
                     experiment_invitation_text:"",
                     options: {
@@ -195,6 +206,7 @@
                         app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
                         app.$data.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
                         app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
+                        app.$data.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
                         app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
                         app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
                         
@@ -556,12 +568,94 @@
                         window.open('/experimentSessionRun/' + id,"_self");
                     },
 
+                     //add trait
+                     addTrait:function(){
+                        app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experimentSession/{{id}}/', {
+                                status : "addTrait" ,                                                                                                                                                             
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;  
+                                app.updateDisplayLists();      
+                                app.$data.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //update trait
+                    updateTrait:function(){
+                        app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experimentSession/{{id}}/', {
+                                status : "updateTrait",
+                                trait_id:app.$data.current_trait.id,
+                                formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
+                            })
+                            .then(function (response) {                                   
+                                
+                                status=response.data.status;                               
+
+                                app.clearMainFormErrors();
+
+                                if(status=="success")
+                                {
+                                    app.$data.recruitment_params = response.data.recruitment_params;  
+                                    app.updateDisplayLists();   
+                                    $('#updateTraitModal').modal('toggle');   
+                                }
+                                else
+                                {
+                                    app.$data.cancelModal=true;                           
+                                    app.displayErrors(response.data.errors);
+                                }
+
+                                app.$data.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //delete trait
+                    deleteTrait:function(id){
+                        
+                        axios.post('/experimentSession/{{id}}/', {
+                                status : "deleteTrait", 
+                                id:id,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;  
+                                app.updateDisplayLists();       
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //update require all trait constraints
+                    updateRequireAllTraitContraints:function(){
+                        axios.post('/experimentSession/{{id}}/', {
+                                status : "updateRequireAllTraitContraints", 
+                                value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.recruitment_params = response.data.recruitment_params;         
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
                     // fire when edit setup model is shown, save copy for cancel
                     showSetup:function(id){
                         app.$data.cancelModal=true;
                         app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
                         app.$data.currentSessionDayIndex=id;
-                        app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw);
+                        app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw,false,true);
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
                         app.$data.buttonText2="Update";
                         $('#setupModalCenter').modal('show');
@@ -979,7 +1073,7 @@
                             for(i=0;i<app.$data.messageList.length;i++)
                             {
                                 m=app.$data.messageList[i];
-                                m.date_raw=app.formatDate(m.date_raw)
+                                m.date_raw=app.formatDate(m.date_raw,false,false);
 
                                 emailMessageList="";
 
@@ -1024,7 +1118,7 @@
                             for(i=0;i<app.$data.invitationList.length;i++)
                             {
                                 m=app.$data.invitationList[i];
-                                m.date_raw=app.formatDate(m.date_raw)
+                                m.date_raw=app.formatDate(m.date_raw,false,false);
 
                                 emailMessageList="";
 
@@ -1055,10 +1149,53 @@
                         });
                         },
 
-                    formatDate: function(value){
+                    //fire when edit trait model needs to be shown
+                    showEditTraits:function(){                       
+                        $('#editTraitsModal').modal('show');
+                    },
+
+                    //fire when hide edit traits
+                    hideEditTraits:function(){
+                    },
+
+                    // fire when edit trait model is shown
+                    showUpdateTrait:function(id,index){
+
+                        tc = app.$data.recruitment_params.trait_constraints[index];
+
+                        app.$data.cancelModal=true;
+                        app.$data.current_trait.id = id;
+                        app.$data.current_trait.min_value = tc.min_value;
+                        app.$data.current_trait.max_value = tc.max_value;
+                        app.$data.current_trait.trait_id = tc.trait_id;
+
+                        $('#updateTraitModal').modal('show');
+                        app.clearMainFormErrors();
+                    },
+
+                    //fire when edit experiment model hides, cancel action if nessicary
+                    hideUpdateTrait:function(){
+                        if(app.$data.cancelModal)
+                        {
+                        
+                        }
+                    },
+                    
+                    formatDate: function(value,date_only,show_timezone){
                         if (value) {        
-                            //console.log(value);                    
-                            return moment(String(value)).local().format('MM/DD/YYYY hh:mm a ZZ');
+                            //console.log(value);
+                            if(date_only)
+                            {
+                                return moment(String(value)).local().format('MM/DD/YYYY');
+                            }
+                            else if(show_timezone)
+                            {
+                                return moment(String(value)).local().format('MM/DD/YYYY hh:mm a ZZ');
+                            }
+                            else
+                            {
+                                return moment(String(value)).local().format('MM/DD/YYYY hh:mm a');
+                            }
                         }
                         else{
                             return "date format error";
@@ -1093,6 +1230,8 @@
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
                     $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
                     $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
+                    $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
+                    $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
                 },                 
         
             });
@@ -1155,7 +1294,12 @@
                             <tbody id="sessionList">                       
                                 <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
                                     <td>
-                                        <span v-html="formatDate(sd.date_raw)"></span>
+                                        <span v-if="sd.enable_time">
+                                            <span v-html="formatDate(sd.date_raw,false,false)"></span>
+                                        </span>
+                                        <span v-else>
+                                            <span v-html="formatDate(sd.date_raw,true,false) + ' Anytime '"></span>
+                                        </span>
                                         <span v-if="checkToday(sd.date_raw)" v-html="'(Today)'"></span> 
 
                                         <!-- room date time overlap -->
@@ -1472,59 +1616,9 @@
 {%include "modals/invitationModal.html"%}
 {%include "modals/editInvitationTextModal.html"%}
 {%include "modals/recruitmentModal.html"%}
-
-<!-- setup modal -->
-<div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupParameters" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Session Day Parameters </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                    <form id="mainForm2">
-                        <!-- setup parameters -->
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.location | as_crispy_field }}                            
-                            </div>
-                            <div class = "col"> 
-                                <div id="div_id_date" class="form-group">
-                                    <label for="id_date" class="requiredField">
-                                        Date and Time<span class="asteriskField">*</span>
-                                    </label>
-                                    <div>
-                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2" v-bind:disabled="session.confirmedCount > 0"></date-picker>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>                              
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.length | as_crispy_field }}                            
-                            </div>
-                            <div class = "col"> 
-                                {{form2.account | as_crispy_field }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class = "col"> 
-                                {{form2.auto_reminder | as_crispy_field }}  
-                            </div>
-
-                        </div>
-                    </form> <!-- recruitment parameters form -->                                            
-                </div>
-            <div class="modal-footer">                
-                <button type="button" class="btn btn-outline-primary" v-on:click = "updateSessionDay()">
-                    <i class="fas fa-sign-in-alt"></i> [[buttonText2]]
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+{%include "modals/editTraitsModal.html"%}
+{%include "modals/updateTraitModal.html"%}
+{%include "modals/sessionDayModal.html"%}
 
 <!-- view subjects modal -->
 <div class="modal" id="subjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="subjectsParameters" aria-hidden="true">

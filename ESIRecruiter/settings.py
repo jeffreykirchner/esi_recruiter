@@ -99,65 +99,19 @@ ADMIN_SITE_HEADER = 'ESI Recruiter Administration'
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 #boot stramp applied to form templates
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+#cookies
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
-#logging, log both to console and to file log at the INFO level
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'info_format': {
-            'format': '%(levelname)s %(asctime)s %(module)s: %(message)s'
-            }
-        },
-    'handlers': {
-        'console': {
-            'level':'INFO',
-            'class': 'logging.StreamHandler',
-        },
-       'logfile': {        
-           'level':'INFO', 
-           'class': 'logging.handlers.RotatingFileHandler',
-           'filename': 'logs/debug.log',
-           'maxBytes': 52428800,           #50 mb
-           'backupCount' : 2,
-           'formatter' : 'info_format',
-           'delay': True,
-       },
-    },
-    'loggers': {
-        'django': {
-            'handlers':['console','logfile'],
-            'propagate': True,
-            'level':'INFO',
-        },
-        'django.db.backends': {
-            'handlers': ['console','logfile'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'main': {
-            'handlers': ['console', 'logfile'],
-            'level': 'INFO',           
-        },
-        'django_cron': {
-            'handlers': ['console', 'logfile'],
-            'level': 'INFO',           
-        },
-    },
-}

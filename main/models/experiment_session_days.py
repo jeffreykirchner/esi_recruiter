@@ -27,9 +27,13 @@ class experiment_session_days(models.Model):
     date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
-    auto_reminder = models.SmallIntegerField (default=1)                #send reminder emails to subject 24 hours before experiment
+    auto_reminder = models.BooleanField (default=True)                  #send reminder emails to subject 24 hours before experiment
+    enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
+
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
+
+
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -203,6 +207,7 @@ class experiment_session_days(models.Model):
             "session_id":self.experiment_session.id,
             "confirmedCount": confirmedCount,
             "totalCount": totalCount,
+            "enable_time":self.enable_time,
         }
 
     #info to send to session run page
@@ -217,6 +222,7 @@ class experiment_session_days(models.Model):
             "experiment_session_days_user" : self.json_runInfoUserList(),            
             "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
             "complete":self.complete,
+            "enable_time":self.enable_time,
             "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
             "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
             "requiredCount" : self.experiment_session.recruitment_params.actual_participants,
@@ -257,10 +263,10 @@ class experiment_session_days(models.Model):
 
             user_list_valid_clean=[]
             if u_list_u2_json != []:
-                user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False)
+                user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False,len(u_list_u2_json))
 
-            logger.info("Valid List")
-            logger.info(user_list_valid_clean)       
+            #logger.info()
+            logger.info(f'Valid list session day {self.id}, {user_list_valid_clean}')       
 
             u_list_u_json = [{"id":i.id,            
                 "confirmed":i.bumped,
@@ -288,6 +294,7 @@ class experiment_session_days(models.Model):
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
+            "enable_time":self.enable_time,
             "experiment_session_days_user" : [{"id":i.id,            
                                                 "confirmed":i.bumped,
                                                 "user":{"id" : i.user.id,

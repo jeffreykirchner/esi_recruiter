@@ -114,12 +114,21 @@
         <span v-html="exclude_schools_list"></span>
     </div>               
 </div>
+<div class = "row">
+    <div class="col col-md-4 text-right">
+        Trait Constraints (<span v-if="recruitment_params.trait_constraints_require_all">All</span><span v-else>1+</span>):
+    </div>
+    <div class="col col-md-8">    
+        <span v-html="trait_constraint_list"></span>
+    </div>               
+</div>
 <div class = "row mt-2">
     <div class="col col-md-4 text-right">
 
     </div>
     <div class="col col-md-8">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditTraits()">Traits <i class="fas fa-pen fa-xs"></i></button>
     </div>               
 </div>
 <!-- end recruitment parameters -->

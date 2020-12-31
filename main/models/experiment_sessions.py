@@ -8,6 +8,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta,timezone
 import pytz
+from random import randrange
+from django.contrib.auth.models import User
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
@@ -16,6 +18,9 @@ from django.db.models import Q,F,Value as V,Count
 
 from . import genders,subject_types,institutions,experiments,parameters,recruitment_parameters,parameters
 import main
+
+from functools import reduce
+from operator import or_
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
@@ -195,7 +200,7 @@ class experiment_sessions(models.Model):
         return True
 
     #do getValidUserList but in Django DB functions
-    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment):
+    def getValidUserListDjango_old(self,u_list,checkAlreadyIn,testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session (django DB fuctions) " + str(self))
 
@@ -265,12 +270,13 @@ class experiment_sessions(models.Model):
     #u_list confine search to list, empty for all subjects
     #checkAlreadyIn checks if a subject is already added to session
     #if testExperiment is greater than 0, use to test valid list if user were to hypothetically participate in that experiment
+    #if testsession is greater than 0, use to ""
     def getValidUserList(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
 
-        if u_list==[]:
-            u_list = User.objects.filter(is_active=True).values("id")
+        # if u_list==[]:
+        #     u_list = User.objects.filter(is_active=True).values("id")
 
         es = self
         es_p = es.recruitment_params
@@ -483,70 +489,71 @@ class experiment_sessions(models.Model):
         #experience constraints
         user_exeriments_count_str =""
         user_exeriments_count_where=""
-        if es_p.experience_constraint:
+        # if es_p.experience_constraint:
 
-            if es_p.experience_min != 0 and es_p.experience_max != 0: 
-                e_min = es_p.experience_min
-                e_max = es_p.experience_max  
-                #if test experiment then reduce experience by one to accommodate presumed participation
-                if testExperiment > 0:
-                    e_min-=1
-                    e_max-=1
+        #     if es_p.experience_max > 0: 
+        #         e_min = es_p.experience_min
+        #         e_max = es_p.experience_max  
+        #         #if test experiment then reduce experience by one to accommodate presumed participation
+        #         if testExperiment > 0:
+        #             e_min-=1
+        #             e_max-=1
 
-                user_exeriments_count_str =f'''
-                --table of users that have correct number of experiment experiences
-                user_experiments_count AS (SELECT auth_user.id as id
-                        FROM auth_user
-                        INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                        INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
-                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                        WHERE {users_to_search_for}
-                            (main_experiment_session_day_users.attended = TRUE OR
-                            (main_experiment_session_day_users.confirmed = TRUE AND 
-                             main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-                            main_experiment_sessions.id != {id} AND
-                            main_experiment_sessions.canceled = FALSE
-                        GROUP BY auth_user.id
-                        HAVING count(auth_user.id) BETWEEN {e_min} AND {e_max}),
-                '''
+        #         user_exeriments_count_str =f'''
+        #         --table of users that have correct number of experiment experiences
+        #         user_experiments_count AS (SELECT auth_user.id as id
+        #                 FROM auth_user
+        #                 INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+        #                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
+        #                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+        #                 WHERE {users_to_search_for}
+        #                     (main_experiment_session_day_users.attended = TRUE OR
+        #                     (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                      main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
+        #                     main_experiment_sessions.id != {id} AND
+        #                     main_experiment_sessions.canceled = FALSE
+        #                 GROUP BY auth_user.id
+        #                 HAVING count(auth_user.id) BETWEEN {e_min} AND {e_max}),
+        #         '''
 
-                user_exeriments_count_where = '''
-                --check if user has the correct number of experiment experiences
-                    EXISTS(SELECT 1
-                        FROM user_experiments_count
-                        WHERE auth_user.id = user_experiments_count.id) AND 
-                '''
-            else:
-                user_exeriments_count_str =f'''
-                --table of users that have any experience
-                user_experiments_gte_zero AS (SELECT auth_user.id as id
-                            FROM auth_user
-                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
-                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                            WHERE {users_to_search_for} 
-                                (main_experiment_session_day_users.attended = TRUE OR
-                                (main_experiment_session_day_users.confirmed = TRUE AND 
-                                main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-                                main_experiment_sessions.id != {id} AND
-                                main_experiment_sessions.canceled = FALSE
-                '''
+        #         user_exeriments_count_where = '''
+        #         --check if user has the correct number of experiment experiences
+        #             EXISTS(SELECT 1
+        #                 FROM user_experiments_count
+        #                 WHERE auth_user.id = user_experiments_count.id) AND 
+        #         '''
+        #     else:
+        #         #no experience subjects
+        #         user_exeriments_count_str =f'''
+        #         --table of users that have any experience
+        #         user_experiments_gte_zero AS (SELECT auth_user.id as id
+        #                     FROM auth_user
+        #                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
+        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+        #                     WHERE {users_to_search_for} 
+        #                         (main_experiment_session_day_users.attended = TRUE OR
+        #                         (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                         main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
+        #                         main_experiment_sessions.id != {id} AND
+        #                         main_experiment_sessions.canceled = FALSE
+        #         '''
 
-                if testExperiment > 0:
-                    user_exeriments_count_str +=f'''
-                                            --add test experiment and experince list in to check if violation occurs
-                                            UNION   
-                                            SELECT v.user_id as id
-                                            FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
-                                            '''
-                user_exeriments_count_str +='''),'''
+        #         if testExperiment > 0:
+        #             user_exeriments_count_str +=f'''
+        #                                     --add test experiment and experince list in to check if violation occurs
+        #                                     UNION   
+        #                                     SELECT v.user_id as id
+        #                                     FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
+        #                                     '''
+        #         user_exeriments_count_str +='''),'''
 
-                user_exeriments_count_where = '''
-                   --check that user does not have any experience
-                    NOT EXISTS(SELECT 1
-                        FROM user_experiments_gte_zero
-                        WHERE auth_user.id = user_experiments_gte_zero.id) AND 
-                '''
+        #         user_exeriments_count_where = '''
+        #            --check that user does not have any experience
+        #             NOT EXISTS(SELECT 1
+        #                 FROM user_experiments_gte_zero
+        #                 WHERE auth_user.id = user_experiments_gte_zero.id) AND 
+        #         '''
 
         #user experiments past only
         user_experiments_past_str = ""
@@ -616,34 +623,34 @@ class experiment_sessions(models.Model):
 
         #list of users who are already doing an experiment during this time
         #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
-        user_during_session_time_str = f'''
-            --table of users who are already doing an expeirment at this time
-             user_during_session_time AS (SELECT auth_user.id as user_id
-                            FROM auth_user
-                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
-                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                            WHERE main_experiment_sessions.id != {id} AND 
-                                  main_experiment_session_day_users.confirmed = TRUE AND 
-                                  ('''
-        tempS = ""
-        for d in es.ESD.all():
-            if tempS != "":
-                tempS += ''' OR '''
-            tempS+= '''(main_experiment_session_days.date <= \'''' + str(d.date_end) + '''\' AND \'''' + str(d.date) + '''\' <= main_experiment_session_days.date_end )'''
+        # user_during_session_time_str = f'''
+        #     --table of users who are already doing an expeirment at this time
+        #      user_during_session_time AS (SELECT auth_user.id as user_id
+        #                     FROM auth_user
+        #                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
+        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
+        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
+        #                     WHERE main_experiment_sessions.id != {id} AND 
+        #                           main_experiment_session_day_users.confirmed = TRUE AND 
+        #                           ('''
+        # tempS = ""
+        # for d in es.ESD.all():
+        #     if tempS != "":
+        #         tempS += ''' OR '''
+        #     tempS+= f'''(main_experiment_session_days.date <= \'{d.date_end}\' AND \'{d.date}\' <= main_experiment_session_days.date_end )'''
 
-        user_during_session_time_str+= tempS
+        # user_during_session_time_str+= tempS
 
-        user_during_session_time_str +=''' ) AND 
-                                       '''
+        # user_during_session_time_str +=''' ) AND 
+        #                                '''
 
-        if len(u_list) > 0:
-            user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
-                                           '''
+        # if len(u_list) > 0:
+        #     user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
+        #                                    '''
 
-        user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
-                                            ),
-        '''        
+        # user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
+        #                                     ),
+        # '''        
 
         #table of users who have no show violations
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
@@ -761,7 +768,7 @@ class experiment_sessions(models.Model):
         str1=f'''          	  									
             WITH
             {gender_with_str}
-            {user_during_session_time_str}
+            
             {user_institutions_str}
             {user_institutions_past_str}
             {institutions_include_with_str}
@@ -794,6 +801,14 @@ class experiment_sessions(models.Model):
             INNER JOIN main_profile ON main_profile.user_id = auth_user.id
 
             WHERE 
+            auth_user.is_active = TRUE  AND                                  --acount is activated
+            auth_user.is_staff = FALSE AND                                   --subject cannot be an admin memeber
+            main_profile.blackballed = FALSE AND                             --subject has not been blackballed  
+            main_profile.type_id = 2 AND                                     --only subjects 
+            main_profile.email_confirmed = 'yes' AND                          --the email address has been confirmed
+
+            {users_to_search_for}
+
             {institutions_exclude_user_where_str}
             {institutions_include_user_where_str}
             {experiments_exclude_user_where_str}
@@ -813,19 +828,14 @@ class experiment_sessions(models.Model):
                     WHERE auth_user.id = now_shows.id) AND
 
             --check user has time slot open
-            NOT EXISTS(SELECT 1
-                    FROM user_during_session_time
-                    WHERE auth_user.id = user_during_session_time.user_id) AND
+            --NOT EXISTS(SELECT 1
+            --        FROM user_during_session_time
+            --        WHERE auth_user.id = user_during_session_time.user_id) AND
 
             {user_not_in_session_already}
             {user_exeriments_count_where}
             {allow_multiple_participations_str}
-            {users_to_search_for}    
-            auth_user.is_staff = FALSE AND                                   --subject cannot be an admin memeber
-            auth_user.is_active = TRUE  AND                                  --acount is activated
-            main_profile.blackballed = FALSE AND                             --subject has not been blackballed  
-            main_profile.type_id = 2 AND                                     --only subjects 
-            main_profile.email_confirmed = 'yes' AND                          --the email address has been confirmed
+
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
             '''
 
@@ -849,18 +859,231 @@ class experiment_sessions(models.Model):
         return u_list
 
     #gets the valid list from getValidUserList then clean it based on future confermations
-    def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+    #max_user_count max number of users to return, randomize otherwise
+    def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL,max_user_count):
+        logger = logging.getLogger(__name__)
+
         user_list_valid_clean=[]
 
         #valid list based on current experience
         user_list_valid = self.getValidUserList(u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL) 
 
-        #check that attending will not violate other experiments already attending in future
-        for u in user_list_valid:
+        logger.info(f'getValidUserList_forward_check found {user_list_valid}')
+
+        #check experience constraints
+        user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
+
+        logger.info(f'getValidUserList_forward_check found {len(user_list_valid)}')
+
+        if max_user_count == 0:
+            max_user_count = len(user_list_valid)
+
+        while len(user_list_valid_clean) < max_user_count and len(user_list_valid)>0:
+            n = randrange(0,len(user_list_valid))
+
+            u = user_list_valid.pop(n)
+
             if not u.profile.check_for_future_constraints(self):
                 user_list_valid_clean.append(u)
+
+        #check that attending will not violate other experiments already attending in future
+        # for u in user_list_valid:
+        #     if not u.profile.check_for_future_constraints(self):
+        #         user_list_valid_clean.append(u)
         
         return user_list_valid_clean
+
+    #do django validation of user list
+    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+
+        #check experience count
+        u_list = self.getValidUserList_check_experience(u_list,testExperiment)
+        u_list = self.getValidUserList_trait_constraints(u_list,testExperiment)
+        u_list = self.getValidUserList_date_time_overlap(u_list,testSession)
+
+        return u_list
+
+    #return valid subset of users that are not already participating at this date and time
+    def getValidUserList_date_time_overlap(self,u_list,testSession):
+        logger = logging.getLogger(__name__)
+        logger.info(f"getValidUserList_date_time_overlap {self.id}")
+
+        #return u_list
+
+        logger.info(f'getValidUserList_date_time_overlap test session: {testSession}')
+        logger.info(f'getValidUserList_date_time_overlap incoming list: {u_list}')
+
+        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
+        #date range constraints for all this session's days that have time enabled
+       
+        # d_query = reduce(or_, ((Q(date__lte = esd.date_end) & \
+        #                         Q(date_end__gte = esd.date)) for esd in self.ESD.filter(enable_time = True)))
+
+        d_query=[]
+
+        for esd in self.ESD.filter(enable_time = True):
+            d_query.append(Q(date__lte = esd.date_end) & Q(date_end__gte = esd.date))
+
+        #session does not have any time enabled days to test
+        if len(d_query) == 0:
+            logger.info("getValidUserList_date_time_overlap no date enabled sessions")
+            return u_list
+        
+        #find overlaping session days with this session's days
+        session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
+                                                                    .exclude(experiment_session__id = self.id)\
+                                                                    .filter(enable_time = True)\
+                                                                    .filter(reduce(or_,d_query))
+
+        session_overlap = list(session_overlap)
+
+        #add test session days in
+        if testSession>0:
+            test_session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__id = testSession)\
+                                                                              .exclude(experiment_session__id = self.id)\
+                                                                              .filter(reduce(or_,d_query))\
+                                                                              .filter(enable_time = True)
+
+            test_session_overlap = list(test_session_overlap)
+
+            for i in test_session_overlap:
+                session_overlap.append(i)
+                                                                   
+
+        logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
+
+        #find list of users in overlapping sessions who are not eligable
+        user_overlap = main.models.experiment_session_day_users.objects.filter(experiment_session_day__in = session_overlap)\
+                                                                       .filter(confirmed = True)\
+                                                                       .values_list("user_id",flat=True)
+
+        logger.info(f'getValidUserList_date_time_overlap user overlap: {list(user_overlap)}')
+
+        #remove invalid users from list
+        u_list_updated = []
+
+        for u in u_list:
+            if u.id not in user_overlap:
+                u_list_updated.append(u)
+
+        logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
+       
+        return u_list_updated
+        
+    #return valid subset of u_list that conforms to trait constraints
+    def getValidUserList_trait_constraints(self,u_list,testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_trait_constraints")
+
+        constraint_list_traits_ids = self.recruitment_params.trait_constraints.values_list("trait__id",flat=True)
+        logger.info(f'getValidUserList_trait_constraints constraint ids: {constraint_list_traits_ids}')
+        trait_list = main.models.Traits.objects.filter(pk__in = constraint_list_traits_ids)
+        logger.info(f'getValidUserList_trait_constraints trait list: {trait_list}')
+
+        if len(constraint_list_traits_ids) == 0:
+            return u_list
+        else:
+            pk_list = []
+
+            for u in u_list:                
+                pk_list.append(u.id)
+
+            #create dictionary of target traits
+            tc = {}
+            for i in self.recruitment_params.trait_constraints.all():
+                tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
+
+            #list to be returned of valid users
+            valid_list_2 = []
+
+            #subject must meet all trait requirments
+            if self.recruitment_params.trait_constraints_require_all:
+                #count list of users that have full trait set
+                valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
+                                         .filter(trait_count = len(trait_list))\
+                                         .filter(pk__in = pk_list)\
+                                         .prefetch_related('profile__profile_traits')
+
+                #create new list of users that have traits within target range
+                for u in valid_list:
+                    valid = True
+
+                    for i in u.profile.profile_traits.filter(trait__in = tc):
+                        temp_tc = tc.get(i.trait)
+                        
+                        if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
+                            valid=False
+                            break    
+
+                    if valid:
+                        valid_list_2.append(u)
+                        
+                # return list(valid_list_2)
+            else:
+                #subject must meet one of the trait requirments 
+
+                #count list of users that have at least one trait in set
+                valid_list = User.objects.annotate(trait_count =  Count('profile__profile_traits__trait',filter = Q(profile__profile_traits__trait__in=trait_list)))\
+                                         .filter(trait_count__gte = 1)\
+                                         .filter(pk__in = pk_list)\
+                                         .prefetch_related('profile__profile_traits')
+
+                for u in valid_list:
+                    valid = False
+
+                    for i in u.profile.profile_traits.filter(trait__in = tc):
+                        temp_tc = tc.get(i.trait)
+                        
+                        if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
+                            valid=True
+                            break    
+
+                    if valid:
+                        valid_list_2.append(u)
+        
+            return list(valid_list)    
+
+    #check that users have the correct number of past or upcoming
+    def getValidUserList_check_experience(self,u_list,testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_experience")
+
+        if self.recruitment_params.experience_constraint:
+            pk_list = []
+
+            for u in u_list:                
+                pk_list.append(u.id)
+
+            e_min = self.recruitment_params.experience_min
+            e_max = self.recruitment_params.experience_max
+
+            if testExperiment:
+                e_min -=1
+                e_max -=1
+
+            last_date = self.getLastDate()
+
+            #return count of any session day subject attened
+            #or sessions they have confirmed for in the future that have not been canceled
+            valid_list = User.objects.annotate(session_count = Count('ESDU__experiment_session_day__experiment_session__experiment',
+                                                                              distinct=True,
+                                                                              filter = (Q(ESDU__attended = True) | 
+                                                                                        (Q(ESDU__confirmed = True) & 
+                                                                                            Q(ESDU__experiment_session_day__date__gte = datetime.now(pytz.UTC)) &
+                                                                                            Q(ESDU__experiment_session_day__date__lte = last_date) &
+                                                                                            Q(ESDU__experiment_session_day__experiment_session__canceled = False) )) & 
+                                                                                        ~Q(ESDU__experiment_session_day__experiment_session = self) ))\
+                                          .filter(session_count__gte=e_min)\
+                                          .filter(session_count__lte=e_max)\
+                                          .filter(pk__in = pk_list)
+            
+            #valid_user_list = []
+
+            
+
+            return list(valid_list)
+        else:
+            return u_list
 
     #return true if all session days are complete
     def getComplete(self):
@@ -939,7 +1162,7 @@ class experiment_sessions(models.Model):
         if not esdu.confirmed:
             #user_list_valid = self.getValidUserList([{'id':u.id}],False,0,0,[],False)
 
-            user_list_valid = self.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False)
+            user_list_valid = self.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False,1)
 
             if not u in user_list_valid:
                 user_list_valid_check=False
@@ -955,6 +1178,8 @@ class experiment_sessions(models.Model):
             "experiment_session_days" : [{"id" : esd.id,
                                           "date":esd.date,
                                           "date_end":esd.date_end,
+                                          "enable_time":esd.enable_time,
+                                          "length":esd.length,
                                           "hours_until_start": esd.hoursUntilStart(),
                                           "hours_until_start_str":  str(int(esd.hoursUntilStart())) + " hours<br>" + 
                                                                        str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes' 
