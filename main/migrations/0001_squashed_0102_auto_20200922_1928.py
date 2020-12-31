@@ -256,7 +256,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('length', models.IntegerField(default=60)),
-                ('auto_reminder', models.BooleanField(default=True)),
+                ('auto_reminder', models.SmallIntegerField(default=1)),
                 ('canceled', models.SmallIntegerField(default=0)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('updated', models.DateTimeField(auto_now=True)),

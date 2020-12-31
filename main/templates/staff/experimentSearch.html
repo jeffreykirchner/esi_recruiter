@@ -103,8 +103,8 @@
                 //create new experient
                 createExperiment:function(){                    
                     app.$data.experiments = [];
-                    app.$data.warningText = '';
-                    app.$data.createExperimentButtonText ='<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.warningText = '<i class="fas fa-spinner fa-spin"></i>';
+                    app.$data.createExperimentButtonText =
                     axios.post('/experimentSearch/', {
                                     action :"createExperiment" ,                                                                                                                                                                
                                 })

@@ -16,6 +16,11 @@ from main.models import profile_note,help_docs
 @login_required
 @user_is_staff
 def userInfo(request,id=None):
+    
+        
+    # logger.info(u.ESDU.all())
+    # for i in u.ESDU.all():
+    #     logger.info(i)
 
     if request.method == 'POST':       
 
@@ -30,7 +35,7 @@ def userInfo(request,id=None):
         elif data["status"] == "deleteNote":
             return deleteNote(request,data,id)       
         elif data["status"] == "getTraits":
-            return getTraits(data,id)  
+            return getTraits(data,id) 
                    
     else:     
         try:

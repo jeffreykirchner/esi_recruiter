@@ -151,7 +151,6 @@ def getCalendarJson(month,year):
                                          "manager" : s.experiment_session.experiment.experiment_manager,
                                          "canceled" : s.experiment_session.canceled,
                                          "location" : s.location.json(),
-                                         "enable_time" : s.enable_time,
                                          "startTime" : s.getStartTimeString(),
                                          "endTime" : s.getEndTimeString()})
 

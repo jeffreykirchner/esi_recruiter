@@ -239,14 +239,8 @@
                     <!-- spacer -->
                     <span>&nbsp</span>
                 </div>
-                <div v-else>
-                    <span v-if="s.enable_time">
-                        <span v-html="s.startTime + '-' + s.endTime"></span>
-                    </span>
-                    <span v-else>
-                        <span v-html = "'Anytime'"></span>
-                    </span>        
-                    <span v-html ="' <a href=\'/experimentSessionRun/' + s.id + '/\'' + ' target=\'_blank\'>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }">
+                <div v-else>                    
+                    <span v-html = "s.startTime + '-' + s.endTime + ' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }"></div>
                     </span>
                 </div>
             </div>

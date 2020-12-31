@@ -640,14 +640,11 @@ def updateSessionDay(data,id):
         logger.info("Cannot change session date or length when subjects have confirmed")
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
-        form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
 
     form = experimentSessionForm2(form_data_dict,instance=esd)   
 
     if form.is_valid():
         esd.save()
-        if not esd.enable_time:
-            esd.date = esd.date.replace(hour=23,minute=59, second=59)
         esd.date_end = esd.date + timedelta(minutes = esd.length)
         esd.save()
         
