@@ -25,25 +25,21 @@ def traitsView(request):
 
         u = request.user
 
-        f=""
-        
-        try:
-            f = request.FILES['file']
-        except Exception  as e: 
-            logger.info(f'traitsView no file upload: {e}')
-            f = -1
 
         #check for file upload
-        if f != -1:
+        try:
+            f = request.FILES['file']
             return takeCSVUpload(f,u)
-        else:
-            data = json.loads(request.body.decode('utf-8'))
-            
+        except Exception  as e: 
+            logger.info(f'traitsView no file upload: {e}')
 
-            if data["action"] == "getReport":
-                return getReport(data,u)
-            elif data["action"] == "action2":
-                pass
+        #no file to upload
+        data = json.loads(request.body.decode('utf-8'))
+        
+        if data["action"] == "getReport":
+            return getReport(data,u)
+        elif data["action"] == "action2":
+            pass
            
         return JsonResponse({"response" :  "fail"},safe=False)     
 
@@ -180,7 +176,7 @@ def takeCSVUpload(f,u):
     v=""
 
     for chunk in f.chunks():
-        v+=str(chunk.decode("utf-8"))            
+        v+=str(chunk.decode("utf-8-sig"))            
     
     v=v.splitlines()
 
