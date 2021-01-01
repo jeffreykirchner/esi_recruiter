@@ -29,7 +29,7 @@ def calendarView(request):
         elif data["action"] == "changeMonth":
             return changeMonth(request,data)
            
-            return JsonResponse({"response" :  "some json"},safe=False)       
+        return JsonResponse({"response" :  "error"},safe=False)       
     else:   
 
         try:

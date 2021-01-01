@@ -8,16 +8,23 @@ from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     #admin site
-    re_path(r'^admin/login/$', RedirectView.as_view(url=settings.LOGIN_URL, permanent=True, query_string=True)),    
+    # re_path(r'^admin/login/$',\
+    #         RedirectView.as_view(url=settings.LOGIN_URL,permanent=True,query_string=True)),    
+
+    re_path(r'^admin/login/$',views.loginView),
 
     #account control
     path('',views.mainHome,name='mainHome'),                 #direct user by subject type
-    path('accounts/', include('django.contrib.auth.urls')),  #django built in account registrations
+    #path('accounts/', include('django.contrib.auth.urls')),  #django built in account registrations
     path('profile/', views.updateProfile,name='profile'),    #custom profile 
     path('accounts/profile/', views.updateProfile,name='profile'), #custom profile         
     path('profileCreate/',views.profileCreate,name='profileCreate'),
     path('profileVerify/<token>/',views.profileVerify,name='profileVerify'),
     path('profileVerifyResend/',views.profileVerifyResend,name='profileVerifyResend'),
+    
+    path('accounts/login/',views.loginView,name="login"),
+    path('accounts/password_reset/',views.resetPasswordView,name="password_reset"),
+    path('accounts/logout/',views.logoutView,name="logout"),
     
     #staff
     path('userSearch/',views.userSearch,name='userSearch'),

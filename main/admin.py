@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm,faqForm,helpDocForm
+from main.forms import parametersForm,faqForm,helpDocForm,frontPageNoticeForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
@@ -39,6 +39,17 @@ class helpDocAdmin(admin.ModelAdmin):
       list_display = ['title','path']
 
 admin.site.register(help_docs,helpDocAdmin)
+
+class frontPageNoticeAdmin(admin.ModelAdmin):
+            
+      form = frontPageNoticeForm
+
+      ordering = [Lower('subject_text')]
+
+      actions = []
+      list_display = ['subject_text','enabled']
+
+admin.site.register(Front_page_notice,frontPageNoticeAdmin)
 
 class faqAdmin(admin.ModelAdmin):
             
