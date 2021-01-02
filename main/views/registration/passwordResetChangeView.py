@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from main.models import parameters
 from django.shortcuts import render
 import json
-from main.forms import passwordResetForm
+from main.forms import passwordResetChangeForm
 from django.http import JsonResponse
 import logging
 from django.contrib.auth.models import User
@@ -22,8 +22,8 @@ def passwordResetChangeView(request):
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["action"] == "send_reset":
-            return send_reset(request,data)
+        if data["action"] == "change_password":
+            return changePassword(request,data)
 
         return JsonResponse({"response" :  "error"},safe=False)
 
@@ -32,17 +32,17 @@ def passwordResetChangeView(request):
         p = parameters.objects.first()
         labManager = p.labManager 
 
-        form = passwordResetForm()
+        form = passwordResetChangeForm()
 
         form_ids=[]
         for i in form:
             form_ids.append(i.html_name)
 
-        return render(request,'registration/passwordReset.html',{"labManager":labManager,
+        return render(request,'registration/passwordResetChange.html',{"labManager":labManager,
                                                          "form":form,
                                                          "form_ids":form_ids})
     
-def send_reset(request,data):
+def changePassword(request,data):
     logger = logging.getLogger(__name__) 
    
     p = parameters.objects.first()
@@ -53,7 +53,7 @@ def send_reset(request,data):
     for field in data["formData"]:            
         form_data_dict[field["name"]] = field["value"]
     
-    f = passwordResetForm(form_data_dict)
+    f = passwordResetChangeForm(form_data_dict)
 
     if f.is_valid():
 

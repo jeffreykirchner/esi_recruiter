@@ -8,4 +8,4 @@ class loginForm(forms.Form):
     username =  forms.EmailField(label='Email address (lower case)')
 
     password = forms.CharField(label='Password',
-                               widget=forms.TextInput(attrs={"type":"password"}))               
+                               widget=forms.PasswordInput(attrs={}))               
