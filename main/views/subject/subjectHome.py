@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_subject
+from main.decorators import user_is_subject,email_confirmed
 import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -12,6 +12,7 @@ from django.db.models import CharField,Q,F,Value as V
 
 @login_required
 @user_is_subject
+@email_confirmed
 def subjectHome(request):
     logger = logging.getLogger(__name__) 
    

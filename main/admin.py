@@ -8,7 +8,7 @@ from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
-from main.views import sendMassEmailVerify
+from main.globals import sendMassEmailVerify
 from datetime import datetime,timedelta
 import pytz
 import logging

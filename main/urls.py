@@ -3,8 +3,8 @@ from django.urls import path,re_path
 from django.views.generic.base import RedirectView
 from django.conf.urls import include,url
 from django.conf import settings
-from . import views
 from django.views.decorators.csrf import csrf_exempt
+from main.views import *
 
 urlpatterns = [
     #admin site
@@ -23,7 +23,8 @@ urlpatterns = [
     path('profileVerifyResend/',views.profileVerifyResend,name='profileVerifyResend'),
     
     path('accounts/login/',views.loginView,name="login"),
-    path('accounts/password_reset/',views.resetPasswordView,name="password_reset"),
+    path('accounts/passwordReset/',views.passwordResetView,name="passwordReset"),
+    path('accounts/passwordResetChange/<token>',views.passwordResetChangeView,name="passwordResetChange"),
     path('accounts/logout/',views.logoutView,name="logout"),
     
     #staff

@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 
-from main.models import Front_page_notice,parameters,Front_page_notice
+from main.models import Front_page_notice,parameters
 from django.shortcuts import render
 import json
 from main.forms import loginForm
@@ -24,6 +24,9 @@ def loginView(request):
         return JsonResponse({"response" :  "error"},safe=False)
 
     else:
+
+        request.session['redirect_path'] = request.GET.get('next','/')
+
         p = parameters.objects.first()
         labManager = p.labManager 
 
@@ -57,19 +60,20 @@ def login_function(request,data):
         username = f.cleaned_data['username']
         password = f.cleaned_data['password']
 
-        logger.info(f"Login user {username}")
+        #logger.info(f"Login user {username}")
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)
-            logger.info(f"Login user {username} success")
+            login(request, user)           
 
-            return JsonResponse({"status":"success"}, safe=False)
+            logger.info(f"Login user {username} success , redirect {request.session['redirect_path']}")
+
+            return JsonResponse({"status":"success","redirect_path":request.session['redirect_path']}, safe=False)
         else:
             logger.info(f"Login user {username} fail user / pass")
             
             return JsonResponse({"status":"error"}, safe=False)
     else:
-        logger.info(f"Login user {username} validation error")
-        return JsonResponse({"status":"validation","errors":dict(form.errors.items())}, safe=False)
+        logger.info(f"Login user validation error")
+        return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)

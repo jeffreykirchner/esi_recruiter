@@ -1,3 +1,4 @@
 from .loginView import *
-from .resetPasswordView import * 
+from .passwordResetChangeView import *
+from .passwordResetView import * 
 from .logoutView import *

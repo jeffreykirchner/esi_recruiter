@@ -42,6 +42,8 @@ class profile(models.Model):
 
     consentRequired = models.BooleanField(verbose_name="Consent Form Required",default=True)                         #true if the subject must agree to the current consent form  
 
+    password_reset_key = models.UUIDField(verbose_name = 'Password Reset Key',null=True,blank=True)                  #log in key used to reset subject password
+
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
 
