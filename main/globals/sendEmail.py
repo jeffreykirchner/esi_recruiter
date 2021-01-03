@@ -31,7 +31,8 @@ def sendMassEmail(subjectList,subject,message):
         new_message = s['first_name'] + ",\n\n" + message
 
         if settings.DEBUG:
-            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            s=getTestSubjectEmail()
+            message_list[i] += ((subject, new_message,from_email,[s]),)   #use for test emails
         else:
             message_list[i] += ((subject, new_message,from_email,[s['email']]),)  
 
@@ -97,7 +98,8 @@ def sendMassEmailVerify(profileList,request):
         new_message = p.user.first_name + ",\n\n" + message
 
         if settings.DEBUG:
-            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            s = getTestSubjectEmail()
+            message_list[i] += ((subject, new_message,from_email,[s]),)   #use for test emails
         else:
             message_list[i] += ((subject, new_message,from_email,[p.user.email]),)  
 
@@ -116,6 +118,13 @@ def sendMassEmailVerify(profileList,request):
         errorMessage = str(e)
 
     return {"mailCount":mailCount,"errorMessage":errorMessage}
+
+#return the test account email to be used
+def getTestSubjectEmail():
+    s = "chapman.esi.test@gmail.com"
+
+    return s
+
 
 #send email when profile is created or changed
 def profileCreateSendEmail(request,u):
@@ -136,7 +145,7 @@ def profileCreateSendEmail(request,u):
 
     email_address=""
     if settings.DEBUG:
-        email_address = "TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"
+        email_address = getTestSubjectEmail()
     else:
         email_address = u.email
 
