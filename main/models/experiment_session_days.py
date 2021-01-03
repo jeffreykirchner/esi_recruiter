@@ -189,7 +189,7 @@ class experiment_session_days(models.Model):
 
         logger.info(emailList)
 
-        mailResult = main.views.staff.sendMassEmail(emailList,subjectText, messageText)
+        mailResult = main.globals.sendMassEmail(emailList,subjectText, messageText)
         logger.info(mailResult)
 
         return {"emailList": users_list,"status":"success"}

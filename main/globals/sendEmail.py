@@ -88,7 +88,7 @@ def sendMassEmailVerify(profileList,request):
             message_list.append(())
 
         link = params.siteURL      
-        link += "profileVerify/" + p.email_confirmed +"/"
+        link += "/profileVerify/" + p.email_confirmed +"/"
 
         message = params.deactivationText
         message = message.replace("[activation link]",link)
@@ -129,7 +129,7 @@ def profileCreateSendEmail(request,u):
     u.profile.save()
 
     link = params.siteURL       
-    link += "profileVerify/" + u.profile.email_confirmed +"/"
+    link += "/profileVerify/" + u.profile.email_confirmed +"/"
 
     msg_html = render_to_string('profileVerifyEmail.html', {'link': link,'first_name':u.first_name})
     msg_plain = strip_tags(msg_html)

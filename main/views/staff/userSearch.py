@@ -15,7 +15,7 @@ from django.db.models import OuterRef, Subquery
 from django.db.models import Count
 from main.models import parameters,help_docs
 from datetime import datetime, timedelta,timezone
-from . import sendMassEmail
+from main.globals import sendMassEmail
 
 @login_required
 @user_is_staff

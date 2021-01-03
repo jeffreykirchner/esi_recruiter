@@ -29,6 +29,9 @@ class parameters(models.Model):
     deactivationTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text to  subject when account is deactivated
     deactivationText = models.CharField(max_length = 10000,default = "")                   #email text to  subject when account is deactivated
 
+    passwordResetTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text when password reset
+    passwordResetText = models.CharField(max_length = 10000,default = "")                   #email text sent when password reset
+
     consentForm = models.CharField(max_length = 50000, default ="")                        #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)

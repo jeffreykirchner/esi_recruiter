@@ -4,7 +4,7 @@ from django.http import Http404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from main.forms import profileFormUpdate
-from . import profileCreateSendEmail
+from main.globals.sendEmail import profileCreateSendEmail
 from django.db.models import CharField,Q,F,Value as V
 from main.models import help_docs
 

@@ -7,3 +7,4 @@ from .profileVerify import *
 from .profileVerifyResend import *
 from .faqView import *
 from .runCrons import *
+from .registration import *

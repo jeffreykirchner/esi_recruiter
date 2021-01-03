@@ -30,7 +30,7 @@ from django.db.models import prefetch_related_objects
 from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
-from . import sendMassEmail
+from main.globals import sendMassEmail
 from datetime import timedelta
 
 #induvidual experiment view

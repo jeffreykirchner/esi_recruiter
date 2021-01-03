@@ -51,6 +51,12 @@ class parametersForm(forms.ModelForm):
 
     deactivationText = forms.CharField(label='Deactivation Email Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+
+    passwordResetTextSubject = forms.CharField(label='Password Reset Email Subject',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
+
+    passwordResetText = forms.CharField(label='Password Reset Email Text',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
                                      widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))
