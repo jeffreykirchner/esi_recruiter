@@ -65,11 +65,13 @@ def login_function(request,data):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)           
+            login(request, user) 
 
-            logger.info(f"Login user {username} success , redirect {request.session['redirect_path']}")
+            rp = request.session.get('redirect_path','/')        
 
-            return JsonResponse({"status":"success","redirect_path":request.session['redirect_path']}, safe=False)
+            logger.info(f"Login user {username} success , redirect {rp}")
+
+            return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
             logger.info(f"Login user {username} fail user / pass")
             
