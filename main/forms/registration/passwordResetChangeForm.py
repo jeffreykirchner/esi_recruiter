@@ -8,7 +8,7 @@ class passwordResetChangeForm(forms.Form):
     password1 = forms.CharField(label='New Password',
                                widget=forms.PasswordInput(attrs={}))
 
-    password2 = forms.CharField(label='Repeat Password',
+    password2 = forms.CharField(label='Repeat New Password',
                                 widget=forms.PasswordInput(attrs={}))       
 
 

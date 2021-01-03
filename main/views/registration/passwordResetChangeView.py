@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 
-from main.models import parameters
+from main.models import parameters,profile
 from django.shortcuts import render
 import json
 from main.forms import passwordResetChangeForm
@@ -11,8 +11,9 @@ import uuid
 from main.globals import sendMassEmail
 from django.db.models.functions import Lower
 from django.urls import reverse
+from  django.contrib.auth.hashers import make_password
 
-def passwordResetChangeView(request):
+def passwordResetChangeView(request,token):
 
     logger = logging.getLogger(__name__) 
     
@@ -23,7 +24,7 @@ def passwordResetChangeView(request):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "change_password":
-            return changePassword(request,data)
+            return changePassword(request,data,token)
 
         return JsonResponse({"response" :  "error"},safe=False)
 
@@ -38,11 +39,34 @@ def passwordResetChangeView(request):
         for i in form:
             form_ids.append(i.html_name)
 
+        #check that code is valid
+        valid_code_profile = checkValidCode(token)
+       
+
+
         return render(request,'registration/passwordResetChange.html',{"labManager":labManager,
                                                          "form":form,
+                                                         "token":token,
+                                                         "valid_code":False if not valid_code_profile else True,
                                                          "form_ids":form_ids})
-    
-def changePassword(request,data):
+
+def checkValidCode(token):
+    logger = logging.getLogger(__name__) 
+
+    try:
+        p = profile.objects.filter(password_reset_key = token)
+
+        if p.count() != 1:
+            logger.info(f"Password reset failed for {token}, count: {p.count()}")
+            return None
+        else:
+            return p.first()
+    except:
+        logger.info(f"Password reset invalid code format {token}")
+        return None
+
+
+def changePassword(request,data,token):
     logger = logging.getLogger(__name__) 
    
     p = parameters.objects.first()
@@ -56,31 +80,20 @@ def changePassword(request,data):
     f = passwordResetChangeForm(form_data_dict)
 
     if f.is_valid():
-
-        username = f.cleaned_data['username']
         
-        u = User.objects.filter(email = username.lower())
+        p = checkValidCode(token)
 
-        if u.count() != 1:
-            return JsonResponse({"status":"error","message":"Account not found."}, safe=False)
+        if not p:
+            return JsonResponse({"status":"error","message":"Valid code not found."}, safe=False)
         else:
-            u = u.first()
-            u.profile.password_reset_key = uuid.uuid4()
-            u.profile.save()
+            p.user.password = make_password(f.cleaned_data['password1'])
+            p.password_reset_key = uuid.uuid4()
+            p.save()
+            p.user.save()
 
-            emailList = [{"email":u.email,"first_name":u.first_name}]
-            subjectText = p.passwordResetTextSubject
-            messageText = p.passwordResetText
-            messageText = messageText.replace("[email]",u.email)
-            messageText = messageText.replace("[reset link]",p.siteURL + reverse('passwordReset') +  str(u.profile.password_reset_key))
-            messageText = messageText.replace("[contact email]",p.labManager.email)
-
-            mailResult = sendMassEmail(emailList,subjectText, messageText)
-
-
-        logger.info(f"Reset password for {username}")
+            logger.info(f"Reset password for {p}")
         
-        return JsonResponse({"status":"error"}, safe=False)
+            return JsonResponse({"status":"success"}, safe=False)
     else:
         logger.info(f"Reset password validation error {data}")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)
