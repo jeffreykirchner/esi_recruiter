@@ -577,7 +577,7 @@ def attendSubjectAction(esdu,id):
     #check subject session day exists
     if esdu:
         #check that subject has agreed to consent form
-        if esdu.user.profile.consentRequired:
+        if esdu.user.profile.consent_required:
             esdu.bumped = False
             esdu.attended = False
 

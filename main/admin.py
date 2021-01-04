@@ -179,7 +179,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #require all selected users to agree to consent form before attending another experiment
       def consent_form_required(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = True).update(consentRequired=True)
+            updated = queryset.exclude(user__is_staff = True).update(consent_required=True)
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -217,7 +217,7 @@ class ProfileAdmin(admin.ModelAdmin):
             logger = logging.getLogger(__name__)
             logger.info("setup_test_users")
 
-            updated = queryset.exclude(user__is_staff = True).update(consentRequired=False,
+            updated = queryset.exclude(user__is_staff = True).update(consent_required=False,
                                                                      blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)

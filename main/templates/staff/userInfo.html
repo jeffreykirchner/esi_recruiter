@@ -298,6 +298,20 @@
                         {{u.profile.get_ytd_payouts}}
                     </div> 
                     <div class = "col"> 
+                        <span class="float-right">Consent Required:</span>                             
+                    </div>
+                    <div class = "col"> 
+                        <span class="float-left">{%if u.profile.consent_required%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                    </div>
+                </div>
+                <div class = "row">
+                    <div class = "col"> 
+                        <span class="float-right">YTD Earnings</span>                     
+                    </div>
+                    <div class = "col"> 
+                        {{u.profile.get_ytd_payouts}}
+                    </div> 
+                    <div class = "col"> 
                         <span class="float-right">In Institutions:</span>                             
                     </div>
                     <div class = "col"> 
