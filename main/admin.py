@@ -3,12 +3,12 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm,faqForm,helpDocForm
+from main.forms import parametersForm,faqForm,helpDocForm,frontPageNoticeForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
-from main.views import sendMassEmailVerify
+from main.globals import sendMassEmailVerify
 from datetime import datetime,timedelta
 import pytz
 import logging
@@ -39,6 +39,17 @@ class helpDocAdmin(admin.ModelAdmin):
       list_display = ['title','path']
 
 admin.site.register(help_docs,helpDocAdmin)
+
+class frontPageNoticeAdmin(admin.ModelAdmin):
+            
+      form = frontPageNoticeForm
+
+      ordering = [Lower('subject_text')]
+
+      actions = []
+      list_display = ['subject_text','enabled']
+
+admin.site.register(Front_page_notice,frontPageNoticeAdmin)
 
 class faqAdmin(admin.ModelAdmin):
             
@@ -168,7 +179,7 @@ class ProfileAdmin(admin.ModelAdmin):
       #require all selected users to agree to consent form before attending another experiment
       def consent_form_required(self, request, queryset):
 
-            updated = queryset.exclude(user__is_staff = True).update(consentRequired=True)
+            updated = queryset.exclude(user__is_staff = True).update(consent_required=True)
 
             self.message_user(request, ngettext(
                   '%d user was updated.',
@@ -206,7 +217,7 @@ class ProfileAdmin(admin.ModelAdmin):
             logger = logging.getLogger(__name__)
             logger.info("setup_test_users")
 
-            updated = queryset.exclude(user__is_staff = True).update(consentRequired=False,
+            updated = queryset.exclude(user__is_staff = True).update(consent_required=False,
                                                                      blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)

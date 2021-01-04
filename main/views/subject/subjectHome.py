@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_subject
+from main.decorators import user_is_subject,email_confirmed
 import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -12,6 +12,7 @@ from django.db.models import CharField,Q,F,Value as V
 
 @login_required
 @user_is_subject
+@email_confirmed
 def subjectHome(request):
     logger = logging.getLogger(__name__) 
    
@@ -65,11 +66,11 @@ def getCurrentInvitations(data,u):
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
-    consentRequired = u.profile.consentRequired
+    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
                          "pastAcceptedInvitations":pastAcceptedInvitations,
-                         "consentRequired":consentRequired,
+                         "consent_required":consent_required,
                          "consentFormText":p.consentForm,
                          "failed":failed}, safe=False)
 
@@ -89,14 +90,14 @@ def acceptConsentForm(data,u):
     logger.info("Accept consent form")    
     logger.info(data)
 
-    u.profile.consentRequired=False
+    u.profile.consent_required=False
     u.profile.save()
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consentRequired = u.profile.consentRequired
+    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consentRequired":consentRequired,
+                         "consent_required":consent_required,
                          "failed":False}, safe=False)
 
 #subject has accepted an invitation
@@ -124,7 +125,7 @@ def acceptInvitation(data,u):
 
         if qs:
             #subject cannot attend before consent form accepted
-            if u.profile.consentRequired:
+            if u.profile.consent_required:
                 logger.info("Consent required before accept") 
                 failed=True
 
@@ -190,10 +191,10 @@ def acceptInvitation(data,u):
         failed=True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consentRequired = u.profile.consentRequired
+    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consentRequired":consentRequired,
+                         "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return invitations for subject
@@ -258,10 +259,10 @@ def cancelAcceptInvitation(data,u):
         failed=True
 
     upcomingInvitations=u.profile.sorted_session_list_upcoming()
-    consentRequired = u.profile.consentRequired
+    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consentRequired":consentRequired,
+                         "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return list of past declined invitations

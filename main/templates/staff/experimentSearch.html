@@ -82,6 +82,9 @@
 
                 //get list of experiments based on search
                 searchExperiments:function(){
+                    if(app.$data.searchInfo == "")
+                        return;
+
                     app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                     app.$data.experiments=[];
                     app.$data.warningText = "";

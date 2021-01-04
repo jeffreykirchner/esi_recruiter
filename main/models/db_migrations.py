@@ -115,7 +115,7 @@ def migrate_traits():
 
 def migrate_profile_traits():
         
-        self.migrate_traits()
+        migrate_traits()
 
         print("Migrate Profile Traits")
 
@@ -176,6 +176,13 @@ def migrate_recruitment_parameters():
 
 def migrate_experiments():      
 
+        experiments.objects.all().delete()
+
+        migrate_departments()
+        migrate_accounts()
+        
+        migrate_institutions()
+
         print("Experiment data loading")
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT experiment.id,
@@ -208,12 +215,7 @@ def migrate_experiments():
         # experiment_session_users.objects.all().delete()  
         # experiment_session_days.objects.all().delete()
         # experiment_sessions.objects.all().delete()        
-        experiments.objects.all().delete()
 
-        migrate_departments()
-        migrate_accounts()
-        
-        migrate_institutions()
 
         print("data loaded")       
 
@@ -479,25 +481,25 @@ def migrate_subjects2():
 
         cursor2 = connections['old'].cursor()
         cursor2.execute('''select id,
-                        COALESCE(TRIM(chapman_id),"Not Listed"),                       
-                        COALESCE(TRIM(phone),"0"),                                
-                        CASE WHEN gender = "Female" THEN 1 ELSE 2 END,
-                        CASE WHEN grade = "Graduate" THEN 2 ELSE 1 END,
-                        CASE WHEN NOT EXISTS(SELECT id
-                                                FROM majors
-                                                WHERE s1.major_id = id ) 
-                                THEN 1 
-                                ELSE major_id END,                                                                                               
-                        COALESCE(blackballed,0),
-                        COALESCE(notes,""),
-                        COALESCE(is_student_worker,0),                                
-                        CASE WHEN NOT EXISTS(SELECT id
-                                        FROM schools
-                                        WHERE s1.school_id = id ) 
-                                THEN 1 
-                                ELSE school_id END,
-                        COALESCE(non_resident_alien,0),
-                        COALESCE(w9_collected,0)
+                                COALESCE(TRIM(chapman_id),"Not Listed"),                       
+                                COALESCE(TRIM(phone),"0"),                                
+                                CASE WHEN gender = "Female" THEN 1 ELSE 2 END,
+                                CASE WHEN grade = "Graduate" THEN 2 ELSE 1 END,
+                                CASE WHEN NOT EXISTS(SELECT id
+                                                        FROM majors
+                                                        WHERE s1.major_id = id ) 
+                                        THEN 1 
+                                        ELSE major_id END,                                                                                               
+                                COALESCE(blackballed,0),
+                                COALESCE(notes,""),
+                                COALESCE(is_student_worker,0),                                
+                                CASE WHEN NOT EXISTS(SELECT id
+                                                FROM schools
+                                                WHERE s1.school_id = id ) 
+                                        THEN 1 
+                                        ELSE school_id END,
+                                COALESCE(non_resident_alien,0),
+                                COALESCE(w9_collected,0)
                         from students AS s1
                         ''')
         

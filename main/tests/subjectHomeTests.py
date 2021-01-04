@@ -84,7 +84,7 @@ class subjectHomeTestCase(TestCase):
 
         self.u.is_active = True
         self.u.profile.email_confirmed = 'yes'
-        self.u.profile.consentRequired = False
+        self.u.profile.consent_required = False
 
         self.u.profile.save()
         self.u.save()
@@ -159,17 +159,17 @@ class subjectHomeTestCase(TestCase):
         self.assertFalse(r['failed'])
     
     #subject must have agreed to consent form before accepting
-    def testConfirmAttendenceConsentRequired(self):
+    def testConfirmAttendenceconsent_required(self):
         """Test subject consent required acceptence""" 
         logger = logging.getLogger(__name__)
 
-        self.u.profile.consentRequired = True
+        self.u.profile.consent_required = True
         self.u.profile.save()
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
 
-        self.u.profile.consentRequired = False
+        self.u.profile.consent_required = False
         self.u.profile.save()
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
@@ -279,7 +279,7 @@ class subjectHomeTestCase(TestCase):
 
         temp_u.is_active = True
         temp_u.profile.email_confirmed = 'yes'
-        temp_u.profile.consentRequired = False
+        temp_u.profile.consent_required = False
 
         temp_u.profile.save()
         temp_u.save()

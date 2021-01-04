@@ -31,7 +31,8 @@ def sendMassEmail(subjectList,subject,message):
         new_message = s['first_name'] + ",\n\n" + message
 
         if settings.DEBUG:
-            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            s=getTestSubjectEmail()
+            message_list[i] += ((subject, new_message,from_email,[s]),)   #use for test emails
         else:
             message_list[i] += ((subject, new_message,from_email,[s['email']]),)  
 
@@ -88,7 +89,7 @@ def sendMassEmailVerify(profileList,request):
             message_list.append(())
 
         link = params.siteURL      
-        link += "profileVerify/" + p.email_confirmed +"/"
+        link += "/profileVerify/" + p.email_confirmed +"/"
 
         message = params.deactivationText
         message = message.replace("[activation link]",link)
@@ -97,7 +98,8 @@ def sendMassEmailVerify(profileList,request):
         new_message = p.user.first_name + ",\n\n" + message
 
         if settings.DEBUG:
-            message_list[i] += ((subject, new_message,from_email,["TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"]),)   #use for test emails
+            s = getTestSubjectEmail()
+            message_list[i] += ((subject, new_message,from_email,[s]),)   #use for test emails
         else:
             message_list[i] += ((subject, new_message,from_email,[p.user.email]),)  
 
@@ -117,6 +119,13 @@ def sendMassEmailVerify(profileList,request):
 
     return {"mailCount":mailCount,"errorMessage":errorMessage}
 
+#return the test account email to be used
+def getTestSubjectEmail():
+    s = "chapman.esi.test@gmail.com"
+
+    return s
+
+
 #send email when profile is created or changed
 def profileCreateSendEmail(request,u):
     logger = logging.getLogger(__name__) 
@@ -129,14 +138,14 @@ def profileCreateSendEmail(request,u):
     u.profile.save()
 
     link = params.siteURL       
-    link += "profileVerify/" + u.profile.email_confirmed +"/"
+    link += "/profileVerify/" + u.profile.email_confirmed +"/"
 
     msg_html = render_to_string('profileVerifyEmail.html', {'link': link,'first_name':u.first_name})
     msg_plain = strip_tags(msg_html)
 
     email_address=""
     if settings.DEBUG:
-        email_address = "TestSubject" + str(random.randrange(1, 50)) + "@esirecruiter.net"
+        email_address = getTestSubjectEmail()
     else:
         email_address = u.email
 

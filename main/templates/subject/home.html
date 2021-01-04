@@ -19,7 +19,7 @@
                 showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
                 noInvitationsFoundText:'',
                 lastActionFailed:false,
-                consentRequired:false,
+                consent_required:false,
                 consentFormText:"",
             },
 
@@ -126,7 +126,7 @@
                 
                 takeUpcomingInvitations:function(response){
 
-                    app.$data.consentRequired=response.data.consentRequired; 
+                    app.$data.consent_required=response.data.consent_required; 
                     app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
                     for(var i=0;i<app.$data.upcomingInvitations.length;i++)
@@ -144,7 +144,7 @@
                     
                     app.$data.lastActionFailed = response.data.failed;
 
-                    if(app.$data.consentRequired)
+                    if(app.$data.consent_required)
                     {
                         $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
                     }
