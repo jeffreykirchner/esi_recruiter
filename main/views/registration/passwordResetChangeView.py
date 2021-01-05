@@ -12,6 +12,7 @@ from main.globals import sendMassEmail
 from django.db.models.functions import Lower
 from django.urls import reverse
 from  django.contrib.auth.hashers import make_password
+from django.contrib.auth import logout
 
 def passwordResetChangeView(request,token):
 
@@ -29,6 +30,7 @@ def passwordResetChangeView(request,token):
         return JsonResponse({"response" :  "error"},safe=False)
 
     else:
+        logout(request)
 
         p = parameters.objects.first()
         labManager = p.labManager 
