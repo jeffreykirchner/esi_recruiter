@@ -144,14 +144,18 @@ class experiment_session_days(models.Model):
         startTime = self.date
         endTime = self.date + timedelta(minutes = self.length)
 
-        esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+        if self.enable_time: 
+            esd = main.models.experiment_session_days.objects.filter(location=self.location)\
                                                          .filter(date__lte=self.date_end)\
                                                          .filter(date_end__gte=self.date)\
+                                                         .exclude(enable_time=False)\
                                                          .exclude(experiment_session__canceled = True)\
                                                          .exclude(id=self.id)
-       
+            return [i.json_min() for i in esd]
+        else:
+            return []
 
-        return [i.json_min() for i in esd]
+        
 
     #get user readable string of session lengths in mintues
     def getLengthString(self):
