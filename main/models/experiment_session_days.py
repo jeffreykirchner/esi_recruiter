@@ -106,7 +106,10 @@ class experiment_session_days(models.Model):
     def getDateString(self):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
-        return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+        if self.enable_time:
+            return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+        else:
+            return  self.date.astimezone(tz).strftime("%#m/%#d/%Y") + " Anytime " + p.subjectTimeZone
     
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
@@ -141,19 +144,40 @@ class experiment_session_days(models.Model):
         startTime = self.date
         endTime = self.date + timedelta(minutes = self.length)
 
-        esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+        if self.enable_time: 
+            esd = main.models.experiment_session_days.objects.filter(location=self.location)\
                                                          .filter(date__lte=self.date_end)\
                                                          .filter(date_end__gte=self.date)\
+                                                         .exclude(enable_time=False)\
                                                          .exclude(experiment_session__canceled = True)\
                                                          .exclude(id=self.id)
-       
+            return [i.json_min() for i in esd]
+        else:
+            return []
 
-        return [i.json_min() for i in esd]
+        
 
     #get user readable string of session lengths in mintues
     def getLengthString(self):
        
         return str(self.length) + " minutes"
+
+    #build an reminder email given the experiment session
+    def getReminderEmail(self):
+        logger = logging.getLogger(__name__)
+   
+        p = parameters.objects.first()
+       
+        message = ""
+
+        message = self.experiment_session.experiment.reminderText
+
+        message = message.replace("[session length]",self.getLengthString())
+        message = message.replace("[session date and time]",self.getDateString())
+        message = message.replace("[on time bonus]","$" + self.experiment_session.experiment.getShowUpFeeString())
+        message = message.replace("[contact email]",p.labManager.email)
+
+        return message
 
     #send a reminder email to all subjects in session day
     def sendReminderEmail(self):
@@ -177,7 +201,7 @@ class experiment_session_days(models.Model):
         logger.info("Send Reminder emails to: session " + str(self.experiment_session) + ", session day " + str(self.id))
         
         subjectText =  p.reminderTextSubject
-        messageText = self.experiment_session.getReminderEmail()
+        messageText = self.getReminderEmail()
 
         users_list = self.experiment_session_day_users_set.filter(confirmed = True).select_related("user")
 
