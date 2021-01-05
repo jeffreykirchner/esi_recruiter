@@ -84,24 +84,6 @@ class experiment_sessions(models.Model):
 
         return message
     
-    #build an reminder email given the experiment session
-    def getReminderEmail(self):
-        logger = logging.getLogger(__name__)
-   
-        p = parameters.objects.first()
-       
-        message = ""
-
-        message = self.experiment.reminderText
-
-        message = message.replace("[confirmation link]",p.siteURL)
-        message = message.replace("[session length]",self.getSessionDayLengthString())
-        message = message.replace("[session date and time]",self.getSessionDayDateString())
-        message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
-        message = message.replace("[contact email]",p.labManager.email)
-
-        return message
-    
     #build a cancelation email for this experiment session
     def getCancelationEmail(self):
         p = parameters.objects.first()
