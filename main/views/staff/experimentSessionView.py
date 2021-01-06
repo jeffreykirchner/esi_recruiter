@@ -610,11 +610,19 @@ def addSessionDay(data,id):
 
         es.save()
 
-        lastSD = es.experiment.getLastSessionDay()
+        #copy settings from most recent session day to new session and advance by one day
+        lastSD = es.getLastSessionDay()
 
         if lastSD:
-            n_dt = lastSD.date + timedelta(days=1)
-            esd.date = n_dt
+            logger.info(f"Add session day copy {lastSD}")
+            esd.copy(lastSD)
+
+            esd.date = lastSD.date + timedelta(days=1)
+            esd.set_end_date()
+
+            if lastSD.reminder_time:
+                esd.reminder_time = lastSD.reminder_time + timedelta(days=1)
+
             esd.save()    
 
     return JsonResponse({"status":"success","session":es.json()}, safe=False)
@@ -656,14 +664,25 @@ def updateSessionDay(data,id):
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
         form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
+    
+    if form_data_dict["custom_reminder_time"] == 'false':
+        form_data_dict["reminder_time"] = form_data_dict["date"]
 
     form = experimentSessionForm2(form_data_dict,instance=esd)   
 
-    if form.is_valid():
+    if form.is_valid():       
         esd.save()
+        esd = experiment_session_days.objects.get(id = data["id"])
+
+        #anytime experiment
         if not esd.enable_time:
             esd.date = esd.date.replace(hour=23,minute=59, second=59)
-        esd.date_end = esd.date + timedelta(minutes = esd.length)
+        esd.set_end_date()
+        
+        #if not custom reminder time, set reminder time 24 hours before start
+        if not esd.custom_reminder_time:
+            esd.reminder_time = esd.date - timedelta(days=1)
+
         esd.save()
         
         es.save()      

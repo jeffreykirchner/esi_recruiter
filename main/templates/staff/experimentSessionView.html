@@ -110,6 +110,10 @@
                                         date_raw:"",
                                         date:"",
                                         date_local:"",
+                                        reminder_time_raw:"",
+                                        reminder_time:"",
+                                        reminder_time_local:"",
+                                        custom_reminder_time:false,
                                         account:0,
                                         id:0,
                                         length:0,
@@ -656,6 +660,7 @@
                         app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
                         app.$data.currentSessionDayIndex=id;
                         app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw,false,true);
+                        app.$data.currentSessionDay.reminder_time_local = app.formatDate(app.$data.currentSessionDay.reminder_time_raw,false,true);
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
                         app.$data.buttonText2="Update";
                         $('#setupModalCenter').modal('show');
@@ -1279,15 +1284,18 @@
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Session Day(s)</caption>
                             <thead>
-                                <th width="35%">
+                                <th width="25%">
                                     Date 
                                     <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button> 
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
-                                <th width="35%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
+                                    Reminders Sent
+                                </th>
+                                <th width="25%" style="text-align: center;">
                                     Confirmed/Invited
                                 </th>                                                      
-                                <th width="30%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
                                     Control
                                 </th>
                             </thead>
@@ -1308,6 +1316,14 @@
                                                <span style="color: red;" v-html="'Overlaping Session: '+ i.name"></span><br>
                                             </a>
                                         </div>                                   
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div v-if="sd.reminder_email_sent">
+                                            <span v-html="'Yes'"></span>
+                                        </div>
+                                        <div v-else>
+                                            <span v-html="'No'"></span>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                

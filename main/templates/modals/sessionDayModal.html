@@ -29,10 +29,10 @@
                         </div>                              
                         <div class="row">
                             <div class = "col"> 
-                                {{form2.length | as_crispy_field }}                            
+                                {{form2.account | as_crispy_field }}                          
                             </div>
                             <div class = "col"> 
-                                {{form2.account | as_crispy_field }}
+                                {{form2.length | as_crispy_field }}  
                             </div>
                         </div>
                         <div class="row">
@@ -42,7 +42,33 @@
                             <div class = "col"> 
                                 {{form2.enable_time | as_crispy_field }}  
                             </div>
-
+                        </div>                        
+                        <div class="row">
+                            <div class = "col"> 
+                                {{form2.custom_reminder_time | as_crispy_field }}  
+                            </div>
+                            <div class = "col"> 
+                               
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class = "col"> 
+                                <div v-if="currentSessionDay.custom_reminder_time === 'true' | currentSessionDay.custom_reminder_time">
+                                    <div id="div_id_reminder_time" class="form-group">
+                                        <label for="id_date" class="requiredField">
+                                            Reminder Date and Time<span class="asteriskField">*</span>
+                                        </label>
+                                        <div>
+                                        <date-picker name="reminder_time" id="id_reminder_time" 
+                                                        v-model="currentSessionDay.reminder_time_local" :config="options"
+                                                        v-on:change="mainFormChange2"></date-picker>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div class = "col"> 
+                                
+                            </div>
                         </div>
                     </form> <!-- recruitment parameters form -->                                            
                 </div>

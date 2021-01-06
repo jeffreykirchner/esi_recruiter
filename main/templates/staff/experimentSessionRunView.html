@@ -63,7 +63,7 @@
                             app.$data.sessionDay= response.data.sessionDay; 
                             app.calcPayoutTotal();      
 
-                            app.$data.dateText = app.formatDate(app.$data.sessionDay.date_raw);      
+                            app.$data.dateText = app.$data.sessionDay.date;      
                             app.$data.dateText += " | " + app.$data.sessionDay.length + " Minutes";
                             app.$data.dateText += " | " + app.$data.sessionDay.location.name;    
                             
@@ -410,6 +410,7 @@
                     window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/bumps/', '_blank');
                 },
 
+                //upload earings file csv
                 uploadEarnings:function(){
 
                     if(app.$data.upload_file == null)
@@ -443,6 +444,7 @@
                             });                        
                         },
 
+                //store the location of the file to be uploaded
                 handleFileUpload:function(){
                     app.$data.upload_file = this.$refs.file.files[0];
                     //$('parameterFileUpload').val("");

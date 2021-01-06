@@ -133,7 +133,7 @@
       <div class="card-body">
 
         <form id="login_form">
-                  
+          {% csrf_token %}        
           <div class="row">
             <div class = "col col-sm-8 offset-sm-2">  
               {{form.username|as_crispy_field}}          

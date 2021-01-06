@@ -1,14 +1,10 @@
 import logging
-from django_cron import CronJobBase, Schedule
 from datetime import datetime,timedelta
 import pytz
 from main.models import experiment_session_days
 
-class checkForReminderEmails(CronJobBase):
-    RUN_EVERY_MINS = 1 
+class checkForReminderEmails():
 
-    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
-    code = 'main.check_for_recruitment_email_reminder'    # a unique code
 
     def do(self):
         logger = logging.getLogger(__name__)
@@ -22,14 +18,35 @@ class checkForReminderEmails(CronJobBase):
                                                           date__gte = t_now_plus_20,
                                                           reminder_email_sent = False,
                                                           experiment_session__canceled = False,
-                                                          auto_reminder = True)      
+                                                          auto_reminder = True,
+                                                          custom_reminder_time = False)      
                                                           
-        logger.info(esd_list) 
-        
+         
+        logger.info(f"Standard reminder: {esd_list}")
+
         if len(esd_list) == 0:
-            logger.info("None Found")
-        else:            
+            logger.info("No standard reminders sent")
+        else:              
             for e in esd_list:
                 e.sendReminderEmail()
+
+        #custom reminder times        
+        t_now = datetime.now(pytz.UTC)
+        t_minus_4 = datetime.now(pytz.UTC) - timedelta(hours=4)
+
+        esd_list2 = experiment_session_days.objects.filter(reminder_time__lte = t_now,
+                                                          reminder_time__gte = t_minus_4,
+                                                          reminder_email_sent = False,
+                                                          experiment_session__canceled = False,
+                                                          auto_reminder = True,
+                                                          custom_reminder_time = True)
+
+        logger.info(f"Custom reminder: {esd_list2}")
+
+        if len(esd_list2) == 0:
+            logger.info("No custom reminders sent")
+        else:              
+            for e in esd_list2:
+                e.sendReminderEmail()
         
-        return list(esd_list)
+        return {"standard": list(esd_list),"custom":list(esd_list2)}

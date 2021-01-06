@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
 
 from main.models import Front_page_notice,parameters
@@ -24,6 +24,7 @@ def loginView(request):
         return JsonResponse({"response" :  "error"},safe=False)
 
     else:
+        logout(request)
 
         request.session['redirect_path'] = request.GET.get('next','/')
 

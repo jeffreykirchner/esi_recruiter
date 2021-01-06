@@ -130,7 +130,7 @@ class cronTests(TestCase):
         self.es1.save()
         esd1 = self.es1.ESD.first()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -160,7 +160,7 @@ class cronTests(TestCase):
         self.es2.save()
         esd2 = self.es2.ESD.first()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -193,6 +193,7 @@ class cronTests(TestCase):
         self.assertEquals("fail",r['status'])
 
         #one user confirmed one not
+        esd1 = self.es1.ESD.first()
         esd1.experiment_session.canceled=False
         esd1.experiment_session.save()
 
@@ -203,6 +204,7 @@ class cronTests(TestCase):
         self.assertEquals(1,len(r['emailList']))
 
         #send to session again
+        esd1 = self.es1.ESD.first()
         r = esd1.sendReminderEmail()
         logger.info(r)
 
@@ -219,56 +221,104 @@ class cronTests(TestCase):
 
         d_now = self.d_now + timedelta(hours=23)
         
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #unsent experiment in 23 hours
         r = cj.do()
         #logger.info(r)
-        self.assertEquals(1,len(r))
+        self.assertEquals(1,len(r["standard"]))
 
         #sent experiment in 23 hours
         r = cj.do()
-        self.assertEquals(0,len(r))
+        self.assertEquals(0,len(r["standard"]))
 
         #unsent, 30 hours
+        esd1 = self.es1.ESD.first()
         esd1.reminder_email_sent=False
         esd1.save()
 
         d_now = self.d_now + timedelta(hours=30)
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r))
+        self.assertEquals(0,len(r["standard"]))
 
         #unsent, 15 hours
+        esd1 = self.es1.ESD.first()
         esd1.reminder_email_sent=False
         esd1.save()
 
         d_now = self.d_now + timedelta(hours=15)
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r))
+        self.assertEquals(0,len(r["standard"]))
 
         #unsent, 23 hours, canceled
+        esd1 = self.es1.ESD.first()
         esd1.reminder_email_sent=False
         esd1.experiment_session.canceled=True
         esd1.experiment_session.save()
         esd1.save()
 
         d_now = self.d_now + timedelta(hours=23)
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r))
+        self.assertEquals(0,len(r["standard"]))
+
+        #custom time, within range
+        esd1 = self.es1.ESD.first()
+        esd1.reminder_email_sent=False
+        esd1.experiment_session.canceled=False
+        esd1.experiment_session.save()
+        esd1.save()
+
+        d_now = self.d_now-timedelta(hours=1)
+        d_now_later = self.d_now + timedelta(hours=22)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_later.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'true'}, {'name': 'reminder_time', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}], 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        esd1 = self.es1.ESD.first()
+        #logger.info(f"Custom cron test: reminder time {esd1.reminder_time} date {esd1.date} custom reminder time {esd1.custom_reminder_time}")
+
+        r = cj.do()
+        self.assertEquals(0,len(r["standard"]))
+        self.assertEquals(1,len(r["custom"]))
+
+        #custom time, outside range
+        esd1 = self.es1.ESD.first()
+        esd1.reminder_email_sent=False
+        esd1.experiment_session.canceled=False
+        esd1.experiment_session.save()
+        esd1.save()
+
+        d_now = self.d_now-timedelta(hours=5)
+        d_now_later = self.d_now + timedelta(hours=22)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_later.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'true'}, {'name': 'reminder_time', 'value': d_now.strftime("%#m/%#d/%Y %I:%M %p ") + ' -0000'}], 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        esd1 = self.es1.ESD.first()
+        #logger.info(f"Custom cron test: reminder time {esd1.reminder_time} date {esd1.date} custom reminder time {esd1.custom_reminder_time}")
+
+        r = cj.do()
+        self.assertEquals(0,len(r["standard"]))
+        self.assertEquals(0,len(r["custom"]))
+
+
+
 
         
 

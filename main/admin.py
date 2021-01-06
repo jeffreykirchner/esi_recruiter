@@ -212,7 +212,6 @@ class ProfileAdmin(admin.ModelAdmin):
       activate_recent_users.short_description = "Activate users who attended in past two years"   
 
       #set selected users up to be test subejects
-
       def setup_test_users(self, request, queryset):
             logger = logging.getLogger(__name__)
             logger.info("setup_test_users")
@@ -238,7 +237,11 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
-                 deactivate_all,activate_all,consent_form_required,activate_recent_users,setup_test_users]
+                 deactivate_all,activate_all,consent_form_required,activate_recent_users]
+
+      if settings.DEBUG:
+            actions.append(setup_test_users)
+
       list_display = ['__str__','studentWorker','blackballed','email_filter']
       list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')     
 

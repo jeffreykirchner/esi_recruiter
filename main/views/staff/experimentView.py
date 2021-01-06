@@ -128,13 +128,18 @@ def addSession(data,id):
     else:
         es = addSessionBlank(e)
 
-        #set default date time 1 day after last session day
+        #set default date time 1 day after last session day, to get it to top of list
         lastSD = es.experiment.getLastSessionDay()
 
         if lastSD:
-            n_dt = lastSD.date + timedelta(days=1)
+
             esd = es.ESD.first()
-            esd.date = n_dt
+            newDate = lastSD.date + timedelta(days=1) + timedelta(hours=2)
+            if esd.date < newDate:
+                esd.date = newDate
+                
+            esd.set_end_date()
+            esd.reminder_time = esd.date - timedelta(days=1)
             esd.save()
 
     return JsonResponse({ "sessions" : e.json_sessions(),"status":status},safe=False)

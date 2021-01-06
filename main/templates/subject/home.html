@@ -21,10 +21,12 @@
                 lastActionFailed:false,
                 consent_required:false,
                 consentFormText:"",
+                waiting:true,
             },
 
             methods:{
                 getCurrentInvitations:function(){
+                   
                     axios.post('/subjectHome/', {
                                     action :"getCurrentInvitations" ,                                                                                                                             
                                 })
@@ -46,6 +48,8 @@
                                                                                                    app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
                                         app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
                                     }
+
+                                    app.$data.waiting=false;
                                 })
                                 .catch(function (error) {
                                     console.log(error);                                    
@@ -69,13 +73,15 @@
                     //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
                     app.$data.upcomingInvitations[index].waiting=true;
+                    app.$data.waiting=true;
 
                     axios.post('/subjectHome/', {
                                     action :"acceptInvitation",
                                     id:id,                                                                                                                             
                                 })
                                 .then(function (response) {     
-                                    app.takeUpcomingInvitations(response);                                                                     
+                                    app.takeUpcomingInvitations(response); 
+                                    app.$data.waiting=false;
                                 })
                                 .catch(function (error) {
                                     console.log(error);                                    
@@ -85,13 +91,15 @@
                 cancelAcceptInvitation:function(id,index){
                     //$( '#cancelAcceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
                     app.$data.upcomingInvitations[index].waiting=true;
+                    app.$data.waiting=true;
 
                     axios.post('/subjectHome/', {
                                     action :"cancelAcceptInvitation",
                                     id:id,                                                                                                                             
                                 })
                                 .then(function (response) {     
-                                    app.takeUpcomingInvitations(response);                                                                  
+                                    app.takeUpcomingInvitations(response);  
+                                    app.$data.waiting=false;                                                                
                                 })
                                 .catch(function (error) {
                                     console.log(error);                                    
@@ -100,6 +108,7 @@
                 
                 showAllInvitations:function(index){
                     app.$data.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+                    app.$data.waiting=true;
 
                     axios.post('/subjectHome/', {
                                     action :"showAllInvitations",                                                                                                                            
@@ -118,6 +127,7 @@
                                     }
                                     
                                     app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
+                                    app.$data.waiting=false;
                                 })
                                 .catch(function (error) {
                                     console.log(error);                                    
@@ -125,7 +135,7 @@
                 },
                 
                 takeUpcomingInvitations:function(response){
-
+                    
                     app.$data.consent_required=response.data.consent_required; 
                     app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
@@ -167,10 +177,10 @@
 
                             if(enable_time)
                             {
-                                rValue += moment(String(value)).local().format('h:mm a'); 
+                                rValue += moment(String(value)).local().format('h:mma'); 
                                 if(value2 != null)
                                 {
-                                    rValue += " to " + moment(String(value2)).local().format('h:mm a'); 
+                                    rValue += "-" + moment(String(value2)).local().format('h:mma'); 
                                 }  
                             }
                             else
@@ -205,7 +215,7 @@
     <div class="col col-lg-6">
         <div class="card">                  
             <div class="card-header">
-                Experiments                                                       
+                Experiments                                                   
             </div>
             <div class="card-body">    
                 <div style="text-align: center;color:red;padding-bottom: 5px;">
@@ -233,9 +243,14 @@
                                 <div v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                                     <span v-html=sd.date></span>
                                     <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
-                                        <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                        <div v-if="sd.enable_time">
+                                            <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                        </div>
+                                        <div v-else>
+                                            <span v-html = "'Ends in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                        </div>                                        
                                     </div>
-                                    <div v-else-if="sd.hours_until_start <= 0 && sd.hours_until_start >= -0.25">
+                                    <div v-else-if="sd.hours_until_start <= 0 && sd.hours_until_start >= -0.25 && sd.enable_time">
                                         <span v-html = "'Starts Now'" style="color:red;"></span>
                                     </div>  
                                 </div>                                                       
@@ -244,7 +259,6 @@
                                 </div>                                    
                             </td>
                             <td  style="text-align: center;">
-                                
 
                                     <div v-if="s.canceled">
                                         <span v-html="'*** Canceled ***'" style="color: red;"></span>
@@ -254,9 +268,14 @@
                                             You are attending.
                                         </div>
                                         <div v-if="s.hours_until_first_start > 24">
-                                            <button v-bind:id="'cancelAcceptInvitation' + s.id" type="button" class="btn btn-primary" v-on:click ="cancelAcceptInvitation(s.id,index)">
-                                                <span v-html="'I no longer wish to attend.'"></span>
-                                            </button>
+                                            <div v-show="waiting===false">
+                                                <button v-bind:id="'cancelAcceptInvitation' + s.id" type="button" class="btn btn-primary" v-on:click ="cancelAcceptInvitation(s.id,index)">
+                                                    <span v-html="'I no longer wish to attend.'"></span>
+                                                </button>
+                                            </div>
+                                            <div v-show="waiting">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </div>
                                         </div>
                                     </div>
                                     <div v-else>
@@ -274,14 +293,17 @@
                                                 <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
                                             </div>
                                             <div v-else>
-                                                <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
-                                                    <span v-html="'I want to attend.'"></span>
-                                                </button>
+                                                <div v-show="waiting===false">
+                                                    <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                        <span v-html="'I want to attend.'"></span>
+                                                    </button>
+                                                </div>
+                                                <div v-show="waiting">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </div>
                                             </div>  
                                         </div>                                       
-                                    </div>
-
-                                                                                               
+                                    </div>                                                                                               
                             </td>
                         </tr>                        
                     </tbody>
