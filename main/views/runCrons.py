@@ -26,9 +26,9 @@ def runCronsView(request):
        cj = checkForReminderEmails()
 
        r = cj.do()
-       logger.info(len(r))
+       logger.info(r)
        
-       status = f'Sent {len(r)}'
+       status = f'Sent {r}'
 
        return JsonResponse({"status" : status
                                  },safe=False,

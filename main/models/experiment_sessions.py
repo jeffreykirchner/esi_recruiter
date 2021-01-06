@@ -1117,12 +1117,22 @@ class experiment_sessions(models.Model):
 
         return d
     
-    #return the first date of the session
+    #return the last date of the session
     def getLastDate(self):
         logger = logging.getLogger(__name__)
         logger.info("Get last session day date, session:" + str(self.id))
 
         d = self.ESD.all().order_by('-date').first().date
+
+        logger.info(d)
+
+        return d
+
+    #return the last session day
+    def getLastSessionDay(self):
+        logger = logging.getLogger(__name__)
+        
+        d = self.ESD.all().order_by('-date').first()
 
         logger.info(d)
 

@@ -36,6 +36,18 @@ class experimentSessionForm2(forms.ModelForm):
                                                                                    "v-on:change":"mainFormChange2",
                                                                                    "v-bind:disabled":"session.confirmedCount > 0"}))
 
+    reminder_time = forms.DateTimeField(label="Reminder Date and Time",
+                               localize=True,
+                               input_formats=['%m/%d/%Y %I:%M %p %z'],
+                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},                                                                                                           
+                               widget = forms.DateTimeInput(attrs={"v-model":"currentSessionDay.reminder_time",                                                                 
+                                                                   "v-on:change":"mainFormChange2"}))
+
+    custom_reminder_time = forms.ChoiceField(label="Set Custom Reminder Time",                                       
+                                       choices=(('true',"Yes"),('false',"No")),                                                   
+                                       widget = forms.RadioSelect(attrs={"v-model":"currentSessionDay.custom_reminder_time",
+                                                                         "v-on:change":"mainFormChange2"}))
+
     class Meta:
         model = experiment_session_days
         exclude=['experiment_session','complete','date_end','reminder_email_sent']
@@ -45,6 +57,19 @@ class experimentSessionForm2(forms.ModelForm):
         logger.info("Clean enable time")
 
         v = self.data['enable_time']
+
+        if v=='true':
+            return True
+        elif v=='false':
+            return False
+        else:
+            raise forms.ValidationError('Invalid Entry')
+    
+    def clean_custom_reminder_time(self):
+        logger = logging.getLogger(__name__)
+        logger.info("Clean custom_reminder_time")
+
+        v = self.data['custom_reminder_time']
 
         if v=='true':
             return True
@@ -73,12 +98,38 @@ class experimentSessionForm2(forms.ModelForm):
         
         date = self.data['date']
 
-        logger.info(date)
+        #logger.info(date)
 
         try:
             date_time_obj = datetime.strptime(date, '%m/%d/%Y %I:%M %p %z')
-            logger.info(date_time_obj)
+            #logger.info(date_time_obj)
         except ValueError:
             raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
+
+        return date_time_obj
+    
+    def clean_reminder_time(self):
+        logger = logging.getLogger(__name__)
+        logger.info("Clean reminder_time")
+        
+        date_reminder = self.data['reminder_time']
+        date = self.data['date']
+
+        #logger.info(date)
+
+        try:
+            date_time_obj = datetime.strptime(date_reminder, '%m/%d/%Y %I:%M %p %z')
+            #logger.info(date_time_obj)
+        except ValueError:
+            raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
+
+        try:
+            date_time_obj2 = datetime.strptime(date, '%m/%d/%Y %I:%M %p %z')
+            #logger.info(date_time_obj)
+        except ValueError:
+            raise forms.ValidationError('Reminder must be sooner than session date.')
+
+        if date_time_obj>date_time_obj2:
+            raise forms.ValidationError('Reminder must be sooner than session date.')
 
         return date_time_obj

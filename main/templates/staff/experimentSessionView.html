@@ -110,6 +110,10 @@
                                         date_raw:"",
                                         date:"",
                                         date_local:"",
+                                        reminder_time_raw:"",
+                                        reminder_time:"",
+                                        reminder_time_local:"",
+                                        custom_reminder_time:false,
                                         account:0,
                                         id:0,
                                         length:0,
@@ -656,6 +660,7 @@
                         app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
                         app.$data.currentSessionDayIndex=id;
                         app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw,false,true);
+                        app.$data.currentSessionDay.reminder_time_local = app.formatDate(app.$data.currentSessionDay.reminder_time_raw,false,true);
                         app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
                         app.$data.buttonText2="Update";
                         $('#setupModalCenter').modal('show');
