@@ -159,7 +159,7 @@ class subjectHomeTestCase(TestCase):
         self.assertFalse(r['failed'])
     
     #subject must have agreed to consent form before accepting
-    def testConfirmAttendenceconsent_required(self):
+    def testConfirmAttendenceConsent_required(self):
         """Test subject consent required acceptence""" 
         logger = logging.getLogger(__name__)
 
