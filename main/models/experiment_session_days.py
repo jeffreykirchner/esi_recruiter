@@ -353,6 +353,7 @@ class experiment_session_days(models.Model):
             "reminder_time":self.getReminderTimeString(),
             "reminder_time_raw":self.reminder_time,
             "custom_reminder_time":self.custom_reminder_time,
+            "reminder_email_sent":self.reminder_email_sent,
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,

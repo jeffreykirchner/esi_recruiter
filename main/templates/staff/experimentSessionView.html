@@ -1284,15 +1284,18 @@
                         <table class="table table-hover table-condensed">
                             <caption style="caption-side:top;text-align: center;">Session Day(s)</caption>
                             <thead>
-                                <th width="35%">
+                                <th width="25%">
                                     Date 
                                     <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button> 
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </th> 
-                                <th width="35%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
+                                    Reminders Sent
+                                </th>
+                                <th width="25%" style="text-align: center;">
                                     Confirmed/Invited
                                 </th>                                                      
-                                <th width="30%" style="text-align: center;">
+                                <th width="25%" style="text-align: center;">
                                     Control
                                 </th>
                             </thead>
@@ -1313,6 +1316,14 @@
                                                <span style="color: red;" v-html="'Overlaping Session: '+ i.name"></span><br>
                                             </a>
                                         </div>                                   
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div v-if="sd.reminder_email_sent">
+                                            <span v-html="'Yes'"></span>
+                                        </div>
+                                        <div v-else>
+                                            <span v-html="'No'"></span>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">                                        
                                         <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                
