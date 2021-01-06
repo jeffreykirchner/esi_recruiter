@@ -28,12 +28,13 @@ class experiment_session_days(models.Model):
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
     auto_reminder = models.BooleanField (default=True)                  #send reminder emails to subject 24 hours before experiment
+    reminder_time = models.DateTimeField(blank=True,null=True,
+                                         default=None)                  #date and time that reminder email should be sent
+    custom_reminder_time = models.BooleanField (default=False)          #set a custom reminder time
     enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
-
-
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -72,11 +73,14 @@ class experiment_session_days(models.Model):
 
     #sets up session day with defualt parameters
     def setup(self,es,u_list):
-        self.experiment_session=es
+        self.experiment_session = es
+
         self.location = locations.objects.first()
-        self.length=es.experiment.length_default
+        self.length = es.experiment.length_default
         self.account = es.experiment.account_default    
         self.date = now()
+        self.set_end_date()
+        self.reminder_time = self.date - timedelta(days=1)
 
         self.save()
 
@@ -87,6 +91,26 @@ class experiment_session_days(models.Model):
             esdu.confirmed = u['confirmed']
             esdu.experiment_session_day = self
             esdu.save()
+    
+    #store end date
+    def set_end_date(self):
+        self.date_end = self.date + timedelta(minutes = self.length)
+        self.save()
+    
+    #copy another session day's settings into this one
+    def copy(self,esd):
+
+        self.location = esd.location
+        self.account = esd.account
+        self.date = esd.date
+        self.length = esd.length
+        self.date_end  = esd.date_end  
+        self.auto_reminder = esd.auto_reminder
+        self.reminder_time = esd.reminder_time
+        self.enable_time = esd.enable_time
+        self.custom_reminder_time = esd.custom_reminder_time
+
+        self.save()
 
     #check if this session day can be deleted
     def allowDelete(self):
@@ -101,6 +125,16 @@ class experiment_session_days(models.Model):
             return False
         else:
             return True  
+
+    #get reminder time string
+    def getReminderTimeString(self):
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+
+        if not self.reminder_time:
+            return "Not Set"
+        else:
+            return  self.reminder_time.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
 
     #get user readable string of session date
     def getDateString(self):
@@ -154,8 +188,6 @@ class experiment_session_days(models.Model):
             return [i.json_min() for i in esd]
         else:
             return []
-
-        
 
     #get user readable string of session lengths in mintues
     def getLengthString(self):
@@ -242,6 +274,9 @@ class experiment_session_days(models.Model):
             "location":self.location.json(),
             "date":self.getDateString(),
             "date_raw":self.date,
+            "reminder_time":self.getReminderTimeString(),
+            "reminder_time_raw":self.reminder_time,
+            "custom_reminder_time":self.custom_reminder_time,
             "length":self.length,
             "experiment_session_days_user" : self.json_runInfoUserList(),            
             "defaultShowUpFee": f'{self.experiment_session.experiment.showUpFee:.2f}',
@@ -315,6 +350,9 @@ class experiment_session_days(models.Model):
             "location":self.location.id,
             "date":self.getDateString(),
             "date_raw":self.date,
+            "reminder_time":self.getReminderTimeString(),
+            "reminder_time_raw":self.reminder_time,
+            "custom_reminder_time":self.custom_reminder_time,
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
