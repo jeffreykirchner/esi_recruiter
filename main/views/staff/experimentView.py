@@ -134,7 +134,7 @@ def addSession(data,id):
         if lastSD:
 
             esd = es.ESD.first()
-            esd.date = lastSD.date + timedelta(days=1)
+            esd.date = lastSD.date + timedelta(days=1) + timedelta(hours=2)
             esd.set_end_date()
             esd.reminder_time = esd.date - timedelta(days=1)
             esd.save()
