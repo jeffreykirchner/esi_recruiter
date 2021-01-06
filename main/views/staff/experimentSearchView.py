@@ -35,7 +35,9 @@ def experimentSearch(request):
         elif data["action"] == "createExperiment":
             return createExperiment(data)   
         elif data["action"] == "deleteExperiment":
-            return deleteExperiment(data)     
+            return deleteExperiment(data) 
+        elif data["action"] == "getRecentExperiments":
+            return getRecentExperiments(data)
            
         return JsonResponse({"status" :  "error"},safe=False)       
     else:
@@ -154,6 +156,19 @@ def getOpenExperiments(data):
     e_list_json = [e.json_search() for e in e_list]
 
     return JsonResponse({"experiments" : e_list_json},safe=False)
+
+#get list of most recently updated experiments
+def getRecentExperiments(data):
+    logger = logging.getLogger(__name__)
+    logger.info("Get Recent Experiments")
+    logger.info(data)
+
+    e_list = experiments.objects.order_by('-updated')[:10]
+
+    e_list_json = [e.json_search() for e in e_list]
+
+    return JsonResponse({"experiments_recent" : e_list_json},safe=False)
+
 
 #search for users that back search criterion
 def lookup(value):
