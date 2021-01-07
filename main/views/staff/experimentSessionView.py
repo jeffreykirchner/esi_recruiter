@@ -329,6 +329,7 @@ def changeConfirmationStatus(data,id,ignoreConstraints):
     userID = int(data["userId"])
     newStatus = data["confirmed"]
     esduId = data["esduId"]
+    actionAll = data["actionAll"]
 
     esdu = experiment_session_day_users.objects.get(id = esduId)                                  
     
@@ -352,6 +353,12 @@ def changeConfirmationStatus(data,id,ignoreConstraints):
             esdu.confirmed = False
     
     esdu.save()
+
+    #update status of all days to match
+    if actionAll:
+        experiment_session_day_users.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
+                                            .filter(user = esdu.user)\
+                                            .update(confirmed = esdu.confirmed)
 
     es = experiment_sessions.objects.get(id=id)
     return JsonResponse({"status":"success" if not failed else "fail","es_min":es.json_esd(True)}, safe=False)
