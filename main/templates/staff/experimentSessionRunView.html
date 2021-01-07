@@ -36,6 +36,7 @@
                 printPayoutsButtonText : 'Print Attendees <i class="fas fa-print"></i>',
                 printBumpsButtonText : 'Print Bumps <i class="fas fa-print"></i>',
                 paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
+                roundUpButtonText : 'Round Earnings <i class="fas fa-circle-notch"></i>',
                 fillEarningsWithFixedButtonText : 'Fill',
                 updatePayoutsRequired : false,             //need to send payouts update
                 updatingPayoutsInProgress : false,         //currently sending a payouts update
@@ -289,7 +290,7 @@
                         });
                 },
 
-                 //fill subjects with default show up fee from experiments model
+                //fill subjects with default show up fee from experiments model
                 fillEarningsWithFixed:function(){
 
                     if(app.$data.fillEarningsWithValue=="") return;
@@ -461,6 +462,22 @@
                 hideUploadEarnings:function(){
                 },
                 
+                //fill subjects with default show up fee from experiments model
+                roundEarningsUp:function(){
+
+                    app.$data.roundUpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"roundEarningsUp",                                                                                                                           
+                        })
+                        .then(function (response) {     
+                            app.$data.sessionDay = response.data.sessionDay;    
+                            app.$data.roundUpButtonText = 'Round Earnings <i class="fas fa-circle-notch"></i>';                         
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });
+                },
 
                 //format date to human readable
                 formatDate: function(value){
@@ -703,12 +720,16 @@
                                         </button>                                        
                                     </td>
                                     <td style="text-align: center;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
+                                                title="Round earnings up to nearest 25 cents."  >
+                                            <span v-html='roundUpButtonText'></span> 
+                                        </button>                                       
+                                    </td>
+                                    <td style="text-align: center;">   
                                         <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
                                                 title="Export a PayPal mass payment file."  >
                                             <span v-html='paypalExportButtonText'></span> 
-                                        </button>                                        
-                                    </td>
-                                    <td>                                        
+                                        </button>                                     
                                     </td>
                                 </tr>                               
                                 
