@@ -44,8 +44,8 @@
                                                                                                    app.$data.pastAcceptedInvitations[i].enable_time,
                                                                                                    null);
 
-                                        app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings + 
-                                                                                                   app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
+                                        app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
+                                        app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
                                         app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
                                     }
 
@@ -336,11 +336,11 @@
                             </td>
                             <td  style="text-align: center;">     
                                 <div v-if="s.bumped">
-                                    <div v-html="'$'+s.show_up_fee"></div>
+                                    <div v-html="'$'+s.total_earnings"></div>
                                     <div v-html="'(Bumped)'"></div>
                                 </div>
                                 <div v-else>
-                                    <span v-html="'$' + s.earnings"></span>
+                                    <span v-html="'$' + s.total_earnings"></span>
                                 </div>                             
                             </td>
                         </tr>                        
