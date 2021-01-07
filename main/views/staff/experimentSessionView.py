@@ -32,6 +32,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
 from main.globals import sendMassEmail
 from datetime import timedelta
+import pytz
 
 #induvidual experiment view
 @login_required
@@ -683,9 +684,15 @@ def updateSessionDay(data,id):
 
         #anytime experiment
         if not esd.enable_time:
-            esd.date = esd.date.replace(hour=23,minute=59, second=59)
+            #change time to last second of the day
+            p = parameters.objects.first()
+            tz = pytz.timezone(p.subjectTimeZone)
+            temp_d = esd.date.astimezone(tz)
+            esd.date = temp_d.replace(hour=23,minute=59, second=59)
+            esd.save()
+            logger.info(f"updateSessionDay anytime experiment {esd.date}")
         esd.set_end_date()
-        
+                
         #if not custom reminder time, set reminder time 24 hours before start
         if not esd.custom_reminder_time:
             esd.reminder_time = esd.date - timedelta(days=1)
