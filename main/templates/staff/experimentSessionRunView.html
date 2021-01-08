@@ -20,7 +20,8 @@
                     requiredCount:"",
                     experiment_session_days_user:[],    
                     defaultShowUpFee : "",      
-                    complete:true,                           
+                    complete:true,                
+                    canceled:false,           
                 },
                 bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
                 noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -609,6 +610,7 @@
                                     <td class="align-middle" style="text-align: center;">                                       
                                         <div v-if="esdu.attended">Attended</div>
                                         <div v-else-if="esdu.bumped">Bumped</div>
+                                        <div v-else-if="sessionDay.canceled">Canceled</div>
                                         <div v-else>No Show</div>                                                                           
                                     </td>
                                     <td class="align-middle" style="text-align: center;">
