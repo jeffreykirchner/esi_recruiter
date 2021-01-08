@@ -132,28 +132,45 @@ def profileCreateSendEmail(request,u):
     logger.info("Verify Email: ")
     logger.info(u.profile)
 
-    params = parameters.objects.get(id=1)
+    p = parameters.objects.get(id=1)
 
     u.profile.email_confirmed = get_random_string(length=32)   
     u.profile.save()
 
-    link = params.siteURL       
+    subject = p.emailVerificationTextSubject
+
+    link = p.siteURL      
     link += "/profileVerify/" + u.profile.email_confirmed +"/"
 
-    msg_html = render_to_string('profileVerifyEmail.html', {'link': link,'first_name':u.first_name})
-    msg_plain = strip_tags(msg_html)
+    message = p.emailVerificationResetText
+    message = message.replace("[activation link]",link)
+    message = message.replace("[contact email]",p.labManager.email)
 
-    email_address=""
+    new_message = u.first_name + ",\n\n" + message
+
+    message_list = []
+    message_list.append(())
+
+    from_email = settings.EMAIL_HOST_USER 
+
+    if settings.DEBUG:
+        s = getTestSubjectEmail()
+        message_list[0] += ((subject, new_message,from_email,[s]),)   #use for test emails
+    else:
+        message_list[0] += ((subject, new_message,from_email,[p.user.email]),)
+
+
     if settings.DEBUG:
         email_address = getTestSubjectEmail()
     else:
         email_address = u.email
 
-    send_mail(
-        'Confirm your email',
-        msg_plain,
-        settings.DEFAULT_FROM_EMAIL,
-        [email_address],
-        html_message=msg_html,
-        fail_silently=False,
-    )
+    errorMessage = ""
+    mailCount=0
+    try:
+        mailCount = send_mass_mail(message_list[0], fail_silently=False)             
+    except SMTPException as e:
+        logger.info('There was an error sending email: ' + str(e)) 
+        errorMessage = str(e)
+
+    return {"mailCount":mailCount,"errorMessage":errorMessage}

@@ -32,6 +32,9 @@ class parameters(models.Model):
     passwordResetTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text when password reset
     passwordResetText = models.CharField(max_length = 10000,default = "")                   #email text sent when password reset
 
+    emailVerificationTextSubject = models.CharField(max_length = 1000,default = "")         #email subject sent to user to verify their email address
+    emailVerificationResetText = models.CharField(max_length = 10000,default = "")          #email text sent to user to verify their email address
+    
     consentForm = models.CharField(max_length = 50000, default ="")                        #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)
