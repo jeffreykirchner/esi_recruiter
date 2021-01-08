@@ -15,6 +15,7 @@
             data:{
                 searchInfo:"",
                 experiments:[],
+                experiments_recent:[],
                 searchCount:0,
                 searchButtonText:'Search <i class="fas fa-search"></i>',
                 warningText:"",
@@ -163,6 +164,23 @@
                                 });                        
                             },
                 
+                //get recent experiments
+                getRecentExperiments:function(){
+                    
+                    axios.post('/experimentSearch/', {
+                                    action :"getRecentExperiments" ,                                                                                                                             
+                                })
+                                .then(function (response) {     
+                                    
+                                    app.$data.experiments_recent = response.data.experiments_recent;
+                                   
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    app.$data.searching=false;
+                                });                        
+                            },
+                
                 //update the experiment list from server
                 updateExperiments:function(response){
                     app.$data.experiments = response.data.experiments;       
@@ -210,7 +228,7 @@
             },
 
             mounted: function(){
-                                      
+                this.getRecentExperiments();                  
             },
         });
 
@@ -226,11 +244,12 @@
 {%endblock head%}
 
 {%block content%}
+<!-- experient search -->
 <div class="row justify-content-lg-center">
     <div class="col col-lg-8">
         <div class="card">                  
             <div class="card-header">
-                <span class="align-middle">Experiments</span>               
+                <span class="align-middle">Search Experiments</span>               
                 
                 <span class="float-right">
                     <button class="btn btn-outline-success" type="button" v-on:click = "createExperiment()">
@@ -239,6 +258,7 @@
                 </span>
                                                                 
             </div>
+            
             <div class="card-body">               
                 <div class="row">
                     <div class="col col-lg-3">
@@ -319,8 +339,66 @@
                     
                 </table>                 
                 
-            </div>                    
+            </div>   
         </div>                
     </div>
-</div>    
+</div>  
+
+<!-- recent experiments -->
+<div class="row justify-content-lg-center mt-4">
+    <div class="col col-lg-8">
+        <div class="card">                  
+            <div class="card-header">
+                <span class="align-middle">Recent Experiments</span>                                                                               
+            </div>
+            
+            <div class="card-body">               
+                                        
+                <!-- search results table -->
+                <table class="table table-hover table-condensed">                            
+
+                    <caption style="caption-side:top;text-align: center;">Experiments</caption>
+
+                    <thead>
+                        <th width="30%">
+                            <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
+                                <span v-html="titleSortButtonText" class="table_header"></span>
+                            </button>
+                        </th> 
+                        <th width="20%" style="text-align: center;">
+                            Date                            
+                        </th>
+                        <th width="35%" style="text-align: center;">
+                            Manager
+                        </th>                                                      
+                        <th width="15%" style="text-align: center;">
+                            Control
+                        </th>
+                    </thead>
+
+                    <tbody id="experimentListRecent">                                                  
+                        <tr v-for="(e,index) in experiments_recent" v-bind:key="e.id">                                                                          
+                            <td> 
+                                <a :href="'/experiment/' + e.id + '/' "><span v-html="e.title"></span></a>                                        
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-html="e.date"></span>                                   
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <span v-html="e.experiment_manager"></span>                                       
+                            </td>                               
+                            <td style="text-align: center;">
+                                <button v-bind:id="'deleteExperiment' + e.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteExperiment(e.id)" v-bind:disabled="e.allowDelete === false">
+                                    Delete <i class="fas fa-user-minus fa-xs"></i>  
+                                </button>
+                            </td>                            
+                        </tr>                                                    
+                    </tbody>
+                    
+                </table>                 
+                
+            </div>   
+        </div>                
+    </div>
+</div>   
 {%endblock content%}

@@ -1,0 +1,104 @@
+{% load crispy_forms_tags %}
+<!-- view subjects modal -->
+<div class="modal" id="subjectsModalCenter" tabindex="-1" role="dialog" aria-labelledby="subjectsParameters" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Subjects</h5>
+
+                {%if user.is_superuser%}
+                <span style="float: right;">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="currentSessionDayActionAllCheck" v-model = "currentSessionDayActionAll">
+                        <label class="form-check-label" for="currentSessionDayActionAllCheck">Confirm/Un-confirm all days</label>
+                    </div>
+                </span>
+                {%endif%}
+                
+            </div>
+            <div class="modal-body">  
+                <!-- confirmed   -->
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Confirmed ([[currentSessionDay.confirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name 
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user" v-bind:key="esdu.id">                                
+                                    <td>
+                                        <span v-html="index+1"></span>) 
+                                        <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                            <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                        </a>                                    
+                                    </td>                                                                   
+                                    <td style="text-align: center;">   
+                                        {%if user.is_superuser%}                                     
+                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
+                                                Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                            </button>
+                                            
+                                            <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'unconfirm')" v-bind:disabled="esdu.allowConfirm === false">
+                                                Un-Confirm <i class="fas fa-arrow-down fa-xs"></i> 
+                                            </button>                                        
+                                        {%endif%}
+                                    </td>                   
+                                </tr>
+                            </tbody>                                                                      
+                            
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <!-- un confirmed -->
+                <div class="row">
+                    <div class = "col">
+                        <table class="table table-hover table-condensed">
+                            <caption style="caption-side: top;" class="caption text-center">Un-Confirmed ([[currentSessionDay.unConfirmedCount]])</caption>
+                            <thead>
+                                <th width="50%">
+                                    Name   
+                                    <button id="showUnconfirmed" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showUnconfirmedSubjects()">
+                                        <span v-html="showUnconfirmedButtonText"></span>
+                                    </button>                                 
+                                </th>                                                                                   
+                                <th width="50%" style="text-align: center;">
+                                    Control
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(esdu,index) in currentSessionDay.experiment_session_days_user_unconfirmed" v-bind:key="esdu.id">
+                                    <td>                                        
+                                        <span v-html="index+1"></span>)
+                                        <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                            <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                        </a>                                                                           
+                                    </td>                               
+                                    <td style="text-align: center;">
+                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                            Remove <i class="fas fa-user-minus fa-xs"></i>  
+                                        </button>
+                                        {%if user.is_superuser%}
+                                        <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')"v-bind:disabled="esdu.valid == 0">
+                                            Confirm <i class="fas fa-arrow-up fa-xs"></i> 
+                                        </button>
+                                        {%endif%}
+                                        <div v-if="esdu.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>                   
+                    
+            </div>
+            
+        </div>
+    </div>
+</div>

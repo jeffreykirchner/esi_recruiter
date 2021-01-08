@@ -481,6 +481,7 @@
                             </td>
                             <td  style="text-align: center;">  
                                 <div v-if="s.noShow" style="color: red;">No Show</div>   
+                                <div v-else-if="s.canceled">Canceled</div>
                                 <div v-else-if="s.bumped">Bumped</div>
                                 <div v-else-if="s.attended">Attended</div>
                                 <div v-else-if="s.confirmed">Confirmed</div>                                                               

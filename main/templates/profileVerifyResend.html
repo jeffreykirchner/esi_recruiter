@@ -17,20 +17,21 @@
                     status:"update",  
                     adminEmail : "",
                     admainName : "",
+                    buttonText : 'Send Email Verification <i class="fas fa-envelope"></i>',
                 },
 
                 methods:{
                     //get list of users based on search
                     sendVerificationEmail: function(){
-                        // if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
-
-                        // app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                        
+                        app.$data.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                         axios.post('/profileVerifyResend/', {                            
                             action:"sendVerificationEmail",                             
                         })
                         .then(function (response) {                         
                           app.$data.status = response.data.status;
+                          app.$data.buttonText ='Send Email Verification <i class="fas fa-envelope"></i>';
                         })
                         .catch(function (error) {
                             console.log(error);                               
@@ -60,18 +61,24 @@
             });
         });
     </script>
+
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+    </style>
 {%endblock head%}
 
 {% block content %}
 
 <div class="row justify-content-md-center">
   <div class="col col-lg-4">
-    <div class="card">
+    <div class="card" v-cloak >
       <div class="card-header">
-        Resend Verification Email
+        <h5>Resend Verification Email</h5>
       </div>
 
-      <div class="card-body">
+      <div class="card-body" >
 
         <div v-if="status === 'update'"> 
             <div class="row" v-if="emailVerified === false">
@@ -82,7 +89,9 @@
             </div>                         
             <div class="row mt-2">
               <div class="col col-md-8 offset-md-2" style="text-align: center;">
-                  <button type="submit" class="btn btn-outline-primary" v-on:click="sendVerificationEmail()"><i class="fas fa-envelope"></i> Send Email Verification</button>
+                  <button type="submit" class="btn btn-outline-primary" v-on:click="sendVerificationEmail()">
+                    <span v-html="buttonText"></span>
+                  </button>
               </div>
             </div> 
         </div>  

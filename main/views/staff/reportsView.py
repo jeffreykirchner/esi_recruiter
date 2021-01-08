@@ -45,7 +45,7 @@ def reportsView(request):
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
                                                     "helpText":helpText})      
 
-#generate the petty cash csv report
+#generate the student csv report
 def studentReport(data):
     logger = logging.getLogger(__name__)
     logger.info("Get Student Report CSV")
@@ -258,7 +258,7 @@ def pettyCash(data):
          
         #column header
         columnSums = [0]       
-        columnHeader1 = ['Title','Date','Amount']
+        columnHeader1 = ['Title','Date','Time','Amount']
         for a in ESD_accounts.all():
             columnHeader1.append(a.number)
             columnSums.append(0)
@@ -271,6 +271,7 @@ def pettyCash(data):
 
             temp.append(d.experiment_session.experiment.title)
             temp.append(d.date.astimezone(tz).strftime("%-m/%#d/%Y"))
+            temp.append(d.date.astimezone(tz).strftime("%#I:%M %p"))
             temp.append(totalPayout)
 
             columnSums[0] +=  d.totalEarnings + d.totalBumps

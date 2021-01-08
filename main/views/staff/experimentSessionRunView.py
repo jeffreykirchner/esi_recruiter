@@ -9,6 +9,7 @@ from decimal import *
 from django.db.models import Q,F,CharField,Value
 import random
 import csv
+import math
 from django.http import HttpResponse
 from datetime import datetime, timedelta,timezone
 from django.core.exceptions import ObjectDoesNotExist
@@ -62,6 +63,8 @@ def experimentSessionRunView(request,id=None):
             return fillEarningsWithFixed(data,id)
         elif data["action"]=="stripeReaderCheckin":
             return getStripeReaderCheckin(data,id,request.user)
+        elif data["action"]=="roundEarningsUp":
+            return roundEarningsUp(data,id)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:
@@ -788,3 +791,20 @@ def takeEarningsUpload(f,id,request):
     return JsonResponse({"sessionDay" : esd.json_runInfo(),
                          "message":message,
                                 },safe=False)
+
+#round earnings up to nearest 25 cents
+def roundEarningsUp(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Round Earnings Up")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+
+    for i in esd.experiment_session_day_users_set.filter(attended=True):
+        i.earnings = math.ceil(i.earnings*4)/4
+        i.save()
+
+    json_info = esd.json_runInfo()
+    return JsonResponse({"sessionDay" : json_info}, safe=False)
+
+

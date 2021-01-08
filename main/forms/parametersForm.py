@@ -57,6 +57,12 @@ class parametersForm(forms.ModelForm):
 
     passwordResetText = forms.CharField(label='Password Reset Email Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+
+    emailVerificationTextSubject = forms.CharField(label='Account Creation Verification Subject',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
+
+    emailVerificationResetText = forms.CharField(label='Account Creation Verification Text',
+                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
                                      widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))

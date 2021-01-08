@@ -92,6 +92,7 @@ class experiment_session_day_users(models.Model):
             "bumped":self.bumped,
             "earnings": self.earnings,
             "show_up_fee":self.show_up_fee,
+            "total_earnings":self.earnings+self.show_up_fee,
             "confirmed":self.confirmed,
             "multiDay":self.getMultiDay(),
             "alreadyAttending":self.getAlreadyAttended(),            
