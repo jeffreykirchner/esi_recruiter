@@ -15,11 +15,7 @@ class parameters(models.Model):
     noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured
 
     invitationTextSubject = models.CharField(max_length = 1000,default = "")               #email subject text for the single day invitation
-    invitationText = models.CharField(max_length = 10000,default = "")                     #email text for the single day invitation
-    
-    invitationTextMultiDaySubject = models.CharField(max_length = 1000,default = "")       #email subject text for a multiday experiment
-    invitationTextMultiDay = models.CharField(max_length = 10000,default = "")             #email text for a multiday experiment
-    
+        
     cancelationTextSubject = models.CharField(max_length = 1000,default = "")              #email subject text when an experiment is canceled
     cancelationText = models.CharField(max_length = 10000,default = "")                    #email text when an experiment is canceled
     
@@ -52,8 +48,6 @@ class parameters(models.Model):
             "labManager":self.labManager.last_name + ", " + self.labManager.first_name,
             "subjectTimeZone":self.subjectTimeZone,
             "defaultShowUpFee":str(self.defaultShowUpFee),
-            "invitationText":self.invitationText,
-            "invitationTextMultiDay":self.invitationTextMultiDay,
             "reminderText":self.reminderText,
             "consentForm":self.consentForm,
             "noShowCutoff":str(self.noShowCutoff),

@@ -22,46 +22,37 @@ class parametersForm(forms.ModelForm):
     siteURL = forms.CharField(label='Site URL',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    invitationTextSubject = forms.CharField(label='Default Recruitment Email Subject, Single Day',
+    invitationTextSubject = forms.CharField(label='Recruitment Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    invitationText = forms.CharField(label='Default Recruitment Email Text, Single Day',
+    cancelationTextSubject = forms.CharField(label='Cancelation Email, Subject',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
+
+    cancelationText = forms.CharField(label='Cancelation Email, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
 
-    invitationTextMultiDaySubject = forms.CharField(label='Default Recruitment Email Subject, Multiple Days',
+    reminderTextSubject = forms.CharField(label='Reminder Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    invitationTextMultiDay = forms.CharField(label='Default Recruitment Email Text, Multiple Days',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
-
-    cancelationTextSubject = forms.CharField(label='Cancelation Email Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
-
-    cancelationText = forms.CharField(label='Cancelation Email Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
-
-    reminderTextSubject = forms.CharField(label='Reminder Email Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
-
-    reminderText = forms.CharField(label='Reminder Email Text',
+    reminderText = forms.CharField(label='Reminder Email, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
-    deactivationTextSubject = forms.CharField(label='Deactivation Email Subject',
+    deactivationTextSubject = forms.CharField(label='Deactivation Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    deactivationText = forms.CharField(label='Deactivation Email Text',
+    deactivationText = forms.CharField(label='Deactivation Email, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
 
-    passwordResetTextSubject = forms.CharField(label='Password Reset Email Subject',
+    passwordResetTextSubject = forms.CharField(label='Password Reset Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    passwordResetText = forms.CharField(label='Password Reset Email Text',
+    passwordResetText = forms.CharField(label='Password Reset Email, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
 
-    emailVerificationTextSubject = forms.CharField(label='Account Creation Verification Subject',
+    emailVerificationTextSubject = forms.CharField(label='Account Creation Verification, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
-    emailVerificationResetText = forms.CharField(label='Account Creation Verification Text',
+    emailVerificationResetText = forms.CharField(label='Account Creation Verification, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
     
     consentForm = forms.CharField(label='Consent Form',
