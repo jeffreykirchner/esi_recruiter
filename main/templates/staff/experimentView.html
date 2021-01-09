@@ -53,8 +53,7 @@
                         min_value:0,
                         max_vaue:0,
                     },                    
-                    sessions:{},  
-                    parameters:{},                          
+                    sessions:{},                       
                     institutions_list:"",
                     include_institutions_list:"",
                     exclude_institutions_list:"",
@@ -71,6 +70,7 @@
                     addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
                     updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
                     fillInvitationFromTemplateButtonText : 'Fill <i class="fa fa-arrow-up" aria-hidden="true"></i>',
+                    fillDefaultReminderButtonText:'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>',
                     errorsText:"",
                     cancelModal:true,    
                     recruitmentTitle:"Recruitment Parameters (default)",
@@ -494,7 +494,18 @@
 
                     //fill parameters with default reminder
                     fillWithDefaultReminder:function(){
-                        app.$data.experiment.reminderText = app.$data.parameters.reminderText;
+                        app.$data.fillDefaultReminderButtonText='<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experiment/{{id}}/', {
+                                status : "fillDefaultReminderText",                                                                                                                                                           
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.experiment.reminderText = response.data.text;  
+                                app.$data.fillDefaultReminderButtonText = 'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>';       
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     },
 
                     //fill invitation text from template

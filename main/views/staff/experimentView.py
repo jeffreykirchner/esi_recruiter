@@ -60,6 +60,8 @@ def experimentView(request,id):
             return updateRequireAllTraitContraints(data,id)
         elif data["status"] == "fillInvitationTextFromTemplate":
             return fillInvitationTextFromTemplate(data,id)
+        elif  data["status"] == "fillDefaultReminderText":
+            return fillDefaultReminderText(data,id)
             
 
     else: #GET       
@@ -98,7 +100,7 @@ def getExperiment(data,id):
     return JsonResponse({"experiment" :  e.json(),
                             "sessions" : e.json_sessions(),
                             "recruitment_params":e.recruitment_params_default.json(),
-                            "parameters" : p.json()}, safe=False)
+                           }, safe=False)
 
 #delete session from experiment
 def removeSession(data,id):
@@ -358,6 +360,18 @@ def fillInvitationTextFromTemplate(data,id):
 
     if t.count() > 0:
         text = t.first().body_text
+    
+    return JsonResponse({"text":text}, safe=False)
+
+#fill default reminder text
+def fillDefaultReminderText(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Fill default reminder text")
+    logger.info(data)
+
+    p = parameters.objects.first()
+
+    text = p.reminderText
     
     return JsonResponse({"text":text}, safe=False)
     

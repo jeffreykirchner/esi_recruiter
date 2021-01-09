@@ -67,7 +67,7 @@
                         <div class = "col" >
                              {{form1.reminderText | as_crispy_field }}
                              <button type="button" class="btn btn-outline-primary" v-on:click = "fillWithDefaultReminder()">
-                                Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                                <span v-html="fillDefaultReminderButtonText"></span>
                              </button>
                         </div>
                     </div>                                                                  
