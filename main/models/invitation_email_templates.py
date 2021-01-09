@@ -10,7 +10,7 @@ import pytz
 #a user trait
 class Invitation_email_templates(models.Model):
     name = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")           #template name
-    subject_text = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")   #email subject
+    # subject_text = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")   #email subject
     body_text = models.CharField(verbose_name="Body Text", max_length = 10000,default = "")        #email text
 
     enabled = models.BooleanField(default=True)
@@ -19,7 +19,7 @@ class Invitation_email_templates(models.Model):
     updated= models.DateTimeField(auto_now = True)
 
     def __str__(self):
-        return f'{self.subject_text}'
+        return f'{self.name}'
 
     class Meta:
         

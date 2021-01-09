@@ -10,8 +10,8 @@ class InvitationEmailTemplateForm(forms.ModelForm):
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
 
-    subject_text = forms.CharField(label='Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+    # subject_text = forms.CharField(label='Subject',
+    #                                      widget=forms.TextInput(attrs={"size":"125"}))
 
     body_text = forms.CharField(label='Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))

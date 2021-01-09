@@ -58,7 +58,7 @@ class invitationEmailTemplateAdmin(admin.ModelAdmin):
       ordering = [Lower('name')]
 
       actions = []
-      list_display = ['name','subject_text','enabled']
+      list_display = ['name','enabled']
 
 admin.site.register(Invitation_email_templates,invitationEmailTemplateAdmin)
 
