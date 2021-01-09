@@ -16,3 +16,4 @@ from .traitConstraintForm import *
 from .traitReportForm import * 
 from .frontPageNoticeForm import *
 from .registration import *
+from .invitationEmailTemplateForm import * 

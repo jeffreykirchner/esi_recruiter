@@ -26,6 +26,7 @@ from .traits import *
 from .profile_trait import *
 from .recruitment_parameters_trait_constraint import *
 from .front_page_notice import *
+from .invitation_email_templates import *
 
 #should be last
 from .db_migrations import *   
