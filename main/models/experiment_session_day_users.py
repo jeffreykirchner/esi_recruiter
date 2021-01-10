@@ -127,6 +127,22 @@ class experiment_session_day_users(models.Model):
         s.append("Session Day ID: " + str(self.experiment_session_day.id))
 
         return s
+    
+   #return a list of values for a earnings csv file
+    def csv_earnings(self):
+
+        s=[]
+
+        s.append(self.user.last_name)
+        s.append(self.user.first_name)
+        s.append(self.user.email)
+        s.append(self.user.profile.studentID)
+        s.append(self.earnings)
+        s.append(self.show_up_fee)
+
+        s.append(str(self.experiment_session_day.id))
+
+        return s
 
     def json_runInfo(self):
 
