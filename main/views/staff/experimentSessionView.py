@@ -463,11 +463,9 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
         es.save()
 
         if sendInvitation:
-            if es.ESD.count() == 1:
-                subjectText = p.invitationTextSubject
-            else:
-                subjectText = p.invitationTextMultiDaySubject
-
+            
+            subjectText = p.invitationTextSubject
+            
             messageText = es.getInvitationEmail()
 
             mailResult = sendMassEmail([u], subjectText, messageText)
