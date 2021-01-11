@@ -292,10 +292,10 @@
                 </div>
                 <div class = "row">
                     <div class = "col"> 
-                        <span class="float-right">YTD Earnings</span>                     
+                        <span class="float-right">Paused:</span>                        
                     </div>
                     <div class = "col"> 
-                        {{u.profile.get_ytd_payouts}}
+                        <span class="float-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
                     </div> 
                     <div class = "col"> 
                         <span class="float-right">Consent Required:</span>                             
@@ -306,10 +306,10 @@
                 </div>
                 <div class = "row">
                     <div class = "col"> 
-                                           
+                        <span class="float-right">YTD Earnings</span>                    
                     </div>
                     <div class = "col"> 
-                        
+                        {{u.profile.get_ytd_payouts}}
                     </div> 
                     <div class = "col"> 
                         <span class="float-right">In Institutions:</span>                             
@@ -510,7 +510,7 @@
                             Value
                         </th>                                                      
                         <th width="35%" style="text-align: center;">
-                            Date
+                            Date of Upload
                         </th>
                     </thead>
                     <tbody>                        

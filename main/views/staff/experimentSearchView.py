@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
 from main.models import experiments,experiment_session_days,schools,accounts,\
-                        recruitment_parameters,parameters,genders,subject_types,help_docs
+                        recruitment_parameters,parameters,genders,subject_types,help_docs,\
+                        Invitation_email_templates    
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Lower
 from django.db.models import Q,F, Value,CharField
@@ -73,12 +74,18 @@ def createExperimentBlank():
     st_list = list(subject_types.objects.filter(initialValue = True))
     schools_list = list(schools.objects.filter(initialValue = True))
 
+    #get invitation text from first template
+    t = Invitation_email_templates.objects.filter(enabled=True)
+    invitationText=""
+    if t.count()>0:
+        invitationText = t.first().body_text
+
     e = experiments()
     e.school = schools.objects.first()
     e.account_default = accounts.objects.first()
     e.recruitment_params_default = rp
     e.showUpFee = p.defaultShowUpFee
-    e.invitationText = p.invitationText
+    e.invitationText = invitationText
     e.reminderText = p.reminderText
 
     rp.save()

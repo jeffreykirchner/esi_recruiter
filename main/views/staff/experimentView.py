@@ -16,8 +16,9 @@ from main.models import experiments, \
                         parameters,\
                         help_docs, \
                         Recruitment_parameters_trait_constraint,\
-                        Traits
-from main.forms import experimentForm1,recruitmentParametersForm,TraitConstraintForm
+                        Traits,\
+                        Invitation_email_templates
+from main.forms import experimentForm1,recruitmentParametersForm,TraitConstraintForm,invitationEmailTemplateSelectForm
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
@@ -46,17 +47,22 @@ def experimentView(request,id):
         elif data["status"] == "updateRecruitmentParameters":   
             return updateRecruitmentParameters(data,id)
         elif data["status"] == "add":
-           return addSession(data,id)
+            return addSession(data,id)
         elif data["status"] == "remove":
-           return removeSession(data,id)
+            return removeSession(data,id)
         elif data["status"] == "addTrait":
-           return addTrait(data,id)
+            return addTrait(data,id)
         elif data["status"] == "deleteTrait":
-           return deleteTrait(data,id)
+            return deleteTrait(data,id)
         elif data["status"] == "updateTrait":
-           return updateTrait(data,id)
+            return updateTrait(data,id)
         elif data["status"] == "updateRequireAllTraitContraints":
-           return updateRequireAllTraitContraints(data,id)
+            return updateRequireAllTraitContraints(data,id)
+        elif data["status"] == "fillInvitationTextFromTemplate":
+            return fillInvitationTextFromTemplate(data,id)
+        elif  data["status"] == "fillDefaultReminderText":
+            return fillDefaultReminderText(data,id)
+            
 
     else: #GET       
 
@@ -72,7 +78,9 @@ def experimentView(request,id):
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
                       'traitConstraintForm':TraitConstraintForm(),
-                       'updateRecruitmentParametersForm':recruitmentParametersForm(),                      
+                       'updateRecruitmentParametersForm':recruitmentParametersForm(),       
+                       'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
+                       'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
                        'id': id,
                        'helpText':helpText})
 
@@ -92,7 +100,7 @@ def getExperiment(data,id):
     return JsonResponse({"experiment" :  e.json(),
                             "sessions" : e.json_sessions(),
                             "recruitment_params":e.recruitment_params_default.json(),
-                            "parameters" : p.json()}, safe=False)
+                           }, safe=False)
 
 #delete session from experiment
 def removeSession(data,id):
@@ -339,3 +347,31 @@ def updateRequireAllTraitContraints(data,id):
     e = experiments.objects.get(id=id)
     
     return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
+
+#fill invitation text from template
+def fillInvitationTextFromTemplate(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Fill invitation text from template")
+    logger.info(data)
+
+    t = Invitation_email_templates.objects.filter(id = data["value"])
+
+    text = ""
+
+    if t.count() > 0:
+        text = t.first().body_text
+    
+    return JsonResponse({"text":text}, safe=False)
+
+#fill default reminder text
+def fillDefaultReminderText(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Fill default reminder text")
+    logger.info(data)
+
+    p = parameters.objects.first()
+
+    text = p.reminderText
+    
+    return JsonResponse({"text":text}, safe=False)
+    

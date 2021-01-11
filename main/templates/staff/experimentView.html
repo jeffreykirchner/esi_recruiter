@@ -53,8 +53,7 @@
                         min_value:0,
                         max_vaue:0,
                     },                    
-                    sessions:{},  
-                    parameters:{},                          
+                    sessions:{},                       
                     institutions_list:"",
                     include_institutions_list:"",
                     exclude_institutions_list:"",
@@ -70,11 +69,14 @@
                     addSessionButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
                     addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
                     updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
+                    fillInvitationFromTemplateButtonText : 'Fill <i class="fa fa-arrow-up" aria-hidden="true"></i>',
+                    fillDefaultReminderButtonText:'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>',
                     errorsText:"",
                     cancelModal:true,    
                     recruitmentTitle:"Recruitment Parameters (default)",
-                    session:{confirmedCount:0}, //recruitment form parameter
+                    session:{confirmedCount:0},             //recruitment form parameter
                     addSessionErrorText:"",  
+                    invitation_email_template:"{{invitationEmailTemplateForm_default}}",           //selected invitation email template 
                 },
         
                 methods:{            
@@ -490,19 +492,37 @@
                         window.open('/experimentSession/' + id,"_blank");
                     },
 
-                    //fill parameters with default single day
-                    fillWithSingleDayInvitation:function(){
-                       app.$data.experiment.invitationText = app.$data.parameters.invitationText;
-                    },
-
-                    //fill parameters with default multi day
-                    fillWithMultiDayInvitation:function(){
-                        app.$data.experiment.invitationText = app.$data.parameters.invitationTextMultiDay;
-                    },
-
                     //fill parameters with default reminder
                     fillWithDefaultReminder:function(){
-                        app.$data.experiment.reminderText = app.$data.parameters.reminderText;
+                        app.$data.fillDefaultReminderButtonText='<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experiment/{{id}}/', {
+                                status : "fillDefaultReminderText",                                                                                                                                                           
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.experiment.reminderText = response.data.text;  
+                                app.$data.fillDefaultReminderButtonText = 'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>';       
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    },
+
+                    //fill invitation text from template
+                    fillInvitationTextFromTemplate:function(){
+                        app.$data.fillInvitationFromTemplateButtonText='<i class="fas fa-spinner fa-spin"></i>';
+                        axios.post('/experiment/{{id}}/', {
+                                status : "fillInvitationTextFromTemplate", 
+                                value: app.$data.invitation_email_template,                                                                                                                                                            
+                            })
+                            .then(function (response) {                                   
+                                
+                                app.$data.experiment.invitationText = response.data.text;  
+                                app.$data.fillInvitationFromTemplateButtonText='Fill <i class="fa fa-arrow-up" aria-hidden="true"></i>';       
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
                     },
                 },
         

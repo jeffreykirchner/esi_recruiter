@@ -1005,7 +1005,7 @@ def migrate_parameters():
 
         for c in cursorMP1.fetchall():
                 #invitationText = c[0]
-                p.invitationText = c[0]
+                #p.invitationText = c[0]
                 p.invitationTextSubject = c[1]
 
         #cancelation text

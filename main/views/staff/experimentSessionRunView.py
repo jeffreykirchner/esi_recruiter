@@ -59,6 +59,8 @@ def experimentSessionRunView(request,id=None):
             return autoBump(data,id)
         elif data["action"] == "payPalExport":
             return getPayPalExport(data,id)
+        elif data["action"] == "getEarningsExport":
+            return getEarningsExport(data,id)
         elif data["action"] == "fillEarningsWithFixed":
             return fillEarningsWithFixed(data,id)
         elif data["action"]=="stripeReaderCheckin":
@@ -220,6 +222,29 @@ def getPayPalExport(data,id):
         writer.writerow(u.csv_payPal())  
     
     return csv_response
+
+#return earnings CSV
+def getEarningsExport(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Earnings Export")
+    logger.info(data)
+
+    esd = experiment_session_days.objects.get(id=id)
+    esdu = esd.experiment_session_day_users_set.filter(attended=True)
+
+    csv_response = HttpResponse(content_type='text/csv')
+    csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(csv_response)
+
+    s=["Last Name","First Name","Email","Student ID","Experiment Earnings","On-Time Bonus","Session Day ID"]
+    writer.writerow(s)
+
+    for u in esdu:
+        writer.writerow(u.csv_earnings())  
+    
+    return csv_response
+
 
 #automatically randomly bump exccess subjects
 def autoBump(data,id):

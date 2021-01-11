@@ -37,6 +37,7 @@
                 printPayoutsButtonText : 'Print Attendees <i class="fas fa-print"></i>',
                 printBumpsButtonText : 'Print Bumps <i class="fas fa-print"></i>',
                 paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
+                earningsExportButtonText : 'Attended Export <i class="fas fa-download"></i>',
                 roundUpButtonText : 'Round Earnings <i class="fas fa-circle-notch"></i>',
                 fillEarningsWithFixedButtonText : 'Fill',
                 updatePayoutsRequired : false,             //need to send payouts update
@@ -136,6 +137,43 @@
                             document.body.removeChild(downloadLink);
 
                             app.$data.paypalExportButtonText = 'Paypal Export <i class="fab fa-paypal"></i>';                  
+                         })
+                         .catch(function (error) {
+                             console.log(error);                                   
+                         });
+                },
+
+                //export an earnings csv file 
+                earningsExport:function(){
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        confirm("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+                    
+                    app.$data.earningsExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                   
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                             action :"getEarningsExport" ,                                                                                                                                                      
+                         })
+                         .then(function (response) {      
+                            
+                            // let csvContent = "data:text/csv;charset=utf-8,";
+                            // csvContent = response
+
+                            console.log(response)
+
+                            var downloadLink = document.createElement("a");
+                            var blob = new Blob(["\ufeff", response.data]);
+                            var url = URL.createObjectURL(blob);
+                            downloadLink.href = url;
+                            downloadLink.download = "Attending_Export_" + app.$data.sessionDay.id + ".csv";
+
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+
+                            app.$data.earningsExportButtonText = 'Attended Export <i class="fas fa-download"></i>';                  
                          })
                          .catch(function (error) {
                              console.log(error);                                   
@@ -643,6 +681,7 @@
                                 </tr>
                             </tbody>                                                                      
                             <tfoot>
+                                <!-- first button row -->
                                 <tr>
                                     <td>
                                         Payout Total: $[[payoutTotal]]                                      
@@ -694,6 +733,7 @@
                                     </td>
                                 </tr>
                                 
+                                <!-- second button row -->
                                 <tr>
                                     <td> 
                                         <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()">
@@ -735,6 +775,25 @@
                                     </td>
                                 </tr>                               
                                 
+                                <!-- third button row -->
+                                <tr>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td style="text-align: center;">
+                                    </td>
+                                    <td style="text-align: center;">
+                                    </td>
+                                    <td style="text-align: center;">
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
+                                                title="Export a CSV file with a list of attending subjects."  >
+                                            <span v-html='earningsExportButtonText'></span> 
+                                        </button>
+                                    </td>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>

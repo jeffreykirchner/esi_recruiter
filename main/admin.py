@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm,faqForm,helpDocForm,frontPageNoticeForm
+from main.forms import parametersForm,faqForm,helpDocForm,frontPageNoticeForm,InvitationEmailTemplateForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
@@ -50,6 +50,17 @@ class frontPageNoticeAdmin(admin.ModelAdmin):
       list_display = ['subject_text','enabled']
 
 admin.site.register(Front_page_notice,frontPageNoticeAdmin)
+
+class invitationEmailTemplateAdmin(admin.ModelAdmin):
+            
+      form = InvitationEmailTemplateForm
+
+      ordering = [Lower('name')]
+
+      actions = []
+      list_display = ['name','enabled']
+
+admin.site.register(Invitation_email_templates,invitationEmailTemplateAdmin)
 
 class faqAdmin(admin.ModelAdmin):
             
