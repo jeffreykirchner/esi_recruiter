@@ -262,10 +262,7 @@ def inviteSubjects(data,id,request):
     p = parameters.objects.first()
     subjectText = ""
 
-    if es.ESD.count() == 1:
-        subjectText = p.invitationTextSubject
-    else:
-        subjectText = p.invitationTextMultiDaySubject
+    subjectText = p.invitationTextSubject
 
     messageText = es.getInvitationEmail()
 

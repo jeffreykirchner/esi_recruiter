@@ -10,6 +10,7 @@ class parameters(models.Model):
     defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)     #money paid to subjects for coming regardless of performance
     maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5,default = 600)  #max money that can be paid to a subject per year  
     siteURL = models.CharField(max_length = 200,default = "https://www.google.com/")       #site URL used for display in emails
+    testEmailAccount = models.CharField(max_length = 1000,default = "")                     #email account used for debug mode emails
 
     noShowCutoff = models.IntegerField(default = 3)                                         #if subject hits count in window they will not be invited
     noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured
@@ -31,7 +32,7 @@ class parameters(models.Model):
     emailVerificationTextSubject = models.CharField(max_length = 1000,default = "")         #email subject sent to user to verify their email address
     emailVerificationResetText = models.CharField(max_length = 10000,default = "")          #email text sent to user to verify their email address
     
-    consentForm = models.CharField(max_length = 50000, default ="")                        #consent for subject must agree to before participation 
+    consentForm = models.CharField(max_length = 50000, default ="")                         #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)

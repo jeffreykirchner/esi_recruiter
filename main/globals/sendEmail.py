@@ -121,10 +121,10 @@ def sendMassEmailVerify(profileList,request):
 
 #return the test account email to be used
 def getTestSubjectEmail():
-    s = "chapman.esi.test@gmail.com"
+    p = parameters.objects.get(id=1)
+    s = p.testEmailAccount
 
     return s
-
 
 #send email when profile is created or changed
 def profileCreateSendEmail(request,u):

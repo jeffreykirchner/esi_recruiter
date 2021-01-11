@@ -21,6 +21,9 @@ class parametersForm(forms.ModelForm):
     
     siteURL = forms.CharField(label='Site URL',
                                          widget=forms.TextInput(attrs={"size":"125"}))
+    
+    testEmailAccount = forms.CharField(label='Test Email Account',
+                                         widget=forms.TextInput(attrs={"size":"125"}))
 
     invitationTextSubject = forms.CharField(label='Recruitment Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
