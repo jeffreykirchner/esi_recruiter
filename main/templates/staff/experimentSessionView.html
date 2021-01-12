@@ -268,11 +268,12 @@
                             app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                             axios.post('/experimentSession/{{id}}/', {
-                                status:"addSessionDay",                                                              
+                                status:"addSessionDay", 
+                                count:app.$data.multiDayCount,                                                             
                             })
                             .then(function (response) {                                   
-                                app.$data.session.experiment_session_days= response.data.session.experiment_session_days;  
-                                app.$data.session.confirmedCount = response.data.session.confirmedCount;             
+                                app.$data.session= response.data.session;  
+                                app.$data.session = response.data.session;             
                                 
                                 app.$data.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
                             })
@@ -1253,6 +1254,12 @@
         
     </script>   
 
+    <style>
+        [v-cloak] {
+        display: none;
+        }
+    </style>
+
 {%endblock head%}
 
 {%block content%}    
@@ -1283,7 +1290,7 @@
                 <!-- session day table -->
                 <div class="row mt-4">                   
                     <div class="col col-md-12">
-                        <table class="table table-hover table-condensed">
+                        <table class="table table-hover table-condensed" v-cloak>
                             <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
                             <thead>
                                 <th width="25%">
