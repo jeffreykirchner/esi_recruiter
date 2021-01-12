@@ -49,6 +49,7 @@
                     searchText:"",
                     searchAddResult:"",    
                     findButtonText:"Find",   
+                    multiDayCount:1,
                     multiDayButtonText:"Multi Day <i class='fas fa-plus fa-xs'></i>",
                     inviteButtonText:"Invite <i class='fa fa-users'></i>",
                     showUnconfirmedButtonText:'Show <i class="fa fa-eye fa-xs"></i>',
@@ -61,6 +62,7 @@
                     sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
                     session:{
                              invitationText:"",                         //invitation text with variables filled in 
+                             experiment_session_days:[],                //days in session
                              invitationRawText:"",                      //invitation text with editable variables             
                              messageCount:"",                           //number of email messages sent out
                              invitationCount:"",                        //number of invition groups sent out
@@ -266,11 +268,12 @@
                             app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                             axios.post('/experimentSession/{{id}}/', {
-                                status:"addSessionDay",                                                              
+                                status:"addSessionDay", 
+                                count:app.$data.multiDayCount,                                                             
                             })
                             .then(function (response) {                                   
-                                app.$data.session.experiment_session_days= response.data.session.experiment_session_days;  
-                                app.$data.session.confirmedCount = response.data.session.confirmedCount;             
+                                app.$data.session= response.data.session;  
+                                app.$data.session = response.data.session;             
                                 
                                 app.$data.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
                             })
@@ -1251,6 +1254,12 @@
         
     </script>   
 
+    <style>
+        [v-cloak] {
+        display: none;
+        }
+    </style>
+
 {%endblock head%}
 
 {%block content%}    
@@ -1276,21 +1285,31 @@
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                         <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowEdit === false"><span v-html = "cancelSessionButtonText"></span></button> 
                     </div>               
-                </div>
-
-                <br>
-                <br>                                    
+                </div>                                   
                    
                 <!-- session day table -->
-                <div class="row">                   
+                <div class="row mt-4">                   
                     <div class="col col-md-12">
-                        <table class="table table-hover table-condensed">
-                            <caption style="caption-side:top;text-align: center;">Session Day(s)</caption>
+                        <table class="table table-hover table-condensed" v-cloak>
+                            <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
                             <thead>
                                 <th width="25%">
-                                    Date 
-                                    <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button> 
-                                    <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                    <div class = "row" style="text-align: center;">
+                                        <div class="col col-md-3">
+                                            Date
+                                        </div>
+                                        <div class="col col-md-7" style="text-align: left;">
+                                            <div class="input-group">
+                                                <input style="text-align: center;" type="number" min="1" class="form-control" placeholder="Count" aria-label="Recipient's username" aria-describedby="basic-addon2" v-model="multiDayCount">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                        </div>
+                                    </div>                                                                        
                                 </th> 
                                 <th width="25%" style="text-align: center;">
                                     Reminders Sent
