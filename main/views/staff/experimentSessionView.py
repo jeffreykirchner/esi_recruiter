@@ -463,11 +463,9 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
         es.save()
 
         if sendInvitation:
-            if es.ESD.count() == 1:
-                subjectText = p.invitationTextSubject
-            else:
-                subjectText = p.invitationTextMultiDaySubject
-
+            
+            subjectText = p.invitationTextSubject
+            
             messageText = es.getInvitationEmail()
 
             mailResult = sendMassEmail([u], subjectText, messageText)
@@ -600,36 +598,42 @@ def addSessionDay(data,id):
     es = experiment_sessions.objects.get(id=id)
 
     if es.getConfirmedCount() == 0:
-        esd = experiment_session_days()
-        
 
-        u_list = es.ESD.first().getListOfUserIDs()
+        count = int(data["count"])
 
-        #for i in id_list:
-        #    logger.info(i)
+        #add specified number of session days
+        for i in range(count):
+            esd = experiment_session_days()
+            
+            u_list = es.ESD.first().getListOfUserIDs()
 
-        # logger.info(u_list)
+            #for i in id_list:
+            #    logger.info(i)
 
-        esd.setup(es,u_list)
-        esd.save()
+            # logger.info(u_list)
 
-        es.save()
+            esd.setup(es,u_list)
+            esd.save()
 
-        #copy settings from most recent session day to new session and advance by one day
-        lastSD = es.getLastSessionDay()
+            es.save()
 
-        if lastSD:
-            logger.info(f"Add session day copy {lastSD}")
-            esd.copy(lastSD)
+            #copy settings from most recent session day to new session and advance by one day
+            lastSD = es.getLastSessionDay()
 
-            esd.date = lastSD.date + timedelta(days=1)
-            esd.set_end_date()
+            if lastSD:
+                logger.info(f"Add session day copy {lastSD}")
+                esd.copy(lastSD)
 
-            if lastSD.reminder_time:
-                esd.reminder_time = lastSD.reminder_time + timedelta(days=1)
+                esd.date = lastSD.date + timedelta(days=1)
+                esd.set_end_date()
 
-            esd.save()    
+                if lastSD.reminder_time:
+                    esd.reminder_time = lastSD.reminder_time + timedelta(days=1)
 
+                esd.save()    
+
+    es = experiment_sessions.objects.get(id=id)
+    
     return JsonResponse({"status":"success","session":es.json()}, safe=False)
 
 #remove a session day

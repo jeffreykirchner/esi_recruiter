@@ -196,6 +196,7 @@ def autoAddSubject(studentID,id,request_user,ignoreConstraints):
             else:
                 r = json.loads(changeConfirmationStatus({"userId":p.user.id,
                                                         "confirmed":"confirm",
+                                                        "actionAll":False,
                                                         "esduId":temp_esdu.id},
                                                         esd.experiment_session.id,
                                                         ignoreConstraints).content.decode("UTF-8"))
