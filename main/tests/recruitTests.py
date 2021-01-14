@@ -315,13 +315,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[1]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[2]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #setup experiment with one session three subjects, one confirmed, +2 day
@@ -346,19 +346,19 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[3]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[4]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[5]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))  
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))  
         self.assertEqual(r['status'],"success")
 
         # #add overlapping session in another room
@@ -379,7 +379,7 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[6]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #3rd session later 1 player
@@ -400,7 +400,7 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[7]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
     
         #subject g0 is unassinged
@@ -1201,7 +1201,7 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[1]
         es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es1.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
 
@@ -1634,13 +1634,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -1736,13 +1736,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -1843,13 +1843,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -2027,13 +2027,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user one to experiment two, confirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -2137,13 +2137,13 @@ class recruiteTestCase(TestCase):
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user one to experiment two, confirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False)
+        changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -2203,7 +2203,7 @@ class recruiteTestCase(TestCase):
         
         temp_u = self.user_list[1]
         temp_esdu = esd1.experiment_session_day_users_set.get(user__id = temp_u.id)
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #remove all genders
@@ -2213,7 +2213,7 @@ class recruiteTestCase(TestCase):
         temp_esdu = esd1.experiment_session_day_users_set.get(user__id = temp_u.id)
 
         #only check on recruiment email, not on confirmation
-        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         self.assertEqual(es.recruitment_params.gender.count(),0)

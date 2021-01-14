@@ -116,7 +116,7 @@ class subjectHomeTestCase(TestCase):
 
         self.es1.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        #changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        #changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
@@ -139,7 +139,7 @@ class subjectHomeTestCase(TestCase):
 
         self.es2.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
-        #changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","esduId":temp_esdu.id},self.es2.id)
+        #changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},self.es2.id)
 
     #subject confirms attendence to an experiment where there are no conflicts
     def testConfirmAttendenceNoConflict(self):
@@ -288,7 +288,7 @@ class subjectHomeTestCase(TestCase):
 
         self.es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
-        #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","esduId":temp_esdu.id},self.es1.id)
+        #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
 
         r = json.loads(acceptInvitation({"id":self.es1.id},temp_u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
