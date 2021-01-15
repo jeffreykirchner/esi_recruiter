@@ -157,7 +157,7 @@ def profileCreateSendEmail(request,u):
         s = getTestSubjectEmail()
         message_list[0] += ((subject, new_message,from_email,[s]),)   #use for test emails
     else:
-        message_list[0] += ((subject, new_message,from_email,[p.user.email]),)
+        message_list[0] += ((subject, new_message,from_email,[u.email]),)
 
 
     if settings.DEBUG:
