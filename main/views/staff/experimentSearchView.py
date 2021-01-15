@@ -129,7 +129,9 @@ def deleteExperiment(data):
     else:
         status="fail"
 
-    return JsonResponse({"status" : status,"title":title},safe=False)
+    return JsonResponse({"status" : status,
+                         "title":title,
+                         "experiments_recent" : getRecentExperimentsList()},safe=False)
 
 #get a list of all experiments
 def getAllExperiments(data):
@@ -170,11 +172,15 @@ def getRecentExperiments(data):
     logger.info("Get Recent Experiments")
     logger.info(data)
 
+    return JsonResponse({"experiments_recent" : getRecentExperimentsList()},safe=False)
+
+def getRecentExperimentsList():
+    logger = logging.getLogger(__name__)
+    logger.info("Get Recent Experiments List")
+
     e_list = experiments.objects.order_by('-updated')[:10]
 
-    e_list_json = [e.json_search() for e in e_list]
-
-    return JsonResponse({"experiments_recent" : e_list_json},safe=False)
+    return [e.json_search() for e in e_list]
 
 
 #search for users that back search criterion
