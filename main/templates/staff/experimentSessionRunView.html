@@ -552,7 +552,7 @@
             </div>
             <div class="card-body">  
                 <!-- stripe reader -->
-                <div v-if='sessionDay.complete === false'>
+                <div v-show="sessionDay.complete === false">
                     <div class="row align-items-left">
                         <div class = "col-md-4" style="text-align: right;">
                             
@@ -652,7 +652,7 @@
                                         <div v-else>No Show</div>                                                                           
                                     </td>
                                     <td class="align-middle" style="text-align: center;">
-                                        <div v-if='sessionDay.complete === false'>  
+                                        <div v-show="sessionDay.complete === false">  
                                             <div v-if = "esdu.waiting">
                                                 <span v-html='waitButtonText'></span>
                                             </div>
@@ -686,50 +686,40 @@
                                     <td>
                                         Payout Total: $[[payoutTotal]]                                      
                                     </td>
-                                    <td>
-                                        <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
-                                                    title="Save payouts to the database.">
-                                                <span v-html='saveButtonText'></span> 
-                                            </button>
-                                        </div>                                        
+                                    <td>                                        
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
+                                                title="Save payouts to the database.">
+                                            <span v-html='saveButtonText'></span> 
+                                        </button>                                                                                
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div v-if='sessionDay.complete === false'>
-                                            <div class="input-group input-group-sm">
-                                                <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
-                                                       aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
-                                                <div class="input-group-append">
-                                                  <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
-                                                      <span v-html="fillEarningsWithFixedButtonText"></span>
-                                                  </button>
-                                                </div>
-                                              </div>
-                                        </div>                                                                            
+                                    <td style="text-align: center;">                                        
+                                        <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
+                                            <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
+                                                    aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
+                                                    <span v-html="fillEarningsWithFixedButtonText"></span>
+                                                </button>
+                                            </div>
+                                        </div>                                                                                                                    
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
-                                                    title="Fill all present subject's on-time bonuses with the specified amount." >
-                                                <span v-html='fillShowUpFeeButtonText'></span> 
-                                            </button>
-                                        </div>                                                                                
+                                    <td style="text-align: center;">                                        
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
+                                                title="Fill all present subject's on-time bonuses with the specified amount." >
+                                            <span v-html='fillShowUpFeeButtonText'></span> 
+                                        </button>                                                                                                                        
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
-                                                    title = "Randomly bump extra subjects.">
-                                                <span v-html='autoBumpButtonText'></span> 
-                                            </button>
-                                        </div>
+                                    <td style="text-align: center;">                                        
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
+                                                title = "Randomly bump extra subjects.">
+                                            <span v-html='autoBumpButtonText'></span> 
+                                        </button>                                        
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div v-if='sessionDay.complete === false'>
-                                            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()"
-                                                    title = "Bump all subjects.">
-                                                <span v-html='bumpAllButtonText'></span> 
-                                            </button>
-                                        </div>
+                                    <td style="text-align: center;">        
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()"
+                                                title = "Bump all subjects.">
+                                            <span v-html='bumpAllButtonText'></span> 
+                                        </button>
                                     </td>
                                 </tr>
                                 
@@ -746,7 +736,7 @@
                                         </button>                                     
                                     </td>
                                     <td>     
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()"
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()"
                                                 title ="Upload an earnings formatted file.">
                                             Upload Earnings <i class="fas fa-upload"></i>
                                         </button>
@@ -762,7 +752,7 @@
                                         </button>                                        
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
+                                        <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
                                                 title="Round earnings up to nearest 25 cents."  >
                                             <span v-html='roundUpButtonText'></span> 
                                         </button>                                       
