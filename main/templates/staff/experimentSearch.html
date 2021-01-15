@@ -217,6 +217,8 @@
                                 {
                                     app.$data.warningText="The experiment could not be deleted."
                                 }
+
+                                app.$data.experiments_recent = response.data.experiments_recent;
                                                                           
                             })
                             .catch(function (error) {
