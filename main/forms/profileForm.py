@@ -15,13 +15,13 @@ class profileForm(forms.Form):
     phone = forms.CharField(label = "Phone Number (ex: 5556667777)",max_length = 15)
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
                                      queryset=genders.objects.all(),
-                                     widget=forms.Select(attrs={"v-model":"profile.gender"}))
+                                     widget=forms.Select(attrs={}))
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
                                      queryset=majors.objects.all().order_by('name'),
-                                     widget=forms.Select(attrs={"v-model":"profile.major"})) 
+                                     widget=forms.Select(attrs={})) 
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
                                      queryset=subject_types.objects.all(),
-                                     widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
+                                     widget=forms.Select(attrs={}))
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
                                          choices=(('---','---'),('Yes', 'Yes'), ('No', 'No')),
                                          initial='---',                   
