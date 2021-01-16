@@ -52,8 +52,7 @@
                         else
                         {
                           app.$data.status="done";
-                        }
-                        
+                        }                        
 
                         app.$data.buttonText = 'Submit <i class="fas fa-sign-in-alt"></i>';
 
@@ -61,6 +60,10 @@
                       .catch(function (error) {
                           console.log(error);                            
                       });                        
+                  },
+
+                  showHelp:function showHelp(){                        
+                    $('#helpModal').modal('show');
                   },
 
                   humanChecker:function(){
@@ -131,7 +134,7 @@
             Sign up
           </div>        
           <div class="col" style="text-align: right;">
-            <button type="button" class="btn btn-link" id="helpButton" data-placement="bottom" title="Show Help Doc">
+            <button type="button" class="btn btn-link" v-on:click="showHelp()" data-placement="bottom" title="Show Help Doc">
                 <i class="far fa-question-circle"></i> 
             </button>
           </div>
@@ -159,8 +162,10 @@
             <div class="col col-md-5 offset-md-1">
                 <button type="button" class="btn btn-outline-primary" v-on:click="create()"><span v-html="buttonText"></span></button>
             </div>
-            <div class="col col-md-5" style = "float: right;">
-              <button type="button" class="btn btn-outline-primary" v-on:click="humanChecker()"><span v-html="humanButtonText"></span></button>
+            <div class="col col-md-5">
+              <span style="float: right;">
+                <button type="button" class="btn btn-outline-primary" v-on:click="humanChecker()"><span v-html="humanButtonText"></span></button>
+              </span>
             </div>
           </div>
 
