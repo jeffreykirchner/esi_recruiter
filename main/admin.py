@@ -97,9 +97,9 @@ class profile_traitAdmin(admin.ModelAdmin):
 
 class UserAdmin(admin.ModelAdmin):
 
-      ordering = [Lower('last_name'),Lower('first_name')]
+      ordering = ['-date_joined']
       search_fields = ['last_name','first_name','email']
-      list_display = ['last_name', 'first_name','email','is_active','is_staff']
+      list_display = ['last_name', 'first_name','email','is_active','is_staff','date_joined']
       actions = []
       list_filter = ('is_staff', 'is_active')
 
@@ -253,7 +253,7 @@ class ProfileAdmin(admin.ModelAdmin):
       if settings.DEBUG:
             actions.append(setup_test_users)
 
-      list_display = ['__str__','studentWorker','blackballed','email_filter']
+      list_display = ['__str__','studentWorker','blackballed','email_filter','timestamp','updated']
       list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')     
 
 
