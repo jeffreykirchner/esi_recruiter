@@ -100,5 +100,5 @@ def changePassword(request,data,token):
         
             return JsonResponse({"status":"success"}, safe=False)
     else:
-        logger.info(f"Reset password validation error {data}")
+        logger.info(f"Reset password validation error")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)
