@@ -543,7 +543,7 @@
 {%block content%}    
 
 <div class="row justify-content-md-center mb-10">
-    <div class="col col-md-10">
+    <div class="col col-md-12">
         <div class="card">
             <div class="card-header">
                 Experiment: <span v-if="loading"><i class="fas fa-spinner fa-spin"></i></span><span v-html="experiment.title"></span>
@@ -658,23 +658,26 @@
                 <br>
                 <br>
                 <!-- session table -->
-                <div class="row mb-10">                   
-                    <div class="col col-md-10 offset-md-1">
-                        <table class="table table-hover table-condensed">
+                <div class="row">                   
+                    <div class="col">
+                        <table class="table table-hover table-condensed table-responsive-xl">
                             <caption style="caption-side:top;text-align: center;">Sessions</caption>
                             <thead>
-                                <th width="25%">
+                                <th scope="col">
                                     Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
                                     <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
                                 </th>
-                                <th width="25%" style="text-align: center;">
+                                <th scope="col" style="text-align: center;">
                                     Status
                                 </th> 
-                                <th width="25%" style="text-align: center;">
+                                <th scope="col" style="text-align: center;">
                                    Confirmed/Invited
                                 </th>                                                      
-                                <th width="25%" style="text-align: center;">
+                                <th scope="col" style="text-align: center;">
                                     Control
+                                </th>
+                                <th scope="col" style="text-align: center;">
+                                    
                                 </th>
                             </thead>
                             <tbody id="sessionList">                                
@@ -712,8 +715,9 @@
                                     <td style="text-align: center;">                                        
                                         <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">
                                             Edit <i class="fas fa-edit fa-xs"></i>
-                                        </button>
-                                        | 
+                                        </button>                                                                                                                                                                   
+                                    </td>
+                                    <td style="text-align: center;">                                        
                                         <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">
                                             Delete <i class="fas fa-trash fa-xs"></i>
                                         </button>                                                                                                                                                                    

@@ -248,7 +248,7 @@
 {%block content%}
 <!-- experient search -->
 <div class="row justify-content-lg-center">
-    <div class="col col-lg-8">
+    <div class="col">
         <div class="card">                  
             <div class="card-header">
                 <span class="align-middle">Search Experiments</span>               
@@ -295,27 +295,27 @@
                 </div>           
                                 
                 <!-- search results table -->
-                <table class="table table-hover table-condensed">                            
+                <table class="table table-hover table-condensed table-responsive-xl">                            
 
                     <caption style="caption-side:top;text-align: center;">Experiments (<span v-html="searchCount"></span>)</caption>
 
                     <thead>
-                        <th width="30%">
+                        <th scope="col" width="30%">
                             <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
                                 <span v-html="titleSortButtonText" class="table_header"></span>
                             </button>
                         </th> 
-                        <th width="20%" style="text-align: center;">
+                        <th scope="col" width="20%" style="text-align: center;">
                             <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByDate()">
                                 <span v-html="dateSortButtonText" class="table_header"></span>
                             </button>                            
                         </th>
-                        <th width="35%" style="text-align: center;">
+                        <th scope="col" width="35%" style="text-align: center;">
                             <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByManager()">
                                 <span v-html="managerSortButtonText" class="table_header"></span>
                             </button>
                         </th>                                                      
-                        <th width="15%" style="text-align: center;">
+                        <th scope="col" width="15%" style="text-align: center;">
                             Control
                         </th>
                     </thead>
@@ -348,7 +348,7 @@
 
 <!-- recent experiments -->
 <div class="row justify-content-lg-center mt-4">
-    <div class="col col-lg-8">
+    <div class="col">
         <div class="card">                  
             <div class="card-header">
                 <span class="align-middle">Recent Experiments</span>                                                                               
@@ -357,23 +357,23 @@
             <div class="card-body">               
                                         
                 <!-- search results table -->
-                <table class="table table-hover table-condensed">                            
+                <table class="table table-hover table-condensed table-responsive-xl">                            
 
                     <caption style="caption-side:top;text-align: center;">Experiments</caption>
 
                     <thead>
-                        <th width="30%">
+                        <th scope="col" width="30%">
                             <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
                                 <span v-html="titleSortButtonText" class="table_header"></span>
                             </button>
                         </th> 
-                        <th width="20%" style="text-align: center;">
+                        <th scope="col" width="20%" style="text-align: center;">
                             Date                            
                         </th>
-                        <th width="35%" style="text-align: center;">
+                        <th scope="col" width="35%" style="text-align: center;">
                             Manager
                         </th>                                                      
-                        <th width="15%" style="text-align: center;">
+                        <th scope="col" width="15%" style="text-align: center;">
                             Control
                         </th>
                     </thead>

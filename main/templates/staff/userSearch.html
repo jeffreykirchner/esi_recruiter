@@ -195,7 +195,7 @@
 
 {%block content%}
 <div class="row justify-content-lg-center">
-    <div class="col col-lg-6">
+    <div class="col">
         <div class="card">                  
             <div class="card-header">
                 Search Users 
@@ -242,7 +242,7 @@
                         <center><span v-html="warningText" style="color:red;"></span></center>  
                     </div>
                 </div>           
-                <div class = "row">
+                <div class = "row ">
                     <div class = "col">
                         <center>
                             <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getBlackballs()">
@@ -256,34 +256,50 @@
                 </div>
                 
                 <!-- search results table -->
-                <table class="table table-hover table-condensed">                            
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <table class="table table-hover table-condensed table-responsive-xl">                            
 
-                    <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
+                            <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
+        
+                            <thead>
+                                <th scope="col">
+                                    Name
+                                </th> 
+                                <th scope="col" style="text-align: center;">
+                                    Email
+                                </th> 
+                                <th scope="col" style="text-align: center;">
+                                    Student ID
+                                </th>
+                                <th scope="col" style="text-align: center;">
+                                    Type
+                                </th>                                                     
+                                
+                            </thead>
+        
+                            <tbody id="userList">                                                  
+                                <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
+                                    <td> 
+                                        <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a>                                        
+                                    </td>
+                                    <td style="text-align: center;">                                        
+                                        <span v-html="u.email"></span>                                         
+                                    </td>  
+                                    <td style="text-align: center;">  
+                                        <span v-html="u.profile__studentID"></span>
+                                    </td>
+                                    <td style="text-align: center;">  
+                                        <span v-html="u.profile__type__name.toUpperCase()"></span>
+                                    </td>                                                         
+                                </tr>                                                    
+                            </tbody>
+                            
+                        </table>  
+                    </div>
 
-                    <thead>
-                        <th width="35%">
-                            Name
-                        </th> 
-                        <th width="65%" style="text-align: center;">
-                            Info
-                        </th>                                                      
-                        
-                    </thead>
+                </div>         
 
-                    <tbody id="userList">                                                  
-                        <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
-                            <td> 
-                                <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a>                                        
-                            </td>
-                            <td style="text-align: center;">                                        
-                                <span v-html="u.email + '<br>ID: ' + u.profile__studentID + '<br>' + u.profile__type__name.toUpperCase()"></span>                                         
-                            </td>                                                           
-                        </tr>                                                    
-                    </tbody>
-                    
-                </table>                     
-
-                
             </div>                    
         </div>                
     </div>
