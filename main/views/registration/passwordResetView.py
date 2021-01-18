@@ -93,5 +93,5 @@ def send_reset(request,data):
         
             
     else:
-        logger.info(f"Reset password validation error {data}")
+        logger.info(f"send_reset Reset password validation error")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)

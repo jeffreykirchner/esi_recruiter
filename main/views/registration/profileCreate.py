@@ -119,7 +119,7 @@ def createUser(request,data):
         return JsonResponse({"status":"success"}, safe=False)
 
     else:
-        logger.info(f"Reset password validation error {data}")
+        logger.info(f"createUser validation error")
         return JsonResponse({"status":"error","errors":dict(f.errors.items())}, safe=False)
 
 
