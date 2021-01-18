@@ -131,7 +131,7 @@ def getCalendarJson(month,year):
     s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
                                                          date__lte = last_day)\
                                                  .order_by("date")\
-                                                 .select_related('experiment_session','experiment_session__experiment','location'))
+                                                 .select_related('experiment_session','experiment_session__experiment','location','experiment_session__experiment'))
 
     #logger.info(s_list)
 
@@ -146,7 +146,9 @@ def getCalendarJson(month,year):
                 #logger.info(s.date.day)
                 s_date_local = s.date.astimezone(tz)
                 if s_date_local.day == d.day and s_date_local.month == d.month and s_date_local.year == d.year:
-                    s_list_local.append({"id" : s.id,                                         
+                    s_list_local.append({"id" : s.id, 
+                                         "session_id" : s.experiment_session.id,
+                                         "experiment_id" : s.experiment_session.experiment.id,                                        
                                          "name" : s.experiment_session.experiment.title,
                                          "manager" : s.experiment_session.experiment.experiment_manager,
                                          "canceled" : s.experiment_session.canceled,
