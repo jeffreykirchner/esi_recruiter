@@ -55,6 +55,13 @@ def profileCreate(request):
         
         data = json.loads(request.body.decode('utf-8'))
 
+        #check for correct action
+        action = data.get("action","fail")
+        logger.info(action)
+        if action == "fail":
+            logger.info(f"Profile create error: {data}")
+            return JsonResponse({"status" :  "error"},safe=False)
+
         if data["action"] == "create":
             return createUser(request,data)
 

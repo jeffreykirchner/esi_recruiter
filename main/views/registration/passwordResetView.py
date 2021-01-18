@@ -88,10 +88,7 @@ def send_reset(request,data):
             else:
                 logger.info(f"Reset password failed for {username} : {mailResult}")
                 return JsonResponse({"status":"error","message":"There was a problem sending the email.  Please try again."}, safe=False)
-
-            
-        
-            
+    
     else:
         logger.info(f"send_reset Reset password validation error")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)
