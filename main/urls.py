@@ -45,7 +45,9 @@ urlpatterns = [
     #cron
     path('runCrons/',csrf_exempt(views.runCronsView),name='runCronsView'),
 
-    #robots.txt
-     path('robots.txt',views.RobotsTxt,name='robotsTxt'),
+    #bots
+    path('robots.txt',views.RobotsTxt,name='robotsTxt'),
+    path('ads.txt',views.AdsTxt,name='adsTxt'),
+
 
 ]

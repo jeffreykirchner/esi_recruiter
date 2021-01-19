@@ -6,3 +6,4 @@ from .faqView import *
 from .runCrons import *
 from .registration import *
 from .robotsTxt import *
+from .adsTxt import *
