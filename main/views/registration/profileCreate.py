@@ -53,19 +53,22 @@ def profileCreate(request):
 
     if request.method == 'POST':
         
-        data = json.loads(request.body.decode('utf-8'))
+        #check that request id json formatted
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except Exception  as e:  
+           logger.warning(f"Profile create post json error: {data} , Exception: {e}") 
+           return JsonResponse({"status" :  "error"},safe=False)
 
         #check for correct action
         action = data.get("action","fail")
-        logger.info(action)
-        if action == "fail":
-            logger.info(f"Profile create error: {data}")
-            return JsonResponse({"status" :  "error"},safe=False)
 
-        if data["action"] == "create":
+        if action == "create":
             return createUser(request,data)
 
-        return JsonResponse({"response" :  "error"},safe=False)           
+        #valid action not found
+        logger.warning(f"Profile create post error: {data}")
+        return JsonResponse({"status" :  "error"},safe=False)           
 
     else:
         logout(request)

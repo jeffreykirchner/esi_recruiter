@@ -11,13 +11,20 @@ import logging
 from main.models import faq,parameters
 
 def faqView(request):
+    logger = logging.getLogger(__name__) 
 
     if request.method == 'POST':       
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["status"] == "getFaqs":
+        action = data.get("status","fail")
+
+        if action == "getFaqs":
             return getFaqs(data)       
+        
+        #no valid action found
+        logger.info(f"FAQ Post error: {data}")
+        return JsonResponse({"status" :  "error"},safe=False)
                    
     else:     
 

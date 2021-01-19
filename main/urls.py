@@ -15,7 +15,6 @@ urlpatterns = [
 
     #account control
     path('',views.mainHome,name='mainHome'),                 #direct user by subject type
-    #path('accounts/', include('django.contrib.auth.urls')),  #django built in account registrations
     path('profile/', views.updateProfile,name='profile'),    #custom profile 
     path('accounts/profile/', views.updateProfile,name='profile'), #custom profile         
     path('profileCreate/',views.profileCreate,name='profileCreate'),
@@ -45,5 +44,10 @@ urlpatterns = [
 
     #cron
     path('runCrons/',csrf_exempt(views.runCronsView),name='runCronsView'),
+
+    #bots
+    path('robots.txt',views.RobotsTxt,name='robotsTxt'),
+    path('ads.txt',views.AdsTxt,name='adsTxt'),
+
 
 ]
