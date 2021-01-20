@@ -52,9 +52,10 @@ urlpatterns = [
     #cron
     path('runCrons/',csrf_exempt(views.runCronsView),name='runCronsView'),
 
-    #bots
+    #txt
     path('robots.txt',views.RobotsTxt,name='robotsTxt'),
     path('ads.txt',views.AdsTxt,name='adsTxt'),
+    path('.well-known/security.txt',views.SecurityTxt,name='securityTxt'),
 
     #icons
     path('favicon.ico',RedirectView.as_view(url='/static/favicon.ico'),name='favicon'),
