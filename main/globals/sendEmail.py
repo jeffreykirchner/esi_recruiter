@@ -17,7 +17,7 @@ def sendMassEmail(subjectList,subject,message):
 
     message_list = []
     message_list.append(())
-    from_email = settings.EMAIL_HOST_USER    
+    from_email = getFromEmail()    
 
     i = 0
     c = 0
@@ -72,7 +72,8 @@ def sendMassEmailVerify(profileList,request):
     if len(profileList) == 0:
         return {"mailCount":0,"errorMessage":"No valid users"}
 
-    from_email = settings.EMAIL_HOST_USER    
+    #from_email = settings.EMAIL_HOST_USER    
+    from_email = getFromEmail()
 
     for p in profileList:
         p.email_confirmed = get_random_string(length=32)
@@ -126,6 +127,10 @@ def getTestSubjectEmail():
 
     return s
 
+#return the from address
+def getFromEmail():    
+    return f'"{settings.EMAIL_HOST_USER_NAME}" <{settings.EMAIL_HOST_USER }>'
+
 #send email when profile is created or changed
 def profileCreateSendEmail(request,u):
     logger = logging.getLogger(__name__) 
@@ -151,7 +156,7 @@ def profileCreateSendEmail(request,u):
     message_list = []
     message_list.append(())
 
-    from_email = settings.EMAIL_HOST_USER 
+    from_email = getFromEmail()
 
     if settings.DEBUG:
         s = getTestSubjectEmail()
