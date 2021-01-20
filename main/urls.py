@@ -5,6 +5,7 @@ from django.conf.urls import include,url
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from main.views import *
+from django.views.generic import TemplateView
 
 urlpatterns = [
     #admin site
@@ -49,5 +50,7 @@ urlpatterns = [
     path('robots.txt',views.RobotsTxt,name='robotsTxt'),
     path('ads.txt',views.AdsTxt,name='adsTxt'),
 
+    #favicon
+    path('favicon.ico',RedirectView.as_view(url='/static/favicon.ico'),name='favicon'),
 
 ]
