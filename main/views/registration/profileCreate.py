@@ -55,9 +55,10 @@ def profileCreate(request):
         
         #check that request id json formatted
         try:
-            data = json.loads(request.body.decode('utf-8'))
+            request_body = request.body.decode('utf-8')
+            data = json.loads(request_body)
         except Exception  as e:  
-           logger.warning(f"Profile create post json error: {data} , Exception: {e}") 
+           logger.warning(f"Profile create post json error: {request_body}, Exception: {e}") 
            return JsonResponse({"status" :  "error"},safe=False)
 
         #check for correct action
