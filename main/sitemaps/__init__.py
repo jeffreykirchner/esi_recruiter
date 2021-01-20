@@ -1,0 +1,1 @@
+from .staticViewSitemap import *

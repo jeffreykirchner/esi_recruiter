@@ -32,7 +32,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'main',
     'django.contrib.admin',
-    'django.contrib.humanize',  
+    'django.contrib.humanize',
+    'django.contrib.sites',  
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
@@ -109,3 +111,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#site framework
+SITE_ID = 1

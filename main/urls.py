@@ -6,6 +6,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from main.views import *
 from django.views.generic import TemplateView
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
 
 urlpatterns = [
     #admin site
@@ -50,7 +56,10 @@ urlpatterns = [
     path('robots.txt',views.RobotsTxt,name='robotsTxt'),
     path('ads.txt',views.AdsTxt,name='adsTxt'),
 
-    #favicon
+    #icons
     path('favicon.ico',RedirectView.as_view(url='/static/favicon.ico'),name='favicon'),
+
+    #sitemap
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},name='django.contrib.sitemaps.views.sitemap'),
 
 ]
