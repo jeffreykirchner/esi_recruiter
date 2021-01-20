@@ -55,6 +55,7 @@ def profileCreate(request):
         
         #check that request id json formatted
         try:
+            request_body = None
             request_body = request.body.decode('utf-8')
             data = json.loads(request_body)
         except Exception  as e:  
