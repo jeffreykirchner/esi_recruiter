@@ -74,7 +74,7 @@ def login_function(request,data):
 
             return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
-            logger.info(f"Login user {username} fail user / pass")
+            logger.warning(f"Login user {username} fail user / pass")
             
             return JsonResponse({"status":"error"}, safe=False)
     else:
