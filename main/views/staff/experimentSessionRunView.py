@@ -41,7 +41,7 @@ def experimentSessionRunView(request,id=None):
         if data["action"] == "getSession":
             return getSession(data,id,request.user)
         elif data["action"] == "attendSubject":
-            return attendSubject(request.user,data,id)
+            return attendSubject(data,id,request.user)
         elif data["action"] == "bumpSubject":
             return bumpSubject(data,id,request.user)
         elif data["action"] == "noShowSubject":
