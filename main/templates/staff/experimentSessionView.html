@@ -1473,50 +1473,6 @@
     </div>
 </div>
 
-<!-- send message to all confirmed subjects -->
-<div class="modal" id="sendMessageModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Send Message</h5>                
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">   
-                <div class="row">
-                    <div class = "col">
-                        <div class="form-group">
-                            <label for="sendMessageSubject">Subject</label>
-                            <input type="email" class="form-control" v-model="sendMessageSubject" id="sendMessageSubject" width="100%">
-                          </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class = "col">                      
-                        <div class="form-group">
-                            <label for="sendMessageText">Message</label>
-                            <textarea class="form-control" v-model="sendMessageText" id="sendMessageText" rows="3" cols="100%"></textarea>
-                          </div>
-                    </div>
-                </div>
-                <hr>                
-                <div class="row">
-                    <div class="col">
-                        <span v-html="emailMessageList"></span>
-                    </div>
-                </div>                
-
-            </div>
-            <div class="modal-footer">                            
-                <button type="button" class="btn btn-outline-success" v-on:click = "sendEmailMessage()">
-                    <span v-html="sendMessageButtonText"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- cancel session modal -->
 <div class="modal" id="cancelSessionModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -1658,6 +1614,7 @@
     </div>
 </div>
 
+{%include "modals/sendMessageModal.html"%}
 {%include "modals/invitationModal.html"%}
 {%include "modals/editInvitationTextModal.html"%}
 {%include "modals/recruitmentModal.html"%}
