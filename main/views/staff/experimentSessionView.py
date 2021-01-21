@@ -660,6 +660,8 @@ def updateSessionDay(data,id):
     logger.info("Update Session Day")
     logger.info(data)
 
+    status = "success"
+
     es = experiment_sessions.objects.get(id=id)
     esd = experiment_session_days.objects.get(id = data["id"])           
 
@@ -669,10 +671,11 @@ def updateSessionDay(data,id):
         form_data_dict[field["name"]] = field["value"]
 
     if es.getConfirmedCount() > 0:
-        logger.info("Cannot change session date or length when subjects have confirmed")
+        logger.warning("Cannot change session date or length when subjects have confirmed")
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
         form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
+        status = "fail"
     
     if form_data_dict["custom_reminder_time"] == 'false':
         form_data_dict["reminder_time"] = form_data_dict["date"]
@@ -704,7 +707,7 @@ def updateSessionDay(data,id):
 
         print("valid session form")
 
-        return JsonResponse({"sessionDays" :es.json(),"status":"success"}, safe=False)
+        return JsonResponse({"sessionDays" :es.json(),"status":status}, safe=False)
     else:
         print("invalid session form")
         print(dict(form.errors.items()))
