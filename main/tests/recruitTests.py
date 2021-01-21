@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from django.contrib.auth.models import User
-from main.views.profileCreate import profileCreateUser
+from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,account_types,majors,\
                         parameters,accounts,departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
@@ -486,7 +486,8 @@ class recruiteTestCase(TestCase):
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         e=self.e2
         es=self.e2.ES.first()
@@ -542,7 +543,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         cancelSession({},es.id)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         e=self.e2
         es=self.e2.ES.first()
@@ -591,7 +593,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=False,attended=False)
 
         cancelSession({},es.id)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         e=self.e2
         es=self.e2.ES.first()
@@ -644,7 +647,8 @@ class recruiteTestCase(TestCase):
 
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
         logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
@@ -698,7 +702,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         cancelSession({},es.id)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
@@ -752,7 +757,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
@@ -806,7 +812,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -829,7 +836,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -896,7 +904,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -918,7 +927,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -985,7 +995,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1009,7 +1020,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
 
         cancelSession({},es.id)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1101,7 +1113,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
@@ -1156,7 +1169,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1179,7 +1193,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #extra eperiment to give user one insitituion three experimence
         e4 = createExperimentBlank()
@@ -1274,7 +1289,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1296,7 +1312,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1365,7 +1382,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three", exclude two experience
         e=self.e2
@@ -1557,7 +1575,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
@@ -1611,7 +1630,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1648,7 +1668,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1713,7 +1734,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1750,7 +1772,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1820,7 +1843,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         cancelSession({},es.id)
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -1857,7 +1881,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1953,7 +1978,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         e=self.e2
         es=self.e2.ES.first()
@@ -2004,7 +2030,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -2040,7 +2067,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()
@@ -2114,7 +2142,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True)
 
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #setup experiment 2 institution "one" and "three"
         e=self.e2
@@ -2150,7 +2179,8 @@ class recruiteTestCase(TestCase):
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
         esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
-        completeSession({},esd1.id)
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
 
         #test experiment
         e3 = createExperimentBlank()

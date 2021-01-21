@@ -3,7 +3,7 @@ import unittest
 
 from django.contrib.auth.models import User
 
-from main.views.profileCreate import profileCreateUser
+from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,account_types,majors,\
                         parameters,accounts,departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users,experiment_session_days
@@ -161,7 +161,7 @@ class cronTests(TestCase):
         esd2 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd2.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add subject 1

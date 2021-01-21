@@ -21,7 +21,8 @@
                     experiment_session_days_user:[],    
                     defaultShowUpFee : "",      
                     complete:true,                
-                    canceled:false,           
+                    canceled:false,
+                    reopenAllowed:false,           
                 },
                 bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
                 noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -727,7 +728,8 @@
                                 <!-- second button row -->
                                 <tr>
                                     <td> 
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()">
+
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()" v-bind:disabled = "sessionDay.reopenAllowed === false">
                                             <div v-if="sessionDay.complete">
                                                 <span v-html='openSessionButtonText'></span>
                                             </div>

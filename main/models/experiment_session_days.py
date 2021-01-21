@@ -266,8 +266,21 @@ class experiment_session_days(models.Model):
             "enable_time":self.enable_time,
         }
 
+    #return true if re-opening is allowed
+    def reopenAllowed(self,u):
+
+        if not self.complete or u.is_superuser:
+            return True
+        else:
+            td = datetime.now(pytz.UTC) - self.date
+
+            if td>timedelta(days=1):
+                return False
+            else:
+                return True
+
     #info to send to session run page
-    def json_runInfo(self):       
+    def json_runInfo(self,u):       
 
         return{
             "id":self.id,
@@ -287,6 +300,7 @@ class experiment_session_days(models.Model):
             "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
             "requiredCount" : self.experiment_session.recruitment_params.actual_participants,
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
+            "reopenAllowed" : self.reopenAllowed(u),
         }
     
     #json info for run session
