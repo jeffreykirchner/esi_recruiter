@@ -3,7 +3,7 @@ import unittest
 
 from django.contrib.auth.models import User
 
-from main.views.profileCreate import profileCreateUser
+from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,account_types,majors,\
                         parameters,accounts,departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users    
