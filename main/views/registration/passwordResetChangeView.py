@@ -59,12 +59,12 @@ def checkValidCode(token):
         p = profile.objects.filter(password_reset_key = token)
 
         if p.count() != 1:
-            logger.info(f"Password reset failed for {token}, count: {p.count()}")
+            logger.warning(f"Password reset failed for {token}, count: {p.count()}")
             return None
         else:
             return p.first()
     except:
-        logger.info(f"Password reset invalid code format {token}")
+        logger.warning(f"Password reset invalid code format {token}")
         return None
 
 
