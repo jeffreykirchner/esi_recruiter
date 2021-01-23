@@ -15,7 +15,7 @@
 
         {{ form.non_field_errors }}        
 
-        <form method="post" action="{% url 'profile' %}">
+        <form method="post" action="{% url 'profile' %}" autocomplete="off">
           {% csrf_token %}            
           
           {% for i in form %}
