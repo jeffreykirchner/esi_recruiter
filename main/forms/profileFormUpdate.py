@@ -28,8 +28,10 @@ class profileFormUpdate(forms.Form):
     paused = forms.ChoiceField(label='Pause your account?  You will not receive invitations while paused.',             
                                          choices=(('Yes', 'Yes'), ('No', 'No')),                                                          
                                          widget=forms.Select)     
-    password1 = forms.CharField(label='Password (Leave blank for no change.)',widget=forms.PasswordInput(),required=False)
-    password2 = forms.CharField(label='Repeat Password',widget=forms.PasswordInput(),required=False)
+    password1 = forms.CharField(label='Password (Leave blank for no change.)',
+                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password"}),required=False)
+    password2 = forms.CharField(label='Repeat Password',
+                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password"}),required=False)
 
     def clean_studentWorker(self):
         logger = logging.getLogger(__name__) 
