@@ -60,6 +60,8 @@ urlpatterns = [
 
     #icons
     path('favicon.ico',RedirectView.as_view(url='/static/favicon.ico'),name='favicon'),
+    path('apple-touch-icon-precomposed.png',RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'),name='favicon'),
+    path('apple-touch-icon-120x120-precomposed.png',RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'),name='favicon'),
 
     #sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},name='django.contrib.sitemaps.views.sitemap'),
