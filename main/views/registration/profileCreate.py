@@ -101,6 +101,11 @@ def createUser(request,data):
 
     for field in data["formData"]:            
         form_data_dict[field["name"]] = field["value"]
+
+        #remove caps from email form
+        if field["name"] == "email":
+            form_data_dict["email"] = form_data_dict["email"].strip().lower()
+
     
     f = profileForm(form_data_dict)
 

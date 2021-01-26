@@ -63,7 +63,7 @@ def login_function(request,data):
 
         #logger.info(f"Login user {username}")
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username.lower(), password=password)
 
         if user is not None:
             login(request, user) 
