@@ -78,5 +78,5 @@ def login_function(request,data):
             
             return JsonResponse({"status":"error"}, safe=False)
     else:
-        logger.info(f"Login user validation error")
+        logger.info(f"Login user form validation error")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)
