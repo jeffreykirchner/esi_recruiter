@@ -77,7 +77,7 @@ def profileCreate(request):
         
         form = profileForm()
 
-        logger.info(reverse('profile'))
+        #logger.info(reverse('profile'))
         try:
             helpText = help_docs.objects.annotate(rp = V(reverse('profile'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
