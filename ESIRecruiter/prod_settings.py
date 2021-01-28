@@ -12,7 +12,7 @@ DEBUG = os.environ.get('DEBUG',False)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = 'main/static/'
 
-ALLOWED_HOSTS = [os.environ['ALLOWED_HOST']]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -48,7 +48,7 @@ LOGGING = {
        'logfile': {        
            'level':'INFO', 
            'class': 'logging.handlers.RotatingFileHandler',
-           'filename': 'logs/debug.log',
+           'filename': os.environ['LOG_LOCATION'],
            'maxBytes': 52428800,           #50 mb
            'backupCount' : 2,
            'formatter' : 'info_format',
