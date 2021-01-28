@@ -15,7 +15,12 @@ import os
 try:
     from .local_settings import *
 except ImportError:
-    pass
+
+    #import azure settings
+    try:
+        from .prod_settings import *
+    except ImportError:
+        pass
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/

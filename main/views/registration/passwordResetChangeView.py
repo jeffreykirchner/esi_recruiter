@@ -43,8 +43,6 @@ def passwordResetChangeView(request,token):
 
         #check that code is valid
         valid_code_profile = checkValidCode(token)
-       
-
 
         return render(request,'registration/passwordResetChange.html',{"labManager":labManager,
                                                          "form":form,
