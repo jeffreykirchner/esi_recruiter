@@ -8,3 +8,4 @@ from .calendarView import *
 from .experimentSearchView import *
 from .reportsView import *
 from .traitsView import *
+from .sessionsOpen import *
