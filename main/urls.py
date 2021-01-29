@@ -44,6 +44,7 @@ urlpatterns = [
     path('experimentSessionPayouts/<id>/<payGroup>/',views.experimentSessionPayoutsView,name='experimentSessionPayoutsView'),
     path('calendar/',views.calendarView,name='calendarView'),
     path('traits/',views.traitsView,name='traits'),
+    path('sessionsOpen/',views.SessionsOpen,name='sessionsOpen'),
 
     #subject
     path('subjectHome/',views.subjectHome,name='subjectHome'),
