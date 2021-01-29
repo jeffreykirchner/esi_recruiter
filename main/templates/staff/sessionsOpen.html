@@ -16,14 +16,16 @@
                 sessions:[],
                 autoRefreshButtonText:'Auto Refresh: Off <i class="fas fa-sync fa-spin"></i>',
                 closeAllButtonText:'Complete All Sessions <i class="fas fa-check"></i>',
-                autoRefresh:false,
+                auto_refresh:"Off",
+                last_refresh:"",
+                timeouts:[],
             },
 
             methods:{
                 
                 //get list of open experiments
-                getOpenSessions:function(){                    
-
+                getOpenSessions:function(){       
+                   
                     axios.post('/sessionsOpen/', {
                                     action :"getOpenSessions" ,                                                                                                                             
                                 })
@@ -31,21 +33,39 @@
                                     
                                     app.$data.sessions=response.data.sessions;
 
-                                    if(app.$data.autoRefresh)
-                                    {
-                                        app.$data.autoRefreshButtonText='Auto Refresh: On <i class="fas fa-sync"></i>';
-                                    }
-                                    else
-                                    {
-                                        app.$data.autoRefreshButtonText='Auto Refresh: Off <i class="fas fa-sync"></i>';
-                                    }
+                                    app.$data.autoRefreshButtonText='Auto Refresh: ' + app.$data.auto_refresh + ' <i class="fas fa-sync"></i>';
+                                    app.$data.last_refresh = moment(new Date).local().format('MM/DD/YYYY hh:mm:ss a'); 
 
+                                    if(app.$data.auto_refresh=="On")
+                                    {
+                                        app.$data.timeouts.push(setTimeout(app.getOpenSessions, 60000));            
+                                    }
                                    
                                 })
                                 .catch(function (error) {
                                     console.log(error);
                                    
                                 });                        
+                },
+
+                autoRefreshButton:function(){
+                    if(app.$data.auto_refresh == "Off")
+                    {
+                        app.$data.auto_refresh = "On";
+                        this.getOpenSessions()
+                    }
+                    else
+                    {
+                        app.$data.auto_refresh = "Off";        
+                        
+                        for (var i = 0; i < app.$data.timeouts.length; i++) {
+                            clearTimeout(app.$data.timeouts[i]);
+                        }
+
+                        app.$data.timeouts=[];
+                    }
+
+                    app.$data.autoRefreshButtonText = 'Auto Refresh: ' + app.$data.auto_refresh + ' <i class="fas fa-sync"></i>';
                 },
 
                 //get list of open experiments
@@ -72,13 +92,7 @@
                     
                     });                        
                 },
-                
-                autoRefreshAction:function(){
 
-                },
-
-                autoRefreshButton:function(){
-                },
             
             },
                 
@@ -112,12 +126,13 @@
                 <span class="align-middle">Open Sessions</span>     
                 
                 <span class="float-right">
-                    <button class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()">
-                        <span v-html="closeAllButtonText"></span>
-                    </button>
-                    <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()">
+                    [[last_refresh]]
+                    <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()" title="Automatically refresh the table once per minute.">
                         <span v-html="autoRefreshButtonText"></span>
                     </button>
+                    <button class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()" title="Mark all sessions as 'Complete'.">
+                        <span v-html="closeAllButtonText"></span>
+                    </button>                    
                 <span>
             </div>
             
@@ -159,7 +174,7 @@
                                 [[s.experiment_session__experiment__title]]                                        
                             </td>
                             <td style="text-align: center;"> 
-                                [[s.date]]                                   
+                                [[s.date_str]]                                   
                             </td>
                             <td style="text-align: center;"> 
                                [[s.accepted_count]] / [[s.experiment_session__recruitment_params__registration_cutoff]]                              

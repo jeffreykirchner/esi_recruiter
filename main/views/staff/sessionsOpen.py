@@ -5,13 +5,15 @@ import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import logging
-from main.models import experiment_session_days,help_docs
+from main.models import experiment_session_days,help_docs,parameters
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Lower
 from django.db.models import Q,F, Value,CharField
 from django.db.models import Count
 from django.shortcuts import redirect
 import main
+from datetime import datetime,timedelta
+import pytz
 
 @login_required
 @user_is_staff
@@ -59,6 +61,17 @@ def getOpenSessions(data):
                                                                      .order_by('date')
    
     s_list = list(s_dict)
+
+    p = parameters.objects.first()
+    tz = pytz.timezone(p.subjectTimeZone)
+
+    for i in s_list:
+
+        d = i["date"]
+        i["date_str"] = d.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p")
+
+        
+
     logger.info(s_list)
 
     return JsonResponse({"sessions" : s_list},safe=False)
