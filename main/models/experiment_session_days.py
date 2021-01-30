@@ -27,14 +27,17 @@ class experiment_session_days(models.Model):
     date = models.DateTimeField(default=now)                            #date and time of session 
     length = models.IntegerField(default=60)                            #length of session in minutes
     date_end = models.DateTimeField(default=now)                        #date and time of session end, calculated from date and length   
+    enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
+
     auto_reminder = models.BooleanField (default=True)                  #send reminder emails to subject 24 hours before experiment
     reminder_time = models.DateTimeField(blank=True,null=True,
                                          default=None)                  #date and time that reminder email should be sent
     custom_reminder_time = models.BooleanField (default=False)          #set a custom reminder time
-    enable_time = models.BooleanField (default=True)                    #if disabled, subject can do experiment at any time of day (online for example)
+    reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
+    reminder_email_sent_count = models.IntegerField(blank=True,null=True) #number of reminder emails sent          
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
-    reminder_email_sent = models.BooleanField(default=False)            #true once the reminder email is sent to subjects
+    
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -226,7 +229,7 @@ class experiment_session_days(models.Model):
             logger.info("Send Reminder emails error session canceled: session " + str(self.experiment_session) + ", session day " + str(self.id))
             return {"emailList": [],"status":"fail"}
 
-        self.reminder_email_sent=True
+        self.reminder_email_sent = True
         self.save()
         
         p = parameters.objects.first()
@@ -247,6 +250,10 @@ class experiment_session_days(models.Model):
 
         mailResult = main.globals.sendMassEmail(emailList,subjectText, messageText)
         logger.info(mailResult)
+
+        #store the number of reminders sent
+        self.reminder_email_sent_count = mailResult.get("mailCount",0)
+        self.save()
 
         return {"emailList": users_list,"status":"success"}
 
@@ -369,6 +376,7 @@ class experiment_session_days(models.Model):
             "reminder_time_raw":self.reminder_time,
             "custom_reminder_time":self.custom_reminder_time,
             "reminder_email_sent":self.reminder_email_sent,
+            "reminder_email_sent_count":self.reminder_email_sent_count,
             "length":self.length,
             "account":self.account.id,
             "auto_reminder":self.auto_reminder,
