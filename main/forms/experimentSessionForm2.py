@@ -50,7 +50,7 @@ class experimentSessionForm2(forms.ModelForm):
 
     class Meta:
         model = experiment_session_days
-        exclude=['experiment_session','complete','date_end','reminder_email_sent']
+        exclude=['experiment_session','complete','date_end','reminder_email_sent','reminder_email_sent_count']
     
     def clean_enable_time(self):
         logger = logging.getLogger(__name__)

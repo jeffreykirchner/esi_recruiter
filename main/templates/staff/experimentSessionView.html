@@ -1264,7 +1264,7 @@
 
 {%block content%}    
 
-<div class="row justify-content-xl-center">
+<div class="row justify-content-xl-center" v-cloak>
     <div class="col col-md-12">
         <div class="card">
             <div class="card-header">
@@ -1290,7 +1290,7 @@
                 <!-- session day table -->
                 <div class="row mt-4">                   
                     <div class="col text-center">
-                        <table class="table table-hover table-condensed table-responsive-xl" v-cloak>
+                        <table class="table table-hover table-condensed table-responsive-xl">
                             <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
                             <thead>
                                 <th scope="col">
@@ -1332,30 +1332,33 @@
                                 <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
                                     <td style="text-align: left;">
                                         <span v-if="sd.enable_time">
-                                            <span v-html="formatDate(sd.date_raw,false,false)"></span>
+                                            [[formatDate(sd.date_raw,false,false)]]
                                         </span>
                                         <span v-else>
-                                            <span v-html="formatDate(sd.date_raw,true,false) + ' Anytime '"></span>
+                                            [[formatDate(sd.date_raw,true,false)]] Anytime
                                         </span>
-                                        <span v-if="checkToday(sd.date_raw)" v-html="'(Today)'"></span> 
+                                        <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
 
                                         <!-- room date time overlap -->
                                         <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
                                             <a  v-bind:href='"/experimentSession/" + i.session_id' target="_blank">
-                                               <span style="color: red;" v-html="'Overlaping Session: '+ i.name"></span><br>
+                                               <span style="color: red;">Overlaping Session: [[i.name]]</span><br>
                                             </a>
                                         </div>                                   
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if="sd.reminder_email_sent">
-                                            <span v-html="'Yes'"></span>
+                                            Yes&nbsp;
+                                            <span v-if="sd.reminder_email_sent_count">
+                                                ([[sd.reminder_email_sent_count]])
+                                            </div>
                                         </div>
                                         <div v-else>
-                                            <span v-html="'No'"></span>
+                                            No
                                         </div>
                                     </td>
                                     <td style="text-align: center;">                                        
-                                        <div v-html="sd.confirmedCount+ '/' + (sd.confirmedCount + sd.unConfirmedCount)"></div>                                                                                
+                                        [[sd.confirmedCount]] / [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
                                     </td>                               
                                     <td style="text-align: center;">                                      
                                         <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
