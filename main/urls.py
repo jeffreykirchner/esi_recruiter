@@ -45,6 +45,7 @@ urlpatterns = [
     path('calendar/',views.calendarView,name='calendarView'),
     path('traits/',views.traitsView,name='traits'),
     path('sessionsOpen/',views.SessionsOpen,name='sessionsOpen'),
+    path('payPalHistory/',views.PayPalHistory,name='payPalHistory'),
 
     #subject
     path('subjectHome/',views.subjectHome,name='subjectHome'),

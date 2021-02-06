@@ -19,7 +19,7 @@ from main.globals import sendMassEmail
 
 @login_required
 @user_is_staff
-def payPalHistory(request):
+def PayPalHistory(request):
     if request.method == 'POST':
 
         data = json.loads(request.body.decode('utf-8'))
@@ -35,8 +35,8 @@ def payPalHistory(request):
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__email_confirmed = 'yes').count()
-        return render(request,'staff/userSearch.html',{"activeCount":activeCount,"helpText":helpText})     
+        
+        return render(request,'staff/payPalHistory.html',{"helpText":helpText})     
 
 #return list of users based on search criterion
 def getHistory(request,data):
@@ -45,16 +45,9 @@ def getHistory(request,data):
     logger.info(data)
 
     #request.session['userSearchTerm'] = data["searchInfo"]            
-    activeOnly = data["activeOnly"] 
+    history=[]    
+    errorMessage=""      
 
-    users = lookup(data["searchInfo"],False,activeOnly)            
-
-    errorMessage=""
-
-    if(len(users) >= 1000):
-        errorMessage = "Narrow your search"
-        users=[]          
-
-    return JsonResponse({"users" : json.dumps(users,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
+    return JsonResponse({"history" : history,"errorMessage":errorMessage},safe=False)
 
 

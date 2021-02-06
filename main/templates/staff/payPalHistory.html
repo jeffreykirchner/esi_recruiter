@@ -20,17 +20,15 @@
                 methods:{
                     //get list of users based on search
                     getHistory: function(){
-                        if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
                         app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                         axios.post('{{request.get_full_path}}', {                            
-                            action:"getUsers",
-                            searchInfo:app.$data.searchInfo,
-                            activeOnly:app.$data.activeOnly,                                
+                            action:"getHistory",
+                                        
                         })
                         .then(function (response) {                         
-                            app.functionTakeUserList(response);
+                            app.$data.history = response.data.history;
                             app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
                         })
                         .catch(function (error) {
@@ -41,7 +39,7 @@
                 },
                 
                 mounted: function(){
-                    $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
+                    this.getHistory();
                 },
             });
         });
@@ -62,7 +60,7 @@
                     <div class="col">
                         <table class="table table-hover table-condensed table-responsive-xl">                            
 
-                            <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
+                            <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
         
                             <thead>
                                 <th scope="col">

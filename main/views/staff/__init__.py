@@ -9,3 +9,4 @@ from .experimentSearchView import *
 from .reportsView import *
 from .traitsView import *
 from .sessionsOpen import *
+from .payPalHistory import *
