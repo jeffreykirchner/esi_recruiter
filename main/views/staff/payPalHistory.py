@@ -11,11 +11,10 @@ from django.db.models.functions import Lower,Concat
 from django.urls import reverse
 from main import views
 import logging
-from django.db.models import OuterRef, Subquery
-from django.db.models import Count
 from main.models import parameters,help_docs
 from datetime import datetime, timedelta,timezone
-from main.globals import sendMassEmail
+from django.conf import settings
+import requests
 
 @login_required
 @user_is_staff
@@ -47,6 +46,16 @@ def getHistory(request,data):
     #request.session['userSearchTerm'] = data["searchInfo"]            
     history=[]    
     errorMessage=""      
+
+    # headers = {'WWW-Authenticate': f'{settings.PPMS_USER_NAME} : {settings.PPMS_PASSWORD}',
+    #            'Content-Type' : 'application/json'}
+            
+    # data = {}    
+    
+    r = requests.get(f'{settings.PPMS_HOST}/payments/',
+                     auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
+
+    logger.info(r.json())
 
     return JsonResponse({"history" : history,"errorMessage":errorMessage},safe=False)
 
