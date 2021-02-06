@@ -172,46 +172,48 @@
 
 <!-- calander control -->
 <div class="row mt-4 ml-4 mr-4 mb-2">
-    <div class="col" style="text-align: left;">
+    <div class="col-md" style="text-align: left;">
         <span v-html = "currentMonthString"></span>
     </div>
-    <div class="col" style="text-align: center;">
+    <div class="col-md" style="text-align: center;">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('previous')"><span v-html="backButtonText"></span></button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="getMonth()">Current</button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('next')"><span v-html="forwardButtonText"></span></button>  
     </div>
-    <div class="col" style="text-align: right;">
+    <div class="col-md" style="text-align: right;">
         
     </div>
 </div>
 <!-- calendar header -->
-<div class="row ml-4 mr-4 bg-light">
-    <div class="col border rounded" style="text-align: center;">
-        Sunday
+<div class="d-none d-md-block">
+    <div class="row ml-4 mr-4 bg-light">
+        <div class="col-md border rounded" style="text-align: center;">
+            Sunday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Monday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Tuesday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Wednesday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Thursday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Friday
+        </div>
+        <div class="col-md border rounded" style="text-align: center;">
+            Saturday
+        </div>    
     </div>
-    <div class="col border rounded" style="text-align: center;">
-        Monday
-    </div>
-    <div class="col border rounded" style="text-align: center;">
-        Tuesday
-    </div>
-    <div class="col border rounded" style="text-align: center;">
-        Wednesday
-    </div>
-    <div class="col border rounded" style="text-align: center;">
-        Thursday
-    </div>
-    <div class="col border rounded" style="text-align: center;">
-        Friday
-    </div>
-    <div class="col border rounded" style="text-align: center;">
-        Saturday
-    </div>    
 </div>
 
 <!-- calendar body -->
 <div class="row ml-4 mr-4 no-gutters" v-for="(w,indexW) in calendar" v-bind:key="w.id">
-    <div class="col border rounded no-gutters cell" v-for="(d,indexD) in w" v-bind:key="d.id">
+    <div class="col-md border rounded no-gutters cell" v-for="(d,indexD) in w" v-bind:key="d.id">
 
         <!-- calendar cell -->
         <div class="row">
