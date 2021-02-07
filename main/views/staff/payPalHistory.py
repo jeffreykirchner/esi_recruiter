@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import CharField,Q,F,Value as V
-from django.db.models.functions import Lower,Concat
+# from django.db.models import CharField,Q,F,Value as V
+# from django.db.models.functions import Lower,Concat
 from django.urls import reverse
 from main import views
 import logging
@@ -15,6 +15,7 @@ from main.models import parameters,help_docs
 from datetime import datetime, timedelta,timezone
 from django.conf import settings
 import requests
+import pytz
 
 @login_required
 @user_is_staff
@@ -63,6 +64,19 @@ def getHistory(request,data):
             errorMessage=r.json().get("detail")
         else:
             history = r.json()
+
+            p = parameters.objects.first()
+            tz = pytz.timezone(p.subjectTimeZone)
+
+            for h in history:
+                #convert earnings
+                h["amount"] = float(h["amount"])
+                h["amount"] = f'${h["amount"]:.2f}'
+
+                #convert date
+                h["timestamp"] = datetime.strptime(h["timestamp"],'%m/%d/%Y %H:%M:%S %Z')
+
+                h["timestamp"] = h["timestamp"].astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p")
 
     except Exception  as e: 
             logger.warning(f'PayPalHistory Error: {e}')
