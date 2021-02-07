@@ -52,10 +52,21 @@ def getHistory(request,data):
             
     # data = {}    
     
-    r = requests.get(f'{settings.PPMS_HOST}/payments/',
+    try:
+
+        r = requests.get(f'{settings.PPMS_HOST}/payments/',
                      auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
 
-    logger.info(r.json())
+        #logger.info(r.status_code)
+
+        if r.status_code != 200:
+            errorMessage=r.json().get("detail")
+        else:
+            history = r.json()
+
+    except Exception  as e: 
+            logger.warning(f'PayPalHistory Error: {e}')
+            errorMessage = "Unable to retrieve history."
 
     return JsonResponse({"history" : history,"errorMessage":errorMessage},safe=False)
 

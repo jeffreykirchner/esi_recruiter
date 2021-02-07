@@ -15,6 +15,7 @@
                     baseURL:'{{request.get_full_path}}',                                                                                                                 
                     history:[],      
                     searchButtonText:'Search <i class="fas fa-search"></i>',
+                    errorMessage:"",
                 },
 
                 methods:{
@@ -27,6 +28,7 @@
                         })
                         .then(function (response) {                         
                             app.$data.history = response.data.history;
+                            app.$data.errorMessage = response.data.errorMessage;
                             app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
                         })
                         .catch(function (error) {
@@ -64,10 +66,16 @@
             </div>
             <div class="card-body">
                 
+                <div class="row-md justify-content-center">
+                    <div class="col-md" style="text-align: center;color: red;">
+                        <span v-show = "errorMessage != ''" >[[errorMessage]]</span>
+                    </div>
+                </div>
+
                 <!-- search results table -->
                 <div class="row justify-content-center">
-                    <div class="col">
-                        <table class="table table-hover table-condensed table-responsive-xl">                            
+                    <div class="col-md">
+                        <table class="table table-hover table-condensed table-responsive-md">                            
 
                             <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
         
@@ -88,18 +96,18 @@
                             </thead>
         
                             <tbody id="userList">                                                  
-                                <tr v-for="(u,index) in history" v-bind:key="u.id">                                                                          
+                                <tr v-for="(h,index) in history" v-bind:key="h.id">                                                                          
                                     <td> 
-                                        <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a>                                        
+                                       [[h.email]]                                        
                                     </td>
                                     <td style="text-align: center;">                                        
-                                        <span v-html="u.email"></span>                                         
+                                       [[h.amount]]                                        
                                     </td>  
                                     <td style="text-align: center;">  
-                                        <span v-html="u.profile__studentID"></span>
+                                       [[h.timestamp]]
                                     </td>
                                     <td style="text-align: center;">  
-                                        <span v-html="u.profile__type__name.toUpperCase()"></span>
+                                       [[h.memo]]
                                     </td>                                                         
                                 </tr>                                                    
                             </tbody>
