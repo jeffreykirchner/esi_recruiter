@@ -1,87 +1,98 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from main.decorators import user_is_staff
+'''
+History of transanctions send to PayPal API.
+'''
 import json
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-# from django.db.models import CharField,Q,F,Value as V
-# from django.db.models.functions import Lower,Concat
-from django.urls import reverse
-from main import views
 import logging
-from main.models import parameters,help_docs
-from datetime import datetime, timedelta,timezone
-from django.conf import settings
+from datetime import datetime,timedelta
+
 import requests
 import pytz
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.db.models import CharField, F, Value as V
+from django.conf import settings
+
+from main.decorators import user_is_staff
+
+from main.models import parameters, help_docs
 
 @login_required
 @user_is_staff
 def PayPalHistory(request):
+    '''
+    Handle incoming requestst
+    '''
+
     if request.method == 'POST':
 
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getHistory":
-            return getHistory(request,data)        
+            return get_history(request, data)
 
-    else:
-        try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+        return JsonResponse({"error" : "error"}, safe=False)
 
-        except Exception  as e:   
-             helpText = "No help doc was found."
+    #get
+    try:
+        help_text = help_docs.objects.annotate(rp=V(request.path, output_field=CharField()))\
+                                     .filter(rp__icontains=F('path')).first().text
 
-        
-        return render(request,'staff/payPalHistory.html',{"helpText":helpText})     
+    except Exception as exce:
+        help_text = "No help doc was found."
+
+    param = parameters.objects.first()
+    tmz = pytz.timezone(param.subjectTimeZone)
+    d_today = datetime.now(tmz)
+    d_one_year = d_today - timedelta(days=365)
+
+    return render(request, 'staff/payPalHistory.html', {"helpText" : help_text,
+                                                        "d_today" : d_today.date().strftime("%Y-%m-%d"),
+                                                        "d_one_year" : d_one_year.date().strftime("%Y-%m-%d")})     
 
 #return list of users based on search criterion
-def getHistory(request,data):
+def get_history(request, data):
+    '''
+    Get the paypal history in the given range.
+    '''
     logger = logging.getLogger(__name__)
     logger.info("PayPal History")
     logger.info(data)
 
     #request.session['userSearchTerm'] = data["searchInfo"]            
-    history=[]    
-    errorMessage=""      
+    history = []
+    error_message = ""
 
-    # headers = {'WWW-Authenticate': f'{settings.PPMS_USER_NAME} : {settings.PPMS_PASSWORD}',
-    #            'Content-Type' : 'application/json'}
-            
-    # data = {}    
-    
     try:
 
-        r = requests.get(f'{settings.PPMS_HOST}/payments/',
-                     auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
+        req = requests.get(f'{settings.PPMS_HOST}/payments/',
+                           auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
 
         #logger.info(r.status_code)
 
-        if r.status_code != 200:
-            errorMessage=r.json().get("detail")
+        if req.status_code != 200:
+            error_message = req.json().get("detail")
         else:
-            history = r.json()
+            history = req.json()
 
-            p = parameters.objects.first()
-            tz = pytz.timezone(p.subjectTimeZone)
+            param = parameters.objects.first()
+            tmz = pytz.timezone(param.subjectTimeZone)
 
-            for h in history:
+            for hst in history:
                 #convert earnings
-                h["amount"] = float(h["amount"])
-                h["amount"] = f'${h["amount"]:.2f}'
+                hst["amount"] = float(hst["amount"])
+                hst["amount"] = f'${hst["amount"]:.2f}'
 
                 #convert date
-                h["timestamp"] = datetime.strptime(h["timestamp"],'%m/%d/%Y %H:%M:%S %Z')
+                hst["timestamp"] = datetime.strptime(hst["timestamp"], '%m/%d/%Y %H:%M:%S %Z')
 
-                h["timestamp"] = h["timestamp"].astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p")
+                hst["timestamp"] = hst["timestamp"].astimezone(tmz).strftime("%#m/%#d/%Y %#I:%M %p")
 
-    except Exception  as e: 
-            logger.warning(f'PayPalHistory Error: {e}')
-            errorMessage = "Unable to retrieve history."
+    except Exception  as exce:
+            logger.warning(f'PayPalHistory Error: {exce}')
+            error_message = "Unable to retrieve history."
 
-    return JsonResponse({"history" : history,"errorMessage":errorMessage},safe=False)
+    return JsonResponse({"history" : history, "errorMessage":error_message}, safe=False)
 
 
