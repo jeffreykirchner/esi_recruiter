@@ -3,7 +3,7 @@ History of transanctions send to PayPal API.
 '''
 import json
 import logging
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 import requests
 import pytz
@@ -63,10 +63,12 @@ def get_history(request, data):
     #request.session['userSearchTerm'] = data["searchInfo"]            
     history = []
     error_message = ""
+    start_date = data["startDate"]
+    end_date = data["endDate"]
 
     try:
 
-        req = requests.get(f'{settings.PPMS_HOST}/payments/',
+        req = requests.get(f'{settings.PPMS_HOST}/payments/{start_date}/{end_date}',
                            auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
 
         #logger.info(r.status_code)

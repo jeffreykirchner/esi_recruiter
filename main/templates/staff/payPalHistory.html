@@ -25,9 +25,9 @@
                     getHistory: function(){
 
                         axios.post('{{request.get_full_path}}', {                            
-                            action:"getHistory",
-                            startDate:startDate,
-                            endDate:endDate,
+                            action: "getHistory",
+                            startDate: app.$data.startDate,
+                            endDate: app.$data.endDate,
                                         
                         })
                         .then(function (response) {                         
