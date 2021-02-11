@@ -1,101 +1,109 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-import logging
-from decimal import *
-from django.db.models import Q,F,CharField,Value
+'''
+Run Session View
+'''
+from datetime import datetime, timedelta, timezone
+
 import random
 import csv
 import math
-from django.http import HttpResponse
-from datetime import datetime, timedelta,timezone
+import json
+import logging
 import pytz
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+
+from decimal import *
+from django.db.models import Q, F, CharField, Value
+
+from django.http import HttpResponse
+
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.models import experiment_session_days,experiment_session_day_users,profile,help_docs
-from main.views.staff.experimentSessionView import getManuallyAddSubject,changeConfirmationStatus
+from main.decorators import user_is_staff
+from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs
+from main.views.staff.experimentSessionView import getManuallyAddSubject, changeConfirmationStatus
 
 @login_required
 @user_is_staff
-def experimentSessionRunView(request,id=None):
-    logger = logging.getLogger(__name__) 
-        
-    # logger.info("some info")
+def experimentSessionRunView(request, id=None):
+    logger = logging.getLogger(__name__)
 
-    if request.method == 'POST':       
-        
+    if request.method == 'POST':
+
         try:
         #check for incoming file
             f = request.FILES['file']
-            return takeEarningsUpload(f,id,request)
-        except Exception  as e: 
-            logger.info(f'experimentSessionRunView no file upload: {e}')
+            return takeEarningsUpload(f, id, request)
+        except Exception  as exc:
+            logger.info(f'experimentSessionRunView no file upload: {exc}')
             # return JsonResponse({"response" :  "error"},safe=False)
 
         #no incoming file
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getSession":
-            return getSession(data,id,request.user)
+            return getSession(data, id, request.user)
         elif data["action"] == "attendSubject":
-            return attendSubject(data,id,request.user)
+            return attendSubject(data, id, request.user)
         elif data["action"] == "bumpSubject":
-            return bumpSubject(data,id,request.user)
+            return bumpSubject(data, id, request.user)
         elif data["action"] == "noShowSubject":
-            return noShowSubject(data,id,request.user)
+            return noShowSubject(data, id, request.user)
         elif data["action"] == "savePayouts":
-            return savePayouts(data,id,request.user)
+            return savePayouts(data, id, request.user)
         elif data["action"] == "completeSession":
-            return completeSession(data,id,request.user)
+            return completeSession(data, id, request.user)
         elif data["action"] == "fillDefaultShowUpFee":
-            return fillDefaultShowUpFee(data,id,request.user)
+            return fillDefaultShowUpFee(data, id, request.user)
         elif data["action"] == "backgroundSave":
-            return backgroundSave(data,id,request.user)
+            return backgroundSave(data, id, request.user)
         elif data["action"] == "bumpAll":
-            return bumpAll(data,id,request.user)
+            return bumpAll(data, id, request.user)
         elif data["action"] == "autoBump":
-            return autoBump(data,id,request.user)
+            return autoBump(data, id, request.user)
         elif data["action"] == "payPalExport":
-            return getPayPalExport(data,id,request.user)
+            return getPayPalExport(data, id, request.user)
         elif data["action"] == "getEarningsExport":
-            return getEarningsExport(data,id,request.user)
+            return getEarningsExport(data, id, request.user)
         elif data["action"] == "fillEarningsWithFixed":
-            return fillEarningsWithFixed(data,id,request.user)
-        elif data["action"]=="stripeReaderCheckin":
-            return getStripeReaderCheckin(data,id,request.user)
-        elif data["action"]=="roundEarningsUp":
-            return roundEarningsUp(data,id,request.user)
-           
-        return JsonResponse({"response" :  "error"},safe=False)       
+            return fillEarningsWithFixed(data, id, request.user)
+        elif data["action"] == "stripeReaderCheckin":
+            return getStripeReaderCheckin(data, id, request.user)
+        elif data["action"] == "roundEarningsUp":
+            return roundEarningsUp(data, id, request.user)
+        elif data["action"] == "payPalAPI":
+            return payPalAPI(data, id, request.user)
+
+        return JsonResponse({"response" :  "error"}, safe=False)
     else:
 
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = help_docs.objects.annotate(rp = Value(request.path, output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
 
-        except Exception  as e:   
-             helpText = "No help doc was found."
+        except Exception  as exc:
+            helpText = "No help doc was found."
 
         esd = experiment_session_days.objects.get(id=id)
-        return render(request,'staff/experimentSessionRunView.html',{"sessionDay":esd ,
-                                                                     "id":id,
-                                                                     "helpText":helpText})  
-
+        return render(request, 'staff/experimentSessionRunView.html',
+                      {"sessionDay":esd, "id":id, "helpText":helpText})
+                    
 #return the session info to the client
-def getSession(data,id,request_user):    
+def getSession(data, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Get Session Day")
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user) }, safe=False)
+    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user)}, safe=False)
 
 #get data from the strip reader for subject checkin
-def getStripeReaderCheckin(data,id,request_user):
+def getStripeReaderCheckin(data, id, request_user):
     '''
     Check subject in with strip reader
 
@@ -113,7 +121,7 @@ def getStripeReaderCheckin(data,id,request_user):
     ignoreConstraints = data["ignoreConstraints"]
 
     status = ""
-    studentID = None    
+    studentID = None
 
     try:
         if "=" in data["value"]:
@@ -121,33 +129,33 @@ def getStripeReaderCheckin(data,id,request_user):
             studentID = int(v[0])
             logger.info(id)
         else:
-            status="Card Read Error"
+            status = "Card Read Error"
             logger.info("Stripe Reader Error, no equals")
     except:
-        status="Card Read Error"
+        status = "Card Read Error"
         logger.info("Stripe Reader card read error")
 
     if status == "":
-                    
-        esdu = getSubjectByID(id,studentID,request_user)
-        
-        if len(esdu)>1:
-            status= "Error: Multiple users found" 
+
+        esdu = getSubjectByID(id, studentID, request_user)
+
+        if len(esdu) > 1:
+            status = "Error: Multiple users found"
             logger.info("Stripe Reader Error, multiple users found")
         else:
-            if autoAddUser and request_user.is_superuser :
-                status = autoAddSubject(studentID,id,request_user,ignoreConstraints)
+            if autoAddUser and request_user.is_superuser:
+                status = autoAddSubject(studentID, id, request_user, ignoreConstraints)
                 #status = r['status']
-            
-            if status=="":
-                status = attendSubjectAction(esdu.first(),id,request_user)
+                       
+            if status == "":
+                status = attendSubjectAction(esdu.first(), id, request_user)
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status }, safe=False)
+    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status }, safe=False)
 
 #get subjects by student id
-def getSubjectByID(id,studentID,request_user):
+def getSubjectByID(id, studentID, request_user):
 
     return  experiment_session_day_users.objects.filter(experiment_session_day__id = id,
                                                         user__profile__studentID__icontains = studentID,
@@ -155,7 +163,7 @@ def getSubjectByID(id,studentID,request_user):
                                                     .select_related('user')
 
 #automatically add subject when during card swipe
-def autoAddSubject(studentID,id,request_user,ignoreConstraints):
+def autoAddSubject(studentID, id, request_user, ignoreConstraints):
     logger = logging.getLogger(__name__)
     logger.info("Auto add subject")
     logger.info(studentID)
@@ -207,7 +215,7 @@ def autoAddSubject(studentID,id,request_user,ignoreConstraints):
     return status
 
 #return paypal CSV
-def getPayPalExport(data,id,request_user):
+def getPayPalExport(data, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Pay Pal Export")
     logger.info(data)
@@ -226,7 +234,7 @@ def getPayPalExport(data,id,request_user):
     return csv_response
 
 #return earnings CSV
-def getEarningsExport(data,id,request_user):
+def getEarningsExport(data, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Earnings Export")
     logger.info(data)
@@ -248,7 +256,7 @@ def getEarningsExport(data,id,request_user):
     return csv_response
 
 #automatically randomly bump exccess subjects
-def autoBump(data,id,request_user):
+def autoBump(data, id, request_user):
     '''
         mark all attended subjects as bumped
 
@@ -262,8 +270,8 @@ def autoBump(data,id,request_user):
     logger.info("Auto Bump")
     logger.info(data)
 
-    json_info=""
-    status="success"
+    json_info = ""
+    status = "success"
 
     try:
         esd = experiment_session_days.objects.get(id=id)
@@ -273,7 +281,7 @@ def autoBump(data,id,request_user):
         attendedCount = esdu_attended.count()
         bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
 
-        esdu_attended_not_bumped=[]
+        esdu_attended_not_bumped = []
 
         for e in esdu_attended:
             if not e.user.profile.bumped_from_last_session(e.id):
@@ -281,30 +289,29 @@ def autoBump(data,id,request_user):
 
         logger.info("Auto bump: available list " + str( esdu_attended_not_bumped))
 
-        if bumpsNeeded>len(esdu_attended_not_bumped):
-                bumpsNeeded = len(esdu_attended_not_bumped)
+        if bumpsNeeded > len(esdu_attended_not_bumped):
+            bumpsNeeded = len(esdu_attended_not_bumped)
 
         logger.info("Auto bump: bumps needed " + str(bumpsNeeded))
 
-        if bumpsNeeded > 0:        
+        if bumpsNeeded > 0:
 
             randomSample = random.sample(esdu_attended_not_bumped, bumpsNeeded)
             
             for u in randomSample:
                 u.attended = False
                 u.bumped = True
-                u.save() 
+                u.save()
 
         json_info = esd.json_runInfo(request_user) 
-    except Exception  as e:   
-        logger.info("Auto bump error")
-        logger.info(e)
+    except Exception  as exc:
+        logger.warning(f"Auto bump error {exc}")
         status = "fail"
 
-    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
+    return JsonResponse({"sessionDay" : json_info, "status":status}, safe=False)
 
 #bump all subjects marked as attended
-def bumpAll(data,id,request_user):
+def bumpAll(data, id, request_user):
     '''
         mark all attended subjects as bumped
 
@@ -319,23 +326,23 @@ def bumpAll(data,id,request_user):
     logger.info("Bump All")
     logger.info(data)
 
-    json_info=""
-    status="success"
+    json_info = ""
+    status = "success"
 
     try:
         esd = experiment_session_days.objects.get(id=id)
         esd.experiment_session_day_users_set.filter(attended=True) \
-                                            .update(attended = False,bumped = True) 
-        json_info=esd.json_runInfo(request_user)
+                                            .update(attended=False,bumped=True) 
+        json_info = esd.json_runInfo(request_user)
     except Exception  as e:
         logger.info("Bump all error")
         logger.info(e)
         status = "fail"
 
-    return JsonResponse({"sessionDay" :  json_info,"status":status}, safe=False)
+    return JsonResponse({"sessionDay" : json_info, "status":status}, safe=False)
 
 #save the payouts when user changes them
-def backgroundSave(data,id,request_user):
+def backgroundSave(data, id, request_user):
     '''
         Automaically save earnings in background
         :param data: {id:id,earing:earings,showUpFee:showUpFee}
@@ -392,7 +399,7 @@ def backgroundSave(data,id,request_user):
     return JsonResponse({"status" :status }, safe=False)
 
 #save the currently entered payouts
-def savePayouts(data,id,request_user):
+def savePayouts(data, id, request_user):
     '''
         Complete session after all earnings have been entered
         :param data: empty {id:id,earing:earings,showUpFee:showUpFee}
@@ -409,16 +416,16 @@ def savePayouts(data,id,request_user):
 
     esdu_list = []
 
-    status="success"
+    status = "success"
 
     for p in payoutList:
         #logger.info(p)
-        esdu  = experiment_session_day_users.objects.filter(id = p['id']).first()
+        esdu = experiment_session_day_users.objects.filter(id=p['id']).first()
 
         if esdu:
             try:
-                esdu.earnings = max(0,Decimal(p['earnings']))
-                esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+                esdu.earnings = max(0, Decimal(p['earnings']))
+                esdu.show_up_fee = max(0, Decimal(p['showUpFee']))
 
             except Exception  as e:
                 logger.info("Save Error : ")
@@ -427,27 +434,26 @@ def savePayouts(data,id,request_user):
                 esdu.earnings = 0
                 esdu.show_up_fee = 0
                 status = "fail"
-            
+
             esdu_list.append(esdu)
         else:
             logger.info("Save payouts error user not found")
             status = "fail"
-        
-    json_info=""
+
+    json_info = ""
 
     try:
         experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
         esd = experiment_session_days.objects.get(id=id)
         json_info = esd.json_runInfo(request_user)
-    except Exception  as e:
-        logger.info("Save payouts error : ")
-        logger.info(e)
-        status="fail"
+    except Exception  as exc:
+        logger.warning(f"Save payouts error : {exc}")
+        status = "fail"
 
-    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
+    return JsonResponse({"sessionDay" : json_info, "status":status}, safe=False)
 
 #close session and prevent further editing
-def completeSession(data,id,request_user):
+def completeSession(data, id, request_user):
     '''
         Complete session after all earnings have been entered
         :param data: empty {}
@@ -461,19 +467,19 @@ def completeSession(data,id,request_user):
     logger.info("Complete Session")
     logger.info(data)
 
-    status=""
-    json_info=""
+    status = ""
+    json_info = ""
 
     try:
         esd = experiment_session_days.objects.get(id=id)
 
-        status="success"
+        status = "success"
 
         #check that session is not being re-opened after 24 hours by non-elevated user
         if esd.complete == True:
             if not esd.reopenAllowed(request_user):
                 logger.warning(f"Failed to open session day, more 24 hours passed {esd}")
-                status="fail"
+                status = "fail"
 
         if status == "success":
             esd.complete = not esd.complete
@@ -488,15 +494,14 @@ def completeSession(data,id,request_user):
                 esdu.update(earnings = 0)
         
         json_info = esd.json_runInfo(request_user)
-    except Exception  as e:
-        logger.info("Fill earnings with fixed amount error : ")
-        logger.info(e)
-        status="fail"
+    except Exception  as exc:
+        logger.warning(f"Fill earnings with fixed amount error : {exc}")
+        status = "fail"
 
     return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
-def fillEarningsWithFixed(data,id,request_user):
+def fillEarningsWithFixed(data, id, request_user):
     '''
     Set all attended subjects earnings to specified amount
 
@@ -531,7 +536,7 @@ def fillEarningsWithFixed(data,id,request_user):
     return JsonResponse({"sessionDay" : json_info,"status" : status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
-def fillDefaultShowUpFee(data,id,request_user):
+def fillDefaultShowUpFee(data, id, request_user):
     '''
     Set attended subjects bump fee to default
 
@@ -571,7 +576,7 @@ def fillDefaultShowUpFee(data,id,request_user):
     return JsonResponse({"sessionDay" : json_info,"status" : status }, safe=False)
 
 #mark subject as attended
-def attendSubject(data,id,request_user):
+def attendSubject(data, id, request_user):
     '''
         Mark subject as attended in a session day
 
@@ -604,7 +609,7 @@ def attendSubject(data,id,request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status }, safe=False)
 
 #mark subject as attended
-def attendSubjectAction(esdu,id,request_user):
+def attendSubjectAction(esdu, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Attend Subject Action")
     logger.info(esdu)
@@ -651,7 +656,7 @@ def attendSubjectAction(esdu,id,request_user):
     return status
 
 #mark subject as bumped
-def bumpSubject(data,id,request_user):   
+def bumpSubject(data, id, request_user):   
     '''
         Mark subject as attended in a session day
 
@@ -697,7 +702,7 @@ def bumpSubject(data,id,request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status,"statusMessage": statusMessage}, safe=False)
 
 #mark subject as no show
-def noShowSubject(data,id,request_user):    
+def noShowSubject(data, id, request_user):    
     '''
     Set subject to "No Show" status
 
@@ -729,7 +734,7 @@ def noShowSubject(data,id,request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status}, safe=False)
 
 #upload subject earnings from a file
-def takeEarningsUpload(f,id,request):
+def takeEarningsUpload(f, id, request):
     logger = logging.getLogger(__name__) 
     logger.info("Upload earnings")
 
@@ -827,7 +832,7 @@ def takeEarningsUpload(f,id,request):
                                 },safe=False)
 
 #round earnings up to nearest 25 cents
-def roundEarningsUp(data,id,request_user):
+def roundEarningsUp(data, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Round Earnings Up")
     logger.info(data)
@@ -841,4 +846,22 @@ def roundEarningsUp(data,id,request_user):
     json_info = esd.json_runInfo(request_user)
     return JsonResponse({"sessionDay" : json_info}, safe=False)
 
+#pay with PayPal API
+def payPalAPI(data, id, request_user):
+    '''
+    Make payment with PayPal API
+    '''
+    logger = logging.getLogger(__name__)
+    logger.info("PayPal API")
+    logger.info(data)
 
+    esd = experiment_session_days.objects.get(id=id)
+
+    esd.paypal_api = True
+    esd.save()
+
+    result = ""
+
+    json_info = esd.json_runInfo(request_user)
+
+    return JsonResponse({"result" : result, "sessionDay" : json_info}, safe=False)

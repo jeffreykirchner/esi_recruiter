@@ -9,6 +9,7 @@ import requests
 import pytz
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import CharField, F, Value as V
@@ -17,9 +18,11 @@ from django.conf import settings
 from main.decorators import user_is_staff
 
 from main.models import parameters, help_docs
+from main.globals import make_tz_aware_utc
 
 @login_required
 @user_is_staff
+@staff_member_required
 def PayPalHistory(request):
     '''
     Handle incoming requestst
@@ -67,6 +70,13 @@ def get_history(request, data):
     end_date = data["endDate"]
 
     try:
+
+        #convert dates to UTC
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+        start_date = make_tz_aware_utc(start_date, 0, 0, 0).date()
+        end_date = make_tz_aware_utc(end_date, 23, 59, 59).date()
 
         req = requests.get(f'{settings.PPMS_HOST}/payments/{start_date}/{end_date}',
                            auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
