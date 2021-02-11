@@ -57,6 +57,8 @@
                 upload_file_name:'Choose File',
                 uploadEarningsButtonText:'Upload <i class="fas fa-upload"></i>',
                 uploadEarningsMessage:'',
+                noticeHeader = "PayPal Direct Payments",
+                noticeBody = "",
             },
 
             methods:{
@@ -477,9 +479,7 @@
                                 app.$data.uploadEarningsMessage = response.data.message;
 
                                 app.$data.uploadEarningsButtonText= 'Upload <i class="fas fa-upload"></i>';
-                                app.$data.sessionDay = response.data.sessionDay; 
-
-                                                                                
+                                app.$data.sessionDay = response.data.sessionDay;                                                                               
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -550,7 +550,9 @@
                         .then(function (response) {     
                             
                             app.$data.sessionDay = response.data.sessionDay;
-                            app.$data.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';                         
+                            app.$data.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';           
+                            
+                            $('#noticeModal').modal('toggle');
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -846,5 +848,6 @@
 </div>    
 
 {%include "modals/uploadEarningsModal.html"%}
+{%include "modals/noticeModal.html"%}
 
 {%endblock content%}

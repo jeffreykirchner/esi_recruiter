@@ -263,7 +263,7 @@ def getEarningsExport(data, id, request_user):
     return csv_response
 
 #automatically randomly bump exccess subjects
-def autoBump(data, id, request_user):
+def autoBump(data, id_, request_user):
     '''
         mark all attended subjects as bumped
 
@@ -281,7 +281,7 @@ def autoBump(data, id, request_user):
     status = "success"
 
     try:
-        esd = experiment_session_days.objects.get(id=id)
+        esd = experiment_session_days.objects.get(id=id_)
 
         esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
 
@@ -294,7 +294,7 @@ def autoBump(data, id, request_user):
             if not e.user.profile.bumped_from_last_session(e.id):
                 esdu_attended_not_bumped.append(e)
 
-        logger.info("Auto bump: available list " + str( esdu_attended_not_bumped))
+        logger.info("Auto bump: available list " + str(esdu_attended_not_bumped))
 
         if bumpsNeeded > len(esdu_attended_not_bumped):
             bumpsNeeded = len(esdu_attended_not_bumped)
@@ -877,16 +877,31 @@ def payPalAPI(data, id_, request_user):
     for esdu in esdu_list:
         payments.append({"email": esdu.user.email,
                          "amount" : float(esdu.earnings + esdu.show_up_fee),
-                         "memo" : f"ID {esdu.experiment_session_day.id}"})
+                         "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
     logger.info(f"PayPal API Payments: {payments}")
 
-    req = requests.post(f'{settings.PPMS_HOST}/payments',
-                        data=payments)
-                        #auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
-    
-    logger.info(f"PayPal API Payments: {req}")
+    headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
+
+    req = requests.post(f'{settings.PPMS_HOST}/payments/',
+                        json=payments,
+                        auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)),
+                        headers=headers)
+
+    logger.info(f"PayPal API Payments: {req.json()}")
+
+    error_message = ""
+    result = ""
+
+    if requests.status_codes == 403:
+        error_message = "Authentication Error"
+    elif req.status_code != 200:
+        error_message = req.json()
+    else:
+        result = esd.json_runInfo(request_user)
 
     json_info = esd.json_runInfo(request_user)
 
-    return JsonResponse({"result" : req, "sessionDay" : json_info}, safe=False)
+    return JsonResponse({"result" : result,
+                         "sessionDay" : json_info,
+                         "error_message": error_message}, safe=False)
