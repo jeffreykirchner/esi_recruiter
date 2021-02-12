@@ -48,17 +48,17 @@
                 payoutTotal:"",                            //total paid to subjects
                 fillEarningsWithValue:"",                   //amount to fill all earnings with
                 isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},  
-                stripeReaderSpinner:"",
-                stripeReaderValue:"",
-                stripeReaderStatus:"",
-                autoAddUsers:false,                         //automatically add users if they are not checked in
+                stripeReaderSpinner : "",
+                stripeReaderValue : "",
+                stripeReaderStatus : "",
+                autoAddUsers :false,                         //automatically add users if they are not checked in
                 ignoreConstraints:false,                    //ignore recruitment constraints and add user
-                upload_file: null,
+                upload_file : null,
                 upload_file_name:'Choose File',
                 uploadEarningsButtonText:'Upload <i class="fas fa-upload"></i>',
                 uploadEarningsMessage:'',
-                noticeHeader = "PayPal Direct Payments",
-                noticeBody = "",
+                noticeHeader : "PayPal Direct Payments",
+                noticeBody : "",
             },
 
             methods:{
@@ -552,6 +552,15 @@
                             app.$data.sessionDay = response.data.sessionDay;
                             app.$data.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';           
                             
+                            if( response.data.error_message != "")
+                            {
+                                app.$data.noticeBody = response.data.error_message;
+                            }
+                            else
+                            {
+                                app.$data.noticeBody = response.data.result;
+                            }
+
                             $('#noticeModal').modal('toggle');
                         })
                         .catch(function (error) {

@@ -868,9 +868,6 @@ def payPalAPI(data, id_, request_user):
     esd = experiment_session_days.objects.get(id=id_)
     esdu_list = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
 
-    #esd.paypal_api = True
-    esd.save()
-
     payments = []
 
     #build payments json
@@ -893,12 +890,18 @@ def payPalAPI(data, id_, request_user):
     error_message = ""
     result = ""
 
-    if requests.status_codes == 403:
+    if req.status_code == 401 or req.status_code == 403:
         error_message = "Authentication Error"
-    elif req.status_code != 200:
-        error_message = req.json()
+    elif req.status_code != 201:
+        error_message = "<div>The payments were not made because of the following errors:</div>"
+        for payment in req.json():
+            error_message += f'<div>{payment["data"]["email"]}: {payment["detail"]}</div>'
     else:
-        result = esd.json_runInfo(request_user)
+        #esd.paypal_api = True
+        esd.save()
+        for payment in req.json():
+            result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'
+        #result = req.json()
 
     json_info = esd.json_runInfo(request_user)
 
