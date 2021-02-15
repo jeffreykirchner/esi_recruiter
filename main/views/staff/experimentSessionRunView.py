@@ -22,7 +22,7 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 
 from main.decorators import user_is_staff
-from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs
+from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs, parameters
 from main.views.staff.experimentSessionView import getManuallyAddSubject, changeConfirmationStatus
 
 @login_required
@@ -865,6 +865,8 @@ def payPalAPI(data, id_, request_user):
     logger.info("PayPal API")
     logger.info(data)
 
+    parm = parameters.objects.first()
+
     esd = experiment_session_days.objects.get(id=id_)
     esdu_list = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
 
@@ -872,16 +874,23 @@ def payPalAPI(data, id_, request_user):
 
     #build payments json
     for esdu in esdu_list:
-        payments.append({"email": esdu.user.email,
+        payments.append({"email": esdu.user.email, #, 'sb-8lqqw5080618@business.example.com'
                          "amount" : float(esdu.earnings + esdu.show_up_fee),
+                         "note" : f'{esdu.user.first_name}, {parm.paypal_email_body}',
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
-    logger.info(f"PayPal API Payments: {payments}")
+    data = {}
+    data["info"] = {"payment_id" : id_ , #,random.randrange(0, 99999999)
+                    "email_subject" : parm.paypal_email_subject}
 
-    headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
+    data["items"] = payments
+
+    logger.info(f"PayPal API Payments: {data}")
+
+    headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
     req = requests.post(f'{settings.PPMS_HOST}/payments/',
-                        json=payments,
+                        json=data,
                         auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)),
                         headers=headers)
 
@@ -892,12 +901,16 @@ def payPalAPI(data, id_, request_user):
 
     if req.status_code == 401 or req.status_code == 403:
         error_message = "Authentication Error"
+    elif req.status_code == 409:
+        esd.paypal_api = True
+        esd.save()
+        error_message = "A mass payment has already been submitted for this session day."
     elif req.status_code != 201:
         error_message = "<div>The payments were not made because of the following errors:</div>"
         for payment in req.json():
             error_message += f'<div>{payment["data"]["email"]}: {payment["detail"]}</div>'
     else:
-        #esd.paypal_api = True
+        esd.paypal_api = True
         esd.save()
         for payment in req.json():
             result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'
