@@ -839,7 +839,7 @@
                                         </button>
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
+                                        <button  v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
                                                 title="Pay subjects directly using PayPal's API" v-bind:disabled = "sessionDay.paypalAPI">
                                             <span v-html='paypalDirectButtonText'></span> 
                                         </button>
