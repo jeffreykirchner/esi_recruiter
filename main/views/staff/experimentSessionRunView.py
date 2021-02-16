@@ -880,7 +880,7 @@ def payPalAPI(data, id_, request_user):
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
     data = {}
-    data["info"] = {"payment_id" : id_ , #,random.randrange(0, 99999999)
+    data["info"] = {"payment_id" : id_, #, random.randrange(0, 99999999)
                     "email_subject" : parm.paypal_email_subject}
 
     data["items"] = payments
