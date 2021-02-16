@@ -102,6 +102,7 @@
                             <a class="dropdown-item" href="{% url 'profile'%}"  data-placement="bottom" title="Edit Profile"><i class="fas fa-user fa-fw"></i> Profile</a>
                             {%if user.is_superuser%}
                                 <a class="dropdown-item" href="{% url 'admin:index' %}"  data-placement="bottom" title="Admin Panel"><i class="fas fa-cogs fa-fw"></i> Admin</a>
+                                <a class="dropdown-item" href="{% url 'payPalHistory' %}"  data-placement="bottom" title="PayPal History"><i class="fab fa-paypal"></i> PayPal History</a>
                             {%endif%}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a>

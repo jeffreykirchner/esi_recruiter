@@ -22,7 +22,8 @@
                     defaultShowUpFee : "",      
                     complete:true,                
                     canceled:false,
-                    reopenAllowed:false,           
+                    reopenAllowed:false,      
+                    paypalAPI:true,     
                 },
                 bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
                 noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -38,6 +39,7 @@
                 printPayoutsButtonText : 'Print Attendees <i class="fas fa-print"></i>',
                 printBumpsButtonText : 'Print Bumps <i class="fas fa-print"></i>',
                 paypalExportButtonText : 'Paypal Export <i class="fab fa-paypal"></i>',
+                paypalDirectButtonText : 'Paypal Direct <i class="fab fa-paypal"></i>',
                 earningsExportButtonText : 'Attended Export <i class="fas fa-download"></i>',
                 roundUpButtonText : 'Round Earnings <i class="fas fa-circle-notch"></i>',
                 fillEarningsWithFixedButtonText : 'Fill',
@@ -46,15 +48,17 @@
                 payoutTotal:"",                            //total paid to subjects
                 fillEarningsWithValue:"",                   //amount to fill all earnings with
                 isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},  
-                stripeReaderSpinner:"",
-                stripeReaderValue:"",
-                stripeReaderStatus:"",
-                autoAddUsers:false,                         //automatically add users if they are not checked in
+                stripeReaderSpinner : "",
+                stripeReaderValue : "",
+                stripeReaderStatus : "",
+                autoAddUsers :false,                         //automatically add users if they are not checked in
                 ignoreConstraints:false,                    //ignore recruitment constraints and add user
-                upload_file: null,
+                upload_file : null,
                 upload_file_name:'Choose File',
                 uploadEarningsButtonText:'Upload <i class="fas fa-upload"></i>',
                 uploadEarningsMessage:'',
+                noticeHeader : "PayPal Direct Payments",
+                noticeBody : "",
             },
 
             methods:{
@@ -111,7 +115,7 @@
                 payPalExport:function(){
                     if(app.$data.saveButtonText.indexOf("*") >= 0)
                     {   
-                        confirm("Save payouts before continuing.") ;                    
+                        alert("Save payouts before continuing.") ;                    
                         return;                        
                     }
                     
@@ -433,7 +437,7 @@
                 printPayouts:function(){
                     if(app.$data.saveButtonText.indexOf("*") >= 0)
                     {   
-                        confirm("Save payouts before continuing.") ;                    
+                        alert("Save payouts before continuing.") ;                    
                         return;                        
                     }
 
@@ -444,7 +448,7 @@
                 printBumps:function(){
                     if(app.$data.saveButtonText.indexOf("*") >= 0)
                     {  
-                        confirm("Save payouts before continuing.") ;                      
+                        alert("Save payouts before continuing.") ;                      
                         return;                        
                     }
 
@@ -475,9 +479,7 @@
                                 app.$data.uploadEarningsMessage = response.data.message;
 
                                 app.$data.uploadEarningsButtonText= 'Upload <i class="fas fa-upload"></i>';
-                                app.$data.sessionDay = response.data.sessionDay; 
-
-                                                                                
+                                app.$data.sessionDay = response.data.sessionDay;                                                                               
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -505,6 +507,12 @@
                 //fill subjects with default show up fee from experiments model
                 roundEarningsUp:function(){
 
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        alert("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+
                     app.$data.roundUpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                     axios.post('/experimentSessionRun/{{id}}/', {
@@ -513,6 +521,47 @@
                         .then(function (response) {     
                             app.$data.sessionDay = response.data.sessionDay;    
                             app.$data.roundUpButtonText = 'Round Earnings <i class="fas fa-circle-notch"></i>';                         
+                        })
+                        .catch(function (error) {
+                            console.log(error);                                   
+                        });
+                },
+
+                //pay subjects with PayPal API
+                payPalAPI:function(){
+                    var r = confirm("Pay subjects directly with PayPal's API?");
+
+                    if (r == false)
+                    {
+                        return;
+                    }
+
+                    if(app.$data.saveButtonText.indexOf("*") >= 0)
+                    {   
+                        alert("Save payouts before continuing.") ;                    
+                        return;                        
+                    }
+
+                    app.$data.paypalDirectButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+                    axios.post('/experimentSessionRun/{{id}}/', {
+                            action :"payPalAPI",                                                                                                                           
+                        })
+                        .then(function (response) {     
+                            
+                            app.$data.sessionDay = response.data.sessionDay;
+                            app.$data.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';           
+                            
+                            if( response.data.error_message != "")
+                            {
+                                app.$data.noticeBody = response.data.error_message;
+                            }
+                            else
+                            {
+                                app.$data.noticeBody = response.data.result;
+                            }
+
+                            $('#noticeModal').modal('toggle');
                         })
                         .catch(function (error) {
                             console.log(error);                                   
@@ -540,10 +589,15 @@
 
     });
     </script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 {%endblock head%}
 
 {%block content%}
-<div class="row justify-content-xl-center">
+<div class="row justify-content-xl-center" v-cloak>
     <div class="col col-lg-12">
         <div class="card">                  
             <div class="card-header">
@@ -779,11 +833,15 @@
                                     <td style="text-align: center;">
                                     </td>
                                     <td style="text-align: center;">
-                                    </td>
-                                    <td style="text-align: center;">
                                         <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
                                                 title="Export a CSV file with a list of attending subjects."  >
                                             <span v-html='earningsExportButtonText'></span> 
+                                        </button>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button  v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
+                                                title="Pay subjects directly using PayPal's API" v-bind:disabled = "sessionDay.paypalAPI">
+                                            <span v-html='paypalDirectButtonText'></span> 
                                         </button>
                                     </td>
                                 </tr>
@@ -799,5 +857,6 @@
 </div>    
 
 {%include "modals/uploadEarningsModal.html"%}
+{%include "modals/noticeModal.html"%}
 
 {%endblock content%}
