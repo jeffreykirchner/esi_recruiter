@@ -140,14 +140,17 @@ def createUser(request,data):
         return JsonResponse({"status":"error","errors":dict(f.errors.items())}, safe=False)
 
 
-def profileCreateUser(username,email,password,firstName,lastName,studentID,gender,phone,major,subject_type,studentWorker,isActive,accountType):
+def profileCreateUser(username, email, password, firstName, lastName, studentID, 
+                      gender, phone, major, subject_type, studentWorker, isActive, 
+                      accountType):
+
     logger = logging.getLogger(__name__) 
 
     u = User.objects.create_user(username = username,
-                             email = email,
-                             password = password,                                         
-                             first_name = firstName,
-                             last_name = lastName)
+                                 email = email,
+                                 password = password,                                         
+                                 first_name = firstName,
+                                 last_name = lastName)
 
     u.is_active = isActive    
     u.save()
