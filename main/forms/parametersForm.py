@@ -10,32 +10,38 @@ class UserModelChoiceField(ModelChoiceField):
 
 class parametersForm(forms.ModelForm):
     labManager = UserModelChoiceField(label="Lab Manager",
-                                     queryset=User.objects.filter(is_staff = True).order_by('last_name','first_name'),
-                                     widget=forms.Select(attrs={})) 
+                                      queryset=User.objects.filter(is_staff = True).order_by('last_name','first_name'),
+                                      widget=forms.Select(attrs={})) 
 
     defaultShowUpFee = forms.CharField(label='Default Show-up Fee ($)',
                                        widget=forms.NumberInput(attrs={}))
     
     maxAnnualEarnings = forms.CharField(label='Max Annual Earnings ($)',
-                                       widget=forms.NumberInput(attrs={}))
+                                        widget=forms.NumberInput(attrs={}))
     
     siteURL = forms.CharField(label='Site URL',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                              widget=forms.TextInput(attrs={"size":"125"}))
     
     testEmailAccount = forms.CharField(label='Test Email Account',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                                       widget=forms.TextInput(attrs={"size":"125"}))
+    
+    paypal_email_subject = forms.CharField(label='PayPal mass pay email subject',
+                                           widget=forms.TextInput(attrs={"size":"125"}))
+
+    paypal_email_body = forms.CharField(label='PayPal mass pay email body: <subject_name>, <text>',
+                                        widget=forms.TextInput(attrs={"size":"125"}))
 
     invitationTextSubject = forms.CharField(label='Recruitment Email, Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                                            widget=forms.TextInput(attrs={"size":"125"}))
 
     cancelationTextSubject = forms.CharField(label='Cancelation Email, Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                                             widget=forms.TextInput(attrs={"size":"125"}))
 
     cancelationText = forms.CharField(label='Cancelation Email, Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
 
     reminderTextSubject = forms.CharField(label='Reminder Email, Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                                          widget=forms.TextInput(attrs={"size":"125"}))
 
     reminderText = forms.CharField(label='Reminder Email, Text',
                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))

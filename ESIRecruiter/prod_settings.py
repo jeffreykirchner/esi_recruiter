@@ -86,3 +86,7 @@ EMAIL_HOST_USER_NAME = 'ESI Recruiter, Chapman University'
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.environ['EMAIL_HOST_USER']
+
+PPMS_HOST = os.environ['PPMS_HOST']
+PPMS_USER_NAME = os.environ['PPMS_USER_NAME']
+PPMS_PASSWORD = os.environ['PPMS_PASSWORD']

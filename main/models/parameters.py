@@ -1,24 +1,34 @@
+'''
+site wide parameters
+'''
+# import logging
+# import traceback
+
 from django.db import models
-import logging
-import traceback
 from django.contrib.auth.models import User
 
 #gloabal parameters for site
 class parameters(models.Model):
-    labManager = models.ForeignKey(User,on_delete=models.CASCADE,null=True)                #primary contact for subjects
-    subjectTimeZone = models.CharField(max_length = 1000,default = "US/Pacific")           #time zone the lab is in
-    defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5,default = 7)     #money paid to subjects for coming regardless of performance
-    maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5,default = 600)  #max money that can be paid to a subject per year  
-    siteURL = models.CharField(max_length = 200,default = "https://www.google.com/")       #site URL used for display in emails
-    testEmailAccount = models.CharField(max_length = 1000,default = "")                     #email account used for debug mode emails
+    '''
+    site wide parameters
+    '''
+    labManager = models.ForeignKey(User, on_delete=models.CASCADE, null=True)             #primary contact for subjects
+    subjectTimeZone = models.CharField(max_length=1000, default="US/Pacific")             #time zone the lab is in
+    defaultShowUpFee = models.DecimalField(decimal_places=2, max_digits=5, default=7)     #money paid to subjects for coming regardless of performance
+    maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5, default=600)  #max money that can be paid to a subject per year  
+    siteURL = models.CharField(max_length=200, default="https://www.google.com/")         #site URL used for display in emails
+    testEmailAccount = models.CharField(max_length=1000, default="")                      #email account used for debug mode emails
 
-    noShowCutoff = models.IntegerField(default = 3)                                         #if subject hits count in window they will not be invited
-    noShowCutoffWindow = models.IntegerField(default = 90)                                  #trailing window in days with which no shows are measured
+    paypal_email_subject = models.CharField(max_length=200, default="You have a payment from <your_org>.")     #subject of paypal payment emails
+    paypal_email_body = models.CharField(max_length=200, default="thanks for your participation!")             #body of paypal payment email
 
-    invitationTextSubject = models.CharField(max_length = 1000,default = "")               #email subject text for the single day invitation
+    noShowCutoff = models.IntegerField(default=3)                                         #if subject hits count in window they will not be invited
+    noShowCutoffWindow = models.IntegerField(default=90)                                  #trailing window in days with which no shows are measured
+
+    invitationTextSubject = models.CharField(max_length=1000, default="")                 #email subject text for the single day invitation
         
-    cancelationTextSubject = models.CharField(max_length = 1000,default = "")              #email subject text when an experiment is canceled
-    cancelationText = models.CharField(max_length = 10000,default = "")                    #email text when an experiment is canceled
+    cancelationTextSubject = models.CharField(max_length = 1000, default="")              #email subject text when an experiment is canceled
+    cancelationText = models.CharField(max_length=10000, default="")                      #email text when an experiment is canceled
     
     reminderTextSubject = models.CharField(max_length = 1000,default = "")                 #email subject text to remind subjects 24 hours before start
     reminderText = models.CharField(max_length = 10000,default = "")                       #email text to remind subjects 24 hours before start
