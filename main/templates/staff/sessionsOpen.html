@@ -19,6 +19,7 @@
                 auto_refresh:"Off",
                 last_refresh:"",
                 timeouts:[],
+                isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},
             },
 
             methods:{
@@ -130,7 +131,7 @@
                     <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()" title="Automatically refresh the table once per minute.">
                         <span v-html="autoRefreshButtonText"></span>
                     </button>
-                    <button class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()" title="Mark all sessions as 'Complete'.">
+                    <button v-if="isAdmin" class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()" title="Mark all sessions as 'Complete'.">
                         <span v-html="closeAllButtonText"></span>
                     </button>                    
                 <span>
