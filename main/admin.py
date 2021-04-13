@@ -3,13 +3,13 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm,faqForm,helpDocForm,frontPageNoticeForm,InvitationEmailTemplateForm
+from main.forms import parametersForm, faqForm, helpDocForm, frontPageNoticeForm, InvitationEmailTemplateForm
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
-from main.globals import sendMassEmailVerify
-from datetime import datetime,timedelta
+from main.globals import send_mass_email_verify
+from datetime import datetime, timedelta
 import pytz
 import logging
 from django.db.models import Q,F,Value as V,Count
@@ -120,20 +120,21 @@ class ProfileAdmin(admin.ModelAdmin):
 
       def deactivate_all(self, request, queryset):
 
-            user_list = User.objects.filter(profile__in = queryset).filter(is_active=True).exclude(is_staff = True)      
+            profile_list = queryset.exclude(user__is_staff=True) \
+                                   .filter(email_confirmed='yes')
 
-            queryset_active_profile = list(queryset.filter(user__is_active = True).exclude(user__is_staff = True).select_related('user'))
-            updated_users = user_list.update(is_active = False)
+            #queryset_active_profile = list(queryset.filter(user__is_active=True).exclude(user__is_staff=True).select_related('user'))
+            #profile_list.update(email_confirmed='no')
 
-            updated3 = sendMassEmailVerify(queryset_active_profile,request)         
+            updated3 = send_mass_email_verify(profile_list, request)         
 
             self.message_user(request, ngettext(
                   '%d user was deactivated.',
                   '%d users were deactivated.',
-                  updated_users,
-            ) % updated_users, messages.SUCCESS)
+                  len(profile_list),
+            ) % len(profile_list), messages.SUCCESS)
 
-            self.message_user(request,"Emails Sent: " + str(updated3['mailCount']) + " " + updated3['errorMessage'], messages.SUCCESS)
+            self.message_user(request, "Emails Sent: " + str(updated3['mail_count']) + " " + updated3['error_message'], messages.SUCCESS)
 
       deactivate_all.short_description = "Deactivate selected active subjects and re-invite"
 

@@ -8,7 +8,7 @@ from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.conf import settings
 from main.models import account_types,profile,help_docs
-from main.views import profileCreateSendEmail
+from main.views import profile_create_send_email
 from datetime import timedelta
 from django.db.models import CharField,Q,F,Value as V
 from django.urls import reverse
@@ -125,7 +125,7 @@ def createUser(request,data):
                                     True,
                                     account_types.objects.get(id=2))
 
-        profileCreateSendEmail(request,u)
+        profile_create_send_email(request,u)
 
         u.profile.setup_email_filter()
 
