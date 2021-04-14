@@ -57,7 +57,7 @@
                     searchResultsEmptyText:"",           //show when no results found from manual add
                     inviteResultsEmptyText:"",           //show when no subject fround for invitiation
                     sendMessageSubject:"",               //subject of send message     
-                    sendMessageText:"",                  //text of send message     
+                    sendMessageText:"[first name],\n\nIf you have any questions contact [contact email].",   //text of send message     
                     emailMessageList:"",                 //emails for send message    
                     sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
                     session:{
@@ -846,14 +846,14 @@
                             .then(function (response) {
                                 //status=response.data.status;
 
-                                if(response.data.mailResult.errorMessage != "")
+                                if(response.data.mailResult.error_message != "")
                                 {
                                     app.$data.emailMessageList = "<br>Email Send Error:<br>"
-                                    app.$data.emailMessageList += response.data.mailResult.errorMessage + "<br><br>";
+                                    app.$data.emailMessageList += response.data.mailResult.error_message + "<br><br>";
                                 }
                                 else
                                 {
-                                    app.$data.emailMessageList =  response.data.mailResult.mailCount + " messages sent.";                                     
+                                    app.$data.emailMessageList =  response.data.mailResult.mail_count + " messages sent.";                                     
                                 }   
 
                                 app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              

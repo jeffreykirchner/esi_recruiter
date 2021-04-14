@@ -16,13 +16,13 @@ from main.models import experiment_session_days, \
                         help_docs,\
                         Recruitment_parameters_trait_constraint,\
                         Traits
-from main.forms import recruitmentParametersForm,experimentSessionForm2,TraitConstraintForm
+from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
 from django.conf import settings
 import logging
-from django.db.models import CharField,Q,F,Value as V,Subquery
+from django.db.models import CharField, Q, F, Value as V, Subquery
 from django.contrib.auth.models import User
 import random
 import datetime
@@ -30,7 +30,7 @@ from django.db.models import prefetch_related_objects
 from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
-from main.globals import sendMassEmail
+from main.globals import send_mass_email_service
 from datetime import timedelta
 import pytz
 
@@ -150,24 +150,30 @@ def showMessages(data,id):
     return JsonResponse({"messageList" : messageList }, safe=False)
 
 #send message to all confirmed subjects
-def sendMessage(data,id):
+def sendMessage(data, id):
     logger = logging.getLogger(__name__)
-    logger.info("Send Message")
-    logger.info(data)
+    logger.info(f"Send Message: {data}")
+
+    params = parameters.objects.first()
 
     subjectText =  data["subject"]
     messageText = data["text"]
 
     es = experiment_sessions.objects.get(id=id)
 
-    emailList = []
+    user_list = []
     userPkList = []
-    
+
     for i in es.getConfirmedEmailList():
-        emailList.append({"email":i['user_email'],"first_name":i["user_first_name"]})
         userPkList.append(i['user_id'])
 
-    mailResult = sendMassEmail(emailList,subjectText, messageText)
+        user_list.append({"email" : i['user_email'],
+                          "variables": [{"name" : "first name", "text" : i["user_first_name"]},
+                                        {"name" : "contact email", "text" : params.labManager.email}]})
+            
+    memo = f'Send message to session: {es.id}'
+
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
 
     logger.info(userPkList)
 
@@ -176,15 +182,15 @@ def sendMessage(data,id):
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
-    m.mailResultSentCount = mailResult['mailCount']
-    m.mailResultErrorText = mailResult['errorMessage']
+    m.mailResultSentCount = mail_result['mail_count']
+    m.mailResultErrorText = mail_result['error_message']
     m.save()
     m.users.add(*userPkList)
     m.save()
 
-    messageCount=es.experiment_session_messages_set.count()
+    message_count = es.experiment_session_messages_set.count()
 
-    return JsonResponse({"mailResult":mailResult,"messageCount":messageCount}, safe=False)
+    return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 
 #cancel session
 def cancelSession(data,id):
