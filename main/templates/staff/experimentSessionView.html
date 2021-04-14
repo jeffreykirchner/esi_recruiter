@@ -333,10 +333,10 @@
                                     app.$data.subjectInvitationList += userFails[i].last_name + ", " + userFails[i].first_name + "</a><br>"
                                 }
                                 
-                                if(response.data.mailResult.errorMessage != "")
+                                if(response.data.mailResult.error_message != "")
                                 {
                                     app.$data.subjectInvitationList += "<br>Email Send Error:<br>"
-                                    app.$data.subjectInvitationList += response.data.mailResult.errorMessage + "<br><br>";
+                                    app.$data.subjectInvitationList += response.data.mailResult.error_message + "<br><br>";
                                 }                                
                             }                             
                             else
@@ -344,7 +344,7 @@
                                                                             
                                 //$('#inviteSubjectsModalCenter').modal('toggle');                             
                             }      
-                            app.$data.subjectInvitationList +=  response.data.mailResult.mailCount + " invitations sent.";  
+                            app.$data.subjectInvitationList +=  response.data.mailResult.mail_count + " invitations sent.";  
                             app.$data.inviteButtonText="";    
                             app.$data.session.invitationCount = response.data.invitationCount;               
                             
@@ -429,14 +429,14 @@
 
                                 app.$data.subjectCancelationList = "";
 
-                                if(response.data.mailResult.errorMessage != "")
+                                if(response.data.mailResult.error_message != "")
                                 {
                                     app.$data.subjectCancelationList += "<br>Email Send Error:<br>"
-                                    app.$data.subjectCancelationList += response.data.mailResult.errorMessage + "<br><br>";
+                                    app.$data.subjectCancelationList += response.data.mailResult.error_message + "<br><br>";
                                 }
                                 else
                                 {
-                                    app.$data.subjectCancelationList +=  response.data.mailResult.mailCount + " cancelations sent.";                                     
+                                    app.$data.subjectCancelationList +=  response.data.mailResult.mail_count + " cancelations sent.";                                     
                                 }
                             })
                             .catch(function (error) {
@@ -1024,12 +1024,12 @@
                                 app.$data.searchAddResult += user.last_name + ", " + user.first_name + "</a><br>"
                                                                                              
                             }
-                            else if(response.data.mailResult.errorMessage != "")
+                            else if(response.data.mailResult.error_message != "")
                             {
                                 app.$data.searchAddResult += "<br>Email Send Error:<br>"
-                                app.$data.searchAddResult += response.data.mailResult.errorMessage + "<br><br>";
+                                app.$data.searchAddResult += response.data.mailResult.error_message + "<br><br>";
                             }                            
-                            else if(response.data.mailResult.mailCount == 0)
+                            else if(response.data.mailResult.mail_count == 0)
                             {
                                 app.$data.searchAddResult = "Subject added, no invitation was sent.";
                             }

@@ -12,50 +12,6 @@ from django.conf import settings
 
 from main.models import profile, parameters
 
-def sendMassEmail(subjectList, subject, message):
-    logger = logging.getLogger(__name__)
-    logger.info("Send mass email to list")
-
-    message_list = []
-    message_list.append(())
-    from_email = getFromEmail()    
-
-    i = 0
-    c = 0
-    for s in subjectList:
-
-        if c == 100:
-            c = 0
-            i += 1
-            message_list.append(())
-
-        new_message = s['first_name'] + ",\n\n" + message
-
-        if settings.DEBUG:
-            s=getTestSubjectEmail()
-            message_list[i] += ((subject, new_message,from_email,[s]),)   #use for test emails
-        else:
-            message_list[i] += ((subject, new_message,from_email,[s['email']]),)  
-
-        c+=1      
-
-    #logger.info(message_list)
-
-    errorMessage = ""
-    mailCount=0
-    if len(subjectList)>0 :
-        try:
-            for x in range(i+1):            
-                logger.info("Sending Block " + str(x+1) + " of " + str(i+1))
-                mailCount += send_mass_mail(message_list[x], fail_silently=False) 
-        except SMTPException as e:
-            logger.info('There was an error sending email: ' + str(e)) 
-            errorMessage = str(e)
-    else:
-        errorMessage:"The session is empty, no emails sent."
-
-    return {"mailCount":mailCount,"errorMessage":errorMessage}
-
 #send verify email to list, takes query set
 def send_mass_email_verify(profile_list, request):
     logger = logging.getLogger(__name__)

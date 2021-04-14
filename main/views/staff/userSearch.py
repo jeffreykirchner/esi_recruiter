@@ -15,7 +15,7 @@ from django.db.models import OuterRef, Subquery
 from django.db.models import Count
 from main.models import parameters,help_docs
 from datetime import datetime, timedelta,timezone
-from main.globals import sendMassEmail
+from main.globals import send_mass_email_service
 
 @login_required
 @user_is_staff
@@ -45,34 +45,42 @@ def userSearch(request):
         return render(request,'staff/userSearch.html',{"activeCount":activeCount,"helpText":helpText})     
 
 #send an email to active users
-def sendEmail(request,data):
+def sendEmail(request, data):
     logger = logging.getLogger(__name__)
-    logger.info("Send message to all active users")
-    logger.info(data)
+    logger.info(f"Send message to all active users {data}")
 
     if request.user.is_superuser:
 
-        subjectText =  data["subject"]
+        params = parameters.objects.first()
+
+        subjectText = data["subject"]
         messageText = data["text"]
 
-        users_list = User.objects.filter(is_active = True, profile__email_confirmed = 'yes',profile__type__id = 2)
+        users_list = User.objects.filter(is_active=True, profile__email_confirmed='yes', profile__type__id=2)
 
-        emailList = []
+        #debug
+        #users_list = users_list[:5]
+        # emailList = []
+
+        user_list = []
+        for user in users_list:
+            user_list.append({"email" : user.email,
+                              "variables": [{"name" : "first name", "text" : user.first_name},
+                                            {"name" : "contact email", "text" : params.labManager.email}]})
         
-        for i in users_list:
-            emailList.append({"email":i.email,"first_name":i.first_name})        
+        memo = f'Send message to all active users'
 
-        mailResult = sendMassEmail(emailList,subjectText, messageText)
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
 
-        logger.info(emailList)
+        #logger.info(emailList)
     else:
         logger.info("Send message to all active users error, not super user : user " + str(request.user.id))
-        mailResult = {"mailCount":0,"errorMessage":"You are not an elevated user."}
+        mail_result = {"mail_count":0, "error_message":"You are not an elevated user."}
 
-    return JsonResponse({"mailResult":mailResult}, safe=False)
+    return JsonResponse({"mailResult":mail_result}, safe=False)
 
 #get a list of no show violators
-def getNoShows(request,data):
+def getNoShows(request, data):
     logger = logging.getLogger(__name__)
     logger.info("Get no show blocks")
     logger.info(data)
