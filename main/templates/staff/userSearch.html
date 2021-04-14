@@ -23,7 +23,7 @@
                     searchCount:0,                        //user found during search
                     sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>",         //send message button text
                     sendMessageSubject:"",               //subject of send message     
-                    sendMessageText:"",                  //text of send message     
+                    sendMessageText:"[first name],\n\n[contact email]",          //text of send message     
                     emailMessageList:"",                 //emails for send message
                 },
 
@@ -155,14 +155,14 @@
                             .then(function (response) {
                                 //status=response.data.status;
 
-                                if(response.data.mailResult.errorMessage != "")
+                                if(response.data.mailResult.error_message != "")
                                 {
                                     app.$data.emailMessageList = "<br>Email Send Error:<br>"
-                                    app.$data.emailMessageList += response.data.mailResult.errorMessage + "<br><br>";
+                                    app.$data.emailMessageList += response.data.mailResult.error_message + "<br><br>";
                                 }
                                 else
                                 {
-                                    app.$data.emailMessageList =  response.data.mailResult.mailCount + " messages sent.";                                     
+                                    app.$data.emailMessageList =  response.data.mailResult.mail_count + " messages sent.";                                     
                                 }   
 
                                 app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              

@@ -4,7 +4,7 @@ from django.http import Http404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from main.forms import profileFormUpdate
-from main.globals.sendEmail import profileCreateSendEmail
+from main.globals import profile_create_send_email
 from django.db.models import CharField,Q,F,Value as V
 from main.models import help_docs
 
@@ -53,7 +53,7 @@ def updateProfile(request):
                 if emailVerificationRequired:
                     #u.is_active=False     
                     u.profile.email_confirmed="no"                           
-                    profileCreateSendEmail(request,u)
+                    profile_create_send_email(request,u)
 
                 u.save()
                 u.profile.save()

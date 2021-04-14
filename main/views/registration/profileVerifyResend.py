@@ -1,3 +1,6 @@
+import logging
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import Http404
@@ -6,13 +9,15 @@ from django import forms
 from main.forms import verifyFormResend
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from main.models import profile
 from django.contrib.auth.decorators import login_required
-import logging
-import json
 from django.http import JsonResponse
-from main.models import parameters
+
 import main
+
+from main.models import profile
+from main.globals import profile_create_send_email
+from main.models import parameters
+
 
 #user account info
 @login_required
@@ -50,22 +55,22 @@ def getUser(request,data):
                          "adminEmail":p.labManager.email}, safe=False) 
 
 #resend verifiction email link to user
-def sendVerificationEmail(request,data):
+def sendVerificationEmail(request, data):
     logger = logging.getLogger(__name__)
     logger.info("Send verification email")
     logger.info(data)
 
-    u=request.user
-    logger.info(u)
+    user = request.user
+    logger.info(user)
 
-    status=""
+    status = ""
 
     try:
-        r = main.globals.profileCreateSendEmail(request,u)   
+        result = profile_create_send_email(request, user)   
         status = "done"
 
-        if r["mailCount"] == 0:
-            status="fail"
+        if result["mail_count"] == 0:
+            status = "fail"
     except:
         status = "fail"
 

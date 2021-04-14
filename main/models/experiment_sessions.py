@@ -91,13 +91,13 @@ class experiment_sessions(models.Model):
         message = ""
 
         message = p.cancelationText
-        message = message.replace("[session date and time]",self.getSessionDayDateString())
-        message = message.replace("[contact email]",p.labManager.email)
+        message = message.replace("[session date and time]", self.getSessionDayDateString())
+        message = message.replace("[contact email]", p.labManager.email)
 
         return message
 
     #add new user to session
-    def addUser(self,userID,staffUser,manuallyAdded):
+    def addUser(self, userID, staffUser, manuallyAdded):
         for esd in self.ESD.all():
             esd.addUser(userID,staffUser,manuallyAdded)  
 

@@ -1,21 +1,25 @@
 '''
 Experiment Session Day Model
 '''
-from django.db import models
-import logging
-import traceback
 from datetime import datetime
 from datetime import timedelta
+
+import logging
+import traceback
+import pytz
+import json
+
+from django.db import models
 from django.db.models import F
 from django.db.models import Q
-import pytz
 from django.db.models.functions import Lower
-import json
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
-from . import experiment_sessions, locations, accounts, parameters
-import main
 from django.utils.timezone import now
+
+import main
+from main.models import experiment_sessions, locations, accounts, parameters
+from main.globals import send_mass_email_service
 
 #one day of a session
 class experiment_session_days(models.Model):
@@ -236,24 +240,24 @@ class experiment_session_days(models.Model):
         p = parameters.objects.first()
         logger.info(f"Send Reminder emails to: session {self.experiment_session}, session day {self.id}")
 
-        subjectText =  p.reminderTextSubject
-        messageText = self.getReminderEmail()
-
         users_list = self.experiment_session_day_users_set.filter(confirmed=True).select_related("user")
 
         logger.info(users_list)
-        emailList = []
+        user_list = []
 
         for i in users_list:
-            emailList.append({"email":i.user.email, "first_name":i.user.first_name})
+            user_list.append({'email':i.user.email,
+                              'variables':[{'name':'first name', 'text':i.user.first_name}]})
 
-        logger.info(emailList)
+        logger.info(user_list)
 
-        mailResult = main.globals.sendMassEmail(emailList, subjectText, messageText)
-        logger.info(mailResult)
+        memo = f"Send reminders for session day: {self.id}"
+
+        mail_result = send_mass_email_service(user_list, p.reminderTextSubject, self.getReminderEmail(), memo)
+        logger.info(mail_result)
 
         #store the number of reminders sent
-        self.reminder_email_sent_count = mailResult.get("mailCount", 0)
+        self.reminder_email_sent_count = mail_result.get("mail_count", 0)
         self.save()
 
         return {"emailList": users_list, "status":"success"}
