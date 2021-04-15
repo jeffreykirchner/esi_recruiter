@@ -487,7 +487,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
             user_list.append({"email" : u['email'],
                               "variables": [{"name" : "first name", "text" : u["first_name"]}]})
             
-            memo = f'Manually invitation for session: {es.id}'
+            memo = f'Manual invitation for session: {es.id}'
 
             mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
 
