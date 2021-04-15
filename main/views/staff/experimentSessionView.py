@@ -291,7 +291,7 @@ def inviteSubjects(data, id, request):
             userFails.append(i)
             status = "fail"
             
-    memo = f'Send invitiations for session: {es.id}'
+    memo = f'Send invitations for session: {es.id}'
 
     mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
 
