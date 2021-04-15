@@ -16,13 +16,13 @@ from main.models import experiment_session_days, \
                         help_docs,\
                         Recruitment_parameters_trait_constraint,\
                         Traits
-from main.forms import recruitmentParametersForm,experimentSessionForm2,TraitConstraintForm
+from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 import json
 from django.conf import settings
 import logging
-from django.db.models import CharField,Q,F,Value as V,Subquery
+from django.db.models import CharField, Q, F, Value as V, Subquery
 from django.contrib.auth.models import User
 import random
 import datetime
@@ -30,7 +30,7 @@ from django.db.models import prefetch_related_objects
 from .userSearch import lookup
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
-from main.globals import sendMassEmail
+from main.globals import send_mass_email_service
 from datetime import timedelta
 import pytz
 
@@ -138,7 +138,7 @@ def showInvitations(data,id):
     return JsonResponse({"invitationList" : invitationList }, safe=False)
 
 #show all messages sent to confirmed users
-def showMessages(data,id):
+def showMessages(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Show Messages")
     logger.info(data)
@@ -150,41 +150,47 @@ def showMessages(data,id):
     return JsonResponse({"messageList" : messageList }, safe=False)
 
 #send message to all confirmed subjects
-def sendMessage(data,id):
+def sendMessage(data, id):
     logger = logging.getLogger(__name__)
-    logger.info("Send Message")
-    logger.info(data)
+    logger.info(f"Send Message: {data}")
 
-    subjectText =  data["subject"]
+    params = parameters.objects.first()
+
+    subjectText = data["subject"]
     messageText = data["text"]
 
     es = experiment_sessions.objects.get(id=id)
 
-    emailList = []
+    user_list = []
     userPkList = []
-    
+
     for i in es.getConfirmedEmailList():
-        emailList.append({"email":i['user_email'],"first_name":i["user_first_name"]})
         userPkList.append(i['user_id'])
 
-    mailResult = sendMassEmail(emailList,subjectText, messageText)
+        user_list.append({"email" : i['user_email'],
+                          "variables": [{"name" : "first name", "text" : i["user_first_name"]},
+                                        {"name" : "contact email", "text" : params.labManager.email}]})
+            
+    memo = f'Send message to session: {es.id}'
 
-    logger.info(userPkList)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+
+    #logger.info(userPkList)
 
     #store message result
     m = experiment_session_messages()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
-    m.mailResultSentCount = mailResult['mailCount']
-    m.mailResultErrorText = mailResult['errorMessage']
+    m.mailResultSentCount = mail_result['mail_count']
+    m.mailResultErrorText = mail_result['error_message']
     m.save()
     m.users.add(*userPkList)
     m.save()
 
-    messageCount=es.experiment_session_messages_set.count()
+    message_count = es.experiment_session_messages_set.count()
 
-    return JsonResponse({"mailResult":mailResult,"messageCount":messageCount}, safe=False)
+    return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 
 #cancel session
 def cancelSession(data,id):
@@ -203,34 +209,38 @@ def cancelSession(data,id):
     es = experiment_sessions.objects.get(id=id)
 
     if es.allowEdit():       
-
-        esd =  es.ESD.order_by("date").first()
-        logger.info(esd.date)
-
-        # experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = es.id)\
-        #                                     .update(earnings=0,show_up_fee=0)    
         
         es.canceled = True
 
-        p = parameters.objects.first()
-        subjectText = p.cancelationTextSubject
+        params = parameters.objects.first()
 
-        emailList = []
-        
+        subjectText = params.cancelationTextSubject
+        messageText = es.getCancelationEmail()
+
+        user_list = []
+        userPkList = []
+
         for i in es.getConfirmedEmailList():
-            emailList.append({"email":i['user_email'],"first_name":i["user_first_name"]})
+            userPkList.append(i['user_id'])
 
-        mailResult = sendMassEmail(emailList,subjectText, es.getCancelationEmail())
+            user_list.append({"email" : i['user_email'],
+                              "variables": [{"name" : "first name", "text" : i["user_first_name"]}]})
+                
+        memo = f'Cancel session: {es.id}'
+
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+
+        logger.info(userPkList)
 
         es.save()
     else:
         logger.info("Cancel Session:Failed, not allowed")
-        mailResult = {"mailCount":0,"errorMessage":"Session cannot be canceled.  Subjects have already attended."}
+        mail_result = {"mail_count":0, "error_message":"Session cannot be canceled.  Subjects have already attended."}
 
-    return JsonResponse({"status":"success","session" :  es.json(),"mailResult":mailResult}, safe=False)
+    return JsonResponse({"status":"success", "session" :  es.json(), "mailResult":mail_result}, safe=False)
 
 #show unconfirmed subjects
-def showUnconfirmedSubjects(data,id):
+def showUnconfirmedSubjects(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Show Unconfirmed Subjects")
     logger.info(data)
@@ -240,7 +250,7 @@ def showUnconfirmedSubjects(data,id):
     return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
 
 #invite subjects based on recruitment parameters
-def inviteSubjects(data,id,request):
+def inviteSubjects(data, id, request):
     logger = logging.getLogger(__name__)
     logger.info("Invite subjects")
     logger.info(data)
@@ -252,7 +262,7 @@ def inviteSubjects(data,id,request):
     logger.info(es.canceled)
 
     if len(subjectInvitations) == 0 or es.canceled:
-        return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
+        return JsonResponse({"status":"fail", "mailResult":{"error_message":"Error: Refresh the page","mail_count":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
     
     status = "success" 
     userFails = []              #list of users failed to add
@@ -263,40 +273,46 @@ def inviteSubjects(data,id,request):
     subjectText = ""
 
     subjectText = p.invitationTextSubject
-
     messageText = es.getInvitationEmail()
 
-    #add users to session
+    # #add users to session
+    user_list = []
+    userPkList = []
+
     for i in subjectInvitations:
         try:
-            es.addUser(i['id'],request.user,False)
-            userSuccesses.append(i)
+
             userPkList.append(i['id'])
+            es.addUser(i['id'], request.user, False)
+            user_list.append({"email" : i['email'],
+                              "variables": [{"name" : "first name", "text" : i["first_name"]}]})
+
         except IntegrityError:
             userFails.append(i)
             status = "fail"
-    
-    #send emails
-    mailResult = sendMassEmail(userSuccesses, subjectText, messageText)
+            
+    memo = f'Send invitiations for session: {es.id}'
 
-    if(mailResult["errorMessage"] != ""):
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+
+    if(mail_result["error_message"] != ""):
         status = "fail"
 
     es.save()
 
     #store invitation
-    storeInvitation(id,userPkList,subjectText,messageText,mailResult['mailCount'],mailResult['errorMessage'])    
+    storeInvitation(id, userPkList, subjectText, messageText, mail_result['mail_count'], mail_result['error_message'])    
 
-    invitationCount=es.experiment_session_invitations_set.count()
+    invitationCount = es.experiment_session_invitations_set.count()
 
     return JsonResponse({"status":status,
-                         "mailResult":mailResult,
+                         "mailResult":mail_result,
                          "userFails":userFails,
                          "invitationCount":invitationCount,
                          "es_min":es.json_esd(True)}, safe=False)
 
 #store invitation
-def storeInvitation(id,userPkList,subjectText,messageText,mailCount,errorMessage):
+def storeInvitation(id, userPkList, subjectText, messageText, mailCount, errorMessage):
     logger = logging.getLogger(__name__)
     logger.info("store invitation")
 
@@ -453,7 +469,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
     elif es.checkUserInSession(User.objects.get(id = u["id"])):
          failed=True
 
-    mailResult =  {"mailCount":0,"errorMessage":""}   
+    mail_result =  {"mail_count":0, "error_message":""}   
     
     if not failed:
         subjectText=""
@@ -464,23 +480,29 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 
         if sendInvitation:
             
-            subjectText = p.invitationTextSubject
-            
+            user_list = []
+            subjectText = p.invitationTextSubject            
             messageText = es.getInvitationEmail()
 
-            mailResult = sendMassEmail([u], subjectText, messageText)
+            user_list.append({"email" : u['email'],
+                              "variables": [{"name" : "first name", "text" : u["first_name"]}]})
+            
+            memo = f'Manually invitation for session: {es.id}'
+
+            mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+
         else:
-            mailResult =  {"mailCount":0,"errorMessage":""}    
+            mail_result =  {"mail_count":0, "error_message":""}    
 
         #store invitation
-        storeInvitation(id,[u["id"]],subjectText,messageText,mailResult['mailCount'],mailResult['errorMessage']) 
+        storeInvitation(id,[u["id"]], subjectText, messageText, mail_result['mail_count'], mail_result['error_message']) 
     else:
         status = "fail"   
 
     invitationCount=es.experiment_session_invitations_set.count()
 
     return JsonResponse({"status":status,
-                         "mailResult":mailResult,
+                         "mailResult":mail_result,
                          "user":u,
                          "invitationCount":invitationCount,
                          "es_min":es.json_esd(True)}, safe=False)

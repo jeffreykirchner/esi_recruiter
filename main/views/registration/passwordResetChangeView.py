@@ -8,13 +8,10 @@ from django.http import JsonResponse
 import logging
 from django.contrib.auth.models import User
 import uuid
-from main.globals import sendMassEmail
-from django.db.models.functions import Lower
-from django.urls import reverse
 from  django.contrib.auth.hashers import make_password
 from django.contrib.auth import logout
 
-def passwordResetChangeView(request,token):
+def passwordResetChangeView(request, token):
 
     logger = logging.getLogger(__name__) 
     
@@ -25,9 +22,9 @@ def passwordResetChangeView(request,token):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "change_password":
-            return changePassword(request,data,token)
+            return changePassword(request, data, token)
 
-        return JsonResponse({"response" :  "error"},safe=False)
+        return JsonResponse({"response" :  "error"}, safe=False)
 
     else:
         logout(request)
