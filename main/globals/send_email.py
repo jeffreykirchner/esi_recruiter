@@ -70,12 +70,20 @@ def profile_create_send_email(request, user):
 def send_mass_email_service(user_list, message_subject, message_text, memo):
     '''
     send mass email through ESI mass pay service
-    user_list : [{email:email, variables:[{name:""},{text:""}}, ]
-    message_subject : string subject header of message
-    message_text : string message template, variables : [name]
-    memo : string note about message's purpose
-
     returns : {mail_count:int, error_message:str}
+
+    :param user_list: List of users to email [{email:email, variables:[{name:""},{text:""}}, ]
+    :type user_list: List
+
+    :param message_subject : string subject header of message
+    :type message_subject
+
+    :param message_text : message template, variables : [first name]
+    :type message_text: string 
+    
+    :param memo : note about message's purpose
+    :type memo: string 
+
     '''
 
     data = {"user_list" : user_list,
@@ -96,7 +104,6 @@ def send_mass_email_service(user_list, message_subject, message_text, memo):
     if request_result.status_code == 500:        
         logger.warning(f'send_mass_email_service error: {request_result}')
         return {"mail_count":0, "error_message":"Mail service error"}
-    else:
-        logger.info(f"ESI mass email API response: {request_result.json()}")
-
-        return request_result.json()
+   
+    logger.info(f"ESI mass email API response: {request_result.json()}")
+    return request_result.json()
