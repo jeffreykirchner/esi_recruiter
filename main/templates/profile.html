@@ -1,8 +1,112 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+
+{%block head%}
+<script type="text/javascript">
+  $(document).ready(function(){  
+      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+      axios.defaults.xsrfCookieName = "csrftoken";
+
+      var app = new Vue({
+      
+          delimiters: ['[[', ']]'],
+          el: '#root',        
+          data:{
+              buttonText : 'Update <i class="fas fa-sign-in-alt"></i>',
+              form_ids : {{form_ids|safe}},    
+              status: "update", 
+              emailVerificationRequired: false,                  
+          },
+
+          methods:{
+              //get current, last or next month
+
+              update:function(){
+
+                  app.$data.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
+                  
+                  axios.post('/accounts/profile/', {
+                          action :"update",
+                          formData : $("#updateForm").serializeArray(),                              
+                      })
+                      .then(function (response) {     
+                          
+                        status = response.data.status;                               
+
+                        app.clearMainFormErrors();
+
+                        if(status == "error")
+                        {              
+                          //form validation error           
+                          app.displayErrors(response.data.errors);
+                        }
+                        else
+                        {
+                          app.$data.status = "done";
+                          app.$data.emailVerificationRequired = response.data.email_verification_required;
+                        }                        
+
+                        app.$data.buttonText = 'Update <i class="fas fa-sign-in-alt"></i>';
+
+                      })
+                      .catch(function (error) {
+                          console.log(error);                            
+                      });                        
+                  },
+
+                  clearMainFormErrors:function(){
+
+                        s = app.$data.form_ids;                    
+                        for(var i in s)
+                        {
+                            $("#id_" + s[i]).attr("class","form-control");
+                            $("#id_errors_" + s[i]).remove();
+                        }
+
+                    },
+              
+                //display form errors
+                displayErrors:function(errors){
+                      for(var e in errors)
+                      {
+                          $("#id_" + e).attr("class","form-control is-invalid")
+                          var str='<span id=id_errors_'+ e +' class="text-danger">';
+                          
+                          for(var i in errors[e])
+                          {
+                              str +=errors[e][i] + '<br>';
+                          }
+
+                          str+='</span>';
+                          $("#div_id_" + e).append(str); 
+
+                          var elmnt = document.getElementById("div_id_" + e);
+                          elmnt.scrollIntoView(); 
+
+                      }
+                  },
+
+              
+          },            
+
+          mounted: function(){
+                                      
+          },
+      });
+  });
+
+</script>
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+{%endblock head%}
+
 {% block content %}
 
-<div class="row justify-content-md-center">
+<div class="row justify-content-md-center mb-4" v-cloak>
   <div class="col col-lg-6">
     <div class="card">
       <div class="card-header">
@@ -11,41 +115,44 @@
 
       <div class="card-body">
 
-        {%if status == 'update' %}
+        <div v-if = 'status === "update"'>     
 
-        {{ form.non_field_errors }}        
-
-        <form method="post" action="{% url 'profile' %}" autocomplete="off">
-          {% csrf_token %}            
-          
-          {% for i in form %}
-            <div class="row">
-              <div class = "col col-md-10 offset-md-1">  
-                {{ i|as_crispy_field }}         
-              </div>            
-            </div> 
-          {% endfor %}  
+          <form autocomplete="off" id="updateForm">
+            {% csrf_token %}            
+            
+            {% for i in form %}
+              <div class="row">
+                <div class = "col col-md-10 offset-md-1">  
+                  {{ i|as_crispy_field }}         
+                </div>            
+              </div> 
+            {% endfor %}  
+          </form>
 
           <div class="row">
             <div class="col col-md-10 offset-md-1">
-                <button type="submit" class="btn btn-outline-primary"><i class="fas fa-sign-in-alt"></i> Update</button>
+                <button class="btn btn-outline-primary" v-on:click="update()" title="Update your profile">
+                  <span v-html="buttonText"></span>
+                </button>
             </div>
           </div>           
-        </form>
+        
 
-        {%else%}
+        </div>
+        <div v-else>
+
           <div class="row">
-            <div class = "col col-md-10 offset-md-1">  
-              <center>                
+            <div class = "col col-md-10 offset-md-1 text-center">  
+                              
                 Profile updated.<br>
-                {%if emailVerificationRequired%}
-                Your email address was changed, check your inbox for a confirmation link.<br>
-                {%endif%}
+                <div v-show='emailVerificationRequired'>
+                  Your email address was changed, check your inbox for a confirmation link.<br>
+                </div>
                 <a href="{% url 'mainHome'%}">Return</a>
-              </center>         
+                       
             </div>            
           </div>
-        {%endif%}
+        </div>
       </div>      
     </div>
   </div>
