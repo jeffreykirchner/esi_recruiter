@@ -1,3 +1,6 @@
+from decimal import Decimal
+from datetime import datetime, timedelta, timezone
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from main.decorators import user_is_staff
@@ -12,8 +15,8 @@ import pytz
 from django.utils.timezone import make_aware
 from django.http import HttpResponse
 from django.db.models import Avg, Count, Min, Sum, Q,F,CharField,Value as V
-from django.db.models import Case,Value,When,DecimalField
-from datetime import datetime, timedelta,timezone
+from django.db.models import Case, Value, When, DecimalField
+
 
 @login_required
 @user_is_staff
@@ -227,14 +230,16 @@ def pettyCash(data):
 
         writer = csv.writer(csv_response)   
 
-        ESD = experiment_session_days.objects.annotate(totalEarnings = Sum(Case( When(experiment_session_day_users__attended = 1,
+        ESD = experiment_session_days.objects.annotate(totalEarnings=Sum(Case(When(experiment_session_day_users__attended = 1,
                                                                                  then = 'experiment_session_day_users__earnings'),
-                                                                                 default = Value(0) )))\
-                                             .annotate(totalBumps = Sum(Case(When(experiment_session_day_users__bumped = 1,
+                                                                                 default = Decimal("0")),
+                                                                        output_field=DecimalField()))\
+                                             .annotate(totalBumps=Sum(Case(When(experiment_session_day_users__bumped = 1,
                                                                                then = 'experiment_session_day_users__show_up_fee'),
                                                                              When(experiment_session_day_users__attended = 1,
                                                                                then = 'experiment_session_day_users__show_up_fee'),
-                                                                             default=Value(0)  )))\
+                                                                             default=Decimal("0")),
+                                                                        output_field=DecimalField()))\
                                              .filter(account__in = dpt.accounts_set.all(),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
