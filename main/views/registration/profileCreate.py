@@ -63,7 +63,7 @@ def profileCreate(request):
            return JsonResponse({"status" :  "error"},safe=False)
 
         #check for correct action
-        action = data.get("action","fail")
+        action = data.get("action", "fail")
 
         if action == "create":
             return createUser(request,data)
