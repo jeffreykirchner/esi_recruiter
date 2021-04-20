@@ -158,6 +158,8 @@ def addSessionBlank(e):
     logger = logging.getLogger(__name__)
     logger.info("Add Session Blank")
 
+    e.save()
+
     es=experiment_sessions()
     es.experiment=e    
     es.invitation_text = e.invitationText    

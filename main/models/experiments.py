@@ -71,29 +71,45 @@ class experiments(models.Model):
             "title": mark_safe(self.title),
             "experiment_manager":self.experiment_manager,
             "allowDelete":self.allowDelete(),
-            "date":self.getDateString(),
+            "date":self.getDateRangeString(),
+            "date_start":self.getDateString(),
         }
 
+    #return date of range session of sessions
+    def getDateRangeString(self):
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+        
+        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('date')
+
+        if len(esd) == 1:
+            return  esd.first().date.astimezone(tz).strftime("%-m/%#d/%Y")
+        
+        if len(esd) > 1:
+            return  f'{esd.first().date.astimezone(tz).strftime("%-m/%#d/%Y")} - {esd.last().date.astimezone(tz).strftime("%-m/%#d/%Y")}'
+
+        return "No Sessions"
+    
     #return date of first session
     def getDateString(self):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
-        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment = self).order_by('date').first()
+        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('date').first()
 
         if esd:
             return  esd.date.astimezone(tz).strftime("%-m/%#d/%Y")
-        else:
-            return "No Sessions"
+
+        return "No Sessions"
     
     #get last session day
     def getLastSessionDay(self):
-        return main.models.experiment_session_days.objects.filter(experiment_session__experiment = self).order_by('-date').first()
+        return main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('-date').first()
 
     #return true if at least one subject in one session has confirmed
     def checkForConfirmation(self):
         for s in self.ES.all():
-            if s.getConfirmedCount()>0:
+            if s.getConfirmedCount() > 0:
                 return True
 
         return False
