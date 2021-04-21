@@ -23,13 +23,13 @@ import logging
 #user profile, extending the user model
 class profile(models.Model):
 
-    user = models.OneToOneField(User,verbose_name="User", on_delete=models.CASCADE)
-    type =  models.ForeignKey(account_types,verbose_name="Account Type",on_delete=models.CASCADE,default=2)            #subject or staff
-    school = models.ForeignKey(schools,verbose_name="School",on_delete=models.CASCADE,default=1)                      #Chapman University ETC
-    major = models.ForeignKey(majors,verbose_name="Major",on_delete=models.CASCADE,default=1)                         #Economics ETC
-    gender = models.ForeignKey(genders,verbose_name="Gender",on_delete=models.CASCADE,default=1)
-    subject_type = models.ForeignKey(subject_types,verbose_name="Subject Type",on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
-    email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter",on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
+    user = models.OneToOneField(User, verbose_name="User", on_delete=models.CASCADE)
+    type =  models.ForeignKey(account_types, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
+    school = models.ForeignKey(schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
+    major = models.ForeignKey(majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
+    gender = models.ForeignKey(genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
+    subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
+    email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
     studentID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000",null=True,blank=True)  #student ID number
     email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                #yes/code/no
