@@ -254,9 +254,32 @@ class ProfileAdmin(admin.ModelAdmin):
       if settings.DEBUG:
             actions.append(setup_test_users)
 
-      list_display = ['__str__','studentWorker','blackballed','email_filter','timestamp','updated']
-      list_filter = ('blackballed', 'studentWorker','user__is_active','email_filter')     
+      list_display = ['__str__', 'blackballed', 'email_filter', 'timestamp', 'updated']
+      list_filter = ('blackballed', 'user__is_active', 'email_filter')
+      readonly_fields = ['user', 'password_reset_key']
 
+      def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        form.base_fields['type'].widget.can_change_related = False
+        form.base_fields['type'].widget.can_add_related = False
+
+        form.base_fields['school'].widget.can_change_related = False
+        form.base_fields['school'].widget.can_add_related = False
+
+        form.base_fields['major'].widget.can_change_related = False
+        form.base_fields['major'].widget.can_add_related = False
+
+        form.base_fields['gender'].widget.can_change_related = False
+        form.base_fields['gender'].widget.can_add_related = False
+
+        form.base_fields['subject_type'].widget.can_change_related = False
+        form.base_fields['subject_type'].widget.can_add_related = False
+
+        form.base_fields['email_filter'].widget.can_change_related = False
+        form.base_fields['email_filter'].widget.can_add_related = False
+
+        return form
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
