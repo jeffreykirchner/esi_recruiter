@@ -169,8 +169,8 @@ class profile(models.Model):
     def sorted_session_day_list_full(self):
         logger = logging.getLogger(__name__) 
     
-        qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
-                         .order_by('-date')
+        qs = self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
+                           .order_by('-date')
 
         out_str = [e.json_subjectInfo() for e in qs]      
 

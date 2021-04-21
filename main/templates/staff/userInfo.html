@@ -57,21 +57,23 @@
                     //format session data
                     for(var i=0;i<app.$data.session_day_attended.length;i++)
                     {
-                        app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date);
+                        app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date,
+                                                                                app.$data.session_day_attended[i].enable_time);
                         app.$data.session_day_attended[i].earnings = parseFloat(app.$data.session_day_attended[i].earnings).toFixed(2);
                         app.$data.session_day_attended[i].show_up_fee = parseFloat(app.$data.session_day_attended[i].show_up_fee).toFixed(2);
                     } 
 
                     for(var i=0;i<app.$data.session_day_upcoming.length;i++)
                     {
-                        app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date);
+                        app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date,
+                                                                                app.$data.session_day_upcoming[i].enable_time);
                         app.$data.session_day_upcoming[i].earnings = parseFloat(app.$data.session_day_upcoming[i].earnings).toFixed(2);
                         app.$data.session_day_upcoming[i].show_up_fee = parseFloat(app.$data.session_day_upcoming[i].show_up_fee).toFixed(2);
                     }
 
                     for(var i=0;i<app.$data.notes.length;i++)
                     {
-                        app.$data.notes[i].date = app.formatDate(app.$data.notes[i].date);
+                        app.$data.notes[i].date = app.formatDate(app.$data.notes[i].date, true);
                     }
 
                     app.$data.institutionsList="";
@@ -100,7 +102,8 @@
 
                             for(var i=0;i<app.$data.invitations.length;i++)
                             {
-                                app.$data.invitations[i].date = app.formatDate(app.$data.invitations[i].date);
+                                app.$data.invitations[i].date = app.formatDate(app.$data.invitations[i].date,
+                                                                                app.$data.invitations[i].enable_time );
                                 app.$data.invitations[i].earnings = parseFloat(app.$data.invitations[i].earnings).toFixed(2);
                                 app.$data.invitations[i].show_up_fee = parseFloat(app.$data.invitations[i].show_up_fee).toFixed(2);
                             }
@@ -175,10 +178,17 @@
                     
                 },
 
-                formatDate: function(value){
+                formatDate: function(value, enable_time){
                         if (value) {        
-                            //console.log(value);                    
-                            return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                            if(enable_time)
+                            {                    
+                                return moment(String(value)).local().format('M/D/YYYY, h:mm a');
+                            }
+                            else
+                            {
+                                return moment(String(value)).local().format('M/D/YYYY') + ", Anytime";
+                            }
+
                         }
                         else{
                             return "date format error";
