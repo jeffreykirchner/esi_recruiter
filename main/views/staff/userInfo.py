@@ -15,44 +15,44 @@ from main.models import profile_note,help_docs
 
 @login_required
 @user_is_staff
-def userInfo(request,id=None):
+def userInfo(request, id=None):
 
     if request.method == 'POST':       
 
         data = json.loads(request.body.decode('utf-8'))
 
         if data["status"] == "getInvitations":
-            return getInvitations(data,id)
+            return getInvitations(data, id)
         elif data["status"] == "getSessions":
-            return getSessions(data,id)  
+            return getSessions(data, id)  
         elif data["status"] == "makeNote":
-            return makeNote(request,data,id) 
+            return makeNote(request, data, id) 
         elif data["status"] == "deleteNote":
-            return deleteNote(request,data,id)       
+            return deleteNote(request, data, id)       
         elif data["status"] == "getTraits":
-            return getTraits(data,id)  
+            return getTraits(data, id)  
                    
     else:     
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+            helpText = help_docs.objects.annotate(rp=V(request.path,output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
 
         u=User.objects.get(id=id) 
-        return render(request,'staff/userInfo.html',{"u":u,
-                                                     "id":id,
-                                                     "helpText":helpText,
-                                                     "experiments":u.ESDU.all() })  
+        return render(request, 'staff/userInfo.html', {"u":u,
+                                                       "id":id,
+                                                       "helpText":helpText,
+                                                       "experiments":u.ESDU.all() })  
 
 #store a note about the user
-def makeNote(request,data,id):
+def makeNote(request, data, id):
     logger = logging.getLogger(__name__) 
     logger.info("Make a note")
     logger.info(data)
 
-    u=User.objects.get(id=id)
+    u = User.objects.get(id=id)
 
     n = profile_note()
     n.my_profile = u.profile
@@ -65,7 +65,7 @@ def makeNote(request,data,id):
     return getSessions(data,id)
 
 #delete the selected note
-def deleteNote(request,data,id):
+def deleteNote(request, data, id):
     logger = logging.getLogger(__name__) 
     logger.info("Delete Note")
     logger.info(data)
@@ -76,10 +76,10 @@ def deleteNote(request,data,id):
     if request.user.is_superuser:
         n.delete()
 
-    return getSessions(data,id)
+    return getSessions(data, id)
 
 #get full is of subject invitions
-def getInvitations(data,id):
+def getInvitations(data, id):
     logger = logging.getLogger(__name__) 
     logger.info("Get invitations")
     logger.info(data)
@@ -90,7 +90,7 @@ def getInvitations(data,id):
                                 },safe=False)
 
 #get the session and notes subject has participated in
-def getSessions(data,id):
+def getSessions(data, id):
     logger = logging.getLogger(__name__) 
     logger.info("User Info: Get sessions")
     logger.info(data)
@@ -105,13 +105,13 @@ def getSessions(data,id):
                         )
 
 #get the traits for this subject
-def getTraits(data,id):
+def getTraits(data, id):
     logger = logging.getLogger(__name__) 
     logger.info("User Info: Get Traits")
     logger.info(data)
 
     u=User.objects.get(id=id)
 
-    return JsonResponse({"subject_traits" :  u.profile.sorted_trait_list(),
+    return JsonResponse({"subject_traits" : u.profile.sorted_trait_list(),
                             },safe=False,
                         )
