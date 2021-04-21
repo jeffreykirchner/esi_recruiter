@@ -29,7 +29,7 @@ class profile_trait(models.Model):
     def getDateStringTZOffset(self):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
-        return  self.updated.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p")
+        return  self.updated.astimezone(tz).strftime("%-m/%d/%Y, %-I:%M %p")
     
     def json(self):
         return {

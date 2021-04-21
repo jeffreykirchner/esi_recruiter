@@ -112,6 +112,6 @@ def getTraits(data, id):
 
     u=User.objects.get(id=id)
 
-    return JsonResponse({"subject_traits" :  u.profile.sorted_trait_list(),
+    return JsonResponse({"subject_traits" : u.profile.sorted_trait_list(),
                             },safe=False,
                         )
