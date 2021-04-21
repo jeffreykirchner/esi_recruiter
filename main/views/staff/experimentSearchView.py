@@ -9,7 +9,7 @@ from django.db.models import Q, F, Value, CharField
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.contrib.postgres.search import SearchQuery, SearchVector
+from django.contrib.postgres.search import SearchQuery, SearchVector, TrigramSimilarity
 
 from main.decorators import user_is_staff
 from main.models import experiments, experiment_session_days, schools, accounts,\
@@ -194,11 +194,18 @@ def lookup(value):
     #                           Q(experiment_manager__icontains = value) |
     #                           Q(notes__icontains = value))
 
-    e_list = experiments.objects.annotate(search=SearchVector('title') +
-                                                 SearchVector('experiment_manager') +
-                                                 SearchVector('notes'),) \
-                                .filter(search=SearchQuery(value.strip())) \
-                                .order_by(Lower('title'))
+    value = value.strip()
+
+    e_list = experiments.objects.annotate(title_similarity=TrigramSimilarity('title', value)) \
+                        .annotate(experiment_manager_similarity=TrigramSimilarity('experiment_manager', value)) \
+                        .annotate(notes_similarity=TrigramSimilarity('notes', value)) \
+                        .annotate(similarity_total=F('title_similarity') +
+                                                   F('experiment_manager_similarity') +
+                                                   F('notes_similarity')) \
+                        .filter(Q(title_similarity__gte=0.3) |
+                                Q(experiment_manager_similarity__gte=0.3) |
+                                Q(notes_similarity__gte=0.3))\
+                        .order_by('-similarity_total')
 
 
     e_list_json = [e.json_search() for e in e_list]
