@@ -1,19 +1,20 @@
+
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
+from django.db.models.functions import Lower
+from django.db.models import Q, F, Value, CharField
+from django.db.models import Count
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from main.models import experiments,experiment_session_days,schools,accounts,\
-                        recruitment_parameters,parameters,genders,subject_types,help_docs,\
+from django.contrib.postgres.search import SearchQuery, SearchVector
+
+from main.decorators import user_is_staff
+from main.models import experiments, experiment_session_days, schools, accounts,\
+                        recruitment_parameters, parameters, genders, subject_types, help_docs,\
                         Invitation_email_templates    
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models.functions import Lower
-from django.db.models import Q,F, Value,CharField
-from django.db.models import Count
-from django.shortcuts import redirect
-import main
 
 @login_required
 @user_is_staff
@@ -43,13 +44,13 @@ def experimentSearch(request):
         return JsonResponse({"status" :  "error"},safe=False)       
     else:
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        return render(request,'staff/experimentSearch.html',{"helpText":helpText,"id":""})      
+        return render(request, 'staff/experimentSearch.html', {"helpText":helpText, "id":""})      
 
 #create experiment
 def createExperiment(data):
@@ -186,15 +187,18 @@ def getRecentExperimentsList():
 #search for users that back search criterion
 def lookup(value):
     logger = logging.getLogger(__name__)
-    logger.info("Experiment Lookup")
-    logger.info(value)
+    logger.info(f"Experiment Lookup: {value}")
+   
+    # e_list = experiments.objects.order_by(Lower('title')) \
+    #                   .filter(Q(title__icontains = value) |
+    #                           Q(experiment_manager__icontains = value) |
+    #                           Q(notes__icontains = value))
 
-    value = value.strip()
-
-    e_list = experiments.objects.order_by(Lower('title')) \
-                      .filter(Q(title__icontains = value) |
-                              Q(experiment_manager__icontains = value) |
-                              Q(notes__icontains = value))
+    e_list = experiments.objects.annotate(search=SearchVector('title') +
+                                                 SearchVector('experiment_manager') +
+                                                 SearchVector('notes'),) \
+                                .filter(search=SearchQuery(value.strip())) \
+                                .order_by(Lower('title'))
 
 
     e_list_json = [e.json_search() for e in e_list]
