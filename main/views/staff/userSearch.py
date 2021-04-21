@@ -1,20 +1,24 @@
+from datetime import datetime, timedelta, timezone
+
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import CharField,Q,F,Value as V
-from django.db.models.functions import Lower,Concat
+from django.db.models import CharField, Q, F, Value as V
+from django.db.models.functions import Lower, Concat
 from django.urls import reverse
-from main import views
-import logging
+from django.contrib.postgres.search import SearchQuery, SearchVector, TrigramSimilarity
 from django.db.models import OuterRef, Subquery
 from django.db.models import Count
-from main.models import parameters,help_docs
-from datetime import datetime, timedelta,timezone
+
+from main.decorators import user_is_staff
+from main import views
+from main.models import parameters, help_docs
 from main.globals import send_mass_email_service
 
 @login_required
@@ -25,13 +29,13 @@ def userSearch(request):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getUsers":
-            return getUsers(request,data)
+            return getUsers(request, data)
         elif data["action"] == "getBlackBalls":
-            return getBlackBalls(request,data)
+            return getBlackBalls(request, data)
         elif data["action"] == "getNoShows":
-            return getNoShows(request,data)
+            return getNoShows(request, data)
         elif data["action"] == "sendEmail":
-            return sendEmail(request,data)
+            return sendEmail(request, data)
 
     else:
         try:
@@ -132,7 +136,7 @@ def getBlackBalls(request,data):
     return JsonResponse({"users" :  json.dumps(u_list,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
 
 #return list of users based on search criterion
-def getUsers(request,data):
+def getUsers(request, data):
     logger = logging.getLogger(__name__)
     logger.info("User Search")
     logger.info(data)
@@ -140,38 +144,57 @@ def getUsers(request,data):
     #request.session['userSearchTerm'] = data["searchInfo"]            
     activeOnly = data["activeOnly"] 
 
-    users = lookup(data["searchInfo"],False,activeOnly)            
+    users = lookup(data["searchInfo"], False, activeOnly)            
 
-    errorMessage=""
+    errorMessage = ""
 
     if(len(users) >= 1000):
         errorMessage = "Narrow your search"
-        users=[]          
+        users = []          
 
-    return JsonResponse({"users" : json.dumps(users,cls=DjangoJSONEncoder),"errorMessage":errorMessage},safe=False)
+    return JsonResponse({"users" : json.dumps(users, cls=DjangoJSONEncoder), 
+                         "errorMessage":errorMessage},safe=False)
 
 #search for users that back search criterion
-def lookup(value,returnJSON,activeOnly):
+def lookup(value, returnJSON, activeOnly):
     logger = logging.getLogger(__name__)
     logger.info("User Lookup")
     logger.info(value)
 
     value = value.strip()
 
-    users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
-                      .filter(Q(last_name__icontains = value) |
-                              Q(first_name__icontains = value) |
-                              Q(email__icontains = value) |
-                              Q(profile__studentID__icontains = value) |
-                              Q(profile__type__name__icontains = value))\
-                      .select_related('profile')\
-                      .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
+    # users = User.objects.order_by(Lower('last_name'),Lower('first_name')) \
+    #                   .filter(Q(last_name__search = value) |
+    #                           Q(first_name__search = value) |
+    #                           Q(email__search = value) |
+    #                           Q(profile__studentID__search = value) |
+    #                           Q(profile__type__name__search = value))\
+    #                   .select_related('profile')\
+    #                   .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
 
+    users = User.objects.annotate(first_name_similarity=TrigramSimilarity('first_name', value)) \
+                        .annotate(last_name_similarity=TrigramSimilarity('last_name', value)) \
+                        .annotate(email_similarity=TrigramSimilarity('email', value)) \
+                        .annotate(profile_studentID_similarity=TrigramSimilarity('profile__studentID', value)) \
+                        .annotate(profile_type__name_similarity=TrigramSimilarity('profile__type__name', value)) \
+                        .annotate(similarity_total=F('first_name_similarity') +
+                                                   F('last_name_similarity') +
+                                                   F('email_similarity') +
+                                                   F('profile_studentID_similarity') +
+                                                   F('profile_type__name_similarity')) \
+                        .filter(Q(first_name_similarity__gte=0.3) |
+                                Q(last_name_similarity__gte=0.3) |
+                                Q(email_similarity__gte=0.3) |
+                                Q(profile_studentID_similarity__gte=0.3) |
+                                Q(profile_type__name_similarity__gte=0.3))\
+                        .select_related('profile')\
+                        .values("id", "first_name", "last_name", "email", "profile__studentID", "profile__type__name", "is_active", "profile__blackballed") \
+                        .order_by('-similarity_total')
 
     if activeOnly:
-        users = users.filter(is_active = True, profile__email_confirmed = 'yes')
+        users = users.filter(is_active=True, profile__email_confirmed='yes')
 
-    u_list = list(users)
+    u_list = list(users[:100])
 
     logger.info(str(len(u_list)) + " results found.")
 
@@ -181,6 +204,6 @@ def lookup(value,returnJSON,activeOnly):
 
     if returnJSON:
         #print(json.dumps(list(users),cls=DjangoJSONEncoder))
-        return json.dumps(u_list,cls=DjangoJSONEncoder)
+        return json.dumps(u_list, cls=DjangoJSONEncoder)
     else:
         return u_list

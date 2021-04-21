@@ -1,9 +1,21 @@
-from django.shortcuts import render,redirect
+from datetime import datetime, timedelta
+
+import logging
+import json
+
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.core import serializers
+from django.forms.models import model_to_dict
+from django.db.models import prefetch_related_objects
+from django.urls import reverse
+from django.db.models import Count, F, Value, CharField
+
 from main.decorators import user_is_staff
 from main.models import experiments, \
                         experiment_session_days, \
@@ -18,20 +30,12 @@ from main.models import experiments, \
                         Recruitment_parameters_trait_constraint,\
                         Traits,\
                         Invitation_email_templates
-from main.forms import experimentForm1,recruitmentParametersForm,TraitConstraintForm,invitationEmailTemplateSelectForm
-from django.http import JsonResponse
-from django.core import serializers
-from django.forms.models import model_to_dict
-import json
-from django.db.models import prefetch_related_objects
-from django.urls import reverse
-import logging
-from django.db.models import Count, F, Value,CharField
-from datetime import datetime,timedelta
+
+from main.forms import experimentForm1, recruitmentParametersForm, TraitConstraintForm, invitationEmailTemplateSelectForm
 
 @login_required
 @user_is_staff
-def experimentView(request,id):
+def experimentView(request, id):
     logger = logging.getLogger(__name__) 
        
     status = "" 
@@ -41,34 +45,34 @@ def experimentView(request,id):
         data = json.loads(request.body.decode('utf-8'))         
         
         if data["status"] == "get":
-            return getExperiment(data,id)          
+            return getExperiment(data, id)          
         elif data["status"] == "update1":
-            return updateForm1(data,id)                   
+            return updateForm1(data, id)                   
         elif data["status"] == "updateRecruitmentParameters":   
-            return updateRecruitmentParameters(data,id)
+            return updateRecruitmentParameters(data, id)
         elif data["status"] == "add":
-            return addSession(data,id)
+            return addSession(data, id)
         elif data["status"] == "remove":
-            return removeSession(data,id)
+            return removeSession(data, id)
         elif data["status"] == "addTrait":
-            return addTrait(data,id)
+            return addTrait(data, id)
         elif data["status"] == "deleteTrait":
-            return deleteTrait(data,id)
+            return deleteTrait(data, id)
         elif data["status"] == "updateTrait":
-            return updateTrait(data,id)
+            return updateTrait(data, id)
         elif data["status"] == "updateRequireAllTraitContraints":
-            return updateRequireAllTraitContraints(data,id)
+            return updateRequireAllTraitContraints(data, id)
         elif data["status"] == "fillInvitationTextFromTemplate":
-            return fillInvitationTextFromTemplate(data,id)
+            return fillInvitationTextFromTemplate(data, id)
         elif  data["status"] == "fillDefaultReminderText":
-            return fillDefaultReminderText(data,id)
+            return fillDefaultReminderText(data, id)
             
 
     else: #GET       
 
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
-                                .filter(rp__icontains = F('path')).first().text
+            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+                                .filter(rp__icontains=F('path')).first().text
         except Exception  as e:   
             helpText = "No help doc was found."
 
@@ -85,7 +89,7 @@ def experimentView(request,id):
                        'helpText':helpText})
 
 #get the eperiment info
-def getExperiment(data,id):
+def getExperiment(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Get Experiment")
     logger.info(data)
@@ -103,7 +107,7 @@ def getExperiment(data,id):
                            }, safe=False)
 
 #delete session from experiment
-def removeSession(data,id):
+def removeSession(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Remove session")
     logger.info(data)
@@ -121,7 +125,7 @@ def removeSession(data,id):
     return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
 
 #create experiment session, attach to experiment
-def addSession(data,id):
+def addSession(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Add Session")
     logger.info(data) 
@@ -157,6 +161,8 @@ def addSession(data,id):
 def addSessionBlank(e):
     logger = logging.getLogger(__name__)
     logger.info("Add Session Blank")
+
+    e.save()
 
     es=experiment_sessions()
     es.experiment=e    
