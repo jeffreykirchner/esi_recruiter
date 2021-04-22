@@ -685,7 +685,7 @@
                                                 $<span v-html="esdu.earnings"></span>
                                             </div>
                                             <div v-else>
-                                                <input type="number" class="form-control" style="text-align: center;" v-model="esdu.earnings"
+                                                <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.earnings"
                                                     v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter experiment earnings here.">
                                             </div>
                                         </div>                                                                                                                  
@@ -696,7 +696,7 @@
                                                 $<span v-html="esdu.show_up_fee"></span>
                                             </div>
                                             <div v-else>
-                                                <input type="number" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
+                                                <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
                                                    v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter on-time bonus here.">
                                             </div>                                           
                                         </div>                                        
