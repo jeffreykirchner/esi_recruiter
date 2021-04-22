@@ -670,16 +670,16 @@
                             <tbody>
                                 <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">
                                                                
-                                    <td class="align-middle">
+                                    <td class="align-middle m-1 p-1">
                                         <span v-html="index+1"></span>) 
                                         <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                         </a>                                    
                                     </td>
-                                    <td  class="align-middle">                                       
+                                    <td  class="align-middle m-1 p-1">                                       
                                         <span v-html="esdu.user.studentID"></span>                                    
                                     </td> 
-                                    <td class="align-middle" style="text-align: center;">
+                                    <td class="align-middle m-1 p-1 text-center">
                                         <div v-if='esdu.attended'>
                                             <div v-if='sessionDay.complete'>
                                                 $<span v-html="esdu.earnings"></span>
@@ -690,7 +690,7 @@
                                             </div>
                                         </div>                                                                                                                  
                                     </td>                                    
-                                    <td class="align-middle" style="text-align: center;">
+                                    <td class="align-middle m-1 p-1 text-center">
                                         <div v-if='esdu.attended || esdu.bumped'>
                                             <div v-if='sessionDay.complete'>
                                                 $<span v-html="esdu.show_up_fee"></span>
@@ -701,13 +701,13 @@
                                             </div>                                           
                                         </div>                                        
                                     </td>
-                                    <td class="align-middle" style="text-align: center;">                                       
+                                    <td class="align-middle m-1 p-1 text-center">                                       
                                         <div v-if="esdu.attended">Attended</div>
                                         <div v-else-if="esdu.bumped">Bumped</div>
                                         <div v-else-if="sessionDay.canceled">Canceled</div>
                                         <div v-else>No Show</div>                                                                           
                                     </td>
-                                    <td class="align-middle" style="text-align: center;">
+                                    <td class="align-middle m-1 p-1 text-center">
                                         <div v-show="sessionDay.complete === false">  
                                             <div v-if = "esdu.waiting">
                                                 <span v-html='waitButtonText'></span>

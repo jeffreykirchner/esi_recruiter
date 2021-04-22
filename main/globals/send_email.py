@@ -6,6 +6,8 @@ from smtplib import SMTPException
 
 import logging
 import requests
+import os
+import sys
 
 from django.utils.crypto import get_random_string
 from django.conf import settings
@@ -84,7 +86,13 @@ def send_mass_email_service(user_list, message_subject, message_text, memo):
     :param memo : note about message's purpose
     :type memo: string 
 
+    :param unit_testing : if true do not send email, return expected result
+    :type unit_testing: bool
+
     '''
+
+    if hasattr(sys, '_called_from_test'):
+        return {"mail_count":len(user_list), "error_message":""}
 
     data = {"user_list" : user_list,
             "message_subject" : message_subject,

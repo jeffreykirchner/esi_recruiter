@@ -193,7 +193,7 @@ def sendMessage(data, id):
     return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 
 #cancel session
-def cancelSession(data,id):
+def cancelSession(data, id):
     '''
         Cancel session
         :param data: empty {}
