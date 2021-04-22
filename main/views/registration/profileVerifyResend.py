@@ -37,7 +37,7 @@ def profileVerifyResend(request):
         return JsonResponse({"status":"fail"}, safe=False)
     else:
 
-        return render(request,'profileVerifyResend.html',{ })   
+        return render(request,'registration/profileVerifyResend.html',{ })   
 
 #get user status
 def getUser(request,data):

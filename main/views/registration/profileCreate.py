@@ -8,9 +8,9 @@ from django.utils.crypto import get_random_string
 from django.template.loader import render_to_string
 from django.conf import settings
 from main.models import account_types,profile,help_docs
-from main.views import profile_create_send_email
+from main.globals import profile_create_send_email
 from datetime import timedelta
-from django.db.models import CharField,Q,F,Value as V
+from django.db.models import CharField, Q, F, Value as V
 from django.urls import reverse
 from django.http import JsonResponse
 import json
@@ -89,11 +89,11 @@ def profileCreate(request):
         for i in form:
             form_ids.append(i.html_name)
 
-        return render(request,'registration/profileCreate.html',{'form': form,
-                                                                 'helpText':helpText,
-                                                                 'form_ids':form_ids})    
+        return render(request, 'registration/profileCreate.html',{'form': form,
+                                                                  'helpText':helpText,
+                                                                  'form_ids':form_ids})    
 
-def createUser(request,data):
+def createUser(request, data):
     logger = logging.getLogger(__name__) 
     logger.info("Create User")
 
