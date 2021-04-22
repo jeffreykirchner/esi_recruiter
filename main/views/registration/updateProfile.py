@@ -64,9 +64,9 @@ def updateProfile(request):
         for i in form:
             form_ids.append(i.html_name)
 
-        return render(request, 'profile.html', {'form': form,
-                                                'form_ids': form_ids,
-                                                'helpText': helpText})
+        return render(request, 'registration/profile.html', {'form': form,
+                                                             'form_ids': form_ids,
+                                                             'helpText': helpText})
 
 
 def update_profile(request, data):
@@ -98,7 +98,7 @@ def update_profile(request, data):
 
         u.profile.studentID = form.cleaned_data['chapman_id'].strip()
         u.profile.gender = form.cleaned_data['gender']
-        u.profile.subjecType = form.cleaned_data['subject_type']
+        u.profile.subject_type = form.cleaned_data['subject_type']
         u.profile.studentWorker = form.cleaned_data['studentWorker']
         u.profile.phone = form.cleaned_data['phone'].strip()
         u.profile.major = form.cleaned_data['major']

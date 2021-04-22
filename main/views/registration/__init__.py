@@ -1,3 +1,4 @@
+from .updateProfile import *
 from .loginView import *
 from .passwordResetChangeView import *
 from .passwordResetView import * 

@@ -16,7 +16,7 @@ from main.models import parameters
 
 #user account info
 @login_required
-def profileVerify(request,token):    
+def profileVerify(request, token):    
     status="update"            #either filling out the form or 
     
     if request.method == 'POST':
@@ -39,13 +39,13 @@ def profileVerify(request,token):
         if u.profile.email_confirmed != 'yes':
             emailVerified = False
 
-        return render(request,'profileVerify.html',{'emailVerified':emailVerified,
-                                                    'failed':failed,    
-                                                    'token':token,
-                                                    'status':status})    
+        return render(request, 'registration/profileVerify.html',{'emailVerified':emailVerified,
+                                                                  'failed':failed,    
+                                                                  'token':token,
+                                                                  'status':status})    
 
 #verify user email address
-def verifyEmail(request,data):
+def verifyEmail(request, data):
     logger = logging.getLogger(__name__)
     logger.info("Verify email")
     logger.info(data)
