@@ -11,11 +11,12 @@ from main.views.staff.experimentSessionView import changeConfirmationStatus,upda
 from main.views.subject.subjectHome import acceptInvitation,cancelAcceptInvitation
 from main.views.staff.experimentSessionRunView import attendSubject,bumpSubject,noShowSubject,completeSession
 
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import pytz
 import logging
-from django.db.models import Q,F
+from django.db.models import Q, F
 import json
+import sys
 
 
 # Create your tests here.
@@ -226,6 +227,9 @@ class recruiteTestCase(TestCase):
     staff_u=None      #staff user
     
     def setUp(self):
+        
+        sys._called_from_test = True
+
         logger = logging.getLogger(__name__)
 
         self.p = parameters()

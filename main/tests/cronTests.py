@@ -19,6 +19,7 @@ import logging
 from django.db.models import Q,F
 import json
 import ast
+import sys
 
 class cronTests(TestCase):
 
@@ -41,6 +42,8 @@ class cronTests(TestCase):
     staff_u=None      #staff user
 
     def setUp(self):
+        sys._called_from_test = True
+
         logger = logging.getLogger(__name__)
 
         self.p = parameters()
