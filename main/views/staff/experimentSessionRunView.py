@@ -7,6 +7,7 @@ from decimal import *
 import random
 import csv
 import math
+from decimal import Decimal
 import json
 import logging
 import pytz
@@ -367,8 +368,8 @@ def backgroundSave(data, id, request_user):
 
     #time_start = datetime.now()
 
-    esdu_list=[]
-    status="success"
+    esdu_list = []
+    status = "success"
 
     for p in payoutList:
         #logger.info(p)
@@ -376,14 +377,14 @@ def backgroundSave(data, id, request_user):
 
         if esdu:
             try:
-                esdu.earnings = max(0,Decimal(p['earnings']))
-                esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+                esdu.earnings = max(0, round(Decimal(p['earnings']), 2))
+                esdu.show_up_fee = max(0, round(Decimal(p['showUpFee']), 2))
             except Exception  as e:
                 logger.info("Background Save Error : ")
                 logger.info(e)
                 logger.info(p)
-                esdu.earnings = 0
-                esdu.show_up_fee = 0
+                esdu.earnings = Decimal("0")
+                esdu.show_up_fee = Decimal("0")
                 status = "fail"
 
             esdu_list.append(esdu)
@@ -392,7 +393,7 @@ def backgroundSave(data, id, request_user):
             status = "fail"
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
     except Exception  as e:
         logger.info(e)
         status = "fail"
@@ -431,8 +432,8 @@ def savePayouts(data, id, request_user):
 
         if esdu:
             try:
-                esdu.earnings = max(0, Decimal(p['earnings']))
-                esdu.show_up_fee = max(0, Decimal(p['showUpFee']))
+                esdu.earnings = max(0, round(Decimal(p['earnings']), 2))
+                esdu.show_up_fee = max(0, round(Decimal(p['showUpFee']), 2))
 
             except Exception  as e:
                 logger.info("Save Error : ")
@@ -450,7 +451,7 @@ def savePayouts(data, id, request_user):
     json_info = ""
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
         esd = experiment_session_days.objects.get(id=id)
         json_info = esd.json_runInfo(request_user)
     except Exception  as exc:
@@ -505,7 +506,7 @@ def completeSession(data, id, request_user):
         logger.warning(f"Fill earnings with fixed amount error : {exc}")
         status = "fail"
 
-    return JsonResponse({"sessionDay" : json_info,"status":status}, safe=False)
+    return JsonResponse({"sessionDay" : json_info, "status":status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
 def fillEarningsWithFixed(data, id, request_user):
@@ -522,8 +523,8 @@ def fillEarningsWithFixed(data, id, request_user):
     logger.info("Fill Earnings with fixed amount")
     logger.info(data)
 
-    status=""
-    json_info=""
+    status = ""
+    json_info = ""
 
     try:
         esd = experiment_session_days.objects.get(id=id)
@@ -533,14 +534,14 @@ def fillEarningsWithFixed(data, id, request_user):
         esd.experiment_session_day_users_set.filter(attended=True) \
                                             .update(earnings = Decimal(amount))
 
-        status="success"
+        status = "success"
         json_info = esd.json_runInfo(request_user)
     except Exception  as e:
         logger.info("Fill earnings with fixed amount error : ")
         logger.info(e)
-        status="fail"
+        status = "fail"
 
-    return JsonResponse({"sessionDay" : json_info,"status" : status}, safe=False)
+    return JsonResponse({"sessionDay" : json_info, "status" : status}, safe=False)
 
 #fill subjects with default bump fee set in the experiments model
 def fillDefaultShowUpFee(data, id, request_user):
@@ -621,7 +622,7 @@ def attendSubjectAction(esdu, id, request_user):
     logger.info("Attend Subject Action")
     logger.info(esdu)
 
-    status=""
+    status = ""
 
     #check subject session day exists
     if esdu:
@@ -875,7 +876,7 @@ def payPalAPI(data, id_, request_user):
     #build payments json
     for esdu in esdu_list:
         payments.append({"email": esdu.user.email, #, 'sb-8lqqw5080618@business.example.com'
-                         "amount" : float(esdu.earnings + esdu.show_up_fee),
+                         "amount" : str(esdu.get_total_payout()),
                          "note" : f'{esdu.user.first_name}, {parm.paypal_email_body}',
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
