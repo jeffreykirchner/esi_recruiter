@@ -60,17 +60,17 @@ def profileCreate(request):
             data = json.loads(request_body)
         except Exception  as e:  
            logger.warning(f"Profile create post json error: {request_body}, Exception: {e}") 
-           return JsonResponse({"status" :  "error"},safe=False)
+           return JsonResponse({"status" :  "error"}, safe=False)
 
         #check for correct action
         action = data.get("action", "fail")
 
         if action == "create":
-            return createUser(request,data)
+            return createUser(request, data)
 
         #valid action not found
         logger.warning(f"Profile create post error: {data}")
-        return JsonResponse({"status" :  "error"},safe=False)           
+        return JsonResponse({"status" : "error"}, safe=False)           
 
     else:
         logout(request)
@@ -125,7 +125,7 @@ def createUser(request,data):
                                     True,
                                     account_types.objects.get(id=2))
 
-        profile_create_send_email(request,u)
+        profile_create_send_email(request, u)
 
         u.profile.setup_email_filter()
 
@@ -137,7 +137,7 @@ def createUser(request,data):
 
     else:
         logger.info(f"createUser validation error")
-        return JsonResponse({"status":"error","errors":dict(f.errors.items())}, safe=False)
+        return JsonResponse({"status":"error", "errors":dict(f.errors.items())}, safe=False)
 
 
 def profileCreateUser(username, email, password, firstName, lastName, studentID, 
@@ -146,17 +146,17 @@ def profileCreateUser(username, email, password, firstName, lastName, studentID,
 
     logger = logging.getLogger(__name__) 
 
-    u = User.objects.create_user(username = username,
-                                 email = email,
-                                 password = password,                                         
-                                 first_name = firstName,
-                                 last_name = lastName)
+    u = User.objects.create_user(username=username,
+                                 email=email,
+                                 password=password,                                         
+                                 first_name=firstName,
+                                 last_name=lastName)
 
-    u.is_active = isActive    
+    u.is_active = isActive   
     u.save()
 
-    p = profile(user = u,
-                studentID = studentID,
+    p = profile(user=u,
+                studentID=studentID,
                 gender=gender,
                 type=accountType,
                 phone=phone,

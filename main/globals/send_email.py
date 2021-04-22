@@ -6,7 +6,6 @@ from smtplib import SMTPException
 
 import logging
 import requests
-import os
 import sys
 
 from django.utils.crypto import get_random_string
@@ -14,8 +13,10 @@ from django.conf import settings
 
 from main.models import profile, parameters
 
-#send verify email to list, takes query set
 def send_mass_email_verify(profile_list, request):
+    '''
+    send mass deactivation email to current active subjects
+    '''
     logger = logging.getLogger(__name__)
     logger.info(f"Send mass verification email to list: {profile_list}")
 
@@ -40,7 +41,7 @@ def send_mass_email_verify(profile_list, request):
     memo = 'Bulk account deactivation'
 
     try:
-        return send_mass_email_service(user_list, params.deactivationTextSubject, params.emailVerificationResetText, memo)             
+        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}

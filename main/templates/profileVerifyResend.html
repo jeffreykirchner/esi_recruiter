@@ -71,24 +71,24 @@
 
 {% block content %}
 
-<div class="row justify-content-md-center">
-  <div class="col col-lg-4">
+<div class="row justify-content-lg-center">
+  <div class="col col-lg-6">
     <div class="card" v-cloak >
       <div class="card-header">
-        <h5>Resend Verification Email</h5>
+        Resend Verification Email
       </div>
 
       <div class="card-body" >
 
         <div v-if="status === 'update'"> 
             <div class="row" v-if="emailVerified === false">
-              <div class="col col-md-8 offset-md-2" style="text-align: center;">
+              <div class="col col-lg-8 offset-lg-2" style="text-align: center;">
                   Your email account is not verified.<br>
                   Your email can be edited in your <a href="/profile/">Profile</a>.
               </div>
             </div>                         
             <div class="row mt-2">
-              <div class="col col-md-8 offset-md-2" style="text-align: center;">
+              <div class="col col-lg-8 offset-lg-2" style="text-align: center;">
                   <button type="submit" class="btn btn-outline-primary" v-on:click="sendVerificationEmail()">
                     <span v-html="buttonText"></span>
                   </button>
