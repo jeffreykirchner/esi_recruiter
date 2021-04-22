@@ -1,7 +1,7 @@
 from django.db import models
 
 class subject_types(models.Model):
-    name = models.CharField(verbose_name='Name', max_length = 300)
+    name = models.CharField(verbose_name='Name', max_length=300)
     initialValue = models.BooleanField(verbose_name='Default to On', default=False)    #if true add on initial experiment creation
     display_order = models.IntegerField(verbose_name='Display order', default=1)       #default order in which shown
 
