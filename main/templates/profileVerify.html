@@ -58,15 +58,15 @@
 
 {% block content %}
 
-<div class="row justify-content-md-center">
-  <div class="col col-lg-4">
+<div class="row justify-content-md-center" v-cloak>
+  <div class="col col-lg-6">
     <div class="card">
       <div class="card-header">
         Verify Your Email Address
       </div>
 
       <div class="card-body">
-        <div v-if="failed" v-cloak>
+        <div v-if="failed">
           <div class="row">
             <div class = "col">  
               <center>                
@@ -76,25 +76,32 @@
             </div>            
           </div>
         </div>
-        <div v-else-if="emailVerified" v-cloak>
+        <div v-else-if="emailVerified">
           <div class="row">
-            <div class = "col">  
-              <center>                
-                  Email verified.<br>
-                  <a href="{% url 'mainHome'%}">Return</a>
-              </center>         
+            <div class = "col text-center">             
+              Email verified.
             </div>            
           </div>
+          <div class="row">
+            <div class = "col text-center">             
+              You are now eligible to be invited to experiments.
+            </div>            
+          </div>
+          <div class="row">
+            <div class = "col text-center"> 
+              Please take a moment to confirm your profile is correct : <a href="{% url 'profile'%}">View Profile</a>
+            </div>
+          </div>
         </div>
-        <div v-else v-cloak>
+        <div v-else>
                       
             <div class="row">
-                <div class="col">
-                  <center>
+                <div class="col text-center">
+
                     <button type="button" v-on:click="verifyEmail()" class="btn btn-outline-primary">
                        <span v-html="buttonText"></span>
                     </button>
-                  </center>
+  
                 </div>
             </div>
 
