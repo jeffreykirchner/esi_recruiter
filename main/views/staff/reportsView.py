@@ -144,11 +144,11 @@ def studentReport(data):
             #list of experiments
             e_list = ""
             for j in tempL:
-                temp_e=0
-                if(j.attended):
-                    temp_e = j.earnings + j.show_up_fee
-                elif(j.bumped):
-                    temp_e = j.show_up_fee
+                temp_e=j.get_total_payout()
+                # if(j.attended):
+                #     temp_e = j.earnings + j.show_up_fee
+                # elif(j.bumped):
+                #     temp_e = j.show_up_fee
                 
                 #running total
                 tempTotal+=temp_e

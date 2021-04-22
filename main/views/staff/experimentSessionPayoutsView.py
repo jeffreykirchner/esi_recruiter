@@ -32,7 +32,7 @@ def experimentSessionPayoutsView(request,id=None,payGroup=None):
         return render(request,'staff/experimentSessionPayoutsView.html',{"sessionDay":esd ,"id":id,"payGroup":payGroup})  
 
 #return the session info to the client
-def getSession(data,id):    
+def getSession(data, id):    
     logger = logging.getLogger(__name__)
     logger.info("Get Session Day Payouts")    
     logger.info(data)
@@ -43,9 +43,9 @@ def getSession(data,id):
 
     if payGroup == "bumps":      
         esdu = esd.experiment_session_day_users_set.filter(bumped = True)\
-                                                   .order_by(Lower('user__last_name'),Lower('user__first_name'))
+                                                   .order_by(Lower('user__last_name'), Lower('user__first_name'))
     else:
         esdu = esd.experiment_session_day_users_set.filter(attended = True)\
-                                                   .order_by(Lower('user__last_name'),Lower('user__first_name')) 
+                                                   .order_by(Lower('user__last_name'), Lower('user__first_name')) 
 
     return JsonResponse({"sessionDayUsers" : [i.json_runInfo() for i in esdu]}, safe=False)

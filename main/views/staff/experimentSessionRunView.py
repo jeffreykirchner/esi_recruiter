@@ -7,6 +7,7 @@ from decimal import *
 import random
 import csv
 import math
+from decimal import Decimal
 import json
 import logging
 import pytz
@@ -376,14 +377,14 @@ def backgroundSave(data, id, request_user):
 
         if esdu:
             try:
-                esdu.earnings = max(0,Decimal(p['earnings']))
-                esdu.show_up_fee = max(0,Decimal(p['showUpFee']))
+                esdu.earnings = max(0, Decimal(p['earnings']))
+                esdu.show_up_fee = max(0, Decimal(p['showUpFee']))
             except Exception  as e:
                 logger.info("Background Save Error : ")
                 logger.info(e)
                 logger.info(p)
-                esdu.earnings = 0
-                esdu.show_up_fee = 0
+                esdu.earnings = Decimal("0")
+                esdu.show_up_fee = Decimal("0")
                 status = "fail"
 
             esdu_list.append(esdu)
@@ -392,7 +393,7 @@ def backgroundSave(data, id, request_user):
             status = "fail"
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings','show_up_fee'])
+        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
     except Exception  as e:
         logger.info(e)
         status = "fail"
@@ -875,7 +876,7 @@ def payPalAPI(data, id_, request_user):
     #build payments json
     for esdu in esdu_list:
         payments.append({"email": esdu.user.email, #, 'sb-8lqqw5080618@business.example.com'
-                         "amount" : float(esdu.earnings + esdu.show_up_fee),
+                         "amount" : str(esdu.get_total_payout()),
                          "note" : f'{esdu.user.first_name}, {parm.paypal_email_body}',
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 

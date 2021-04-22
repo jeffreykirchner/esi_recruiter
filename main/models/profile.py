@@ -182,8 +182,8 @@ class profile(models.Model):
     #get list of institutions this subject has been in
     def get_institution_list(self):
         l = institutions.objects.none()
-        out_str=[]
-        esdus=self.user.ESDU.filter(attended = True)
+        out_str = []
+        esdus = self.user.ESDU.filter(attended=True)
 
         for i in esdus:
             l |= i.experiment_session_day.experiment_session.experiment.institution.all()                
