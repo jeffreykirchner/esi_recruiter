@@ -1,25 +1,28 @@
-from django.test import TestCase
-import unittest
+from datetime import datetime, timedelta
 
-from django.contrib.auth.models import User
-
-from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,account_types,majors,\
-                        parameters,accounts,departments,locations,institutions,schools,email_filters,\
-                        experiment_session_day_users    
-from main.views.staff.experimentSearchView import createExperimentBlank
-from main.views.staff.experimentView import addSessionBlank
-from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
-from main.views.subject.subjectHome import acceptInvitation,cancelAcceptInvitation
-
-from datetime import datetime,timedelta
-import pytz
-import logging
-from django.db.models import Q,F
 import json
 import ast
+import pytz
+import logging
+import unittest
+import sys
+
+from django.test import TestCase
+from django.db.models import Q, F
+from django.contrib.auth.models import User
+
+from main.views import profileCreateUser, update_profile
+from main.models import genders, experiments, subject_types, account_types, majors,\
+                        parameters, accounts, departments, locations, institutions, schools, email_filters,\
+                        experiment_session_day_users    
+from main.views import createExperimentBlank
+from main.views import addSessionBlank
+from main.views import changeConfirmationStatus, updateSessionDay, cancelSession
+from main.views import acceptInvitation, cancelAcceptInvitation
 
 class subjectHomeTestCase(TestCase):
+
+    fixtures = ['subject_types.json']
 
     e1 = None         #experiments
     e2 = None
@@ -27,17 +30,19 @@ class subjectHomeTestCase(TestCase):
     es1 = None        #sessions 
     es2 = None
 
-    u=None            #user
-    d_now = None      #date time now
-    l1=None           #locations
-    l2=None
-    l1=None           #locations
-    l2=None
-    account1=None     #accounts   
-    p=None            #parameters
-    staff_u=None      #staff user
+    u = None            #user
+    d_now = None       #date time now
+    l1 = None           #locations
+    l2 = None
+    l1 = None           #locations
+    l2 = None
+    account1 = None     #accounts   
+    p = None            #parameters
+    staff_u = None      #staff user
 
     def setUp(self):
+        sys._called_from_test = True
+
         logger = logging.getLogger(__name__)
 
         self.p = parameters()
@@ -303,5 +308,30 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
 
+    def test_update_profile(self):
+        '''
+        test updating profile
+        '''
 
+        self.u.profile.email_confirmed="yes"
+        self.u.profile.save()
 
+        request = {}
+        request['user'] = self.u
+
+        profile_data={'action': 'update', 'formData': [{'name': 'first_name', 'value': 'Sam'}, {'name': 'last_name', 'value': 'I Am'}, {'name': 'chapman_id', 'value': '123456789'}, {'name': 'email', 'value': 'abc@123.edu'}, {'name': 'phone', 'value': '1231239999'}, {'name': 'gender', 'value': '1'}, {'name': 'major', 'value': '1'}, {'name': 'subject_type', 'value': '2'}, {'name': 'studentWorker', 'value': 'Yes'}, {'name': 'paused', 'value': 'Yes'}, {'name': 'password1', 'value': ''}, {'name': 'password2', 'value': ''}]}
+        r = json.loads(update_profile(self.u, profile_data).content.decode("UTF-8"))
+        self.assertEqual(r['status'], "success")
+
+        self.assertEqual(self.u.first_name,"Sam")
+        self.assertEqual(self.u.last_name,"I am")
+        self.assertEqual(self.u.profile.studentID,"123456789")
+        self.assertEqual(self.u.email,"abc@123.edu")
+        self.assertEqual(self.u.profile.phone,"1231239999")
+        self.assertEqual(self.u.profile.gender.id, 1)
+        self.assertEqual(self.u.profile.major.id, 1)
+        self.assertEqual(self.u.profile.subject_type.id, 2)
+        self.assertEqual(self.u.profile.studentWorker, True)
+        self.assertEqual(self.u.profile.paused, True)
+        self.assertNotEqual(self.u.profile.email_confirmed, 'yes')
+        

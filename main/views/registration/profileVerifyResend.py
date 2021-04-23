@@ -66,7 +66,7 @@ def sendVerificationEmail(request, data):
     status = ""
 
     try:
-        result = profile_create_send_email(request, user)   
+        result = profile_create_send_email(user)   
         status = "done"
 
         if result["mail_count"] == 0:

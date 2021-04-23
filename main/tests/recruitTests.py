@@ -30,6 +30,7 @@ class GenderTestCase(TestCase):
     account1=None     #accounts 
 
     def setUp(self):
+        sys._called_from_test = True
         logger = logging.getLogger(__name__)
 
         self.p = parameters()
@@ -127,6 +128,8 @@ class GenderTestCase(TestCase):
 #test subject types
 class subjectTypeTestCase(TestCase):
     def setUp(self):
+        sys._called_from_test = True
+
         logger = logging.getLogger(__name__)
 
         p = parameters()
