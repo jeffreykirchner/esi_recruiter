@@ -697,7 +697,7 @@ def updateSessionDay(data,id):
         form_data_dict["date"] = esd.getDateStringTZOffset()
         form_data_dict["length"] = str(esd.length)
         form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
-        status = "fail"
+        #status = "fail"
     
     if form_data_dict["custom_reminder_time"] == 'false':
         form_data_dict["reminder_time"] = form_data_dict["date"]
