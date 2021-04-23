@@ -119,6 +119,6 @@ def update_profile(u, data):
         return JsonResponse({"status" : "success", "email_verification_required":email_verification_required}, safe=False)
 
     else:
-        logger.info(f"Update profile validation error {request.user}")
+        logger.info(f"Update profile validation error {u.user}")
         return JsonResponse({"status":"error", "errors":dict(form.errors.items())}, safe=False)
 
