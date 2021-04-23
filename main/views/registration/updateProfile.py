@@ -31,7 +31,7 @@ def updateProfile(request):
         action = data.get("action", "fail")
 
         if action == "update":
-            return update_profile(request, data)
+            return update_profile(request.user, data)
 
         #valid action not found
         logger.warning(f"Profile update post error: {request.user}")
@@ -69,23 +69,23 @@ def updateProfile(request):
                                                              'helpText': helpText})
 
 
-def update_profile(request, data):
+def update_profile(u, data):
     '''
     update user's profile
     '''
     logger = logging.getLogger(__name__)
-    logger.info(f"Update Profile: {request.user}")
+    logger.info(f"Update Profile: {u}")
+    #logger.info(data)
 
     form_data_dict = {}
 
     for field in data["formData"]:
         form_data_dict[field["name"]] = field["value"]
 
-    form = profileFormUpdate(form_data_dict, user=request.user)
+    form = profileFormUpdate(form_data_dict, user=u)
 
     if form.is_valid():
 
-        u = request.user
         email_verification_required = False
 
         if u.email != form.cleaned_data['email'].lower():
@@ -110,7 +110,7 @@ def update_profile(request, data):
 
         if email_verification_required:
             u.profile.email_confirmed = "no"
-            profile_create_send_email(request, u)
+            profile_create_send_email(u)
 
         u.save()
         u.profile.save()

@@ -125,7 +125,7 @@ def createUser(request, data):
                                     True,
                                     account_types.objects.get(id=2))
 
-        profile_create_send_email(request, u)
+        profile_create_send_email(u)
 
         u.profile.setup_email_filter()
 

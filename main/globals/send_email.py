@@ -47,7 +47,7 @@ def send_mass_email_verify(profile_list, request):
         return {"mail_count":0, "error_message":str(exc)}
 
 #send email when profile is created or changed
-def profile_create_send_email(request, user):
+def profile_create_send_email(user):
     logger = logging.getLogger(__name__) 
     logger.info(f"Verify Email: {user.profile}")
 
@@ -91,16 +91,17 @@ def send_mass_email_service(user_list, message_subject, message_text, memo):
     :type unit_testing: bool
 
     '''
+    logger = logging.getLogger(__name__)
 
     if hasattr(sys, '_called_from_test'):
+        logger.info(f"ESI mass email API: Unit Test")
         return {"mail_count":len(user_list), "error_message":""}
 
     data = {"user_list" : user_list,
             "message_subject" : message_subject,
             "message_text" : message_text,
             "memo" : memo}
-
-    logger = logging.getLogger(__name__)
+    
     logger.info(f"ESI mass email API: users: {user_list}, message_subject : {message_subject}, message_text : {message_text}")
 
     headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
