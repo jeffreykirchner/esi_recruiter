@@ -44,11 +44,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
-    redis:
-      image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
-      environment: 
-        - ALLOW_EMPTY_PASSWORD=yes
-      restart: always
+    services:
+      redis:
+        image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
+        environment: 
+          - ALLOW_EMPTY_PASSWORD=yes
+        restart: always
 
     environment:
       name: 'dev'
