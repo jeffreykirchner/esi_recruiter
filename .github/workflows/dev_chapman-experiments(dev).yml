@@ -43,6 +43,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
+    redis:
+      image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
+      environment: 
+        - ALLOW_EMPTY_PASSWORD=yes
+      restart: always
+
     environment:
       name: 'dev'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
