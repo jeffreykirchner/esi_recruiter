@@ -47,7 +47,7 @@ jobs:
     services:
       redis:
         image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
-        environment: 
+        env: 
           ALLOW_EMPTY_PASSWORD : yes
         restart: always
 
