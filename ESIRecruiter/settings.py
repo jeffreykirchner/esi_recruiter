@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  
     'django.contrib.sitemaps',
     'django_celery_results',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
