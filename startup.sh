@@ -1,6 +1,4 @@
 \#!/bin/bash
-
-echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d
 python manage.py migrate
 apt-get -y install htop
 mkdir /var/log/celery/
