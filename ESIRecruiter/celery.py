@@ -35,8 +35,8 @@ def debug_task(self):
 #     sender.add_periodic_task(crontab(minute='*/5'), run_crons.s(), name='Run crons every 5 minutes')
 #     #sender.add_periodic_task(300, run_crons.s(), name='Run crons every 5 minutes')
 
-@app.task
-def run_crons():
+@app.task(bind=True)
+def run_crons:
 
     cron_job = main.cron.checkForReminderEmails()
     cron_job.do()
