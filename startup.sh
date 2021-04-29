@@ -1,4 +1,6 @@
 \#!/bin/bash
+echo exit 101 > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
 python manage.py migrate
 apt-get -y install htop
 apt-get -y install supervisor
