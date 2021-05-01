@@ -104,7 +104,14 @@
                             app.$data.sessionDay = response.data.sessionDay;   
                             app.$data.stripeReaderSpinner = "";   
                             app.$data.stripeReaderValue = "";    
-                            app.$data.stripeReaderStatus= response.data.status;           
+                            app.$data.stripeReaderStatus = response.data.status.message;
+
+                            ids =  response.data.status.info;
+                            for(i=0;i<ids.length;i++)
+                            {
+                                app.$data.stripeReaderStatus += " <a href='/userInfo/" + ids[i] + "/' target='_blank' >view</a>";
+                            }
+
                          })
                          .catch(function (error) {
                              console.log(error);                                   

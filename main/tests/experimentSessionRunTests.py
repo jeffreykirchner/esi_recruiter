@@ -208,48 +208,57 @@ class sessionRunTestCase(TestCase):
         self.assertIsInstance(esdu,experiment_session_day_users)
 
         #check leading zeros
-        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00123456=1234",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},
                                                esd1.id,
                                                self.staff_u).content.decode("UTF-8"))
-        self.assertIn("is now attending",r['status'])
+        self.assertIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check no zeros
-        r = json.loads(getStripeReaderCheckin({"value":"123456=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";123456=1234",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertIn("is now attending",r['status'])
+        self.assertIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check no equals
-        r = json.loads(getStripeReaderCheckin({"value":"123456",
+        r = json.loads(getStripeReaderCheckin({"value":";123456",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        #check no semi colon
+        r = json.loads(getStripeReaderCheckin({"value":"123456=",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check wrong number
-        r = json.loads(getStripeReaderCheckin({"value":"56456565",
+        r = json.loads(getStripeReaderCheckin({"value":";56456565=",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
 
         #check checkin similar id numbers
-        r = json.loads(getStripeReaderCheckin({"value":"1234=",
+        r = json.loads(getStripeReaderCheckin({"value":";1234=",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("success",r['status'])
@@ -258,25 +267,25 @@ class sessionRunTestCase(TestCase):
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        r = json.loads(getStripeReaderCheckin({"value":"00123456=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00123456=1234",
                                                    "autoAddUsers":False,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         #check add to sessin
-        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertIn("is now attending",r['status'])
+        self.assertIn("is now attending",r['status']['message'])
 
         #check add again:
-        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
 
         #check recruitment violation
         #remove user 3 from sessoin
@@ -296,15 +305,15 @@ class sessionRunTestCase(TestCase):
         self.es1.recruitment_params.gender.clear()
         self.es1.recruitment_params.save()
 
-        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status'])
+        self.assertNotIn("is now attending",r['status']['message'])
 
-        r = json.loads(getStripeReaderCheckin({"value":"00121212=1234",
+        r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":True},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertIn("is now attending",r['status'])
+        self.assertIn("is now attending",r['status']['message'])
 
     #allow super user to manually check subject in
     def testAttendSubject(self):

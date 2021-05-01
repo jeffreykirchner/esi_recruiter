@@ -242,6 +242,10 @@ class experiment_session_days(models.Model):
 
         users_list = self.experiment_session_day_users_set.filter(confirmed=True).select_related("user")
 
+        if len(users_list) == 0:
+            logger.info(f"No confirmed users for session {self.experiment_session}")
+            return {"emailList": users_list, "status":"success"}
+
         logger.info(users_list)
         user_list = []
 

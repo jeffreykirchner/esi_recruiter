@@ -122,39 +122,51 @@ def getStripeReaderCheckin(data, id, request_user):
     autoAddUser = data["autoAddUsers"]
     ignoreConstraints = data["ignoreConstraints"]
 
-    status = ""
+    status = {"message":"", "info":[]}
     studentID = None
 
     try:
-        if "=" in data["value"]:
-            v = data["value"].split("=")
-            studentID = int(v[0])
+        if "=" in data["value"] and ";" in data["value"]:
+
+            card_data = data["value"]
+            card_data = card_data.replace(";", "=")
+            card_data_list = card_data.split("=")
+
+            studentID = int(card_data_list[1])
             logger.info(id)
         else:
-            status = "Card Read Error"
-            logger.info("Stripe Reader Error, no equals")
+            status["message"] = "Card read error, invalid stripe data."
+            logger.info("Stripe Reader Error, no equals or no semi colon")
     except:
-        status = "Card Read Error"
+        status["message"] = "Card read error, invalid stripe data."
         logger.info("Stripe Reader card read error")
 
-    if status == "":
+    if status["message"] == "":
 
         esdu = getSubjectByID(id, studentID, request_user)
 
+        logger.info(esdu)
+
         if len(esdu) > 1:
-            status = "Error: Multiple users found"
+            status["message"] = "Error: Multiple users found"
+
+            for u in esdu:
+                status["info"].append(u.user.id)
+            
             logger.info("Stripe Reader Error, multiple users found")
         else:
             if autoAddUser and request_user.is_superuser:
                 status = autoAddSubject(studentID, id, request_user, ignoreConstraints)
                 #status = r['status']
 
-            if status == "":
-                status = attendSubjectAction(esdu.first(), id, request_user)
+            if status["message"] == "":
+                status["message"] = attendSubjectAction(esdu.first(), id, request_user)
 
     esd = experiment_session_days.objects.get(id=id)
 
-    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status }, safe=False)
+    logger.info(status)
+
+    return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status": status}, safe=False)
 
 #get subjects by student id
 def getSubjectByID(id, studentID, request_user):
@@ -171,6 +183,7 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
     logger.info(studentID)
 
     status = ""
+    info = []
 
     p = profile.objects.filter(studentID__icontains = studentID)
     esd = experiment_session_days.objects.get(id=id)
@@ -180,7 +193,8 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
         status = "Error, Multiple users found: "
 
         for u in p:
-            status += str(u) + " "
+            status += f'{u.user.last_name}, {u.user.first_name} '
+            info.append(u.user.id)
 
         logger.info(status)
 
@@ -197,24 +211,28 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
                                              request_user,
                                              ignoreConstraints).content.decode("UTF-8"))
         if not "success" in r['status']:
-            status = f"Error: Could not add {p.user.last_name},{p.user.first_name}: Recruitment Violation"
+            status = f"Error: Could not add {p.user.last_name}, {p.user.first_name}: Recruitment Violation"
+            info.append(p.user.id)
         else:
             #confirm newly added user
             temp_esdu = esd.experiment_session_day_users_set.filter(user__id=p.user.id).first()
 
             if not temp_esdu:
-                status = f"{p.user.last_name},{p.user.first_name} could not be added to the session, try manual add."
+                status = f"{p.user.last_name}, {p.user.first_name} could not be added to the session, try manual add."
+                info.append(p.user.id)
             else:
                 r = json.loads(changeConfirmationStatus({"userId":p.user.id,
                                                          "confirmed":"confirm",
                                                          "actionAll":False,
                                                          "esduId":temp_esdu.id},
-                                                        esd.experiment_session.id,
-                                                        ignoreConstraints).content.decode("UTF-8"))
+                                                         esd.experiment_session.id,
+                                                         ignoreConstraints).content.decode("UTF-8"))
 
                 if not "success" in r['status']:
-                    status = f"{p.user.last_name},{p.user.first_name} added but manual confirmation is required."
-    return status
+                    status = f"{p.user.last_name}, {p.user.first_name} added but manual confirmation is required."
+                    info.append(p.user.id)
+                    
+    return {"message":status, "info":info}
 
 #return paypal CSV
 def getPayPalExport(data, id, request_user):
