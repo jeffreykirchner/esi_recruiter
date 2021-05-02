@@ -37,7 +37,7 @@ def experimentSessionRunView(request, id_=None):
     if request.method == 'POST':
 
         try:
-        #check for incoming file
+            #check for incoming file
             file_ = request.FILES['file']
             return takeEarningsUpload(file_, id_, request)
         except Exception  as exc:
@@ -813,10 +813,11 @@ def takeEarningsUpload(f, id, request):
             elif esdu.count() == 0:
                 #try to manually add user
                 if request_user.is_superuser:
-                    m = autoAddSubject(i[0], id, request_user, False)
+                    value = autoAddSubject(i[0], id, request_user, False)
 
-                    if m != "":
-                        m += "<br>"
+                    #if error add to return message
+                    if value["message"] != "":
+                        m = value["message"] + "<br>"
 
                     esdu = getSubjectByID(id, i[0], request_user)
                 else:
@@ -824,7 +825,7 @@ def takeEarningsUpload(f, id, request):
 
             if m.find("Error") == -1:
                 if m != "":
-                    message += m
+                    message += str(m)
 
                 #logger.info(esdu)
                 esdu = esdu.first()
@@ -839,9 +840,9 @@ def takeEarningsUpload(f, id, request):
 
                     esdu_list.append(esdu)
                 else:
-                    message += m + "<br>"
+                    message += str(m) + "<br>"
             else:
-                message += m
+                message += str(m)
 
         logger.info(f'Earnings import list: {esdu_list}')
         experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
