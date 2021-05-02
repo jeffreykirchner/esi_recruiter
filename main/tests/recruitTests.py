@@ -1506,8 +1506,7 @@ class recruiteTestCase(TestCase):
             self.assertIn(u, u_list)
         
         self.assertEqual(len(e_users),len(u_list))
-
-    
+ 
     #check time overlap with canceled session
     def testSessionOverlapCanceled(self):
         """Test that subjects can not commit two sessions at same time""" 

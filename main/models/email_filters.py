@@ -4,11 +4,11 @@ import traceback
 
 #email domain a user must have for recruitment ie @ abc.edu
 class email_filters(models.Model):
-    name = models.CharField(max_length = 300,verbose_name="Name")
-    domain = models.CharField(max_length = 300, verbose_name="Domain, ex: abc.edu")
+    name = models.CharField(max_length=300, verbose_name="Name")
+    domain = models.CharField(max_length=300, verbose_name="Domain, ex: abc.edu")
 
-    timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name + ": " + self.domain

@@ -32,11 +32,11 @@ class recruitment_parameters(models.Model):
     experiments_include_all = models.BooleanField(default=True)
 
     #all subject to come multiple times to the same same experiment
-    allow_multiple_participations =  models.BooleanField(default=False,null=True)
+    allow_multiple_participations =  models.BooleanField(default=False, null=True)
 
     #school filters by subject email domain
-    schools_include = models.ManyToManyField(schools,blank=True, related_name='%(class)s_schools_include')
-    schools_exclude = models.ManyToManyField(schools,blank=True, related_name='%(class)s_schools_exclude')
+    schools_include = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_include')
+    schools_exclude = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_exclude')
     schools_include_constraint  =  models.BooleanField(default=True)
     schools_exclude_constraint  =  models.BooleanField(default=False)
 

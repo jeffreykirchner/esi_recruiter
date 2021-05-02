@@ -6,7 +6,7 @@ import main
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
-from datetime import datetime, timedelta,timezone
+from datetime import datetime, timedelta, timezone
 import pytz
 from random import randrange
 from django.contrib.auth.models import User
@@ -14,9 +14,9 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 
-from django.db.models import Q,F,Value as V,Count
+from django.db.models import Q, F, Value as V, Count
 
-from . import genders,subject_types,institutions,experiments,parameters,recruitment_parameters,parameters
+from main.models import genders, subject_types, institutions, experiments, parameters, recruitment_parameters, parameters, email_filters
 import main
 
 from functools import reduce
@@ -24,15 +24,15 @@ from operator import or_
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
-    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE,related_name='ES')  
-    showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10,null = True) 
-    canceled=models.BooleanField(default=False)
+    experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
+    showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10, null = True) 
+    canceled = models.BooleanField(default=False)
 
-    recruitment_params = models.ForeignKey(recruitment_parameters,on_delete=models.CASCADE,null=True)
-    invitation_text = models.CharField(max_length = 10000,default = "")                                 #text of email invitation subjects receive
+    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
+    invitation_text = models.CharField(max_length=10000, default="")                                 #text of email invitation subjects receive
 
-    timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "ID: " + str(self.id)
@@ -203,7 +203,7 @@ class experiment_sessions(models.Model):
                                 .distinct()
 
         #institutions to include
-        institutions_include_list = list(es_p.institutions_include.values_list('id',flat=True).distinct())
+        institutions_include_list = list(es_p.institutions_include.values_list('id', flat=True).distinct())
         logger.info(institutions_include_list)
 
         if len(institutions_include_list) > 0:
@@ -408,25 +408,25 @@ class experiment_sessions(models.Model):
             '''
 
         #schools include strings
-        schools_include_user_where_str = ""
-        schools_include_with_str = ""
-        if es_p.schools_include_constraint:
-            schools_include_with_str=f'''
-            --subject cannot have one of these email domains
-             email_filter_include AS (SELECT email_filters_id
-								FROM main_schools_email_filter			
-								INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_email_filter.schools_id						
-								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_include.recruitment_parameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                WHERE main_experiment_sessions.id = {id}),
-            '''
+        # schools_include_user_where_str = ""
+        # schools_include_with_str = ""
+        # if es_p.schools_include_constraint:
+        #     schools_include_with_str=f'''
+        #     --subject cannot have one of these email domains
+        #      email_filter_include AS (SELECT email_filters_id
+		# 						FROM main_schools_email_filter			
+		# 						INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_email_filter.schools_id						
+		# 						INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_include.recruitment_parameters_id
+        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
+        #                         WHERE main_experiment_sessions.id = {id}),
+        #     '''
 
-            schools_include_user_where_str='''
-            --check if subject is in the required school
-            EXISTS(SELECT 1                                                   
-                    FROM email_filter_include
-                    WHERE main_profile.email_filter_id = email_filter_include.email_filters_id) AND 
-            '''
+        #     schools_include_user_where_str='''
+        #     --check if subject is in the required school
+        #     EXISTS(SELECT 1                                                   
+        #             FROM email_filter_include
+        #             WHERE main_profile.email_filter_id = email_filter_include.email_filters_id) AND 
+        #     '''
 
         #schools exclude strings
         schools_exclude_user_where_str = ""
@@ -755,7 +755,7 @@ class experiment_sessions(models.Model):
             {user_institutions_past_str}
             {institutions_include_with_str}
             {institutions_exclude_with_str}
-            {schools_include_with_str}
+
             {schools_exclude_with_str}
             {user_experiments_past_str}
             {user_experiments_str}
@@ -796,7 +796,7 @@ class experiment_sessions(models.Model):
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
             {schools_exclude_user_where_str}
-            {schools_include_user_where_str}
+            
             {gender_where_str}             
 
             --user's subject type is on the list
@@ -823,7 +823,7 @@ class experiment_sessions(models.Model):
 
         #str1 = str1.replace("10256","%s")
 
-        # logger.info(str)
+        #logger.info(str1)
 
         users = User.objects.raw(str1) #institutions_exclude_str,institutions_include_str,experiments_exclude_str,experiments_include_str
 
@@ -876,19 +876,57 @@ class experiment_sessions(models.Model):
         return user_list_valid_clean
 
     #do django validation of user list
-    def getValidUserListDjango(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+    def getValidUserListDjango(self, u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL):
 
         #check experience count
-        u_list = self.getValidUserList_check_experience(u_list,testExperiment)
-        u_list = self.getValidUserList_trait_constraints(u_list,testExperiment)
-        u_list = self.getValidUserList_date_time_overlap(u_list,testSession)
+        u_list = self.getValidUserList_school_include(u_list, testExperiment)
+        u_list = self.getValidUserList_check_experience(u_list, testExperiment)
+        u_list = self.getValidUserList_trait_constraints(u_list, testExperiment)
+        u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
 
         return u_list
 
+    #return a valid subset of users who are in in the desired school
+    def getValidUserList_school_include(self, u_list, testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info(f"getValidUserList_school_include {self.id}")
+        logger.info(f'getValidUserList_school_include test session: {testExperiment}')
+        logger.info(f'getValidUserList_school_include incoming list: {u_list}')
+
+        start_time = datetime.now()
+
+        if not self.recruitment_params.schools_include_constraint:
+            return u_list
+
+        #get list of email filters
+        vaild_email_filters=[]
+
+        for school in self.recruitment_params.schools_include.all():
+            for email_filter in school.email_filter.all():
+                vaild_email_filters.append(email_filter)
+
+        logger.info(f'getValidUserList_school_include email filters: {vaild_email_filters}')
+
+        pk_list = []
+
+        for u in u_list:                
+            pk_list.append(u.id)
+
+        #return list of users that have email filter
+        u_list_updated = User.objects.filter(profile__email_filter__in = vaild_email_filters) \
+                                     .filter(id__in = pk_list)
+
+        logger.info(f'getValidUserList_school_include valid user: {u_list_updated}')
+        logger.info(f'getValidUserList_school_include run time: {datetime.now() - start_time}')
+
+        return u_list_updated 
+
     #return valid subset of users that are not already participating at this date and time
-    def getValidUserList_date_time_overlap(self,u_list,testSession):
+    def getValidUserList_date_time_overlap(self, u_list, testSession):
         logger = logging.getLogger(__name__)
         logger.info(f"getValidUserList_date_time_overlap {self.id}")
+
+        start_time = datetime.now()
 
         #return u_list
 
@@ -949,13 +987,16 @@ class experiment_sessions(models.Model):
                 u_list_updated.append(u)
 
         logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
-       
+        logger.info(f'getValidUserList_date_time_overlap run time: {datetime.now() - start_time}')
+
         return u_list_updated
         
     #return valid subset of u_list that conforms to trait constraints
-    def getValidUserList_trait_constraints(self,u_list,testExperiment):
+    def getValidUserList_trait_constraints(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_trait_constraints")
+
+        start_time = datetime.now()
 
         constraint_list_traits_ids = self.recruitment_params.trait_constraints.values_list("trait__id",flat=True)
         logger.info(f'getValidUserList_trait_constraints constraint ids: {constraint_list_traits_ids}')
@@ -1022,13 +1063,17 @@ class experiment_sessions(models.Model):
 
                     if valid:
                         valid_list_2.append(u)
-        
+
+            logger.info(f'getValidUserList_trait_constraints run time: {datetime.now() - start_time}')
+
             return list(valid_list)    
 
     #check that users have the correct number of past or upcoming
-    def getValidUserList_check_experience(self,u_list,testExperiment):
+    def getValidUserList_check_experience(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_experience")
+
+        start_time = datetime.now()
 
         if self.recruitment_params.experience_constraint:
             pk_list = []
@@ -1062,6 +1107,7 @@ class experiment_sessions(models.Model):
             #valid_user_list = []
 
             
+            logger.info(f'getValidUserList_check_experience run time: {datetime.now() - start_time}')
 
             return list(valid_list)
         else:
