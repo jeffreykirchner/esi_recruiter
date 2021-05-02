@@ -24,7 +24,7 @@ import logging
 class profile(models.Model):
 
     user = models.OneToOneField(User, verbose_name="User", on_delete=models.CASCADE)
-    type =  models.ForeignKey(account_types, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
+    type = models.ForeignKey(account_types, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
     school = models.ForeignKey(schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
     major = models.ForeignKey(majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)

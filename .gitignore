@@ -7,3 +7,4 @@ ESIRecruiterEnv/*
 .vscode/*
 Notes.txt
 *.sql
+database_dumps
