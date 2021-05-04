@@ -94,16 +94,16 @@ class profile(models.Model):
         return out_str
 
     #get the query set of upcoming session days for this subject
-    def sorted_session_day_upcoming(self,confirmedOnly):
+    def sorted_session_day_upcoming(self, confirmedOnly):
         logger = logging.getLogger(__name__) 
-        logger.info("sorted session day upcoming")
+        #logger.info("sorted session day upcoming")
 
         tz = pytz.utc
 
         #logger.info(tz)
 
         t = datetime.now(tz)
-        t = t.replace(hour=0,minute=0, second=0)
+        t = t.replace(hour=0, minute=0, second=0)
 
         #logger.info(t)
 
@@ -276,24 +276,24 @@ class profile(models.Model):
         return "$" + f'{temp_e:.2f}'
 
     #return true if adding user to session creates recruitment violations in other future  accepted experiments
-    def check_for_future_constraints(self,es):
+    def check_for_future_constraints(self, es, first_date, i_list, experiment_id):
         logger = logging.getLogger(__name__)
-        logger.info("check for future constraints")
+        #logger.info("check for future constraints")
 
-        qs_attending = self.sessions_upcoming(True,es.getFirstDate())
+        qs_attending = self.sessions_upcoming(True, first_date)
 
-        #ignore canceled experiments
+        #ignore canceled experiment
         qs_attending = qs_attending.filter(canceled=False)
 
-        i_list = es.experiment.institution.values_list("id",flat=True)
+        #i_list = es.experiment.institution.values_list("id", flat=True)
 
         for s in qs_attending:
-            user_list_valid = s.getValidUserList([{'id':self.user.id}],False,es.experiment.id,es.id,i_list,False)
-            user_list_valid = s.getValidUserListDjango(user_list_valid,False,es.experiment.id,es.id,i_list,False)
+            user_list_valid = s.getValidUserList([{'id':self.user.id}], False, experiment_id, es.id, i_list, False)
+            user_list_valid = s.getValidUserListDjango(user_list_valid, False, experiment_id, es.id, i_list, False)
 
             if not self.user in user_list_valid:
-                logger.info("Invitation failed attended recruitment violation")             
-                logger.info(f'User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {es.experiment.id}')
+                #logger.info("Invitation failed attended recruitment violation")             
+                logger.info(f'check_for_future_constraints Invitation failed attended recruitment violation User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {experiment_id}')
                 return True
                         
         return False
