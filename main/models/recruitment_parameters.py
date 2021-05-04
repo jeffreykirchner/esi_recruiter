@@ -37,8 +37,8 @@ class recruitment_parameters(models.Model):
     #school filters by subject email domain
     schools_include = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_include')
     schools_exclude = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_exclude')
-    schools_include_constraint  =  models.BooleanField(default=True)
-    schools_exclude_constraint  =  models.BooleanField(default=False)
+    schools_include_constraint = models.BooleanField(default=True)
+    schools_exclude_constraint = models.BooleanField(default=False)
 
     #trait constraints
     trait_constraints_require_all = models.BooleanField(default=False)

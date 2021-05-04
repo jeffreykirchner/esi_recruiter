@@ -48,7 +48,7 @@ def PayPalHistory(request):
     param = parameters.objects.first()
     tmz = pytz.timezone(param.subjectTimeZone)
     d_today = datetime.now(tmz)
-    d_one_year = d_today - timedelta(days=365)
+    d_one_year = d_today - timedelta(days=1)
 
     return render(request, 'staff/payPalHistory.html', {"helpText" : help_text,
                                                         "d_today" : d_today.date().strftime("%Y-%m-%d"),
