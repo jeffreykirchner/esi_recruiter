@@ -253,7 +253,7 @@ class experiment_sessions(models.Model):
     #checkAlreadyIn checks if a subject is already added to session
     #if testExperiment is greater than 0, use to test valid list if user were to hypothetically participate in that experiment
     #if testsession is greater than 0, use to ""
-    def getValidUserList(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL):
+    def getValidUserList(self, u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL):
         logger = logging.getLogger(__name__)
         logger.info("Get valid user list for session " + str(self))
 
@@ -407,48 +407,6 @@ class experiment_sessions(models.Model):
                                         HAVING count(user_experiments.user_id) >= {ee_c}),
             '''
 
-        #schools include strings
-        # schools_include_user_where_str = ""
-        # schools_include_with_str = ""
-        # if es_p.schools_include_constraint:
-        #     schools_include_with_str=f'''
-        #     --subject cannot have one of these email domains
-        #      email_filter_include AS (SELECT email_filters_id
-		# 						FROM main_schools_email_filter			
-		# 						INNER JOIN main_recruitment_parameters_schools_include ON main_recruitment_parameters_schools_include.schools_id = main_schools_email_filter.schools_id						
-		# 						INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_include.recruitment_parameters_id
-        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-        #                         WHERE main_experiment_sessions.id = {id}),
-        #     '''
-
-        #     schools_include_user_where_str='''
-        #     --check if subject is in the required school
-        #     EXISTS(SELECT 1                                                   
-        #             FROM email_filter_include
-        #             WHERE main_profile.email_filter_id = email_filter_include.email_filters_id) AND 
-        #     '''
-
-        #schools exclude strings
-        schools_exclude_user_where_str = ""
-        schools_exclude_with_str = ""
-        if es_p.schools_exclude_constraint:
-            schools_exclude_with_str = f'''
-             --subject cannot be in any of these schools
-              email_filter_exclude AS (SELECT email_filters_id
-								FROM main_schools_email_filter			
-								INNER JOIN main_recruitment_parameters_schools_exclude ON main_recruitment_parameters_schools_exclude.schools_id = main_schools_email_filter.schools_id						
-								INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_schools_exclude.recruitment_parameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                WHERE main_experiment_sessions.id = {id}),
-            '''
-
-            schools_exclude_user_where_str = '''
-            --check if subject is in excluded school
-             NOT EXISTS(SELECT 1                                                   
-                    FROM email_filter_exclude
-                    WHERE main_profile.email_filter_id = email_filter_exclude.email_filters_id) AND
-            '''
-
         #list of users to search for, if empty return all valid users
         users_to_search_for=""
         user_to_search_for_list_str = ""
@@ -467,76 +425,7 @@ class experiment_sessions(models.Model):
             user_to_search_for_list_str += ")"
 
             users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
-
-        #experience constraints
-        user_exeriments_count_str =""
-        user_exeriments_count_where=""
-        # if es_p.experience_constraint:
-
-        #     if es_p.experience_max > 0: 
-        #         e_min = es_p.experience_min
-        #         e_max = es_p.experience_max  
-        #         #if test experiment then reduce experience by one to accommodate presumed participation
-        #         if testExperiment > 0:
-        #             e_min-=1
-        #             e_max-=1
-
-        #         user_exeriments_count_str =f'''
-        #         --table of users that have correct number of experiment experiences
-        #         user_experiments_count AS (SELECT auth_user.id as id
-        #                 FROM auth_user
-        #                 INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-        #                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
-        #                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-        #                 WHERE {users_to_search_for}
-        #                     (main_experiment_session_day_users.attended = TRUE OR
-        #                     (main_experiment_session_day_users.confirmed = TRUE AND 
-        #                      main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-        #                     main_experiment_sessions.id != {id} AND
-        #                     main_experiment_sessions.canceled = FALSE
-        #                 GROUP BY auth_user.id
-        #                 HAVING count(auth_user.id) BETWEEN {e_min} AND {e_max}),
-        #         '''
-
-        #         user_exeriments_count_where = '''
-        #         --check if user has the correct number of experiment experiences
-        #             EXISTS(SELECT 1
-        #                 FROM user_experiments_count
-        #                 WHERE auth_user.id = user_experiments_count.id) AND 
-        #         '''
-        #     else:
-        #         #no experience subjects
-        #         user_exeriments_count_str =f'''
-        #         --table of users that have any experience
-        #         user_experiments_gte_zero AS (SELECT auth_user.id as id
-        #                     FROM auth_user
-        #                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id  = main_experiment_session_day_users.experiment_session_day_id
-        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-        #                     WHERE {users_to_search_for} 
-        #                         (main_experiment_session_day_users.attended = TRUE OR
-        #                         (main_experiment_session_day_users.confirmed = TRUE AND 
-        #                         main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}')) AND
-        #                         main_experiment_sessions.id != {id} AND
-        #                         main_experiment_sessions.canceled = FALSE
-        #         '''
-
-        #         if testExperiment > 0:
-        #             user_exeriments_count_str +=f'''
-        #                                     --add test experiment and experince list in to check if violation occurs
-        #                                     UNION   
-        #                                     SELECT v.user_id as id
-        #                                     FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
-        #                                     '''
-        #         user_exeriments_count_str +='''),'''
-
-        #         user_exeriments_count_where = '''
-        #            --check that user does not have any experience
-        #             NOT EXISTS(SELECT 1
-        #                 FROM user_experiments_gte_zero
-        #                 WHERE auth_user.id = user_experiments_gte_zero.id) AND 
-        #         '''
-
+        
         #user experiments past only
         user_experiments_past_str = ""
         if ei_c > 0:
@@ -601,38 +490,7 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                                 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
                                 WHERE main_experiment_sessions.id = {id}),
-        '''  
-
-        #list of users who are already doing an experiment during this time
-        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
-        # user_during_session_time_str = f'''
-        #     --table of users who are already doing an expeirment at this time
-        #      user_during_session_time AS (SELECT auth_user.id as user_id
-        #                     FROM auth_user
-        #                     INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
-        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-        #                     WHERE main_experiment_sessions.id != {id} AND 
-        #                           main_experiment_session_day_users.confirmed = TRUE AND 
-        #                           ('''
-        # tempS = ""
-        # for d in es.ESD.all():
-        #     if tempS != "":
-        #         tempS += ''' OR '''
-        #     tempS+= f'''(main_experiment_session_days.date <= \'{d.date_end}\' AND \'{d.date}\' <= main_experiment_session_days.date_end )'''
-
-        # user_during_session_time_str+= tempS
-
-        # user_during_session_time_str +=''' ) AND 
-        #                                '''
-
-        # if len(u_list) > 0:
-        #     user_during_session_time_str+= ''' auth_user.id IN ''' + user_to_search_for_list_str + ''' AND 
-        #                                    '''
-
-        # user_during_session_time_str += '''main_experiment_sessions.canceled = FALSE 
-        #                                     ),
-        # '''        
+        '''        
 
         #table of users who have no show violations
         d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
@@ -756,14 +614,12 @@ class experiment_sessions(models.Model):
             {institutions_include_with_str}
             {institutions_exclude_with_str}
 
-            {schools_exclude_with_str}
             {user_experiments_past_str}
             {user_experiments_str}
             {experiments_exclude_with_str}
             {experiments_include_with_str}
             {user_current_sesion_str}
             {no_show_str}
-            {user_exeriments_count_str}
 
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
@@ -795,7 +651,6 @@ class experiment_sessions(models.Model):
             {institutions_include_user_where_str}
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
-            {schools_exclude_user_where_str}
             
             {gender_where_str}             
 
@@ -809,13 +664,7 @@ class experiment_sessions(models.Model):
                     FROM now_shows
                     WHERE auth_user.id = now_shows.id) AND
 
-            --check user has time slot open
-            --NOT EXISTS(SELECT 1
-            --        FROM user_during_session_time
-            --        WHERE auth_user.id = user_during_session_time.user_id) AND
-
             {user_not_in_session_already}
-            {user_exeriments_count_where}
             {allow_multiple_participations_str}
 
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
@@ -879,18 +728,54 @@ class experiment_sessions(models.Model):
     def getValidUserListDjango(self, u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL):
 
         #check experience count
+        u_list = self.getValidUserList_school_exclude(u_list, testExperiment)
         u_list = self.getValidUserList_school_include(u_list, testExperiment)
         u_list = self.getValidUserList_check_experience(u_list, testExperiment)
         u_list = self.getValidUserList_trait_constraints(u_list, testExperiment)
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
 
         return u_list
+    
+    #return a valid subset of users who not in excluded schools
+    def getValidUserList_school_exclude(self, u_list, testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info(f"getValidUserList_school_exclude {self.id}")
+        logger.info(f'getValidUserList_school_exclude test experiment: {testExperiment}')
+        logger.info(f'getValidUserList_school_exclude incoming list: {u_list}')
+
+        start_time = datetime.now()
+
+        if not self.recruitment_params.schools_exclude_constraint:
+            return u_list
+        
+        #get list of invalid email filters
+        invaild_email_filters = []
+
+        for school in self.recruitment_params.schools_exclude.all():
+            for email_filter in school.email_filter.all():
+                invaild_email_filters.append(email_filter)
+        
+        logger.info(f'getValidUserList_school_exclude email filters: {invaild_email_filters}')
+
+        pk_list = []
+
+        for u in u_list:                
+            pk_list.append(u.id)
+
+        #return list of users that have email filter
+        u_list_updated = User.objects.exclude(profile__email_filter__in=invaild_email_filters) \
+                                     .filter(id__in=pk_list)
+
+        logger.info(f'getValidUserList_school_exclude valid user: {u_list_updated}')
+        logger.info(f'getValidUserList_school_exclude run time: {datetime.now() - start_time}')
+
+        return u_list_updated
 
     #return a valid subset of users who are in in the desired school
     def getValidUserList_school_include(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info(f"getValidUserList_school_include {self.id}")
-        logger.info(f'getValidUserList_school_include test session: {testExperiment}')
+        logger.info(f'getValidUserList_school_include test experiment: {testExperiment}')
         logger.info(f'getValidUserList_school_include incoming list: {u_list}')
 
         start_time = datetime.now()
@@ -913,8 +798,8 @@ class experiment_sessions(models.Model):
             pk_list.append(u.id)
 
         #return list of users that have email filter
-        u_list_updated = User.objects.filter(profile__email_filter__in = vaild_email_filters) \
-                                     .filter(id__in = pk_list)
+        u_list_updated = User.objects.filter(profile__email_filter__in=vaild_email_filters) \
+                                     .filter(id__in=pk_list)
 
         logger.info(f'getValidUserList_school_include valid user: {u_list_updated}')
         logger.info(f'getValidUserList_school_include run time: {datetime.now() - start_time}')
