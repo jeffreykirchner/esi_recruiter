@@ -122,11 +122,18 @@
                     updateDisplayLists2:function(list){
                         str="";
 
-                        for(var i=0;i<list.length;i++)
+                        if(list.length == 0)
                         {
-                            if(i>=1) str += " | ";
-                            str += list[i].name;
-                        }
+                            str = "---"
+                        }   
+                        else
+                        {
+                            for(var i=0;i<list.length;i++)
+                            {
+                                if(i>=1) str += " | ";
+                                str += list[i].name;
+                            }
+                        }                         
 
                         return str;
                     },

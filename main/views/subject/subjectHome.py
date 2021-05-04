@@ -238,23 +238,23 @@ def cancelAcceptInvitation(data,u):
         else:
             logger.info("Invitation not found")             
             logger.info("User: " + str(u.id))
-            failed=True
+            failed = True
 
     except Exception  as e:
         logger.info("Cancel invitation error")             
         logger.info("User: " + str(u.id))    
         logger.info(e)
-        failed=True
+        failed = True
 
-    upcomingInvitations=u.profile.sorted_session_list_upcoming()
+    upcomingInvitations = u.profile.sorted_session_list_upcoming()
     consent_required = u.profile.consent_required
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+    return JsonResponse({"upcomingInvitations":upcomingInvitations,
                          "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return list of past declined invitations
-def showAllInvitations(data,u):    
+def showAllInvitations(data, u):    
     logger = logging.getLogger(__name__)
     logger.info("Show all invitations")    
     logger.info(data)
