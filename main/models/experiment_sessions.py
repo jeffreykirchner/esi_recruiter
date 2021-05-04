@@ -699,28 +699,27 @@ class experiment_sessions(models.Model):
         #valid list based on current experience
         user_list_valid = self.getValidUserList(u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL) 
 
-        logger.info(f'getValidUserList_forward_check found {user_list_valid}')
+        #logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
         #check experience constraints
         user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
 
-        logger.info(f'getValidUserList_forward_check found {len(user_list_valid)}')
+        #logger.info(f'getValidUserList_forward_check found {len(user_list_valid)}')
 
         if max_user_count == 0:
             max_user_count = len(user_list_valid)
 
+        first_date = self.getFirstDate()
+        i_list = self.experiment.institution.values_list("id", flat=True)
+        experiment_id = self.experiment.id
+
         while len(user_list_valid_clean) < max_user_count and len(user_list_valid)>0:
-            n = randrange(0,len(user_list_valid))
+            n = randrange(0, len(user_list_valid))
 
             u = user_list_valid.pop(n)
 
-            if not u.profile.check_for_future_constraints(self):
+            if not u.profile.check_for_future_constraints(self, first_date, i_list, experiment_id):
                 user_list_valid_clean.append(u)
-
-        #check that attending will not violate other experiments already attending in future
-        # for u in user_list_valid:
-        #     if not u.profile.check_for_future_constraints(self):
-        #         user_list_valid_clean.append(u)
         
         return user_list_valid_clean
 
@@ -741,7 +740,7 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info(f"getValidUserList_school_exclude {self.id}")
         logger.info(f'getValidUserList_school_exclude test experiment: {testExperiment}')
-        logger.info(f'getValidUserList_school_exclude incoming list: {u_list}')
+        #logger.info(f'getValidUserList_school_exclude incoming list: {u_list}')
 
         start_time = datetime.now()
 
@@ -776,7 +775,7 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info(f"getValidUserList_school_include {self.id}")
         logger.info(f'getValidUserList_school_include test experiment: {testExperiment}')
-        logger.info(f'getValidUserList_school_include incoming list: {u_list}')
+        #logger.info(f'getValidUserList_school_include incoming list: {u_list}')
 
         start_time = datetime.now()
 
@@ -801,7 +800,7 @@ class experiment_sessions(models.Model):
         u_list_updated = User.objects.filter(profile__email_filter__in=vaild_email_filters) \
                                      .filter(id__in=pk_list)
 
-        logger.info(f'getValidUserList_school_include valid user: {u_list_updated}')
+        #logger.info(f'getValidUserList_school_include valid user: {u_list_updated}')
         logger.info(f'getValidUserList_school_include run time: {datetime.now() - start_time}')
 
         return u_list_updated 
@@ -816,7 +815,7 @@ class experiment_sessions(models.Model):
         #return u_list
 
         logger.info(f'getValidUserList_date_time_overlap test session: {testSession}')
-        logger.info(f'getValidUserList_date_time_overlap incoming list: {u_list}')
+        #logger.info(f'getValidUserList_date_time_overlap incoming list: {u_list}')
 
         #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
         #date range constraints for all this session's days that have time enabled
@@ -871,7 +870,7 @@ class experiment_sessions(models.Model):
             if u.id not in user_overlap:
                 u_list_updated.append(u)
 
-        logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
+        #logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
         logger.info(f'getValidUserList_date_time_overlap run time: {datetime.now() - start_time}')
 
         return u_list_updated
@@ -1070,7 +1069,7 @@ class experiment_sessions(models.Model):
         return d
 
     #json sent to subject screen
-    def json_subject(self,u):
+    def json_subject(self, u):
         logger = logging.getLogger(__name__)
         logger.info("json subject, session:" + str(self.id))
 
@@ -1094,7 +1093,10 @@ class experiment_sessions(models.Model):
         user_list_valid2_check=True
        
         if not esdu.confirmed:
-            user_list_valid2_check = not u.profile.check_for_future_constraints(self)                  
+            user_list_valid2_check = not u.profile.check_for_future_constraints(self,
+                                                                                self.getFirstDate(),
+                                                                                self.experiment.institution.values_list("id", flat=True),
+                                                                                self.experiment.id)                  
 
         return{
             "id":self.id,                                  

@@ -415,11 +415,6 @@ def getSearchForSubject(data,id):
             if u['id'] == uv.id:
                 u['valid'] = 1
                 
-                # #check that this experiment does not violate another accepted experiment
-                # if not uv.profile.check_for_future_constraints(es):                    
-                #     u['valid'] = 1
-                
-                # break
 
     #logger.info(users_list)
     #logger.info(user_list_valid)

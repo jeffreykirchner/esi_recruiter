@@ -148,12 +148,6 @@ def acceptInvitation(data,u):
                 if not u in user_list_valid:
                     logger.warning(f"Invitation failed recruitment violation, user {u}")             
                     failed=True
-            
-            # #check that by attending this experiment, user will not create recruitment violation in another confirmed experiment
-            # if not failed:
-            #     if u.profile.check_for_future_constraints(qs):
-            #         failed=True
-            #         logger.info("Invitation failed future violation")
 
             #do a backup check that user has not already done this experiment, if prohibited
             if not failed:
