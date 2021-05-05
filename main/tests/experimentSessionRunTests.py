@@ -1,20 +1,22 @@
 from django.test import TestCase
 import unittest
+import io
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,account_types,majors,\
-                        parameters,accounts,departments,locations,institutions,schools,email_filters,\
+from main.models import genders, experiments, subject_types, account_types, majors,\
+                        parameters ,accounts, departments, locations, institutions, schools, email_filters,\
                         experiment_session_day_users    
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
-from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession,removeSubject
-from main.views.staff.experimentSessionRunView import getStripeReaderCheckin,noShowSubject,attendSubject,bumpSubject,noShowSubject,fillDefaultShowUpFee
-from main.views.staff.experimentSessionRunView import fillEarningsWithFixed,completeSession,savePayouts,backgroundSave,bumpAll,autoBump,completeSession
-from main.views.subject.subjectHome import cancelAcceptInvitation,acceptInvitation
+from main.views.staff.experimentSessionView import changeConfirmationStatus, updateSessionDay, cancelSession, removeSubject
+from main.views.staff.experimentSessionRunView import getStripeReaderCheckin, noShowSubject, attendSubject, bumpSubject, noShowSubject,fillDefaultShowUpFee
+from main.views.staff.experimentSessionRunView import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload
+from main.views.subject.subjectHome import cancelAcceptInvitation, acceptInvitation
 
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import pytz
 import logging
 from django.db.models import Q,F
@@ -72,10 +74,10 @@ class sessionRunTestCase(TestCase):
          #staff user
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
-        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+        self.staff_u = profileCreateUser(user_name, user_name, "zxcvb1234asdf", "first", "last", "123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
-        self.staff_u.is_superuser=True
+                          temp_st, False, True, account_types.objects.get(id=1))
+        self.staff_u.is_superuser = True
         self.staff_u.save()
         
         self.p.labManager=self.staff_u
@@ -276,6 +278,9 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status'])
 
         #check add to sessin
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u3.id).first()
+        self.assertEquals(esdu,None)
+
         r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
@@ -398,6 +403,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(noShowSubject({"id":esdu.id+50},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotEquals("success",r['status'])
 
+    #test fill with fixed earnings amount
     def testFillEarningsWithFixedAmount(self):
         """Test fill earning with fixed amount""" 
         logger = logging.getLogger(__name__)
@@ -436,6 +442,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(fillEarningsWithFixed({},esd1.id+50,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
     
+    #test fill with default show up fees
     def testFillDefaultShowUpFee(self):
         """Test fill default show up fees""" 
         logger = logging.getLogger(__name__)
@@ -801,6 +808,47 @@ class sessionRunTestCase(TestCase):
         self.assertEquals(esdu.bumped,False)
         self.assertEquals(esdu2.bumped,False)
 
+    #test earnings upload
+    def test_earnings_upload(self):
+        """Test earnings upload""" 
+        logger = logging.getLogger(__name__)
+
+        esd1 = self.es1.ESD.first()
+
+        #check empty upload
+        my_str = ''
+        buff = io.BytesIO(str.encode(my_str))
+        #buff.seek(0,2)
+
+        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
+
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['message'], "Error: Empty list")
+
+        #malformed list
+        my_str = 'asdfasdf'
+        buff = io.BytesIO(str.encode(my_str))
+        #buff.seek(0,2)
+
+        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
+
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertIn("Failed to load earnings: invalid literal", r['message'])
+
+        #add user
+        my_str = '00121212,25,3\n00123456,14,2'
+        buff = io.BytesIO(str.encode(my_str))
+        #buff.seek(0,2)
+
+        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
+
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertIn("Earnings Imported", r['message'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
+        self.assertEquals(esdu.attended, True)
+        self.assertEquals(esdu.earnings, 25)
+        self.assertEquals(esdu.show_up_fee, 3)
 
 
 

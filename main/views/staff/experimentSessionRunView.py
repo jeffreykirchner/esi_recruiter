@@ -39,7 +39,7 @@ def experimentSessionRunView(request, id_=None):
         try:
             #check for incoming file
             file_ = request.FILES['file']
-            return takeEarningsUpload(file_, id_, request)
+            return takeEarningsUpload(file_, id_, request.user)
         except Exception  as exc:
             logger.info(f'experimentSessionRunView no file upload: {exc}')
             # return JsonResponse({"response" :  "error"},safe=False)
@@ -760,14 +760,14 @@ def noShowSubject(data, id, request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status}, safe=False)
 
 #upload subject earnings from a file
-def takeEarningsUpload(f, id, request):
+def takeEarningsUpload(f, id, request_user):
     logger = logging.getLogger(__name__)
     logger.info("Upload earnings")
 
     #logger.info(f)
 
     esd = experiment_session_days.objects.get(id=id)
-    request_user = request.user
+    #request_user = request.user
 
     #format incoming data
     v = ""
@@ -843,6 +843,9 @@ def takeEarningsUpload(f, id, request):
                     message += str(m) + "<br>"
             else:
                 message += str(m)
+
+        if len(v) == 0:
+            message = "Error: Empty list"
 
         logger.info(f'Earnings import list: {esdu_list}')
         experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
