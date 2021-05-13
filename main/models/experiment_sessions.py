@@ -704,7 +704,7 @@ class experiment_sessions(models.Model):
         #check experience constraints
         user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
 
-        #logger.info(f'getValidUserList_forward_check found {len(user_list_valid)}')
+        logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
         if max_user_count == 0:
             max_user_count = len(user_list_valid)
@@ -726,12 +726,20 @@ class experiment_sessions(models.Model):
     #do django validation of user list
     def getValidUserListDjango(self, u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL):
 
+        logger = logging.getLogger(__name__)
+        
+        #logger.info(f"{u_list}")
         #check experience count
         u_list = self.getValidUserList_school_exclude(u_list, testExperiment)
+        #logger.info(f"{u_list}")
         u_list = self.getValidUserList_school_include(u_list, testExperiment)
+        #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_experience(u_list, testExperiment)
+        #logger.info(f"{u_list}")
         u_list = self.getValidUserList_trait_constraints(u_list, testExperiment)
+        #logger.info(f"{u_list}")
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
+        #logger.info(f"{u_list}")
 
         return u_list
     
@@ -768,7 +776,7 @@ class experiment_sessions(models.Model):
         logger.info(f'getValidUserList_school_exclude valid user: {u_list_updated}')
         logger.info(f'getValidUserList_school_exclude run time: {datetime.now() - start_time}')
 
-        return u_list_updated
+        return list(u_list_updated)
 
     #return a valid subset of users who are in in the desired school
     def getValidUserList_school_include(self, u_list, testExperiment):
@@ -803,7 +811,7 @@ class experiment_sessions(models.Model):
         #logger.info(f'getValidUserList_school_include valid user: {u_list_updated}')
         logger.info(f'getValidUserList_school_include run time: {datetime.now() - start_time}')
 
-        return u_list_updated 
+        return list(u_list_updated) 
 
     #return valid subset of users that are not already participating at this date and time
     def getValidUserList_date_time_overlap(self, u_list, testSession):
