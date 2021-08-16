@@ -177,18 +177,29 @@ def lookup(value, returnJSON, activeOnly):
                         .annotate(email_similarity=TrigramSimilarity('email', value)) \
                         .annotate(profile_studentID_similarity=TrigramSimilarity('profile__studentID', value)) \
                         .annotate(profile_type__name_similarity=TrigramSimilarity('profile__type__name', value)) \
+                        .annotate(profile__subject_type__name_similarity=TrigramSimilarity('profile__subject_type__name', value)) \
                         .annotate(similarity_total=F('first_name_similarity') +
                                                    F('last_name_similarity') +
                                                    F('email_similarity') +
                                                    F('profile_studentID_similarity') +
+                                                   F('profile__subject_type__name_similarity') +
                                                    F('profile_type__name_similarity')) \
                         .filter(Q(first_name_similarity__gte=0.3) |
                                 Q(last_name_similarity__gte=0.3) |
                                 Q(email_similarity__gte=0.3) |
                                 Q(profile_studentID_similarity__gte=0.3) |
+                                Q(profile__subject_type__name_similarity__gte=0.3) |
                                 Q(profile_type__name_similarity__gte=0.3))\
                         .select_related('profile')\
-                        .values("id", "first_name", "last_name", "email", "profile__studentID", "profile__type__name", "is_active", "profile__blackballed") \
+                        .values("id",
+                                "first_name",
+                                "last_name",
+                                "email",
+                                "profile__studentID",
+                                "profile__type__name",
+                                "is_active",
+                                "profile__subject_type__name",
+                                "profile__blackballed") \
                         .order_by('-similarity_total')
 
     if activeOnly:

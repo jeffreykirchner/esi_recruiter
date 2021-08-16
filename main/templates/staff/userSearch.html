@@ -273,6 +273,9 @@
                                     Student ID
                                 </th>
                                 <th scope="col" style="text-align: center;">
+                                    Year
+                                </th>
+                                <th scope="col" style="text-align: center;">
                                     Type
                                 </th>                                                     
                                 
@@ -288,6 +291,9 @@
                                     </td>  
                                     <td style="text-align: center;">  
                                         <span v-html="u.profile__studentID"></span>
+                                    </td>
+                                    <td style="text-align: center;">  
+                                        <span v-html="u.profile__subject_type__name"></span>
                                     </td>
                                     <td style="text-align: center;">  
                                         <span v-html="u.profile__type__name.toUpperCase()"></span>
