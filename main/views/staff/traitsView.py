@@ -101,7 +101,8 @@ def getReport(data,u):
                                       .order_by(Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'))
         
         if active_only:
-            t_list = t_list.filter(my_profile__user__is_active = True)
+            t_list = t_list.filter(my_profile__user__is_active = True) \
+                           .filter(my_profile__email_confirmed = 'yes')
 
         logger.info(t_list)
 
