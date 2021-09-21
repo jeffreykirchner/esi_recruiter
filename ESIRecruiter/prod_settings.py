@@ -17,19 +17,16 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-hostname = os.environ['DBHOST']
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ['DBNAME'],
-        'HOST': hostname + ".postgres.database.azure.com",
+        'HOST': os.environ['DBHOST'],
         'USER': os.environ['DBUSER'],
         'PASSWORD': os.environ['DBPASS'],
         'OPTIONS': {'sslmode': 'require'},
     },
 }
-
 
 #logging, log both to console and to file log at the INFO level
 LOGGING = {
@@ -85,10 +82,3 @@ PPMS_PASSWORD = os.environ['PPMS_PASSWORD']
 EMAIL_MS_HOST = os.environ['EMAIL_MS_HOST']
 EMAIL_MS_USER_NAME = os.environ['EMAIL_MS_USER_NAME']
 EMAIL_MS_PASSWORD = os.environ['EMAIL_MS_PASSWORD']
-
-# Celery Configuration Options
-# CELERY_TIMEZONE = "UTC"
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
-# CELERY_RESULT_BACKEND = 'django-db'

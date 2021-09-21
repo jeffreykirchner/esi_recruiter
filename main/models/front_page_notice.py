@@ -7,8 +7,11 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta,timezone
 import pytz
 
-#a user trait
+
 class Front_page_notice(models.Model):
+    '''
+    notices shown on long in screen
+    '''
     subject_text = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")   #text displayed in the header portion of the notification card
     body_text = models.CharField(verbose_name="Body Text", max_length = 10000,default = "")        #text displayed in the body portion of the card
 

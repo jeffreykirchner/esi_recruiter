@@ -18,7 +18,7 @@ pycodestyle==2.6.0
 pytz==2020.1
 requests==2.25.*
 six==1.15.0
-sqlparse==0.4.2
+sqlparse==0.4.*
 toml==0.10.1
 typed-ast==1.4.1
 urllib3==1.26.*
