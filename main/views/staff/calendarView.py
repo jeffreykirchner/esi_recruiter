@@ -1,21 +1,28 @@
+import json
+import logging
+import calendar
+import pytz
+
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from datetime import datetime,timedelta
-import calendar
-from main.models import experiment_session_days,locations,parameters,help_docs
-from django.utils.timezone import make_aware
-import pytz
-from django.utils import timezone
-from django.db.models import CharField,Q,F,Value as V
+from django.db.models import CharField,F,Value as V
+
+from main.decorators import user_is_staff
+
+from main.models import experiment_session_days
+from main.models import locations
+from main.models import parameters
+from main.models import help_docs
+
+from main.globals import todays_date
 
 @login_required
 @user_is_staff
-def calendarView(request):
+def calendarView(request, month=None, year=None):
     logger = logging.getLogger(__name__) 
     
     # logger.info("some info")
@@ -25,48 +32,91 @@ def calendarView(request):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getMonth":
-            return getMonth(request,data)
+            return get_month(request, data, month, year)
         elif data["action"] == "changeMonth":
-            return changeMonth(request,data)
+            return change_month(request, data)
+        elif data["action"] == "jump_to_month":
+            return jump_to_month(request, data)
            
         return JsonResponse({"response" :  "error"},safe=False)       
     else:   
 
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+                                        .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
             helpText = "No help doc was found."
 
-        return render(request,'staff/calendar.html',{"helpText":helpText ,"id":""})      
 
-#get current month
-def getMonth(request,data):
+        #build month list
+        current_date = todays_date()
+
+        month_list=[]
+
+        current_date += relativedelta(months=12)
+
+        while current_date.year >= 2008:
+            month_list.append(get_month_jump_display_json(current_date))
+
+            current_date -= relativedelta(months=1)
+
+        logger = logging.getLogger(__name__) 
+        logger.info(f"Get calendar: url month:{month}, url year:{year}")
+            
+
+        return render(request,'staff/calendar.html',{"helpText":helpText ,
+                                                     "month_list":month_list,
+                                                     "id":""})      
+
+def get_month_jump_display_json(date):
+    '''
+    return the json output for jumping to a new month
+    date :  datetime
+    '''
+    return {"year" : date.year, "month" : date.month, "display" : date.strftime("%B, %Y")}
+
+def get_month(request, data, month, year):
+    '''
+    get current month's data
+    data: {}
+    '''
     logger = logging.getLogger(__name__) 
-    logger.info("Get month")
-    logger.info(data)
+    logger.info(f"Get month: {data}, url month:{month}, url year:{year}")
 
     p = parameters.objects.first()
+
+    #today's month
     tz = pytz.timezone(p.subjectTimeZone)
     t = datetime.now(tz)
 
+    if not month or not data["load_url_month"]:
+        month = t.month
+        year = t.year
+    
+    #month to show
+    t_current = datetime.strptime(str(month) + " " + str(year), '%m %Y')
 
-    return JsonResponse({"currentMonth" :  t.month,
-                         "currentYear" : t.year,
-                         "currentDay": t.day,
+    return JsonResponse({"currentMonth" :  month,
+                         "currentYear" : year,
+                         "todayMonth": t.month,
+                         "todayYear": t.year,
+                         "todayDay": t.day,
                          "locations" : [l.json() for l in locations.objects.all()],
-                         "currentMonthString" :  t.strftime("%B, %Y"),
-                         "calendar": getCalendarJson(t.month,t.year)},safe=False)
+                         "currentMonthString" :  t_current.strftime("%B, %Y"),
+                         "jump_to_month" : str(get_month_jump_display_json(t_current)),
+                         "calendar": get_calendar_json(month, year)},safe=False)
 
-#change the current month viewed
-def changeMonth(request,data):
+def change_month(request, data):
+    '''
+    change month displayed, to next month or previous month
+    data: {direction, currentMonth, currentYear}
+    '''
     logger = logging.getLogger(__name__) 
-    logger.info("Get month")
-    logger.info(data)
+    logger.info(f"Change month: {data}")
 
     direction = data["direction"]
-    currentMonth =int(data["currentMonth"])
+    currentMonth = int(data["currentMonth"])
     currentYear = int(data["currentYear"])
 
     if direction == "current":
@@ -75,7 +125,7 @@ def changeMonth(request,data):
         t = datetime.now(tz)
     elif direction == "previous":
         t = datetime.strptime(str(currentMonth) + " " + str(currentYear), '%m %Y')
-        logger.info(t)
+        #logger.info(t)
 
         currentMonth-=1
         if currentMonth == 0:
@@ -83,10 +133,10 @@ def changeMonth(request,data):
             currentYear -= 1
 
         t = datetime.strptime(str(currentMonth) + " " + str(currentYear), '%m %Y')    
-        logger.info(t)
+        #logger.info(t)
     elif direction == "next":
         t = datetime.strptime(str(currentMonth) + " " + str(currentYear), '%m %Y')
-        logger.info(t)
+        #logger.info(t)
 
         currentMonth+=1
         if currentMonth == 13:
@@ -94,19 +144,43 @@ def changeMonth(request,data):
             currentYear += 1
 
         t = datetime.strptime(str(currentMonth) + " " + str(currentYear), '%m %Y')    
-        logger.info(t)
+        #logger.info(t)
 
     #request.session['currentMonth'] = t
     
-    logger.info(t.month)
+    logger.info(f"change month :{t.month}")
 
     return JsonResponse({"currentMonth" :  t.month,
                          "currentYear" : t.year,
                          "currentMonthString" :  t.strftime("%B, %Y"),
-                         "calendar": getCalendarJson(t.month,t.year)},safe=False)
+                         "jump_to_month" : str(get_month_jump_display_json(t)),
+                         "calendar": get_calendar_json(t.month, t.year)},safe=False)
 
-#get calendar arrays
-def getCalendarJson(month,year):
+def jump_to_month(request, data):
+    '''
+    jump to a specfic month
+    data: get_month_jump_display_json() format
+    '''
+    logger = logging.getLogger(__name__) 
+    logger.info(f"Jump to month: {data}")
+
+    new_month = json.loads(data["new_month"].replace("\'", "\""))
+
+    t = datetime.strptime(str(new_month["month"]) + " " + str(new_month["year"]), '%m %Y')    
+
+    return JsonResponse({"currentMonth" :  t.month,
+                         "currentYear" : t.year,
+                         "currentMonthString" :  t.strftime("%B, %Y"),
+                         "jump_to_month" : str(get_month_jump_display_json(t)),
+                         "calendar": get_calendar_json(t.month, t.year)},safe=False)
+
+
+def get_calendar_json(month, year):
+    '''
+    get the calendar month in json format
+    month : int
+    year : int
+    '''
     logger = logging.getLogger(__name__) 
     logger.info("Get Calendar JSON")
 
@@ -171,6 +245,7 @@ def getCalendarJson(month,year):
             new_week.append({"day" : d.day,
                              "month" : d.month,
                              "year" : d.year,
+                             "weekday" : d.strftime('%a'),
                              "dayString" :  d.strftime("%B %-d, %Y"),
                              "sessions" : s_list_local
                              })

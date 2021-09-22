@@ -17,8 +17,8 @@
                                 [[l.location]]
                             </div>
                         </div>
-                        <div class="row" v-for="(s,index) in l.sessions" v-bind:key="s.id">
-                            <div class="col-lg-4" v-bind:class="{is_canceled:s.canceled }">
+                        <div class="row mb-4 mb-md-0" v-for="(s,index) in l.sessions" v-bind:key="s.id">
+                            <div class="col-md-4" v-bind:class="{is_canceled:s.canceled }">
                                 <div v-if = "s.enable_time">
                                     [[s.startTime]]-[[s.endTime]] [[s.name]]
                                 </div>
@@ -27,21 +27,28 @@
                                 </div>
                                                                 
                             </div>
-                            <div class="col text-center">
-                                <span v-html="'<a href=\'/experimentSessionRun/' + s.id + '/\'' + ' target=_blank> Run <i class=\'fas fa-running fa-sm\'> </a>'"></span>                               
+                            <div class="col-md text-md-center">
+                                <span v-html="'<a href=\'/experimentSessionRun/' + s.id + '/\'' + ' > Run <i class=\'fas fa-running fa-sm\'> </a>'"></span>                               
                             </div>
-                            <div class="col text-center">
-                                <span v-html="'<a href=\'/experimentSession/' + s.session_id + '/\'' + ' target=_blank> Session <i class=\'far fa-edit fa-sm\'></i> </a>'"></span>                               
+                            <div class="col-md text-md-center">
+                                <span v-html="'<a href=\'/experimentSession/' + s.session_id + '/\'' + ' > Session <i class=\'far fa-edit fa-sm\'></i> </a>'"></span>                               
                             </div>
-                            <div class="col text-center">
-                                <span v-html="'<a href=\'/experiment/' + s.experiment_id + '/\'' + ' target=_blank> Experiment <i class=\'fas fa-flask\'></i></a>'"></span>                               
+                            <div class="col-md text-md-center">
+                                <span v-html="'<a href=\'/experiment/' + s.experiment_id + '/\'' + ' > Experiment <i class=\'fas fa-flask\'></i></a>'"></span>                               
                             </div>
-                            <div class="col text-center">
+                            <div class="col-md text-md-center">
                                 [[s.manager]]
                             </div>
-                        </div>                        
+                        </div>
                     </div>
-                </div>                                               
+                </div>  
+                
+                <!-- no session today -->
+                <div class="row" v-if="displayDay.no_experiments">                    
+                    <div class="col">
+                        No experiments today.
+                    </div>                   
+                </div>
             </div>
             <div class="modal-footer">                
             
