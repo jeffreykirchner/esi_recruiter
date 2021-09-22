@@ -1,17 +1,24 @@
+import json
+import logging
+import calendar
+import pytz
+
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from datetime import datetime,timedelta
-import calendar
-from main.models import experiment_session_days,locations,parameters,help_docs
-from django.utils.timezone import make_aware
-import pytz
-from django.utils import timezone
-from django.db.models import CharField,Q,F,Value as V
+from django.db.models import CharField,F,Value as V
+
+from main.decorators import user_is_staff
+
+from main.models import experiment_session_days
+from main.models import locations
+from main.models import parameters
+from main.models import help_docs
+
+from main.globals import todays_date
 
 @login_required
 @user_is_staff
@@ -39,7 +46,25 @@ def calendarView(request):
         except Exception  as e:   
             helpText = "No help doc was found."
 
-        return render(request,'staff/calendar.html',{"helpText":helpText ,"id":""})      
+
+        #build month list
+        current_date = todays_date()
+        current_month = current_date.month
+        current_year = current_date.year
+
+        month_list=[]
+
+        while current_date.year >= 2008:
+            month_list.append({"year" : current_date.year,
+                               "month" : current_date.month,
+                               "display" : current_date.strftime("%B, %Y")})
+
+            current_date -= relativedelta(months=1)
+            
+
+        return render(request,'staff/calendar.html',{"helpText":helpText ,
+                                                     "month_list":month_list,
+                                                     "id":""})      
 
 #get current month
 def getMonth(request,data):
@@ -50,7 +75,6 @@ def getMonth(request,data):
     p = parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
     t = datetime.now(tz)
-
 
     return JsonResponse({"currentMonth" :  t.month,
                          "currentYear" : t.year,
