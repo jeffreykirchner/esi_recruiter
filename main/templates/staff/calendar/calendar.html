@@ -1,43 +1,52 @@
 <!-- calander control -->
 <div class="row mt-4 ml-4 mr-4 mb-2">
-    <div class="col-md" style="text-align: left;">
+    <div class="col-md text-left-md mb-2 mb-md-0">
         <span v-html = "currentMonthString"></span>
     </div>
-    <div class="col-md" style="text-align: center;">
+    <div class="col-md text-center-md mb-2 mb-md-0">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('previous')"><span v-html="backButtonText"></span></button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="getMonth()">Current</button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('next')"><span v-html="forwardButtonText"></span></button>  
     </div>
-    <div class="col-md" style="text-align: right;">
-        <select class="w-auto form-control float-right" aria-label="Jump to month" v-model="jump_to_month">
-            {%for month in month_list%}
-                <option value="{{month}}">{{month.display}}</option>
-            {% endfor %}
-        </select>
+    <div class="col-md text-right-md">
+
+        <div class="input-group input-group-sm w-auto float-md-right" v-bind:disabled="working">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-primary"
+                      type="button"
+                      v-on:click="jump_to_new_month()"
+                      v-bind:disabled="working">Jump to</button>
+            </div>
+            <select class="custom-select" id="jump_to_month_id" v-model="jump_to_month" v-bind:disabled="working">
+                {%for month in month_list%}
+                    <option value="{{month}}">{{month.display}}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
 </div>
 <!-- calendar header -->
 <div class="d-none d-md-block">
     <div class="row ml-4 mr-4 bg-light">
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Sunday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Monday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Tuesday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Wednesday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Thursday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Friday
         </div>
-        <div class="col-md border rounded" style="text-align: center;">
+        <div class="col-md border rounded text-center">
             Saturday
         </div>    
     </div>
@@ -49,20 +58,21 @@
 
         <!-- calendar cell -->
         <div class="row">
-            
-                <div class = "col cell_content" style="text-align: right;">
-                    <div v-if="d.day === todayDay && d.month === todayMonth  && d.year === todayYear">
-                        <button class="cell_button_today" v-on:click="showDayModal(indexW,indexD,d.dayString)">
-                            [[d.day]]
-                        </button>
-                    </div>
-                    <div v-else>
-                        <button class="cell_button" v-on:click="showDayModal(indexW,indexD,d.dayString)">
-                            [[d.day]]
-                        </button>
-                    </div>                                    
+
+            <div class = "col cell_content text-right">
+                <div v-if="d.day === todayDay && d.month === todayMonth  && d.year === todayYear">
+                    <button class="cell_button_today" v-on:click="showDayModal(indexW,indexD,d.dayString)">    
+                        <span class="d-md-none">[[d.weekday]] </span>                    
+                        [[d.day]]
+                    </button>
                 </div>
-              
+                <div v-else>
+                    <button class="cell_button" v-on:click="showDayModal(indexW,indexD,d.dayString)">
+                        <span class="d-md-none">[[d.weekday]] </span>
+                        [[d.day]]
+                    </button>
+                </div>                                    
+            </div>             
 
         </div>
 
@@ -80,7 +90,7 @@
                     <span v-else>
                         <span v-html = "'Anytime'"></span>
                     </span>        
-                    <span v-html ="' <a href=\'/experimentSessionRun/' + s.id + '/\'' + ' target=\'_blank\'>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }">
+                    <span v-html ="' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }">
                     </span>
                 </div>
             </div>

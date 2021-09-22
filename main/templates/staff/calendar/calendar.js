@@ -15,27 +15,39 @@ var app = new Vue({
         currentMonthString:"",
         locations:[],
         displayDay:{dayString:"",
+                    no_experiments:true,
                     sessionLocations:[],
                     },
         forwardButtonText:">>",
         backButtonText:"<<",
-        jump_to_month : "{{month_list.0|safe}}",
+        jump_to_month : "",
+        working : true,
+        load_url_month : true,
                     
     },
 
     methods:{
         //get current, last or next month
+
         getMonth:function(){
-            axios.post('/calendar/', {
+            if( typeof app == 'undefined')
+                load_url_month = true;
+            else
+                load_url_month = app.$data.load_url_month;
+            axios.post('{{request.path}}', {
                     action :"getMonth" , 
-                                                
+                    load_url_month : load_url_month,                            
                 })
                 .then(function (response) {     
                     app.updateMonth(response);  
+
                     app.$data.locations = response.data.locations;     
-                    app.$data.todayDay = response.data.currentDay;
-                    app.$data.todayMonth = response.data.currentMonth; 
-                    app.$data.todayYear = response.data.currentYear;                      
+                    app.$data.todayDay = response.data.todayDay;
+                    app.$data.todayMonth = response.data.todayMonth; 
+                    app.$data.todayYear = response.data.todayYear;           
+                    
+                    app.$data.working = false;
+                    app.$data.load_url_month = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -44,6 +56,8 @@ var app = new Vue({
 
         //get new month's data
         changeMonth:function(direction){
+            app.$data.working = true;
+
             if(direction == "next")
             {
                 app.$data.forwardButtonText='<i class="fas fa-spinner fa-spin"></i>';
@@ -61,6 +75,8 @@ var app = new Vue({
                 })
                 .then(function (response) {     
                     app.updateMonth(response);
+                    
+                    app.$data.working = false;
 
                     app.$data.backButtonText="<<";
                     app.$data.forwardButtonText=">>";
@@ -71,10 +87,12 @@ var app = new Vue({
             },
         
         //show day modal
-        showDayModal:function(weekIndex,dayIndex,dayString){
+        showDayModal:function(weekIndex, dayIndex, dayString){
             currentSessions = app.$data.calendar[weekIndex][dayIndex].sessions;
 
             displayDayLocations=[];
+
+            app.$data.displayDay.no_experiments = true;
 
             for(i=0;i<app.$data.locations.length;i++)
             {
@@ -86,6 +104,7 @@ var app = new Vue({
                     if(currentSessions[j].location.id == l.id)
                     {
                         sessionList.push(currentSessions[j]);
+                        app.$data.displayDay.no_experiments = false;
                     }
                 }
 
@@ -104,15 +123,16 @@ var app = new Vue({
         //jump to new month
         jump_to_new_month:function()
         {
+            app.$data.working = true;
+
             axios.post('/calendar/', {
                 action :"jump_to_month" , 
-                direction: app.$data.jump_to_month,
+                new_month: app.$data.jump_to_month,
             })
             .then(function (response) {     
                 app.updateMonth(response);
 
-                app.$data.backButtonText="<<";
-                app.$data.forwardButtonText=">>";
+               app.$data.working = false;
             })
             .catch(function (error) {
                 console.log(error);                            
@@ -125,10 +145,13 @@ var app = new Vue({
             app.$data.currentYear = response.data.currentYear;       
             app.$data.calendar = response.data.calendar;          
             app.$data.currentMonthString = response.data.currentMonthString; 
+            app.$data.jump_to_month = response.data.jump_to_month;
+
+            history.replaceState({}, null, '/calendar/' + app.$data.currentMonth +'/' + app.$data.currentYear + '/');
         },
     },            
 
     mounted: function(){
-            this.getMonth();                    
+        this.getMonth();                          
     },
 });
