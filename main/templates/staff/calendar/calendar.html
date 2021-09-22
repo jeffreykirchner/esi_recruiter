@@ -1,14 +1,14 @@
 <!-- calander control -->
 <div class="row mt-4 ml-4 mr-4 mb-2">
-    <div class="col-md text-left-md mb-2 mb-md-0">
+    <div class="col-md-4 text-left-md mb-2 mb-md-0">
         <span v-html = "currentMonthString"></span>
     </div>
-    <div class="col-md text-center-md mb-2 mb-md-0">
+    <div class="col-md-4 text-md-center mb-2 mb-md-0">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('previous')"><span v-html="backButtonText"></span></button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="getMonth()">Current</button>
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click="changeMonth('next')"><span v-html="forwardButtonText"></span></button>  
     </div>
-    <div class="col-md text-right-md">
+    <div class="col-md-4 text-md-right">
 
         <div class="input-group input-group-sm w-auto float-md-right" v-bind:disabled="working">
             <div class="input-group-prepend">
