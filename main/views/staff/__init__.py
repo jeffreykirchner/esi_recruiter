@@ -10,3 +10,4 @@ from .reportsView import *
 from .traitsView import *
 from .sessionsOpen import *
 from .payPalHistory import *
+from .subject_auto_login import *
