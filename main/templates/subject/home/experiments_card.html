@@ -1,0 +1,179 @@
+<div class="card">                  
+    <div class="card-header">
+        Experiments                                                   
+    </div>
+    <div class="card-body">    
+        <div style="text-align: center;color:red;padding-bottom: 5px;">
+            You cannot leave an experiment if it starts within 24 hours. 
+        </div>
+        <div v-if="lastActionFailed"  style="text-align: center;color:red;padding-bottom: 5px;">
+            <span v-html ="'***There was error processing your last request***'"></span>
+        </div>           
+        <!-- upcoming table -->
+        <table class="table table-hover table-condensed">
+            <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
+
+            <thead>                         
+                <th width="50%" style="text-align: center;">
+                    Date
+                </th>                                                      
+                <th width="50%" style="text-align: center;">
+                    Control
+                </th>
+            </thead>
+            <tbody>
+                <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
+                   
+                    <td  style="text-align: center;">      
+                        <div style="cursor: pointer;" v-on:click="showInvitationText(index)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                            <span v-html=sd.date></span>
+                            <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
+                                <div v-if="sd.enable_time">
+                                    <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                </div>
+                                <div v-else>
+                                    <span v-html = "'Ends in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                </div>                                        
+                            </div>
+                            <div v-else-if="sd.hours_until_start <= 0 && sd.hours_until_start >= -0.25 && sd.enable_time">
+                                <span v-html = "'Starts Now'" style="color:red;"></span>
+                            </div>  
+                        </div>                                                       
+                        <div v-if="s.experiment_session_days.length > 1">
+                            <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
+                        </div>                                    
+                    </td>
+                    <td  style="text-align: center;">
+
+                            <div v-if="s.canceled">
+                                <span v-html="'*** Canceled ***'" style="color: red;"></span>
+                            </div>
+                            <div v-else-if="s.confirmed">
+                                <div style="margin-bottom: 5px">
+                                    You are attending.
+                                </div>
+                                <div v-if="s.hours_until_first_start > 24">
+                                    <div v-show="waiting===false">
+                                        <button v-bind:id="'cancelAcceptInvitation' + s.id" type="button" class="btn btn-primary" v-on:click ="cancelAcceptInvitation(s.id,index)">
+                                            <span v-html="'I no longer wish to attend.'"></span>
+                                        </button>
+                                    </div>
+                                    <div v-show="waiting">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <div style="margin-bottom: 5px">
+                                    You are not attending.
+                                </div>
+                                <div v-if ="s.hours_until_first_start <= -0.25">
+                                    <span v-html = "'The experiment has started.'" style="color:red;"></span>
+                                </div>
+                                <div v-else>
+                                    <div v-if = "s.full">
+                                        <span v-html="'The session is already full but a spot may open later.'" style="color: red;"></span>
+                                    </div>
+                                    <div v-else-if = "s.valid === false">
+                                        <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
+                                    </div>
+                                    <div v-else>
+                                        <div v-show="waiting===false">
+                                            <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                <span v-html="'I want to attend.'"></span>
+                                            </button>
+                                        </div>
+                                        <div v-show="waiting">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </div>
+                                    </div>  
+                                </div>                                       
+                            </div>                                                                                               
+                    </td>
+                </tr>                        
+            </tbody>
+            <tfoot v-if="upcomingInvitations.length === 0">
+                <tr>
+                    <td><span v-html="'No upcoming experiments.'"></span></td>
+                </tr>
+            </tfoot>                                    
+        </table>
+        <br>
+        <hr>
+        <br>
+        <!-- attended table -->
+        <table class="table table-hover table-condensed">
+            <caption style="caption-side:top;text-align: center;">Experiments Attended</caption>
+
+            <thead>                        
+                <th width="50%" style="text-align: center;">
+                    Date
+                </th>                                                      
+                <th width="50%" style="text-align: center;">
+                    Earnings
+                </th>
+            </thead>
+            <tbody>                        
+                <tr v-for="(s,index) in pastAcceptedInvitations" v-bind:key="s.id">                            
+                    <td  style="text-align: center;">                                                                
+                        <div v-html="s.date"></div>
+                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
+                    </td>
+                    <td  style="text-align: center;">     
+                        <div v-if="s.bumped">
+                            <div v-html="'$'+s.total_earnings"></div>
+                            <div v-html="'(Bumped)'"></div>
+                        </div>
+                        <div v-else>
+                            <span v-html="'$' + s.total_earnings"></span>
+                        </div>                             
+                    </td>
+                </tr>                        
+            </tbody>
+            <tfoot v-if="pastAcceptedInvitations.length === 0">
+                <tr>
+                    <td>No experiments attended.</td>
+                </tr>
+            </tfoot>                                    
+        </table> 
+        <br>
+        <hr>
+        <br>              
+        <!-- invitation table -->
+        <table class="table table-hover table-condensed">
+            <caption style="caption-side:top;text-align: center;">Full Invitation List</caption>
+
+            <thead>
+                <th width="30%" style="text-align: center;">
+                    Date
+                    <button id="showInvitations" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showAllInvitations()">
+                        <span v-html="showInvitationsText"></span>
+                    </button>
+                </th>                                                      
+                <th width="35%" style="text-align: center;">
+                    Status
+                </th>
+            </thead>
+            <tbody>                        
+                <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
+                    <td  style="text-align: center;">                                                                
+                        <span v-html="s.date"></span>
+                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
+                    </td>
+                    <td  style="text-align: center;">  
+                        <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
+                        <div v-else-if="s.canceled" style="color: red;"><span v-html="'Canceled'"></span></div>  
+                        <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
+                        <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
+                        <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               
+                    </td>
+                </tr>                        
+            </tbody>
+            <tfoot v-if="allInvitations.length === 0">
+                <tr>
+                    <td><span v-html="noInvitationsFoundText"></span></td>
+                </tr>
+            </tfoot>                                    
+        </table>
+    </div>                    
+</div>

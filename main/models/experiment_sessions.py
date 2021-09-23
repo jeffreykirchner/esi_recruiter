@@ -1109,11 +1109,11 @@ class experiment_sessions(models.Model):
         return{
             "id":self.id,                                  
             "experiment_session_days" : [{"id" : esd.id,
-                                          "date":esd.date,
-                                          "date_end":esd.date_end,
-                                          "enable_time":esd.enable_time,
-                                          "length":esd.length,
-                                          "hours_until_start": esd.hoursUntilStart(),
+                                          "date" : esd.date,
+                                          "date_end" : esd.date_end,
+                                          "enable_time" : esd.enable_time,
+                                          "length" : esd.length,
+                                          "hours_until_start ": esd.hoursUntilStart(),
                                           "hours_until_start_str":  str(int(esd.hoursUntilStart())) + " hours<br>" + 
                                                                        str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes' 
                                                                    if esd.hoursUntilStart() >= 1 else
@@ -1125,6 +1125,9 @@ class experiment_sessions(models.Model):
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
+            "invitation_text" : session_invitation.messageText 
+                                if (session_invitation := u.experiment_session_invitation_users.filter(experiment_session=self).first())
+                                else "Invitation text not found.",
         }
     
     #get session days attached to this session
@@ -1162,7 +1165,7 @@ class experiment_sessions(models.Model):
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
             "messageCount": self.experiment_session_messages_set.count(),
-            "invitationCount": self.experiment_session_invitations_set.count(),
+            "invitationCount": self.experiment_session_invitations.count(),
             "allowDelete":self.allowDelete(),
             "allowEdit":self.allowEdit(),
             "confirmedCount":self.getConfirmedCount(),
