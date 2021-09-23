@@ -140,8 +140,8 @@ class profile(models.Model):
 
         es = experiment_sessions.objects.annotate(first_date=models.Min("ESD__date"))\
                                         .annotate(last_date=models.Max("ESD__date"))\
-                                          .filter(id__in = session_ids)\
-                                          .filter(last_date__gte = startDateRange)
+                                        .filter(id__in = session_ids)\
+                                        .filter(last_date__gte = startDateRange)
     
         return es
 
@@ -149,7 +149,7 @@ class profile(models.Model):
     def sorted_session_list_upcoming(self):
         logger = logging.getLogger(__name__) 
 
-        session_list = self.sessions_upcoming(False,datetime.now(pytz.utc)- timedelta(hours=1))
+        session_list = self.sessions_upcoming(False, datetime.now(pytz.utc) - timedelta(hours=1))
 
         out_lst = [es.json_subject(self.user) for es in session_list.all()
                                     .annotate(first_date=models.Min("ESD__date"))

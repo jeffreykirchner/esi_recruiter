@@ -133,7 +133,7 @@ def showInvitations(data,id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    invitationList = [i.json() for i in es.experiment_session_invitations_set.all()]
+    invitationList = [i.json() for i in es.experiment_session_invitations.all()]
 
     return JsonResponse({"invitationList" : invitationList }, safe=False)
 
@@ -303,7 +303,7 @@ def inviteSubjects(data, id, request):
     #store invitation
     storeInvitation(id, userPkList, subjectText, messageText, mail_result['mail_count'], mail_result['error_message'])    
 
-    invitationCount = es.experiment_session_invitations_set.count()
+    invitationCount = es.experiment_session_invitations.count()
 
     return JsonResponse({"status":status,
                          "mailResult":mail_result,
@@ -494,7 +494,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
     else:
         status = "fail"   
 
-    invitationCount=es.experiment_session_invitations_set.count()
+    invitationCount=es.experiment_session_invitations.count()
 
     return JsonResponse({"status":status,
                          "mailResult":mail_result,
