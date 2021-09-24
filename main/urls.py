@@ -49,6 +49,7 @@ urlpatterns = [
     path('traits/', views.traitsView, name='traits'),
     path('sessionsOpen/', views.SessionsOpen, name='sessionsOpen'),
     path('payPalHistory/', views.PayPalHistory, name='payPalHistory'),
+    path('subject-auto-login/<int:id>/', views.SubjectAutoLogin, name='subject_auto_login'),
 
     #subject
     path('subjectHome/', views.subjectHome, name='subjectHome'),
