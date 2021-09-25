@@ -7,19 +7,16 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import CharField, Q, F, Value as V
-from django.db.models.functions import Lower, Concat
-from django.urls import reverse
-from django.contrib.postgres.search import SearchQuery, SearchVector, TrigramSimilarity
-from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Lower
+from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Count
 
 from main.decorators import user_is_staff
-from main import views
 from main.models import parameters, help_docs
 from main.globals import send_mass_email_service
+from main.globals import get_now_show_blocks
 
 @login_required
 @user_is_staff
@@ -95,15 +92,19 @@ def getNoShows(request, data):
     errorMessage = ""
     activeOnly = data["activeOnly"] 
 
-    users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
-                .filter(Q(ESDU__confirmed = True) &
-                    Q(ESDU__attended = False) &
-                    Q(ESDU__bumped = False) & 
-                    Q(ESDU__experiment_session_day__experiment_session__canceled = False) &
-                    Q(ESDU__experiment_session_day__date__gte = d))\
-                .annotate(noShows = Count('id'))\
-                .filter(noShows__gte = p.noShowCutoff)\
-                .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
+    users = get_now_show_blocks()
+    users = users.order_by(Lower('last_name'),Lower('first_name'))\
+                 .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
+
+    # users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
+    #             .filter(Q(ESDU__confirmed = True) &
+    #                 Q(ESDU__attended = False) &
+    #                 Q(ESDU__bumped = False) & 
+    #                 Q(ESDU__experiment_session_day__experiment_session__canceled = False) &
+    #                 Q(ESDU__experiment_session_day__date__gte = d))\
+    #             .annotate(noShows = Count('id'))\
+    #             .filter(noShows__gte = p.noShowCutoff)\
+    #             .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
 
     #logger.info(users.query)
 
