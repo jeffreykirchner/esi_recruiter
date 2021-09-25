@@ -6,7 +6,7 @@ from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from django.views.decorators.csrf import csrf_exempt
-from main.views import *
+from main import views
 from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import StaticViewSitemap

@@ -16,7 +16,8 @@ from django.db.models.signals import post_delete
 
 from django.db.models import Q, F, Value as V, Count
 
-from main.models import genders, subject_types, institutions, experiments, parameters, recruitment_parameters, parameters, email_filters
+from main.models import experiments, parameters, recruitment_parameters, parameters
+
 import main
 
 from functools import reduce
@@ -490,27 +491,7 @@ class experiment_sessions(models.Model):
                                 INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
                                 INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
                                 WHERE main_experiment_sessions.id = {id}),
-        '''        
-
-        #table of users who have no show violations
-        d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
-        no_show_str =f'''
-            ---table of users who have no shows over the rolling window
-            now_shows AS (SELECT auth_user.id as id  
-                            FROM auth_user
-                            INNER JOIN main_experiment_session_day_users on main_experiment_session_day_users.user_id = auth_user.id
-                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.id = main_experiment_session_day_users.experiment_session_day_id
-                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.id = main_experiment_session_days.experiment_session_id
-                            WHERE main_experiment_session_day_users.confirmed = TRUE AND 
-                                main_experiment_session_day_users.attended = FALSE AND 
-                                main_experiment_session_day_users.bumped = FALSE AND 
-                                main_experiment_session_days.date BETWEEN '{d}' AND CURRENT_TIMESTAMP AND
-                                main_experiment_session_days.complete = TRUE AND
-                                {users_to_search_for}
-                                main_experiment_sessions.canceled = FALSE
-                            GROUP BY auth_user.id
-                            HAVING COUNT(auth_user.id) >= {p.noShowCutoff}),
-        '''                            
+        '''                                    
 
         #list of institutions subject has been in in the past
         user_institutions_past_str=""
@@ -619,7 +600,6 @@ class experiment_sessions(models.Model):
             {experiments_exclude_with_str}
             {experiments_include_with_str}
             {user_current_sesion_str}
-            {no_show_str}
 
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
@@ -658,11 +638,6 @@ class experiment_sessions(models.Model):
             EXISTS(SELECT 1                                                   
                     FROM subject_type_include	
                     WHERE main_profile.subject_type_id = subject_type_include.subject_types_id) AND 
-            
-            --check user for no show violation
-            NOT EXISTS(SELECT 1
-                    FROM now_shows
-                    WHERE auth_user.id = now_shows.id) AND
 
             {user_not_in_session_already}
             {allow_multiple_participations_str}
@@ -740,6 +715,7 @@ class experiment_sessions(models.Model):
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
         #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_now_show_block(u_list)
 
         return u_list
     
@@ -960,7 +936,7 @@ class experiment_sessions(models.Model):
 
             return list(valid_list)    
 
-    #check that users have the correct number of past or upcoming
+    #check that users have the correct number of past or upcoming experience
     def getValidUserList_check_experience(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_experience")
@@ -1005,6 +981,24 @@ class experiment_sessions(models.Model):
         else:
             return u_list
 
+    #check that users have  are not no-show blocked
+    def getValidUserList_check_now_show_block(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_now_show_block")
+
+        no_show_blocks = main.globals.get_now_show_blocks()
+
+        if len(no_show_blocks) == 0:
+            return u_list
+
+        valid_list=[]
+
+        for u in u_list:
+            if u not in no_show_blocks:
+                valid_list.append(u)
+
+        return valid_list
+        
     #return true if all session days are complete
     def getComplete(self):
         esd_not_complete = self.ESD.filter(complete = False)

@@ -1,17 +1,18 @@
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from main.decorators import user_is_staff
-import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import CharField,Q,F,Value as V
-from django.db.models.functions import Lower
-from django.http import Http404
-from django.db import IntegrityError
-import logging
-from main.models import profile_note,help_docs
+
+from django.db.models import CharField,F,Value as V
+
+from main.models import profile_note
+from main.models import help_docs
+
+from main.globals import get_now_show_blocks
 
 @login_required
 @user_is_staff
@@ -40,9 +41,11 @@ def userInfo(request, id=None):
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        u=User.objects.get(id=id) 
+        u = User.objects.get(id=id) 
+
         return render(request, 'staff/userInfo.html', {"u":u,
                                                        "id":id,
+                                                       "now_show_block" :  True if u in get_now_show_blocks() else False,
                                                        "helpText":helpText,
                                                        "experiments":u.ESDU.all() })  
 
