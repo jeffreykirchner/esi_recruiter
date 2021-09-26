@@ -91,7 +91,7 @@ def experimentSessionRunView(request, id_=None):
         help_text = "No help doc was found."
 
     esd = experiment_session_days.objects.get(id=id_)
-    return render(request, 'staff/experimentSessionRunView.html',
+    return render(request, 'staff/experimentSessionRun.html',
                   {"sessionDay":esd, "id":id_, "helpText":help_text})
 
 #return the session info to the client
