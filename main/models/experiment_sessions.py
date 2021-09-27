@@ -26,6 +26,8 @@ from operator import or_
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator',blank=True, null=True,)  #user that created the session
+
     showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10, null = True) 
     canceled = models.BooleanField(default=False)
 
@@ -1139,7 +1141,8 @@ class experiment_sessions(models.Model):
         return{
             "id":self.id,
             "complete":self.getComplete(),   
-            "canceled":self.canceled,                    
+            "canceled":self.canceled, 
+            "creator": f"{self.creator.last_name}, {self.creator.first_name}" if self.creator else "---",                    
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),            

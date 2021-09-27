@@ -5,20 +5,20 @@ from datetime import datetime
 from datetime import timedelta
 
 import logging
-import traceback
 import pytz
-import json
 
 from django.db import models
-from django.db.models import F
-from django.db.models import Q
 from django.db.models.functions import Lower
 from django.contrib.auth.models import User
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.timezone import now
+from django.contrib.auth.models import User
 
 import main
-from main.models import experiment_sessions, locations, accounts, parameters
+
+from main.models import experiment_sessions
+from main.models import locations
+from main.models import accounts
+from main.models import parameters
 from main.globals import send_mass_email_service
 
 #one day of a session
@@ -43,7 +43,7 @@ class experiment_session_days(models.Model):
     reminder_email_sent_count = models.IntegerField(blank=True, null=True) #number of reminder emails sent
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
-    paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used
+    paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
