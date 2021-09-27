@@ -110,7 +110,8 @@ class profile(models.Model):
         qs=self.user.ESDU.annotate(date=F('experiment_session_day__date'))\
                          .annotate(session_id=F('experiment_session_day__experiment_session__id'))\
                          .order_by('-date')\
-                         .filter(date__gte = t)
+                         .filter(date__gte = t)\
+                         .filter(experiment_session_day__complete = False)
         
         if confirmedOnly:
             qs=qs.filter(confirmed=True)
