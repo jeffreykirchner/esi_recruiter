@@ -160,5 +160,5 @@ class hrefExperiments(experiments):
         proxy = True
 
     def __str__(self):
-        return mark_safe('<a href=\"/experiment/' + str(self.id) + '\" target=_blank  >' + str(self.title) + '</a>')
+        return mark_safe('<a href=\"/experiment/' + str(self.id) + '\" target=_self  >' + str(self.title) + '</a>')
     

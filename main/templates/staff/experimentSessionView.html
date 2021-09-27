@@ -1341,7 +1341,7 @@
 
                                         <!-- room date time overlap -->
                                         <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
-                                            <a  v-bind:href='"/experimentSession/" + i.session_id' target="_blank">
+                                            <a  v-bind:href='"/experimentSession/" + i.session_id' target="_self">
                                                <span style="color: red;">Overlaping Session: [[i.name]]</span><br>
                                             </a>
                                         </div>                                   
