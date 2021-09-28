@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,institutions,experiments,recruitment_parameters,hrefExperiments,schools
+from main.models import genders,subject_types,institutions,recruitment_parameters,hrefExperiments,schools
 from django.db.models.functions import Lower
 
 class recruitmentParametersForm(forms.ModelForm):   
