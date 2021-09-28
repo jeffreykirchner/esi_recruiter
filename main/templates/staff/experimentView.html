@@ -675,6 +675,9 @@
                                     <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
                                 </th>
                                 <th scope="col" style="text-align: center;">
+                                    Creator
+                                </th>
+                                <th scope="col" style="text-align: center;">
                                     Status
                                 </th> 
                                 <th scope="col" style="text-align: center;">
@@ -702,6 +705,9 @@
                                                 <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
                                             </div>                                                                                                                                                                             
                                         </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span v-html="s.creator"></span>
                                     </td>
                                     <td style="text-align: center;">
                                         <div v-if="s.complete">

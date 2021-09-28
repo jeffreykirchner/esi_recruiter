@@ -55,6 +55,8 @@ def getOpenSessions(data):
                                                                              'experiment_session__recruitment_params__registration_cutoff',
                                                                              'experiment_session__experiment__title',
                                                                              'experiment_session__id',
+                                                                             'experiment_session__creator__last_name',
+                                                                             'experiment_session__creator__first_name',
                                                                              'experiment_session__experiment__id')\
                                                                      .annotate(invitation_count = Count('experiment_session_day_users'))\
                                                                      .annotate(accepted_count = Count('experiment_session_day_users',filter = Q(experiment_session_day_users__confirmed=True)))\

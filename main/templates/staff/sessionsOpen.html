@@ -153,6 +153,9 @@
                             Date                            
                         </th>
                         <th scope="col" style="text-align: center;">
+                            Creator                            
+                        </th>
+                        <th scope="col" style="text-align: center;">
                             Subjects Confirmed                            
                         </th>
                         <th scope="col" style="text-align: center;">
@@ -176,6 +179,14 @@
                             </td>
                             <td style="text-align: center;"> 
                                 [[s.date_str]]                                   
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-if="s.experiment_session__creator__first_name">
+                                    [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]] 
+                                </span >      
+                                <span v-else>
+                                    ---
+                                </span>                            
                             </td>
                             <td style="text-align: center;"> 
                                [[s.accepted_count]] / [[s.experiment_session__recruitment_params__registration_cutoff]]                              

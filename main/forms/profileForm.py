@@ -11,7 +11,7 @@ class profileForm(forms.Form):
     first_name = forms.CharField(label='First Name', max_length=100)
     last_name = forms.CharField(label='Last Name', max_length=100)
     chapman_id = forms.CharField(label='Student ID (Leave blank if non-student)', max_length=25,required=False)
-    email = forms.EmailField(label='Email Address')
+    email = forms.EmailField(label='Email Address (.edu preferred)')
     phone = forms.CharField(label = "Phone Number (ex: 5556667777)",max_length = 15)
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
                                      queryset=genders.objects.all(),

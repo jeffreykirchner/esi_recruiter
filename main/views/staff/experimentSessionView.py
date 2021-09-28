@@ -629,7 +629,7 @@ def addSessionDay(data,id):
 
             # logger.info(u_list)
 
-            esd.setup(es,u_list)
+            esd.setup(es, u_list)
             esd.save()
 
             es.save()

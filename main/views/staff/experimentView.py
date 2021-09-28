@@ -3,28 +3,17 @@ from datetime import datetime, timedelta
 import logging
 import json
 
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.core import serializers
-from django.forms.models import model_to_dict
-from django.db.models import prefetch_related_objects
-from django.urls import reverse
 from django.db.models import Count, F, Value, CharField
 
 from main.decorators import user_is_staff
 from main.models import experiments, \
                         experiment_session_days, \
-                        experiment_session_day_users, \
                         experiment_sessions, \
-                        accounts, \
-                        schools, \
-                        institutions, \
-                        genders, \
                         parameters,\
                         help_docs, \
                         Recruitment_parameters_trait_constraint,\
@@ -51,7 +40,7 @@ def experimentView(request, id):
         elif data["status"] == "updateRecruitmentParameters":   
             return updateRecruitmentParameters(data, id)
         elif data["status"] == "add":
-            return addSession(data, id)
+            return addSession(data, id, request.user)
         elif data["status"] == "remove":
             return removeSession(data, id)
         elif data["status"] == "addTrait":
@@ -81,7 +70,7 @@ def experimentView(request, id):
         return render(request,
                       'staff/experimentView.html',
                       {'form1':experimentForm1(),
-                      'traitConstraintForm':TraitConstraintForm(),
+                       'traitConstraintForm':TraitConstraintForm(),
                        'updateRecruitmentParametersForm':recruitmentParametersForm(),       
                        'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
                        'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
@@ -125,10 +114,9 @@ def removeSession(data, id):
     return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
 
 #create experiment session, attach to experiment
-def addSession(data, id):
+def addSession(data, id, creator):
     logger = logging.getLogger(__name__)
-    logger.info("Add Session")
-    logger.info(data) 
+    logger.info(f"Add Session: {data}")
 
     status = ""
 
@@ -139,6 +127,8 @@ def addSession(data, id):
         status="Error: Please specify the institution parameter"
     else:
         es = addSessionBlank(e)
+        es.creator = creator
+        es.save()
 
         #set default date time 1 day after last session day, to get it to top of list
         lastSD = es.experiment.getLastSessionDay()
