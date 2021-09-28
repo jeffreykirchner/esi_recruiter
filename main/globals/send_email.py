@@ -2,6 +2,7 @@
 '''
 send email via ESI mass email service
 '''
+from datetime import timedelta
 from smtplib import SMTPException
 
 import logging
@@ -11,7 +12,10 @@ import sys
 from django.utils.crypto import get_random_string
 from django.conf import settings
 
-from main.models import profile, parameters
+from main.models import profile
+from main.models import parameters
+
+from main.globals.todays_date import todays_date
 
 def send_mass_email_verify(profile_list, request):
     '''
@@ -69,6 +73,30 @@ def profile_create_send_email(user):
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
+
+def send_daily_report(user_list, email_text):
+    '''
+    send daily report to specified users
+    '''
+    logger = logging.getLogger(__name__) 
+    logger.info(f"send_daily_report: {user_list}")
+
+    today = todays_date()
+    today -= timedelta(days=1)
+
+    user_list_valid = []
+    for user in user_list:
+        user_list_valid.append({"email" : user.email,
+                                "variables": []})
+    
+    memo = f'Daily email report for {today.strftime("%#m/%#d/%Y")}'
+
+    try:
+        return send_mass_email_service(user_list_valid, "Daily Report", email_text, memo)             
+    except SMTPException as exc:
+        logger.info(f'There was an error sending email: {exc}') 
+        return {"mail_count":0, "error_message":str(exc)}
+
 
 def send_mass_email_service(user_list, message_subject, message_text, memo):
     '''

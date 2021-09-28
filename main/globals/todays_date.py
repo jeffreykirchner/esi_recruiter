@@ -28,7 +28,7 @@ def todays_time():
     get current tz adjusted time
     '''
 
-    prm = Parameters.objects.first()
+    prm = main.models.parameters.objects.first()
     tmz = pytz.timezone(prm.experimentTimeZone)
 
     d_today = datetime.now(tmz)

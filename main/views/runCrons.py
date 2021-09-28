@@ -1,13 +1,11 @@
-from django.shortcuts import render
-import json
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import Http404
 import logging
-from main.models import parameters
+import json
+
+
+from django.http import JsonResponse
+
 from main.cron import checkForReminderEmails
+from main.cron import check_send_daily_report_email
 
 def runCronsView(request):
     
@@ -23,16 +21,23 @@ def runCronsView(request):
        logger = logging.getLogger(__name__) 
        logger.info("Run Crons View")
        
+       #reminder emails
        cj = checkForReminderEmails()
 
        r = cj.do()
        logger.info(r)
        
-       status = f'Sent {r}'
+       status_reminder_email = f'Sent {r}'
 
-       return JsonResponse({"status" : status
-                                 },safe=False,
-                                )  
+       #daily report email
+       r = check_send_daily_report_email()
+       logger.info(r)
+
+       status_report_email = f'{r}'
+
+       return JsonResponse({"status reminder email" : status_reminder_email,
+                            "status report email" :   status_report_email,  
+                            },safe=False,)  
 
     
 
