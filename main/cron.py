@@ -80,14 +80,16 @@ def check_send_daily_report_email():
     if len(daily_email_report) > 0:
         return "Report has already been sent today"
 
-    start_day = today
+    today -= timedelta(days=1)
+
     #test code
     #start_day = today - timedelta(days=365)
+    start_day = today 
 
     paypal_history_list = get_paypal_history_list(start_day.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"))
     
     daily_email_report = DailyEmailReport()
-    daily_email_report.text = f"*** PayPal Report ***\n"
+    daily_email_report.text = f"*** PayPal report for {today.strftime('%m/%d/%Y')}***\n"
 
     if paypal_history_list["error_message"] == "":
         if len(paypal_history_list["history"]) == 0:
