@@ -1,6 +1,4 @@
 from django.db import models
-import logging
-import traceback
 
 #email domain a user must have for recruitment ie @ abc.edu
 class email_filters(models.Model):
