@@ -52,6 +52,7 @@ var app = new Vue({
         uploadEarningsMessage:'',
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
+        auto_add_users_on_upload : false,  
     },
 
     methods:{
@@ -468,6 +469,7 @@ var app = new Vue({
 
             let formData = new FormData();
             formData.append('file', app.$data.upload_file);
+            formData.append('auto_add', app.$data.auto_add_users_on_upload);
 
             axios.post('/experimentSessionRun/{{id}}/', formData,
                     {

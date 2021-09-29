@@ -822,7 +822,7 @@ class sessionRunTestCase(TestCase):
 
         file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
 
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'false').content.decode("UTF-8"))
         self.assertEqual(r['message'], "Error: Empty list")
 
         #malformed list
@@ -832,7 +832,7 @@ class sessionRunTestCase(TestCase):
 
         file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
 
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'false').content.decode("UTF-8"))
         self.assertIn("Failed to load earnings: invalid literal", r['message'])
 
         #add user
@@ -842,7 +842,7 @@ class sessionRunTestCase(TestCase):
 
         file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
 
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'true').content.decode("UTF-8"))
         self.assertIn("Earnings Imported", r['message'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()

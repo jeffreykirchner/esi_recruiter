@@ -39,7 +39,7 @@ def experimentSessionRunView(request, id_=None):
         try:
             #check for incoming file
             file_ = request.FILES['file']
-            return takeEarningsUpload(file_, id_, request.user)
+            return takeEarningsUpload(file_, id_, request.user, request.POST['auto_add'])
         except Exception  as exc:
             logger.info(f'experimentSessionRunView no file upload: {exc}')
             # return JsonResponse({"response" :  "error"},safe=False)
@@ -760,9 +760,9 @@ def noShowSubject(data, id, request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status}, safe=False)
 
 #upload subject earnings from a file
-def takeEarningsUpload(f, id, request_user):
+def takeEarningsUpload(f, id, request_user, auto_add_subjects):
     logger = logging.getLogger(__name__)
-    logger.info("Upload earnings")
+    logger.info(f"Upload earnings: auto add: {auto_add_subjects}")
 
     #logger.info(f)
 
@@ -812,7 +812,7 @@ def takeEarningsUpload(f, id, request_user):
                 m = f'Error: More than one user found for ID {i[0]}<br>'
             elif esdu.count() == 0:
                 #try to manually add user
-                if request_user.is_superuser:
+                if request_user.is_superuser and auto_add_subjects == 'true':
                     value = autoAddSubject(i[0], id, request_user, False)
 
                     #if error add to return message
