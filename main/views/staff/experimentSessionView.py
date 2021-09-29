@@ -95,6 +95,8 @@ def experimentSessionView(request,id):
 
     else: #GET             
 
+        p = parameters.objects.first()
+
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
@@ -108,6 +110,7 @@ def experimentSessionView(request,id):
                        'form2':experimentSessionForm2(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
+                       'max_invitation_block_size':p.max_invitation_block_size,
                        'helpText':helpText,
                        'session':experiment_sessions.objects.get(id=id)})
 
@@ -505,42 +508,30 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 #find list of subjects to invite based on recruitment parameters
 def findSubjectsToInvite(data,id):
     logger = logging.getLogger(__name__)
-    logger.info("Find subjects to invite")
-    logger.info(data)
+    logger.info(f"Find subjects to invite: {data}")
 
+    p = parameters.objects.first()
+
+    #check valid number
     if data["number"] == "":
         number = 0
     else:
         number = int(data["number"])
 
+    #check max block size
+    if number > p.max_invitation_block_size:
+        number = p.max_invitation_block_size
+
     es = experiment_sessions.objects.get(id=id)
 
     u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False,number)
-
-
-    #u_list = es.getValidUserListDjango([],True,0)
-
-    #check that invitation does not violate previously accepted invitations
-    # u_list_2=[]
-    # for u in u_list:
-    #     if not u.profile.check_for_future_constraints(es):
-    #         u_list_2.append(u)
-
-    #totalValid = len(u_list_2)
-
-    # logger.info("Randomly Select:" + str(number)+ " of " + str(totalValid))
-
-    # if number > len(u_list_2):
-    #     usersSmall = u_list_2
-    # else:  
-    #     usersSmall = random.sample(u_list_2,number)
 
     prefetch_related_objects(u_list_2,'profile')
 
     usersSmall2 = [u.profile.json_min() for u in u_list_2]
 
     return JsonResponse({"subjectInvitations" : usersSmall2,
-                         "status":"success",
+                         "status": "success",
                          "totalValid":len(u_list_2)}, safe=False)
 
 #update the recruitment parameters for this session
