@@ -1,20 +1,32 @@
+'''
+admin site
+'''
+
+from datetime import datetime, timedelta
+
+import pytz
+import logging
+
 from django.contrib import admin
-from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
-from main.forms import parametersForm, faqForm, helpDocForm, frontPageNoticeForm, InvitationEmailTemplateForm
-from django.contrib.admin import AdminSite
-from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from main.models import *
 from main.globals import send_mass_email_verify
-from datetime import datetime, timedelta
-import pytz
-import logging
+
+
 from django.db.models import Q,F,Value as V,Count
 from django.contrib.auth.hashers import make_password
 from django.db.models.functions import Lower
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+
+from main.forms import parametersForm
+from main.forms import faqForm
+from main.forms import helpDocForm
+from main.forms import frontPageNoticeForm
+from main.forms import InvitationEmailTemplateForm
+
 
 admin.site.register(accounts)
 admin.site.register(account_types)
@@ -95,17 +107,17 @@ class profile_traitAdmin(admin.ModelAdmin):
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(DjangoUserAdmin):
 
       ordering = ['-date_joined']
-      search_fields = ['last_name','first_name','email']
-      list_display = ['last_name', 'first_name','email','is_active','is_staff','date_joined']
+      search_fields = ['last_name', 'first_name', 'email']
+      list_display = ['last_name', 'first_name','email', 'is_active', 'is_staff','date_joined']
       actions = []
       list_filter = ('is_staff', 'is_active')
 
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
-
+      
       def activate_all(self, request, queryset):
 
             user_list = User.objects.filter(profile__in = queryset).exclude(is_staff = True)

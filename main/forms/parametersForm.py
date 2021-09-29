@@ -18,6 +18,9 @@ class parametersForm(forms.ModelForm):
     
     maxAnnualEarnings = forms.CharField(label='Max Annual Earnings ($)',
                                         widget=forms.NumberInput(attrs={}))
+
+    max_invitation_block_size = forms.CharField(label='Max Invitation Block Size',
+                                                widget=forms.NumberInput(attrs={}))
     
     siteURL = forms.CharField(label='Site URL',
                               widget=forms.TextInput(attrs={"size":"125"}))
