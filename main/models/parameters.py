@@ -22,6 +22,8 @@ class parameters(models.Model):
     paypal_email_subject = models.CharField(max_length=200, default="You have a payment from <your_org>.")     #subject of paypal payment emails
     paypal_email_body = models.CharField(max_length=200, default="thanks for your participation!")             #body of paypal payment email
 
+    max_invitation_block_size = models.IntegerField(default=100)                          #max number of subjects that can be invited in one invitation block
+
     noShowCutoff = models.IntegerField(default=3)                                         #if subject hits count in window they will not be invited
     noShowCutoffWindow = models.IntegerField(default=90)                                  #trailing window in days with which no shows are measured
 

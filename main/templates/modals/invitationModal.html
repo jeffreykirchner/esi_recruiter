@@ -11,11 +11,22 @@
             </div>
             <div class="modal-body">   
                 <div class="row">
-                    <div class = "col col-2">
+                    <div class = "col col-2 text-center">
+                        
                     </div>
                     <div class = "col col-8">                                                   
                         <div class="input-group mb-3">
-                            <input id="findInvitesInput" v-on:keyup.enter="findSubjectsToInvite()" v-model="subjectInvitationCount" id="id_number" type="number" class="form-control" placeholder="Number of Subjects to Add" aria-label="Invite subjects" aria-describedby="basic-addon2" min="0">
+                            <input id="findInvitesInput"
+                                   v-on:keyup.enter="findSubjectsToInvite()"
+                                   v-model="subjectInvitationCount"
+                                   id="id_number"
+                                   type="number"
+                                   class="form-control" 
+                                   placeholder="Number of Subjects to Add ({{max_invitation_block_size}} Max)" 
+                                   aria-label="Invite subjects" 
+                                   aria-describedby="basic-addon2"
+                                   min="0"
+                                   max="{{max_invitation_block_size}}">
                             <div class="input-group-append">
                                 <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find <i class="fas fa-search"></i></button>
                                 <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear <i class="fas fa-eraser"></i></button>
