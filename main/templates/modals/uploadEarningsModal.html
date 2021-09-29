@@ -26,9 +26,12 @@
                     </div>   
                 </div>
                 {%if user.is_superuser%}
-                <div class="row mt-2">
-                    <div class = "col" style="text-align: center;">
-                        Subjects will be automatically added if not in the session.
+                <div class="row mt-4">
+                    <div class = "col text-right">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="add_missing_subjects_id" v-model="auto_add_users_on_upload">
+                            <label class="form-check-label" for="add_missing_subjects_id">Add missing subjects.</label>
+                         </div>
                     </div>
                 </div>
                 {%endif%}
