@@ -281,5 +281,14 @@ class ProfileAdmin(admin.ModelAdmin):
 
         return form
 
+class DailyEmailReportAdmin(admin.ModelAdmin):
+      def has_add_permission(self, request, obj=None):
+            return False
+
+      readonly_fields=('text',)
+
+      ordering = ['-date']
+admin.site.register(DailyEmailReport, DailyEmailReportAdmin)
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

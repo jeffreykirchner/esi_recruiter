@@ -60,15 +60,23 @@ def get_history(request, data):
     Get the paypal history in the given range.
     '''
     logger = logging.getLogger(__name__)
-    logger.info("PayPal History")
-    logger.info(data)
+    logger.info(f"PayPal History {data}")
 
     #request.session['userSearchTerm'] = data["searchInfo"]            
+    history = get_paypal_history_list(data["startDate"], data["endDate"])
+
+    return JsonResponse({"history" : history['history'], "errorMessage":history['error_message']}, safe=False)
+
+def get_paypal_history_list(start_date, end_date):
+    '''
+    return a formated list of paypal payments over the specficed date range
+    date format YYYY-MM-DD
+
+    '''
+    logger = logging.getLogger(__name__)
+
     history = []
     error_message = ""
-    start_date = data["startDate"]
-    end_date = data["endDate"]
-
     try:
 
         #convert dates to UTC
@@ -104,7 +112,9 @@ def get_history(request, data):
     except Exception  as exce:
             logger.warning(f'PayPalHistory Error: {exce}')
             error_message = "Unable to retrieve history."
+    
+    return {'history' : history, 'error_message' : error_message}
 
-    return JsonResponse({"history" : history, "errorMessage":error_message}, safe=False)
+
 
 

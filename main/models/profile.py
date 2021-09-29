@@ -31,21 +31,21 @@ class profile(models.Model):
     subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
 
-    studentID = models.CharField(verbose_name="ID Number",max_length = 100,default="00000000",null=True,blank=True)  #student ID number
-    email_confirmed =  models.CharField(verbose_name="Email Confirmed",max_length = 100,default="no")                #yes/code/no
-    blackballed = models.BooleanField(verbose_name="Blackballed",default=False)                                      #if a subject is blackballed they will not be auto recruited
-    phone = models.CharField(verbose_name="Phone Number",max_length = 100,default="")                                #phone number of subject
-    studentWorker = models.BooleanField(verbose_name="Student Woker",default=False)                                  #true is subject is a student worker
-    paused = models.BooleanField(verbose_name="Paused",default=False)                                                #allows subject to pause getting invitations
-    w9Collected = models.BooleanField(verbose_name="W9 Form Collected",default=False)                                #true if a w9 tax form was collected from subject
-    nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien",default=False)                           #true is subject is a not a US Citizen or US Resident
+    studentID = models.CharField(verbose_name="ID Number", max_length=100, default="00000000", null=True, blank=True) #student ID number
+    email_confirmed =  models.CharField(verbose_name="Email Confirmed", max_length = 100, default="no")               #yes/code/no
+    blackballed = models.BooleanField(verbose_name="Blackballed", default=False)                                      #if a subject is blackballed they will not be auto recruited
+    phone = models.CharField(verbose_name="Phone Number", max_length = 100, default="")                               #phone number of subject
+    studentWorker = models.BooleanField(verbose_name="Student Woker", default=False)                                  #true is subject is a student worker
+    paused = models.BooleanField(verbose_name="Paused", default=False)                                                #allows subject to pause getting invitations
+    w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
+    nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien", default=False)                           #true is subject is a not a US Citizen or US Resident
 
-    consent_required = models.BooleanField(verbose_name="Consent Form Required",default=True)                         #true if the subject must agree to the current consent form  
+    consent_required = models.BooleanField(verbose_name="Consent Form Required", default=True)                        #true if the subject must agree to the current consent form  
+    send_daily_email_report = models.BooleanField(verbose_name="Send Daily Email Report", default=False)              #if true, send daily report of the past day's activity
+    password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 
-    password_reset_key = models.UUIDField(verbose_name = 'Password Reset Key',null=True,blank=True)                  #log in key used to reset subject password
-
-    timestamp = models.DateTimeField(verbose_name="Created On",auto_now_add= True)
-    updated= models.DateTimeField(verbose_name="Updated On",auto_now= True)
+    timestamp = models.DateTimeField(verbose_name="Created On", auto_now_add=True)
+    updated= models.DateTimeField(verbose_name="Updated On", auto_now=True)
 
     def __str__(self):
         return "%s, %s | Student ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)

@@ -1,7 +1,17 @@
 import logging
-from datetime import datetime,timedelta
 import pytz
+
+from datetime import datetime,timedelta
+
+from django.contrib.auth.models import User
+
 from main.models import experiment_session_days
+from main.models import DailyEmailReport
+
+from main.globals import send_daily_report
+from main.globals import todays_date
+
+from main.views import get_paypal_history_list
 
 class checkForReminderEmails():
 
@@ -49,4 +59,50 @@ class checkForReminderEmails():
             for e in esd_list2:
                 e.sendReminderEmail()
         
-        return {"standard": list(esd_list),"custom":list(esd_list2)}
+        return {"standard": list(esd_list), "custom":list(esd_list2)}
+
+def check_send_daily_report_email():
+    '''
+    send a daily email to specifed users
+    '''
+
+    logger = logging.getLogger(__name__)
+    logger.info("Send daily report")
+
+    status = ""
+    
+    today = todays_date()
+
+    daily_email_report = DailyEmailReport.objects.filter(date__day=today.day) \
+                                                 .filter(date__month=today.month) \
+                                                 .filter(date__year=today.year)
+
+    if len(daily_email_report) > 0:
+        return "Report has already been sent today"
+
+    today -= timedelta(days=1)
+
+    #test code
+    #start_day = today - timedelta(days=365)
+    start_day = today 
+
+    paypal_history_list = get_paypal_history_list(start_day.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"))
+    
+    daily_email_report = DailyEmailReport()
+    daily_email_report.text = f"*** PayPal report for {today.strftime('%m/%d/%Y')}***\n"
+
+    if paypal_history_list["error_message"] == "":
+        if len(paypal_history_list["history"]) == 0:
+            daily_email_report.text += f"---No payments today---\n"
+        else:
+            for h in paypal_history_list["history"]:
+                daily_email_report.text += f"{h['email']}: {h['amount']}\n"
+    else:
+        daily_email_report.text += f"Report Error: {paypal_history_list['error_message']}"
+    
+    daily_email_report.save()
+
+    user_list = User.objects.filter(profile__type=1) \
+                            .filter(profile__send_daily_email_report=True)
+
+    return send_daily_report(user_list, daily_email_report.text)
