@@ -1,0 +1,49 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+    <!-- Date-picker itself -->
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
+<link rel="stylesheet" href="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/css/bootstrap-datetimepicker.min.css"/>
+
+<script src="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-bootstrap-datetimepicker@5"></script>
+
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" integrity="sha256-DOS9W6NR+NFe1fUhEE0PGKY/fubbUCnOfTje2JMDw3Y=" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js" integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script> -->
+
+    <script type="text/javascript">            
+
+        $(document).ready(function(){  
+            {%include "staff/experiment_session/experiment_session.js"%}
+        }); 
+    </script>   
+
+    <style>
+        [v-cloak] {
+        display: none;
+        }
+    </style>
+
+{%endblock head%}
+
+{%block content%}    
+
+<div class="row justify-content-xl-center" v-cloak>
+    <div class="col col-md-12">
+        {%include "staff/experiment_session/experiment_session_card.html"%}
+    </div>
+</div>
+
+{%include "staff/experiment_session/manually_add_subject_modal.html"%}
+{%include "staff/experiment_session/cancel_session_modal.html"%}
+{%include "modals/sendMessageModal.html"%}
+{%include "modals/invitationModal.html"%}
+{%include "modals/editInvitationTextModal.html"%}
+{%include "modals/recruitmentModal.html"%}
+{%include "modals/editTraitsModal.html"%}
+{%include "modals/updateTraitModal.html"%}
+{%include "modals/sessionDayModal.html"%}
+{%include "modals/viewSubjectsModal.html"%}
+
+{%endblock content%}

@@ -1,0 +1,38 @@
+<!-- cancel session modal -->
+<div class="modal" id="cancelSessionModalCenter" tabindex="-1" role="dialog" aria-labelledby="manuallyAddSubjects" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cancel Session</h5>                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">   
+                   
+                <div class="row">
+                    <div class = "col">
+                        <textarea  v-model="session.cancelationText" id="cancelationText1" rows="5" cols="100%" disabled></textarea>
+                    </div>
+                </div>
+                <hr>                
+                <div class="row">
+                    <div class="col">
+                        <span v-html="subjectCancelationList"></span>
+                    </div>
+                </div>                
+
+            </div>
+            <div class="modal-footer">   
+                <div v-if="session.canceled == false">           
+                    <button type="button" class="btn btn-outline-danger" v-on:click = "cancelSessionDay()">
+                        Cancel Session <i class="fa fa-ban fa-xs"></i>
+                    </button>
+                </div>
+                <div v-else>
+                    <div style="color: red;">This session has been canceled.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

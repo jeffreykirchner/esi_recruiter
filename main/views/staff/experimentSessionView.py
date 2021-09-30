@@ -105,7 +105,7 @@ def experimentSessionView(request,id):
              helpText = "No help doc was found."
 
         return render(request,
-                      'staff/experimentSessionView.html',
+                      'staff/experimentSession.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
                        'form2':experimentSessionForm2(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
