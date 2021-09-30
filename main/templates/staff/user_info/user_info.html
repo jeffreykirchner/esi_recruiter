@@ -1,7 +1,11 @@
 <div class="card">                  
     <div class="card-header">
         User Information: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
-       
+        
+        {%if u.profile.type.name == "staff"%}
+        (Staff)
+        {%endif%}
+
         <span class="float-right">
             {%if user.is_superuser%}
             <a href="{%url 'subject_auto_login' u.id %}">
@@ -11,7 +15,7 @@
                 Edit Subject <i class="fas fa-edit fa-xs"></i>
             </a> |  
             {%endif%}
-            {%if u.profile.type.id == 2%}
+            {%if u.profile.type.name == "subject"%}
             <button type="button" class="btn btn-outline-success btn-sm" v-on:click = "showMakeNote()">
                 Make Note <i class="fas fa-sticky-note fa-xs"></i>
             </button>
@@ -35,6 +39,8 @@
                 <span class="float-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
             </div>                
         </div>
+
+        {%if u.profile.type.name == "subject"%}
         <div class = "row">
             <div class = "col"> 
                 <span class="float-right">Major:</span>                            
@@ -133,10 +139,10 @@
                 <span v-html="institutionsList"></span> 
             </div>
         </div>
-        
+        {%endif%}
         <br>
         <br>
-        {%if u.profile.type.id == 2%}                
+        {%if u.profile.type.name == 'subject'%}                
         <!-- notes table -->
         <table class="table table-hover table-condensed">
             <caption style="caption-side:top;text-align: center;">Notes</caption>

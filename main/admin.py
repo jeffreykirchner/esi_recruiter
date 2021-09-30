@@ -29,7 +29,7 @@ from main.forms import InvitationEmailTemplateForm
 
 
 admin.site.register(accounts)
-admin.site.register(account_types)
+#admin.site.register(account_types)
 admin.site.register(departments)
 admin.site.register(genders)
 admin.site.register(institutions)
