@@ -1,0 +1,44 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+<link rel="stylesheet" href="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/css/bootstrap-datetimepicker.min.css"/>
+<script src="https://unpkg.com/pc-bootstrap4-datetimepicker@4.17.50/build/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-bootstrap-datetimepicker@5"></script>
+
+<script type="text/javascript">            
+
+    $(document).ready(function(){  
+        {%include "staff/experiment_session/experiment_session.js"%}
+    }); 
+</script>   
+
+<style>
+    [v-cloak] {
+    display: none;
+    }
+</style>
+
+{%endblock head%}
+
+{%block content%}    
+
+<div class="row justify-content-xl-center" v-cloak>
+    <div class="col col-md-12">
+        {%include "staff/experiment_session/experiment_session_card.html"%}
+    </div>
+</div>
+
+{%include "staff/experiment_session/manually_add_subject_modal.html"%}
+{%include "staff/experiment_session/cancel_session_modal.html"%}
+{%include "modals/sendMessageModal.html"%}
+{%include "modals/invitationModal.html"%}
+{%include "modals/editInvitationTextModal.html"%}
+
+{%include "modals/editTraitsModal.html"%}
+{%include "modals/updateTraitModal.html"%}
+{%include "modals/sessionDayModal.html"%}
+{%include "modals/viewSubjectsModal.html"%}
+
+{%endblock content%}

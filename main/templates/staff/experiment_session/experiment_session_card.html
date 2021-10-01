@@ -1,0 +1,207 @@
+<div class="card">
+    <div class="card-header">
+        Experiment Session: <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a>
+    </div>
+
+    <div class="card-body">
+
+        {%include "snippits/recruitmentParametersTable.html"%}
+
+        <div class = "row mt-2">
+            <div class="col col-md-4 text-right">
+                
+            </div>
+            <div class="col col-md-8">
+                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()" v-bind:disabled="session.allowEdit === false">Invite Subjects <i class="fa fa-users"></i></button>
+                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
+                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
+                <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()"  v-bind:disabled="session.allowEdit === false"><span v-html = "cancelSessionButtonText"></span></button> 
+            </div>               
+        </div>                                   
+           
+        <!-- session day table -->
+        <div class="row mt-4">                   
+            <div class="col text-center">
+                <table class="table table-hover table-condensed table-responsive-xl">
+                    <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
+                    <thead>
+                        <th scope="col">
+                            <div class = "row" style="text-align: center;">
+                                <div class="col col-md-7" style="text-align: left;">
+                                    <div class="input-group" style="width: 150px;">
+                                        <input style="text-align: center;" type="number" min="1" class="form-control" placeholder="Count" aria-label="Recipient's username" aria-describedby="basic-addon2" v-model="multiDayCount">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                </div>
+                            </div>                                                                        
+                        </th> 
+                        <th scope="col" style="text-align: center;">
+                            Reminders Sent
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Confirmed/Invited
+                        </th>                                                      
+                        <th scope="col" style="text-align: center;">
+                            Setup
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Subjects
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Run
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Remove
+                        </th>
+                        
+                    </thead>
+                    <tbody id="sessionList">                       
+                        <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
+                            <td style="text-align: left;">
+                                <span v-if="sd.enable_time">
+                                    [[formatDate(sd.date_raw,false,false)]]
+                                </span>
+                                <span v-else>
+                                    [[formatDate(sd.date_raw,true,false)]] Anytime
+                                </span>
+                                <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
+
+                                <!-- room date time overlap -->
+                                <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
+                                    <a  v-bind:href='"/experimentSession/" + i.session_id' target="_self">
+                                       <span style="color: red;">Overlaping Session: [[i.name]]</span><br>
+                                    </a>
+                                </div>                                   
+                            </td>
+                            <td style="text-align: center;">
+                                <div v-if="sd.reminder_email_sent">
+                                    Yes&nbsp;
+                                    <span v-if="sd.reminder_email_sent_count != null">
+                                        ([[sd.reminder_email_sent_count]])
+                                    </span>
+                                </div>
+                                <div v-else>
+                                    No
+                                </div>
+                            </td>
+                            <td style="text-align: center;">                                        
+                                [[sd.confirmedCount]] / [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
+                            </td>                               
+                            <td style="text-align: center;">                                      
+                                <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
+                            </td>
+                            <td style="text-align: center;">                                      
+                                <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
+                            </td>    
+                            <td style="text-align: center;">                                        
+                                <button style="width:80px;" class="btn btn-link btn-sm" type="button" v-on:click = "runSession(sd.id)"> Run <i class="fas fa-running fa-xs"></i></i></button>
+                            </td> 
+                            <td style="text-align: center;">                                        
+                                <div v-show="session.experiment_session_days.length > 1">                                        
+                                    <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                </div>
+                            </td>                      
+                        </tr>                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <!-- invitations table -->
+        <div class="row">
+            <div class="col col-md-12">
+                <table class="table table-hover table-condensed table-responsive-xl">
+                    <caption style="caption-side:top;text-align: center;">Invitations (<span v-html="session.invitationCount"></span>)</caption>
+                    <thead>
+                        <th scope="col" width="50%">
+                            Messsage 
+                            <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInvitations()"><span v-html="showInvitationListButtonText"></span></button>                                    
+                        </th> 
+                        <th scope="col" width="40%" style="text-align: center;">
+                            Subjects
+                        </th>                                                      
+                        <th scope="col" width="15%" style="text-align: center;">
+                            Info
+                        </th>
+                    </thead>
+                    <tbody id="messgeList">                       
+                        <tr v-for="(m,index) in invitationList" v-bind:key="m.id">                                                                          
+                            <td>                                        
+                                <div v-html="'Subject: ' + m.subjectText"></div> 
+                                <br>
+                                <div v-html="m.messageText"></div>  
+                                <br>
+                                <div v-html="'Parameters:'"></div>
+                                <div v-html="m.recruitment_params"></div>                                                                          
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <div v-html="m.emailMessageList"></div>                                                                                
+                            </td>                               
+                            <td style="text-align: center;">                                       
+                                <div v-html="m.date_raw"></div>
+                                <br>
+                                <div v-html="'Email Count:<br>'+ m.mailResultSentCount"></div>
+                                <div v-if="m.mailResultErrorText != ''">
+                                    <br>
+                                    <div v-html="'Error: <br>' + m.mailResultErrorText"></div>
+                                </div>                                       
+                            </td>                            
+                        </tr>                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <!-- messages table -->
+        <div class="row">
+            <div class="col col-md-12">
+                <table class="table table-hover table-condensed table-responsive-xl">
+                    <caption style="caption-side:top;text-align: center;">Messages (<span v-html="session.messageCount"></span>)</caption>
+                    <thead>
+                        <th scope="col" width="50%">
+                            Messsage 
+                            <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showMessages()"><span v-html="showMessageListButtonText"></span></button> 
+                            
+                        </th> 
+                        <th scope="col" width="40%" style="text-align: center;">
+                            Subjects
+                        </th>                                                      
+                        <th scope="col" width="15%" style="text-align: center;">
+                            Info
+                        </th>
+                    </thead>
+                    <tbody id="messgeList">                       
+                        <tr v-for="(m,index) in messageList" v-bind:key="m.id">                                                                          
+                            <td>                                        
+                                <div v-html="'Subject: ' + m.subjectText"></div> 
+                                <br>
+                                <div v-html="m.messageText"></div>                                                                           
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <div v-html="m.emailMessageList"></div>                                                                                
+                            </td>                               
+                            <td style="text-align: center;">                                       
+                                <div v-html="m.date_raw"></div>
+                                <br>
+                                <div v-html="'Email Count:<br>'+ m.mailResultSentCount"></div>
+                                <div v-if="m.mailResultErrorText != ''">
+                                    <br>
+                                    <div v-html="'Error: <br>' + m.mailResultErrorText"></div>
+                                </div>                                       
+                            </td>                            
+                        </tr>                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>      
+</div>

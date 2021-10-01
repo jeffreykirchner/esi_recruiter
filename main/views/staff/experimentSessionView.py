@@ -105,7 +105,7 @@ def experimentSessionView(request,id):
              helpText = "No help doc was found."
 
         return render(request,
-                      'staff/experimentSessionView.html',
+                      'staff/experimentSession.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
                        'form2':experimentSessionForm2(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
@@ -122,7 +122,7 @@ def getSesssion(data,id):
 
     es = experiment_sessions.objects.get(id=id)
     
-    logger.info(es.recruitment_params)
+    # logger.info(es.recruitment_params)
 
     return JsonResponse({"session" :  es.json(),
                          "experiment_invitation_text" : es.experiment.invitationText,

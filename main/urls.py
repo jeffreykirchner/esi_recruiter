@@ -42,6 +42,7 @@ urlpatterns = [
     path('experimentSearch/', views.experimentSearch, name='experimentSearch'),
     path('experiment/<id>/', views.experimentView, name='experimentView'),
     path('experimentSession/<id>/', views.experimentSessionView, name='experimentSessionView'),
+    path('experimentSessionParameters/<id>/', views.experimentSessionParametersView, name='experimentSessionParametersView'),
     path('experimentSessionRun/<id_>/', views.experimentSessionRunView, name='experimentSessionRunView'),
     path('experimentSessionPayouts/<id>/<payGroup>/', views.experimentSessionPayoutsView, name='experimentSessionPayoutsView'),
     path('calendar/<int:month>/<int:year>/', views.calendarView, name='calendarView'),
