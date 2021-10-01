@@ -1,3 +1,6 @@
+'''
+build main.views
+'''
 from .userSearch import *
 from .userInfo import *
 from .experimentView import *
@@ -11,3 +14,4 @@ from .traitsView import *
 from .sessionsOpen import *
 from .payPalHistory import *
 from .subject_auto_login import *
+from .experimentSessionParametersView import *

@@ -534,11 +534,13 @@ var app = new Vue({
 
         // fire when edit experiment model is shown, save copy for cancel
         showEditRecruitment:function(){
-            app.$data.cancelModal=true;
-            app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
-            app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
-            $('#recruitmentModalCenter').modal('show');
-            app.clearMainFormErrors();
+            // app.$data.cancelModal=true;
+            // app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+            // app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
+            // $('#recruitmentModalCenter').modal('show');
+            // app.clearMainFormErrors();
+
+            window.open("{%url 'experimentSessionParametersView' session.id %}","_self");
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
