@@ -41,6 +41,7 @@ urlpatterns = [
     path('userInfo/<id>/', views.userInfo, name='userInfo'),
     path('experimentSearch/', views.experimentSearch, name='experimentSearch'),
     path('experiment/<id>/', views.experimentView, name='experimentView'),
+    path('experimentParameters/<id>/', views.experimentSessionParametersView, name='experimentParametersView'),
     path('experimentSession/<id>/', views.experimentSessionView, name='experimentSessionView'),
     path('experimentSessionParameters/<id>/', views.experimentSessionParametersView, name='experimentSessionParametersView'),
     path('experimentSessionRun/<id_>/', views.experimentSessionRunView, name='experimentSessionRunView'),

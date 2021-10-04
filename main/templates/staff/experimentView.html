@@ -438,10 +438,11 @@
 
                     // fire when edit experiment model is shown, save copy for cancel
                     showEditExperiment:function(){
-                        app.$data.cancelModal=true;
-                        app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
-                        $('#setupModalCenter').modal('show');
-                        app.clearMainFormErrors();
+                        // app.$data.cancelModal=true;
+                        // app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
+                        // $('#setupModalCenter').modal('show');
+                        // app.clearMainFormErrors();
+                        window.open("{%url 'experimentParametersView' id %}","_self");
                     },
 
                     //fire when edit experiment model hides, cancel action if nessicary
