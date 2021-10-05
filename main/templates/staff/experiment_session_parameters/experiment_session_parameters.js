@@ -28,6 +28,7 @@ var app = new Vue({
             },
         confirmedCount:0,
         loading:true,
+        recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         buttonText1:"Update",                 //recruitment parameters update button text                   
     },
 
@@ -36,16 +37,11 @@ var app = new Vue({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            for(var item in app.$data.currentSessionDay)
+            s = app.$data.recruitment_parameters_form_ids;
+            for(var i in s)
             {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
-            }
-
-            for(var item in app.$data.session)
-            {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+                $("#id_" + s[i]).attr("class","form-control");
+                $("#id_errors_" + s[i]).remove();
             }
         },
 

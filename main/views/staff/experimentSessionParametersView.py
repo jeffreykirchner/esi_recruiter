@@ -23,16 +23,6 @@ import json
 from django.conf import settings
 import logging
 from django.db.models import CharField, Q, F, Value as V, Subquery
-from django.contrib.auth.models import User
-import random
-import datetime
-from django.db.models import prefetch_related_objects
-from .userSearch import lookup
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db import IntegrityError
-from main.globals import send_mass_email_service
-from datetime import timedelta
-import pytz
 
 #induvidual experiment view
 @login_required
@@ -66,9 +56,15 @@ def experimentSessionParametersView(request, id):
         except Exception  as e:   
              helpText = "No help doc was found."
 
+        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form_ids=[]
+        for i in recruitment_parameters_form:
+            recruitment_parameters_form_ids.append(i.html_name)
+
         return render(request,
                       'staff/experimentSessionParameters.html',
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
+                      {'updateRecruitmentParametersForm':recruitment_parameters_form,    
+                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,
                        'helpText':helpText,
                        'session':experiment_sessions.objects.get(id=id)})
 

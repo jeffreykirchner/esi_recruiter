@@ -106,8 +106,7 @@ def experimentSessionView(request,id):
 
         return render(request,
                       'staff/experimentSession.html',
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
-                       'form2':experimentSessionForm2(),      
+                      {'form2':experimentSessionForm2(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
                        'max_invitation_block_size':p.max_invitation_block_size,

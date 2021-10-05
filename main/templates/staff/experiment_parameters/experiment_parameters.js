@@ -26,6 +26,7 @@ var app = new Vue({
                 experiments_include:[],
                 trait_constraints:[],
             },
+        recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         confirmedCount:0,
         session:{confirmedCount:0},             //recruitment form parameter
         loading:true,
@@ -37,16 +38,11 @@ var app = new Vue({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            for(var item in app.$data.currentSessionDay)
+            s = app.$data.recruitment_parameters_form_ids;
+            for(var i in s)
             {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
-            }
-
-            for(var item in app.$data.experiment)
-            {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+                $("#id_" + s[i]).attr("class","form-control");
+                $("#id_errors_" + s[i]).remove();
             }
         },
 

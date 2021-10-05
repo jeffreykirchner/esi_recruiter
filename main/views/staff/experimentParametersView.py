@@ -48,10 +48,16 @@ def experimentParametersView(request, id):
 
         except Exception  as e:   
              helpText = "No help doc was found."
+        
+        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form_ids=[]
+        for i in recruitment_parameters_form:
+            recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
                       'staff/experimentParameters.html',
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
+                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
                        'experiment':experiments.objects.get(id=id)})
 

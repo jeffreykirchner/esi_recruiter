@@ -222,40 +222,6 @@
                             });                        
                     },
 
-                    //update recruitment parameters
-                    updateRecruitmentParameters: function(){   
-
-                        app.$data.cancelModal=false;
-
-                        axios.post('/experiment/{{id}}/', {
-                                status :"updateRecruitmentParameters" ,                                
-                                formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
-                            })
-                            .then(function (response) {                                   
-                                status=response.data.status;                               
-
-                                app.clearMainFormErrors();
-
-                                if(status=="success")
-                                {                           
-                                    app.$data.recruitment_params = response.data.recruitment_params;  
-                                    app.updateDisplayLists();      
-                                    $('#recruitmentModalCenter').modal('toggle');
-                                }
-                                else
-                                {     
-                                    app.$data.cancelModal=true;                           
-                                    app.displayErrors(response.data.errors);
-                                }          
-
-                                app.$data.buttonText2="Update"                      
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-
-                            });                        
-                    },
-
                     //add new session to experiment
                     addSession: function(){
                         app.$data.addSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
