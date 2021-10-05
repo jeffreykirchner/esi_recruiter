@@ -1,33 +1,27 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from main.decorators import user_is_staff
-from main.models import experiment, \
-                        experiment_session_day_users, \
-                        experiment_sessions, \
-                        institutions, \
-                        experiments, \
-                        parameters,\
-                        experiment_session_messages,\
-                        experiment_session_invitations,\
-                        recruitment_parameters,\
-                        help_docs,\
-                        Recruitment_parameters_trait_constraint,\
-                        Traits
-from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
-from django.http import JsonResponse
 import json
 import logging
+
+from django.shortcuts import render
+from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.db.models import CharField, Q, F, Value as V, Subquery
+from django.core.exceptions import ObjectDoesNotExist
 
+from main.decorators import user_is_staff
 
-#induvidual experiment view
+from main.models import experiments
+from main.models import parameters
+from main.models import help_docs
+
+from main.forms import recruitmentParametersForm
+
 @login_required
 @user_is_staff
 def experimentParametersView(request, id):
-       
+    '''
+    view experiment default recruitment paramters
+    '''
     status = ""      
 
     if request.method == 'POST':
@@ -35,9 +29,9 @@ def experimentParametersView(request, id):
         data = json.loads(request.body.decode('utf-8'))         
 
         try:
-            e = experiment.objects.get(id=id)  
-        except e.DoesNotExist:
-            raise Http404('Experiment Not Found')               
+            e = experiments.objects.get(id=id)     
+        except ObjectDoesNotExist :
+            raise Http404('Experiment Not Found')             
 
         if data["status"] == "get":            
             return getExperiment(data,id)
@@ -56,28 +50,27 @@ def experimentParametersView(request, id):
              helpText = "No help doc was found."
 
         return render(request,
-                      'staff/experimentSessionParameters.html',
+                      'staff/experimentParameters.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),    
                        'helpText':helpText,
-                       'session':experiment_sessions.objects.get(id=id)})
+                       'experiment':experiments.objects.get(id=id)})
 
 #get session info the show screen at load
 def getExperiment(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"get session paramters {data}")
 
-    e = experiment.objects.get(id=id)
+    e = experiments.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
-    return JsonResponse({"session" : e.json(),
-                         "recruitment_params":e.recruitment_params.json()}, safe=False)
+    return JsonResponse({"experiment" : e.json(),
+                         "recruitment_params":e.recruitment_params_default.json()}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):
     logger = logging.getLogger(__name__)
-    logger.info("Update default recruitment parameters")
-    logger.info(data)
+    logger.info(f"Update default recruitment parameters: {data}")
 
     e = experiments.objects.get(id=id)
 

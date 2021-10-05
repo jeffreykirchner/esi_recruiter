@@ -62,7 +62,7 @@ var app = new Vue({
 
                     if(status=="success")
                     {                                 
-                        window.open("{%url 'experimentSessionView' session.id %}","_self");
+                        window.open("{%url 'experimentSessionView' session.id %}", "_self");
                     }
                     else
                     {                                

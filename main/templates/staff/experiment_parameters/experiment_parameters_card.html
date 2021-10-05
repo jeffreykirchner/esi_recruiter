@@ -2,9 +2,7 @@
 
 <div class="card" >                  
     <div class="card-header" >
-      Parameters Session Day : <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a> | 
-                               <a href="{% url 'experimentSessionView' session.id %}">Session</a>
-
+      Default Parameters : <a href="{% url 'experimentView' experiment.id %}">{{experiment}}</a>
         <span class="float-right" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
     </div>
     <div class="card-body" v-cloak>  

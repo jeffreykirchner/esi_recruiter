@@ -7,7 +7,7 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     el: '#root',        
     data:{        
-        session : {},
+        experiment : {},
         recruitment_params:{                          //recruiment parameters
                 gender:[],
                 actual_participants:0,
@@ -27,6 +27,7 @@ var app = new Vue({
                 trait_constraints:[],
             },
         confirmedCount:0,
+        session:{confirmedCount:0},             //recruitment form parameter
         loading:true,
         buttonText1:"Update",                 //recruitment parameters update button text                   
     },
@@ -42,7 +43,7 @@ var app = new Vue({
                 $("#id_errors_" + item).remove();
             }
 
-            for(var item in app.$data.session)
+            for(var item in app.$data.experiment)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
@@ -78,15 +79,15 @@ var app = new Vue({
             },
 
         
-        //gets session info from the server
-        getSession: function(){
+        //gets experiment info from the server
+        getExperiment: function(){
             axios.post('{{ request.path }}', {
                     status:"get",                                                              
                 })
                 .then(function (response) {                                                                   
                    
                     app.$data.recruitment_params = response.data.recruitment_params;    
-                    app.$data.session = response.data.session;                            
+                    app.$data.experiment = response.data.experiment;                            
                     app.$data.loading = false;
                 })
                 .catch(function (error) {
@@ -124,7 +125,7 @@ var app = new Vue({
 
     //run when vue is mounted
     mounted: function(){
-        this.getSession();
+        this.getExperiment();
     },                 
 
 });
