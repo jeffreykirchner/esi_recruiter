@@ -1,34 +1,27 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from main.decorators import user_is_staff
-from main.models import experiment_session_days, \
-                        experiment_session_day_users, \
-                        experiment_sessions, \
-                        institutions, \
-                        experiments, \
-                        parameters,\
-                        experiment_session_messages,\
-                        experiment_session_invitations,\
-                        recruitment_parameters,\
-                        help_docs,\
-                        Recruitment_parameters_trait_constraint,\
-                        Traits
-from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
 import json
-from django.conf import settings
 import logging
-from django.db.models import CharField, Q, F, Value as V, Subquery
 
-#induvidual experiment view
+from django.shortcuts import render
+from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.db.models import CharField, Q, F, Value as V, Subquery
+from django.core.exceptions import ObjectDoesNotExist
+
+from main.decorators import user_is_staff
+
+from main.models import experiments
+from main.models import parameters
+from main.models import help_docs
+
+from main.forms import recruitmentParametersForm
+
 @login_required
 @user_is_staff
-def experimentSessionParametersView(request, id):
-       
+def experimentParametersView(request, id):
+    '''
+    view experiment default recruitment paramters
+    '''
     status = ""      
 
     if request.method == 'POST':
@@ -36,12 +29,12 @@ def experimentSessionParametersView(request, id):
         data = json.loads(request.body.decode('utf-8'))         
 
         try:
-            es = experiment_sessions.objects.get(id=id)  
-        except es.DoesNotExist:
-            raise Http404('Experiment Not Found')               
+            e = experiments.objects.get(id=id)     
+        except ObjectDoesNotExist :
+            raise Http404('Experiment Not Found')             
 
         if data["status"] == "get":            
-            return getSesssion(data,id)
+            return getExperiment(data,id)
         elif data["status"] == "updateRecruitmentParameters":
             return updateRecruitmentParameters(data,id)                     
 
@@ -55,39 +48,38 @@ def experimentSessionParametersView(request, id):
 
         except Exception  as e:   
              helpText = "No help doc was found."
-
+        
         recruitment_parameters_form = recruitmentParametersForm()
         recruitment_parameters_form_ids=[]
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
-                      'staff/experimentSessionParameters.html',
-                      {'updateRecruitmentParametersForm':recruitment_parameters_form,    
-                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,
+                      'staff/experimentParameters.html',
+                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
-                       'session':experiment_sessions.objects.get(id=id)})
+                       'experiment':experiments.objects.get(id=id)})
 
 #get session info the show screen at load
-def getSesssion(data,id):
+def getExperiment(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"get session paramters {data}")
 
-    es = experiment_sessions.objects.get(id=id)
+    e = experiments.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
-    return JsonResponse({"session" : es.json(),
-                         "recruitment_params":es.recruitment_params.json()}, safe=False)
+    return JsonResponse({"experiment" : e.json(),
+                         "recruitment_params":e.recruitment_params_default.json()}, safe=False)
 
 #update the recruitment parameters for this session
 def updateRecruitmentParameters(data,id):
     logger = logging.getLogger(__name__)
-    logger.info("Update recruitment form")
-    logger.info(data)
+    logger.info(f"Update default recruitment parameters: {data}")
 
-    es = experiment_sessions.objects.get(id=id)
-    
+    e = experiments.objects.get(id=id)
+
     form_data_dict = {} 
 
     genderList=[]
@@ -126,20 +118,17 @@ def updateRecruitmentParameters(data,id):
     form_data_dict["experiments_exclude"]=experimentsExcludeList
     form_data_dict["experiments_include"]=experimentsIncludeList
     form_data_dict["schools_exclude"]=schoolsExcludeList
-    form_data_dict["schools_include"]=schoolsIncludeList 
-
-    #if a subject has confirmed cannot some parameters
-    if es.getConfirmedCount() > 0:
-        form_data_dict["allow_multiple_participations"] = "1" if es.recruitment_params.allow_multiple_participations else "0"
+    form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
+    form = recruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
 
     if form.is_valid():
-        #print("valid form")                
-        form.save()               
-        return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+        #print("valid form")                                
+        form.save()    
+                                    
+        return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
     else:
-        logger.info("invalid recruitment form")
+        print("invalid form2")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
