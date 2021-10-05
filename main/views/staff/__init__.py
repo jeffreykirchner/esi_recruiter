@@ -15,3 +15,4 @@ from .sessionsOpen import *
 from .payPalHistory import *
 from .subject_auto_login import *
 from .experimentSessionParametersView import *
+from .experimentParametersView import *

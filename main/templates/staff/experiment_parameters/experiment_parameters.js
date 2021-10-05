@@ -7,7 +7,7 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     el: '#root',        
     data:{        
-        session : {},
+        experiment : {},
         recruitment_params:{                          //recruiment parameters
                 gender:[],
                 actual_participants:0,
@@ -26,9 +26,10 @@ var app = new Vue({
                 experiments_include:[],
                 trait_constraints:[],
             },
-        confirmedCount:0,
-        loading:true,
         recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
+        confirmedCount:0,
+        session:{confirmedCount:0},             //recruitment form parameter
+        loading:true,
         buttonText1:"Update",                 //recruitment parameters update button text                   
     },
 
@@ -58,7 +59,7 @@ var app = new Vue({
 
                     if(status=="success")
                     {                                 
-                        window.open("{%url 'experimentSessionView' session.id %}", "_self");
+                        window.open("{%url 'experimentView' experiment.id %}","_self");
                     }
                     else
                     {                                
@@ -74,15 +75,15 @@ var app = new Vue({
             },
 
         
-        //gets session info from the server
-        getSession: function(){
+        //gets experiment info from the server
+        getExperiment: function(){
             axios.post('{{ request.path }}', {
                     status:"get",                                                              
                 })
                 .then(function (response) {                                                                   
                    
                     app.$data.recruitment_params = response.data.recruitment_params;    
-                    app.$data.session = response.data.session;                            
+                    app.$data.experiment = response.data.experiment;                            
                     app.$data.loading = false;
                 })
                 .catch(function (error) {
@@ -120,7 +121,7 @@ var app = new Vue({
 
     //run when vue is mounted
     mounted: function(){
-        this.getSession();
+        this.getExperiment();
     },                 
 
 });
