@@ -16,12 +16,21 @@ def loginView(request):
     
     if request.method == 'POST':
 
-        data = json.loads(request.body.decode('utf-8'))
+        request_body = ""
+        data = ""
 
-        if data["action"] == "login":
-            return login_function(request,data)
+        try:
+            request_body = request.body.decode('utf-8')
+            data = json.loads(request_body)
 
-        return JsonResponse({"response" :  "error"},safe=False)
+            if data["action"] == "login":
+                return login_function(request,data)
+
+            return JsonResponse({"response" :  "error"},safe=False)
+
+        except ValueError as err:
+            logger.warning(f"loginView: JSON format error, {str(err)}, request_body {request_body}, data {data}")
+            return JsonResponse({"response" :  "error"},safe=False)
 
     else:
         logout(request)
