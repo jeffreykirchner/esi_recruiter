@@ -42,7 +42,11 @@ def userSearch(request):
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        activeCount = User.objects.filter(is_active = True,profile__type__id = 2,profile__email_confirmed = 'yes').count()
+        activeCount = User.objects.filter(is_active = True,
+                                          profile__type__id = 2,
+                                          profile__email_confirmed = 'yes',
+                                          profile__paused = False).count()
+
         return render(request,'staff/userSearch.html',{"activeCount":activeCount,"helpText":helpText})     
 
 #send an email to active users
@@ -57,7 +61,10 @@ def sendEmail(request, data):
         subjectText = data["subject"]
         messageText = data["text"]
 
-        users_list = User.objects.filter(is_active=True, profile__email_confirmed='yes', profile__type__id=2)
+        users_list = User.objects.filter(is_active=True,
+                                         profile__email_confirmed='yes',
+                                         profile__paused = False,
+                                         profile__type__id=2)
 
         #debug
         #users_list = users_list[:5]
