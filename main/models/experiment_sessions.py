@@ -1,19 +1,15 @@
-from django.db import models
-import logging
-import traceback
-from django.urls import reverse
-import main
-import json
-from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.auth.models import User
-from datetime import datetime, timedelta, timezone
-import pytz
 from random import randrange
-from django.contrib.auth.models import User
+from datetime import datetime
 
+import logging
+import pytz
+
+from django.db import models
+from django.urls import reverse
+from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
-
+from django.urls import reverse
 from django.db.models import Q, F, Value as V, Count
 
 from main.models import experiments, parameters, recruitment_parameters, parameters
@@ -79,11 +75,12 @@ class experiment_sessions(models.Model):
 
         message = str(self.invitation_text)
 
-        message = message.replace("[confirmation link]",p.siteURL)
+        message = message.replace("[confirmation link]", p.siteURL)
         message = message.replace("[session length]",self.getSessionDayLengthString())
         message = message.replace("[session date and time]",self.getSessionDayDateString())
         message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
-        message = message.replace("[contact email]",p.labManager.email)
+        message = message.replace("[contact email]", p.labManager.email)
+        message = message.replace("[profile link]",p.siteURL + reverse('profile'))
 
         return message
     
