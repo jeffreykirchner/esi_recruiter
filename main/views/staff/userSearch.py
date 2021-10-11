@@ -78,7 +78,7 @@ def sendEmail(request, data):
         
         memo = f'Send message to all active users'
 
-        mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
 
         #logger.info(emailList)
     else:

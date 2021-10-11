@@ -175,7 +175,7 @@ def sendMessage(data, id):
             
     memo = f'Send message to session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
 
     #logger.info(userPkList)
 
@@ -230,7 +230,7 @@ def cancelSession(data, id):
                 
         memo = f'Cancel session: {es.id}'
 
-        mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
 
         logger.info(userPkList)
 
@@ -295,7 +295,7 @@ def inviteSubjects(data, id, request):
             
     memo = f'Send invitations for session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
 
     if(mail_result["error_message"] != ""):
         status = "fail"
@@ -486,7 +486,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
             
             memo = f'Manual invitation for session: {es.id}'
 
-            mail_result = send_mass_email_service(user_list, subjectText, messageText, memo)
+            mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
 
         else:
             mail_result =  {"mail_count":0, "error_message":""}    

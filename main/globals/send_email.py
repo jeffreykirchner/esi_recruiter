@@ -45,7 +45,7 @@ def send_mass_email_verify(profile_list, request):
     memo = 'Bulk account deactivation'
 
     try:
-        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText, memo)             
+        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText, None, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -69,7 +69,7 @@ def profile_create_send_email(user):
     memo = f'Verfiy email address for user {user.id}'
 
     try:
-        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, memo)             
+        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, None, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -92,13 +92,12 @@ def send_daily_report(user_list, email_text):
     memo = f'Daily email report for {today.strftime("%#m/%#d/%Y")}'
 
     try:
-        return send_mass_email_service(user_list_valid, "Daily Report", email_text, memo)             
+        return send_mass_email_service(user_list_valid, "Daily Report", email_text, None, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
 
-
-def send_mass_email_service(user_list, message_subject, message_text, memo):
+def send_mass_email_service(user_list, message_subject, message_text, message_text_html, memo):
     '''
     send mass email through ESI mass pay service
     returns : {mail_count:int, error_message:str}
@@ -128,6 +127,7 @@ def send_mass_email_service(user_list, message_subject, message_text, memo):
     data = {"user_list" : user_list,
             "message_subject" : message_subject,
             "message_text" : message_text,
+            "message_text_html" : message_text_html,
             "memo" : memo}
     
     logger.info(f"ESI mass email API: users: {user_list}, message_subject : {message_subject}, message_text : {message_text}")
