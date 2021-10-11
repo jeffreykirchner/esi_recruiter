@@ -74,7 +74,7 @@ def profile_create_send_email(user):
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
 
-def send_daily_report(user_list, email_text):
+def send_daily_report(user_list, email_text, email_text_html):
     '''
     send daily report to specified users
     '''
@@ -92,7 +92,7 @@ def send_daily_report(user_list, email_text):
     memo = f'Daily email report for {today.strftime("%#m/%#d/%Y")}'
 
     try:
-        return send_mass_email_service(user_list_valid, "Daily Report", email_text, None, memo)             
+        return send_mass_email_service(user_list_valid, "Daily Report", email_text, email_text_html, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
