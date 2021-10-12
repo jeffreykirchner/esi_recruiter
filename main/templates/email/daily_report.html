@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESI Recruiter Daily Report</title>
+
+<style>
+.table_header {
+    text-align: left;
+}
+
+.table {
+    border-spacing: 5px;
+}
+</style>
+
+</head>
+<body>
+
+<h4>*** PayPal report for {{report_date}} ***</h4>
+
+{%if error_message != ""%}
+    Report Error: {{error_message}}
+{%else%}
+    <table class="table">
+        <tr>
+            <th class="table_header">Email</th>
+            <th class="table_header">Payment</th>
+        </tr>
+
+        {%if payments|length == 0%}
+          <tr>--No payments today--<tr>
+        {%else%}
+
+            {% for p in payments %}
+                <tr>
+                   <td class="table_data">{{p.email}}</td> 
+                   <td>{{p.amount}}</td>
+                </tr>
+            {% endfor %}
+        {%endif%}
+    </table>
+{%endif%}
+
+
+
+</body>
+</html>
