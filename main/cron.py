@@ -80,14 +80,14 @@ def check_send_daily_report_email():
                                                  .filter(date__month=today.month) \
                                                  .filter(date__year=today.year)
 
-    # if len(daily_email_report) > 0:
-    #     return "Report has already been sent today"
+    if len(daily_email_report) > 0:
+        return "Report has already been sent today"
 
     today -= timedelta(days=1)
 
     #test code
-    start_day = today - timedelta(days=365)
-    #start_day = today 
+    #start_day = today - timedelta(days=365)
+    start_day = today 
 
     paypal_history_list = get_paypal_history_list(start_day.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"))
     
