@@ -1,12 +1,13 @@
 '''
 History of transanctions send to PayPal API.
 '''
-import json
-import logging
 from datetime import datetime, timedelta
 
+import json
+import logging
 import requests
 import pytz
+from requests.utils import quote
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -77,16 +78,22 @@ def get_paypal_history_list(start_date, end_date):
 
     history = []
     error_message = ""
+
+    param = parameters.objects.first()
+    tmz = pytz.timezone(param.subjectTimeZone)
+
     try:
 
         #convert dates to UTC
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
 
-        start_date = make_tz_aware_utc(start_date, 0, 0, 0).date()
-        end_date = make_tz_aware_utc(end_date, 23, 59, 59).date()
+        # start_date = make_tz_aware_utc(start_date, 0, 0, 0).date()
+        # end_date = make_tz_aware_utc(end_date, 23, 59, 59).date()
 
-        req = requests.get(f'{settings.PPMS_HOST}/payments/{start_date}/{end_date}',
+        subject_time_zone_safe = quote(param.subjectTimeZone, safe='')
+
+        req = requests.get(f'{settings.PPMS_HOST}/payments/{start_date}/{end_date}/{subject_time_zone_safe}',
                            auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)))
 
         #logger.info(r.status_code)
@@ -94,10 +101,7 @@ def get_paypal_history_list(start_date, end_date):
         if req.status_code != 200:
             error_message = req.json().get("detail")
         else:
-            history = req.json()
-
-            param = parameters.objects.first()
-            tmz = pytz.timezone(param.subjectTimeZone)
+            history = req.json()            
 
             for hst in history:
                 #convert earnings
@@ -106,7 +110,6 @@ def get_paypal_history_list(start_date, end_date):
 
                 #convert date
                 hst["timestamp"] = datetime.strptime(hst["timestamp"], '%m/%d/%Y %H:%M:%S %Z')
-
                 hst["timestamp"] = hst["timestamp"].astimezone(tmz).strftime("%#m/%#d/%Y %#I:%M %p")
 
     except Exception  as exce:
