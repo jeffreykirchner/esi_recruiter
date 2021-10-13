@@ -124,17 +124,32 @@
     <div class="col">
         <div class="card">                  
             <div class="card-header">
-                <span class="align-middle">Open Sessions</span>     
+                <div class="row mb-1 mb-md-0">
+                    <div class="col-md-3 align-middle">
+                        Open Sessions
+                    </div>
+                    <div class="col-md">
+                        <div class="float-md-right">
+                            <div class="row">
+                                <div class="col-md-auto align-middle mb-1 mb-md-0 p-1">
+                                    [[last_refresh]]
+                                </div>
+                                <div class="col-md-auto mb-1 mb-md-0 p-1">
+                                    <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()" title="Automatically refresh the table once per minute.">
+                                        <span v-html="autoRefreshButtonText"></span>
+                                    </button>
+                                </div>
+                                <div class="col-md-auto p-1">
+                                    <button v-if="isAdmin" class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()" title="Mark all sessions as 'Complete'.">
+                                        <span v-html="closeAllButtonText"></span>
+                                    </button> 
+                                </div>
+                            </div>       
+                        </div>
+                    </div>
+                </div>  
                 
-                <span class="float-right">
-                    [[last_refresh]]
-                    <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()" title="Automatically refresh the table once per minute.">
-                        <span v-html="autoRefreshButtonText"></span>
-                    </button>
-                    <button v-if="isAdmin" class="btn btn-outline-primary" type="button" v-on:click = "closeAllSessions()" title="Mark all sessions as 'Complete'.">
-                        <span v-html="closeAllButtonText"></span>
-                    </button>                    
-                <span>
+                
             </div>
             
             <div class="card-body">               
