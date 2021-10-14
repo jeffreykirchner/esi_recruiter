@@ -48,8 +48,10 @@ var app = new Vue({
         ignoreConstraints:false,                    //ignore recruitment constraints and add user
         upload_file : null,
         upload_file_name:'Choose File',
-        uploadEarningsButtonText:'Upload <i class="fas fa-upload"></i>',
-        uploadEarningsMessage:'',
+        uploadEarningsButtonText:'Upload File <i class="fas fa-upload"></i>',            //upload earnings file button
+        uploadEarningsMessage:'',                                                        //upload earnings response message
+        uploadEarningsTextBoxButtonText:'Upload Text <i class="fas fa-upload"></i>',     //upload earnings text button
+        uploadEarningsText:'',                                                           //upload earnings text 
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
         auto_add_users_on_upload : false,  
@@ -482,9 +484,38 @@ var app = new Vue({
 
                         app.$data.uploadEarningsMessage = response.data.message;
 
-                        app.$data.uploadEarningsButtonText= 'Upload <i class="fas fa-upload"></i>';
+                        app.$data.uploadEarningsButtonText= 'Upload File <i class="fas fa-upload"></i>';
                         app.$data.sessionDay = response.data.sessionDay;   
                         app.calcPayoutTotal();                                                                             
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        app.$data.searching=false;
+                    });                        
+                },
+        
+        //upload earings text csv format
+        uploadEarningsTextJS:function(){
+
+            if(app.$data.uploadEarningsText == "")
+                return;
+
+            app.$data.uploadEarningsMessage = "";
+            app.$data.uploadEarningsTextBoxButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('/experimentSessionRun/{{id}}/', {
+                        action : "uploadEarningsText",
+                        text : app.$data.uploadEarningsText,         
+                        autoAddUsers : app.$data.auto_add_users_on_upload,                                                                                                            
+                    })
+                    .then(function (response) {     
+
+                        app.$data.uploadEarningsMessage = response.data.message;
+
+                        app.$data.uploadEarningsTextBoxButtonText= 'Upload Text <i class="fas fa-upload"></i>';
+                        app.$data.sessionDay = response.data.sessionDay;   
+                        app.calcPayoutTotal();     
+
                     })
                     .catch(function (error) {
                         console.log(error);

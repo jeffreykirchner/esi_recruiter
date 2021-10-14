@@ -14,23 +14,54 @@
                     <div class = "col" style="text-align: center;">
                         
                         <div class="custom-file">
-                            <input type="file" ref="file" class="custom-file-input" id="parameterFileUpload" v-on:change="handleFileUpload()">
+                            <input type="file"
+                                   ref="file"
+                                   class="custom-file-input"
+                                   id="parameterFileUpload"
+                                   v-on:change="handleFileUpload()">
                             <label class="custom-file-label" for="file">[[upload_file_name]]</label>
                         </div> 
 
                     </div>   
                 </div>
                 <div class="row mt-2">
-                    <div class = "col" style="text-align: center;">
-                        <button class="btn btn-outline-primary" v-on:click="uploadEarnings()"><span v-html="uploadEarningsButtonText"></span></button>
+                    <div class = "col text-right">
+                        <button class="btn btn-outline-primary"
+                                title="Upload the selected earnings file."
+                                v-on:click="uploadEarnings()"><span v-html="uploadEarningsButtonText"></span>
+                        </button>
+                    </div>   
+                </div>
+                <div class="row mt-4">
+                    <div class = "col">                        
+                        <div class="form-group">
+                            <label for="earningsUploadText">Format: Sudent_ID, Earnings</label>
+                            <textarea class="form-control"
+                                      v-model="uploadEarningsText"
+                                      id="earningsUploadText" rows="12"></textarea>
+                        </div>
+                    </div>   
+                </div>
+                <div class="row">
+                    <div class = "col text-right">
+                        <button class="btn btn-outline-primary"
+                                title="Upload the earnings text listed above."
+                                v-on:click="uploadEarningsTextJS()"><span v-html="uploadEarningsTextBoxButtonText"></span>
+                        </button>
                     </div>   
                 </div>
                 {%if user.is_superuser%}
                 <div class="row mt-4">
                     <div class = "col text-right">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="add_missing_subjects_id" v-model="auto_add_users_on_upload">
-                            <label class="form-check-label" for="add_missing_subjects_id">Add missing subjects.</label>
+                            <input type="checkbox"
+                                   title="If subjects are not in the session, add them."
+                                   class="form-check-input"
+                                   id="add_missing_subjects_id"
+                                   v-model="auto_add_users_on_upload">
+                            <label class="form-check-label"
+                                   title="If subjects are not in the session, add them."
+                                   for="add_missing_subjects_id">Add missing subjects.</label>
                          </div>
                     </div>
                 </div>
