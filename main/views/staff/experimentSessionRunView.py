@@ -79,6 +79,8 @@ def experimentSessionRunView(request, id_=None):
             return roundEarningsUp(data, id_, request.user)
         elif data["action"] == "payPalAPI":
             return payPalAPI(data, id_, request.user)
+        elif data["action"] == "uploadEarningsText":
+            return takeEarningsUpload2(id_, data["text"], request.user, data["autoAddUsers"])
 
         return JsonResponse({"response" :  "error"}, safe=False)
     
@@ -762,27 +764,37 @@ def noShowSubject(data, id, request_user):
 #upload subject earnings from a file
 def takeEarningsUpload(f, id, request_user, auto_add_subjects):
     logger = logging.getLogger(__name__)
-    logger.info(f"Upload earnings: auto add: {auto_add_subjects}")
+    logger.info(f"Upload earnings file: auto add: {auto_add_subjects}")
 
     #logger.info(f)
 
-    esd = experiment_session_days.objects.get(id=id)
+    
     #request_user = request.user
 
     #format incoming data
-    v = ""
+    text = ""
 
     for chunk in f.chunks():
-        v += str(chunk.decode("utf-8-sig"))
+        text += str(chunk.decode("utf-8-sig"))
 
-    logger.info(v)
+    logger.info(text)
+
+    return takeEarningsUpload2(id, text, request_user, auto_add_subjects)
+
+
+#process earnings upload
+def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Upload earnings process text: auto add: {auto_add_subjects}")
 
     message = ""
+
+    esd = experiment_session_days.objects.get(id=id)
 
     try:
 
         #parse incoming file
-        v=v.splitlines()
+        v=text.splitlines()
 
         for i in range(len(v)):
             v[i] = v[i].split(',')
@@ -860,6 +872,7 @@ def takeEarningsUpload(f, id, request_user, auto_add_subjects):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),
                          "message":message,
                         }, safe=False)
+
 
 #round earnings up to nearest 25 cents
 def roundEarningsUp(data, id, request_user):

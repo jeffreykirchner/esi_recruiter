@@ -172,7 +172,10 @@
                                 </button>                                        
                             </td>
                             <td style="text-align: center;">        
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()"
+                                <button v-show="sessionDay.complete === false"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        v-on:click = "bumpAll()"
                                         title = "Bump all subjects.">
                                     <span v-html='bumpAllButtonText'></span> 
                                 </button>
@@ -183,7 +186,10 @@
                         <tr>
                             <td> 
 
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()" v-bind:disabled = "sessionDay.reopenAllowed === false">
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        v-on:click = "completeSession()"
+                                        v-bind:disabled = "sessionDay.reopenAllowed === false">
                                     <div v-if="sessionDay.complete">
                                         <span v-html='openSessionButtonText'></span>
                                     </div>
@@ -193,13 +199,18 @@
                                 </button>                                     
                             </td>
                             <td>     
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm d-none d-md-block" v-on:click="showUploadEarnings()"
+                                <button v-if="sessionDay.complete === false"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm d-none d-md-block"
+                                        v-on:click="showUploadEarnings()"
                                         title ="Upload an earnings formatted file.">
                                     Upload Earnings <i class="fas fa-upload"></i>
                                 </button>
                             </td>
                             <td style="text-align: center;">                                        
-                                <button type="button" class="btn btn-link btn-sm d-none d-md-block" v-on:click="printPayouts()">
+                                <button type="button"
+                                        class="btn btn-link btn-sm d-none d-md-block"
+                                        v-on:click="printPayouts()">
                                     <span v-html='printPayoutsButtonText'></span> 
                                 </button>                                                                               
                             </td>
