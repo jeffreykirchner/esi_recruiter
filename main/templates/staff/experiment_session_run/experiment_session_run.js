@@ -50,7 +50,7 @@ var app = new Vue({
         upload_file_name:'Choose File',
         uploadEarningsButtonText:'Upload File <i class="fas fa-upload"></i>',            //upload earnings file button
         uploadEarningsMessage:'',                                                        //upload earnings response message
-        uploadEarningsTextBoxButtonText:'Upload Text <i class="fas fa-upload"></i>',     //upload earnings text button
+        uploadEarningsTextBoxButtonText:'Upload Earnings <i class="fas fa-upload"></i>',     //upload earnings text button
         uploadEarningsText:'',                                                           //upload earnings text 
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
@@ -512,7 +512,7 @@ var app = new Vue({
 
                         app.$data.uploadEarningsMessage = response.data.message;
 
-                        app.$data.uploadEarningsTextBoxButtonText= 'Upload Text <i class="fas fa-upload"></i>';
+                        app.$data.uploadEarningsTextBoxButtonText= 'Upload Earnings <i class="fas fa-upload"></i>';
                         app.$data.sessionDay = response.data.sessionDay;   
                         app.calcPayoutTotal();     
 
@@ -528,6 +528,10 @@ var app = new Vue({
             app.$data.upload_file = this.$refs.file.files[0];
             //$('parameterFileUpload').val("");
             app.$data.upload_file_name = app.$data.upload_file.name;
+
+            var reader = new FileReader();
+            reader.onload = e => app.$data.uploadEarningsText = e.target.result;
+            reader.readAsText(app.$data.upload_file);
 
         },
 
