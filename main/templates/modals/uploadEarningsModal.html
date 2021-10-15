@@ -24,20 +24,13 @@
 
                     </div>   
                 </div>
-                <div class="row mt-2">
-                    <div class = "col text-right">
-                        <button class="btn btn-outline-primary"
-                                title="Upload the selected earnings file."
-                                v-on:click="uploadEarnings()"><span v-html="uploadEarningsButtonText"></span>
-                        </button>
-                    </div>   
-                </div>
                 <div class="row mt-4">
                     <div class = "col">                        
                         <div class="form-group">
-                            <label for="earningsUploadText">Format: Sudent_ID, Earnings</label>
+                            <label for="earningsUploadText">Format: Sudent_ID, Earnings [optional: , On_Time_Bonus]</label>
                             <textarea class="form-control"
                                       v-model="uploadEarningsText"
+                                      placeholder="Copy and paste results here."
                                       id="earningsUploadText" rows="12"></textarea>
                         </div>
                     </div>   
