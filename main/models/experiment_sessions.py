@@ -933,7 +933,7 @@ class experiment_sessions(models.Model):
 
             logger.info(f'getValidUserList_trait_constraints run time: {datetime.now() - start_time}')
 
-            return list(valid_list)    
+            return list(valid_list_2)    
 
     #check that users have the correct number of past or upcoming experience
     def getValidUserList_check_experience(self, u_list, testExperiment):
