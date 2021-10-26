@@ -2395,6 +2395,11 @@ class traitConstraintTestCase(TestCase):
         logger.info("Returned Users:")
         logger.info(u_list)
 
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
+
     #One trait constraints
     def testOneConstraints(self):
         logger = logging.getLogger(__name__)
@@ -2406,7 +2411,7 @@ class traitConstraintTestCase(TestCase):
 
         tc = Recruitment_parameters_trait_constraint()
         tc.max_value = 10
-        tc.min_value = 0
+        tc.min_value = 5
         tc.trait = self.t1
         tc.recruitment_parameter = es.recruitment_params
         tc.save()
@@ -2415,7 +2420,7 @@ class traitConstraintTestCase(TestCase):
         e_users = []
         
         e_users.append(self.user_list[1])
-        e_users.append(self.user_list[2])
+        #e_users.append(self.user_list[2])
 
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
 
@@ -2423,6 +2428,11 @@ class traitConstraintTestCase(TestCase):
         logger.info(e_users)
         logger.info("Returned Users:")
         logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
 
         #check 1 only valid
         tc.min_value = 5
@@ -2439,6 +2449,10 @@ class traitConstraintTestCase(TestCase):
         logger.info("Returned Users:")
         logger.info(u_list)
 
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
 
     #no trait constraints
     def testTwoConstraints(self):
@@ -2476,6 +2490,11 @@ class traitConstraintTestCase(TestCase):
         logger.info("Returned Users:")
         logger.info(u_list)
 
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
+
         #require both constraints
         es.recruitment_params.trait_constraints_require_all = True
         es.recruitment_params.save()
@@ -2490,6 +2509,11 @@ class traitConstraintTestCase(TestCase):
         logger.info(e_users)
         logger.info("Returned Users:")
         logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
 
         #check that one of two traits passes
         es.recruitment_params.trait_constraints_require_all = False
@@ -2509,6 +2533,11 @@ class traitConstraintTestCase(TestCase):
         logger.info(e_users)
         logger.info("Returned Users:")
         logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
 
 #test school constraints
 class schoolTestCase(TestCase):
