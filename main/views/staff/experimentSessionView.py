@@ -505,7 +505,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
                          "es_min":es.json_esd(True)}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
-def findSubjectsToInvite(data,id):
+def findSubjectsToInvite(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Find subjects to invite: {data}")
 
