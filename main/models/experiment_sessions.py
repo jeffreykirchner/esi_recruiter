@@ -881,7 +881,7 @@ class experiment_sessions(models.Model):
             #create dictionary of target traits
             tc = {}
             for i in self.recruitment_params.trait_constraints.all():
-                tc[i.trait] = {"min_value":i.min_value,"max_value":i.max_value}
+                tc[i.trait] = {"min_value":i.min_value, "max_value":i.max_value, "include_if_in_range":i.include_if_in_range}
 
             #list to be returned of valid users
             valid_list_2 = []
@@ -901,9 +901,10 @@ class experiment_sessions(models.Model):
                     for i in u.profile.profile_traits.filter(trait__in = tc):
                         temp_tc = tc.get(i.trait)
                         
-                        if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
-                            valid=False
-                            break    
+                        if temp_tc["include_if_in_range"] == True:
+                            if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
+                                valid=False
+                                break    
 
                     if valid:
                         valid_list_2.append(u)
@@ -920,13 +921,28 @@ class experiment_sessions(models.Model):
 
                 for u in valid_list:
                     valid = False
+                    check_exclusions = False
 
+                    #include if subject has one trait within specifed range
                     for i in u.profile.profile_traits.filter(trait__in = tc):
                         temp_tc = tc.get(i.trait)
                         
-                        if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
-                            valid=True
-                            break    
+                        if temp_tc["include_if_in_range"] == True:                           
+                            if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
+                                valid=True
+                                break
+                        else:
+                            check_exclusions = True
+
+                    #check for exclusions
+                    if valid and check_exclusions:
+                        for i in u.profile.profile_traits.filter(trait__in = tc):
+                            temp_tc = tc.get(i.trait)
+                            
+                            if temp_tc["include_if_in_range"] == False:                           
+                                if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
+                                    valid=False
+                                    break                           
 
                     if valid:
                         valid_list_2.append(u)
