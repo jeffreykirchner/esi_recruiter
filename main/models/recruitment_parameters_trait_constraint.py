@@ -13,6 +13,8 @@ class Recruitment_parameters_trait_constraint(models.Model):
     min_value = models.DecimalField(decimal_places=2, max_digits=10,default = 0)                 #trait value greater than or equal to this
     max_value = models.DecimalField(decimal_places=2, max_digits=10,default = 0)                 #trait value less than or equal to this
 
+    include_if_in_range = models.BooleanField(default=True)                                      #if true include if in range, else exclude in range
+
     def __str__(self):
         return "ID: " + str(self.id)
 
@@ -28,4 +30,5 @@ class Recruitment_parameters_trait_constraint(models.Model):
             "trait_id":self.trait.id,
             "min_value":self.min_value,
             "max_value":self.max_value,
+            "include_if_in_range":self.include_if_in_range,
         }
