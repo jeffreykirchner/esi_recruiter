@@ -98,7 +98,6 @@ def check_send_daily_report_email():
                                                                                'error_message':paypal_history_list["error_message"],
                                                                                'payments' : paypal_history_list["history"] })
         
-
     #plain text version
     plain_text = f"*** PayPal report for {today.strftime('%m/%d/%Y')}***\n\n"
 

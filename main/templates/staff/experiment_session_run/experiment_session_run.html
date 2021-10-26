@@ -6,7 +6,7 @@
     </div>
     <div class="card-body">  
         <!-- stripe reader -->
-        <div v-show="sessionDay.complete === false">
+        <div v-show="sessionDay.complete === false" class="d-none d-md-block">
             <div class="row align-items-left">
                 <div class = "col-md-4" style="text-align: right;">
                     
@@ -141,13 +141,14 @@
                             <td>
                                 Payout Total: $[[payoutTotal]]                                      
                             </td>
-                            <td>                                        
+                            
+                            <td><!-- save button -->                                        
                                 <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
                                         title="Save payouts to the database.">
                                     <span v-html='saveButtonText'></span> 
                                 </button>                                                                                
                             </td>
-                            <td style="text-align: center;">                                        
+                            <td style="text-align: center;">                                      
                                 <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
                                     <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
                                             aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
@@ -171,7 +172,10 @@
                                 </button>                                        
                             </td>
                             <td style="text-align: center;">        
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "bumpAll()"
+                                <button v-show="sessionDay.complete === false"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        v-on:click = "bumpAll()"
                                         title = "Bump all subjects.">
                                     <span v-html='bumpAllButtonText'></span> 
                                 </button>
@@ -182,7 +186,10 @@
                         <tr>
                             <td> 
 
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "completeSession()" v-bind:disabled = "sessionDay.reopenAllowed === false">
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        v-on:click = "completeSession()"
+                                        v-bind:disabled = "sessionDay.reopenAllowed === false">
                                     <div v-if="sessionDay.complete">
                                         <span v-html='openSessionButtonText'></span>
                                     </div>
@@ -192,18 +199,23 @@
                                 </button>                                     
                             </td>
                             <td>     
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click="showUploadEarnings()"
+                                <button v-if="sessionDay.complete === false"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm d-none d-md-block"
+                                        v-on:click="showUploadEarnings()"
                                         title ="Upload an earnings formatted file.">
                                     Upload Earnings <i class="fas fa-upload"></i>
                                 </button>
                             </td>
                             <td style="text-align: center;">                                        
-                                <button type="button" class="btn btn-link btn-sm" v-on:click="printPayouts()">
+                                <button type="button"
+                                        class="btn btn-link btn-sm d-none d-md-block"
+                                        v-on:click="printPayouts()">
                                     <span v-html='printPayoutsButtonText'></span> 
                                 </button>                                                                               
                             </td>
                             <td style="text-align: center;">
-                                <button type="button" class="btn btn-link btn-sm" v-on:click = "printBumps()">
+                                <button type="button" class="btn btn-link btn-sm d-none d-md-block" v-on:click = "printBumps()">
                                     <span v-html='printBumpsButtonText'></span> 
                                 </button>                                        
                             </td>
@@ -214,7 +226,7 @@
                                 </button>                                       
                             </td>
                             <td style="text-align: center;">   
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
+                                <button type="button" class="btn btn-outline-primary btn-sm d-none d-md-block" v-on:click = "payPalExport()"
                                         title="Export a PayPal mass payment file."  >
                                     <span v-html='paypalExportButtonText'></span> 
                                 </button>                                     
@@ -232,7 +244,7 @@
                             <td style="text-align: center;">
                             </td>
                             <td style="text-align: center;">
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
+                                <button type="button" class="btn btn-outline-primary btn-sm d-none d-md-block" v-on:click = "earningsExport()"
                                         title="Export a CSV file with a list of attending subjects."  >
                                     <span v-html='earningsExportButtonText'></span> 
                                 </button>
