@@ -2388,7 +2388,6 @@ class traitConstraintTestCase(TestCase):
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[1])
         e_users.append(self.user_list[2])
-        e_users.append(self.user_list[3])
 
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
 
