@@ -505,7 +505,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
                          "es_min":es.json_esd(True)}, safe=False)
     
 #find list of subjects to invite based on recruitment parameters
-def findSubjectsToInvite(data,id):
+def findSubjectsToInvite(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Find subjects to invite: {data}")
 
@@ -827,7 +827,7 @@ def updateTrait(data,id):
     for field in data["formData"]:
         form_data_dict[field["name"]] = field["value"]
 
-    form = TraitConstraintForm(form_data_dict,instance=tc)
+    form = TraitConstraintForm(form_data_dict, instance=tc)
 
     if form.is_valid():
                                     

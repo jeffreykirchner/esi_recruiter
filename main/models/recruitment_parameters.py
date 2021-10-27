@@ -2,7 +2,9 @@
 from django.db import models
 import logging
 
-from . import genders,subject_types,institutions,schools
+from  main.models import genders,subject_types,institutions,schools
+
+import main
 
 class recruitment_parameters(models.Model):
 
@@ -53,7 +55,7 @@ class recruitment_parameters(models.Model):
         verbose_name = 'Recruitment Parameters'
         verbose_name_plural = 'Recruitment Parameters'
 
-    def setup(self,es):
+    def setup(self, es):
         self.save()
 
         self.actual_participants = es.actual_participants
@@ -82,10 +84,17 @@ class recruitment_parameters(models.Model):
 
         self.schools_include.set(es.schools_include.all())
         self.schools_exclude.set(es.schools_exclude.all())
-        self.schools_include_constraint  =  es.schools_include_constraint
-        self.schools_exclude_constraint  = es.schools_exclude_constraint
+        self.schools_include_constraint = es.schools_include_constraint
+        self.schools_exclude_constraint = es.schools_exclude_constraint
 
         #self.trait_constraints.set(es.trait_constraints.all())
+        for trait_constraint in es.trait_constraints.all():
+            new_trait_constraint = main.models.Recruitment_parameters_trait_constraint()
+
+            new_trait_constraint.setup(trait_constraint)
+            new_trait_constraint.recruitment_parameter = self
+            new_trait_constraint.save()
+            
         self.trait_constraints_require_all = es.trait_constraints_require_all
 
         self.save()
@@ -209,7 +218,8 @@ class recruitment_parameters(models.Model):
             s+= "(1+): | "
 
         for t in self.trait_constraints.all():
-            s+= f'{t.trait.name} {t.min_value}-{t.max_value} | '
+            mode = "Inc." if t.include_if_in_range else "Exc."
+            s+= f'{t.trait.name} {mode} {t.min_value}-{t.max_value} | '
         s += "<br>"
 
         return s
