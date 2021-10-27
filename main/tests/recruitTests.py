@@ -2303,7 +2303,7 @@ class traitConstraintTestCase(TestCase):
         #create 5 subjects, 3 undergrad two graduates
         for g in range(4):
 
-            if g<=1:
+            if g<=2:
                 user_name = "g"+str(g)+"@chapman.edu"
             else:
                 user_name = "g"+str(g)+"@gmail.com"
@@ -2311,12 +2311,14 @@ class traitConstraintTestCase(TestCase):
             temp_st=""
             if g<=2:
                 temp_st =  subject_types.objects.get(id=1)
+                temp_at = account_types.objects.get(id=2)
             else:
                 temp_st =  subject_types.objects.get(id=2)
+                temp_at = account_types.objects.get(id=1)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=2))
+                          temp_st,False,True,temp_at)
             
             logger.info(u)
 
@@ -2521,6 +2523,119 @@ class traitConstraintTestCase(TestCase):
 
         tc = es.recruitment_params.trait_constraints.first()
         tc.min_value = 9
+        tc.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
+    
+    def test_one_exclude(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 3
+        tc.min_value = 0
+        tc.include_if_in_range = False
+        tc.trait = self.t1
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[0])
+        e_users.append(self.user_list[1])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
+    
+    def test_two_exclude(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 3
+        tc.min_value = 0
+        tc.include_if_in_range = False
+        tc.trait = self.t1
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 7
+        tc.min_value = 7
+        tc.include_if_in_range = False
+        tc.trait = self.t2
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        e_users = []
+        
+        e_users.append(self.user_list[0])
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        logger.info("Expected Users:")
+        logger.info(e_users)
+        logger.info("Returned Users:")
+        logger.info(u_list)
+
+        for u in u_list:
+            self.assertIn(u, e_users)
+        
+        self.assertEquals(len(e_users), len(u_list))
+    
+    def test_one_exclude_one_include(self):
+        logger = logging.getLogger(__name__)
+
+        es = self.e.ES.first()
+        
+        es.recruitment_params.trait_constraints_require_all = False
+        es.recruitment_params.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 3
+        tc.min_value = 0
+        tc.include_if_in_range = False
+        tc.trait = self.t1
+        tc.recruitment_parameter = es.recruitment_params
+        tc.save()
+
+        tc = Recruitment_parameters_trait_constraint()
+        tc.max_value = 7
+        tc.min_value = 7
+        tc.include_if_in_range = True
+        tc.trait = self.t2
+        tc.recruitment_parameter = es.recruitment_params
         tc.save()
 
         e_users = []

@@ -712,6 +712,8 @@ class experiment_sessions(models.Model):
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_trait_constraints(u_list, testExperiment)
         #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_trait_constraints_exclude(u_list, testExperiment)
+        #logger.info(f"{u_list}")
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_now_show_block(u_list)
@@ -858,7 +860,7 @@ class experiment_sessions(models.Model):
 
         return u_list_updated
         
-    #return valid subset of u_list that conforms to trait constraints
+    #return valid subset of u_list that conforms to include trait constraints
     def getValidUserList_trait_constraints(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_trait_constraints")
@@ -882,8 +884,8 @@ class experiment_sessions(models.Model):
 
             #create dictionary of target traits
             tc = {}
-            for i in self.recruitment_params.trait_constraints.all():
-                tc[i.trait] = {"min_value":i.min_value, "max_value":i.max_value, "include_if_in_range":i.include_if_in_range}
+            for i in self.recruitment_params.trait_constraints.filter(include_if_in_range=True):
+                tc[i.trait] = {"min_value":i.min_value, "max_value":i.max_value}
 
             #list to be returned of valid users
             valid_list_2 = []
@@ -937,6 +939,128 @@ class experiment_sessions(models.Model):
             logger.info(f'getValidUserList_trait_constraints run time: {datetime.now() - start_time}')
 
             return list(valid_list_2)    
+
+    #return valid subset of u_list that conforms to exclude trait constraints
+    def getValidUserList_trait_constraints_exclude(self, u_list, testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_trait_constraints_exclude")
+
+        start_time = datetime.now()
+
+        constraint_list_traits_ids = self.recruitment_params.trait_constraints.filter(include_if_in_range=False) \
+                                                                              .values_list("trait__id",flat=True)
+
+        logger.info(f'getValidUserList_trait_constraints constraint ids: {constraint_list_traits_ids}')
+        trait_list = main.models.Traits.objects.filter(pk__in = constraint_list_traits_ids)
+        logger.info(f'getValidUserList_trait_constraints trait list: {trait_list}')
+
+        if len(constraint_list_traits_ids) == 0:
+            return u_list
+        else:
+            pk_list = []
+
+            for u in u_list:                
+                pk_list.append(u.id)
+
+            #create dictionary of target traits
+            tc = {}
+            for i in self.recruitment_params.trait_constraints.filter(include_if_in_range=False):
+                tc[i.trait] = {"min_value":i.min_value, "max_value":i.max_value}
+
+            #list to be returned of valid users
+            valid_list_2 = []
+
+            valid_list = User.objects.filter(pk__in = pk_list)\
+                                     .prefetch_related('profile__profile_traits')          
+
+            for u in valid_list:
+                valid = True
+
+                #exclude if subject violates one of the trait exclusions
+                for i in u.profile.profile_traits.filter(trait__in = tc):
+                    temp_tc = tc.get(i.trait)
+
+                    if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
+                        valid=False
+                        break                          
+
+                if valid:
+                    valid_list_2.append(u)
+
+            logger.info(f'getValidUserList_trait_constraints_exclude run time: {datetime.now() - start_time}')
+
+            return list(valid_list_2)
+
+        #return valid subset of users that are not already participating at this date and time
+    def getValidUserList_date_time_overlap(self, u_list, testSession):
+        logger = logging.getLogger(__name__)
+        logger.info(f"getValidUserList_date_time_overlap {self.id}")
+
+        start_time = datetime.now()
+
+        #return u_list
+
+        logger.info(f'getValidUserList_date_time_overlap test session: {testSession}')
+        #logger.info(f'getValidUserList_date_time_overlap incoming list: {u_list}')
+
+        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
+        #date range constraints for all this session's days that have time enabled
+       
+        # d_query = reduce(or_, ((Q(date__lte = esd.date_end) & \
+        #                         Q(date_end__gte = esd.date)) for esd in self.ESD.filter(enable_time = True)))
+
+        d_query=[]
+
+        for esd in self.ESD.filter(enable_time = True):
+            d_query.append(Q(date__lte = esd.date_end) & Q(date_end__gte = esd.date))
+
+        #session does not have any time enabled days to test
+        if len(d_query) == 0:
+            logger.info("getValidUserList_date_time_overlap no date enabled sessions")
+            return u_list
+        
+        #find overlaping session days with this session's days
+        session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
+                                                                    .exclude(experiment_session__id = self.id)\
+                                                                    .filter(enable_time = True)\
+                                                                    .filter(reduce(or_,d_query))
+
+        session_overlap = list(session_overlap)
+
+        #add test session days in
+        if testSession>0:
+            test_session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__id = testSession)\
+                                                                              .exclude(experiment_session__id = self.id)\
+                                                                              .filter(reduce(or_,d_query))\
+                                                                              .filter(enable_time = True)
+
+            test_session_overlap = list(test_session_overlap)
+
+            for i in test_session_overlap:
+                session_overlap.append(i)
+                                                                   
+
+        logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
+
+        #find list of users in overlapping sessions who are not eligable
+        user_overlap = main.models.experiment_session_day_users.objects.filter(experiment_session_day__in = session_overlap)\
+                                                                       .filter(confirmed = True)\
+                                                                       .values_list("user_id",flat=True)
+
+        logger.info(f'getValidUserList_date_time_overlap user overlap: {list(user_overlap)}')
+
+        #remove invalid users from list
+        u_list_updated = []
+
+        for u in u_list:
+            if u.id not in user_overlap:
+                u_list_updated.append(u)
+
+        #logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
+        logger.info(f'getValidUserList_date_time_overlap run time: {datetime.now() - start_time}')
+
+        return u_list_updated
+          
 
     #check that users have the correct number of past or upcoming experience
     def getValidUserList_check_experience(self, u_list, testExperiment):
