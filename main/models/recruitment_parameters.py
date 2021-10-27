@@ -85,7 +85,7 @@ class recruitment_parameters(models.Model):
         self.schools_include_constraint  =  es.schools_include_constraint
         self.schools_exclude_constraint  = es.schools_exclude_constraint
 
-        self.trait_constraints.set(es.trait_constraints.all())
+        #self.trait_constraints.set(es.trait_constraints.all())
         self.trait_constraints_require_all = es.trait_constraints_require_all
 
         self.save()
