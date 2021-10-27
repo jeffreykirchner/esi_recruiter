@@ -905,6 +905,10 @@ class experiment_sessions(models.Model):
                             if i.value < temp_tc["min_value"] or i.value> temp_tc["max_value"]:
                                 valid=False
                                 break    
+                        else:
+                            if i.value >= temp_tc["min_value"] or i.value <= temp_tc["max_value"]:
+                                valid=False
+                                break
 
                     if valid:
                         valid_list_2.append(u)
@@ -922,17 +926,24 @@ class experiment_sessions(models.Model):
                 for u in valid_list:
                     valid = False
                     check_exclusions = False
+                    exclusions_only = True    #only exclusions found
 
                     #include if subject has one trait within specifed range
                     for i in u.profile.profile_traits.filter(trait__in = tc):
                         temp_tc = tc.get(i.trait)
                         
-                        if temp_tc["include_if_in_range"] == True:                           
+                        if temp_tc["include_if_in_range"] == True:         
+                            exclusions_only = False
+
                             if i.value >= temp_tc["min_value"] and i.value <= temp_tc["max_value"]:
                                 valid=True
                                 break
                         else:
                             check_exclusions = True
+
+                    if exclusions_only:
+                        #if exclusions only check exclusions
+                        valid = True
 
                     #check for exclusions
                     if valid and check_exclusions:

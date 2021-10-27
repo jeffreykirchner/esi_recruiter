@@ -827,7 +827,7 @@ def updateTrait(data,id):
     for field in data["formData"]:
         form_data_dict[field["name"]] = field["value"]
 
-    form = TraitConstraintForm(form_data_dict,instance=tc)
+    form = TraitConstraintForm(form_data_dict, instance=tc)
 
     if form.is_valid():
                                     

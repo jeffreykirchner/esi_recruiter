@@ -74,6 +74,7 @@ var app = new Vue({
             trait_id:0,
             min_value:0,
             max_vaue:0,
+            include_if_in_range:true,
         },
         recruitmentTitle:"Recruitment Parameters",
         subjectInvitations:[],                     //list of subject invitations
@@ -1163,6 +1164,7 @@ var app = new Vue({
             app.$data.current_trait.min_value = tc.min_value;
             app.$data.current_trait.max_value = tc.max_value;
             app.$data.current_trait.trait_id = tc.trait_id;
+            app.$data.current_trait.include_if_in_range = tc.include_if_in_range;
 
             $('#updateTraitModal').modal('show');
             app.clearMainFormErrors();

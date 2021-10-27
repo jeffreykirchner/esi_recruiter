@@ -11,11 +11,14 @@
                             Trait                             
                         </th>
                         <th style="text-align: center;">
-                            Min Value Allowed
+                            Mode
                         </th>
                         <th style="text-align: center;">
-                            Max Value Allowed
-                        </th> 
+                            Min Value 
+                        </th>
+                        <th style="text-align: center;">
+                            Max Value
+                        </th>                         
                         <th style="text-align: center;">
                             Control
                         </th>
@@ -24,6 +27,10 @@
                         <tr v-for="(t,index) in recruitment_params.trait_constraints" v-bind:key="t.id">
                             <td> 
                                 <span v-html="t.trait_name"></span>                                      
+                            </td>
+                            <td style="text-align: center;"> 
+                                <span v-if="t.include_if_in_range">Include</span>
+                                <span v-else>Exclude</span>                                      
                             </td>
                             <td style="text-align: center;"> 
                                 <span v-html="t.min_value"></span>                                      

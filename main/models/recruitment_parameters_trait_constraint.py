@@ -22,13 +22,26 @@ class Recruitment_parameters_trait_constraint(models.Model):
         verbose_name = 'Recruitment Trait Constraint'
         verbose_name_plural = 'Recruitment Trait Constraints'
 
+    def setup(self, source):
+        '''
+        load object from another
+        '''
+        self.trait = source.trait
+        self.recruitment_parameter = source.recruitment_parameter
+        self.min_value = source.min_value
+        self.max_value = source.max_value
+        self.include_if_in_range = source.include_if_in_range
+
     def json(self):
+        mode = "Inc." if self.include_if_in_range else "Exc."
+
         return{
             "id":self.id,
-            "name":f'{self.trait.name} {self.min_value}-{self.max_value}',
+            "name":f'{self.trait.name} {mode} {self.min_value}-{self.max_value}',
             "trait_name":self.trait.name,
             "trait_id":self.trait.id,
             "min_value":self.min_value,
             "max_value":self.max_value,
-            "include_if_in_range":self.include_if_in_range,
+            "recruitment_parameter_id":self.recruitment_parameter.id,
+            "include_if_in_range": self.include_if_in_range,
         }
