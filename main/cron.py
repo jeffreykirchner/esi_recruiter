@@ -97,7 +97,8 @@ def check_send_daily_report_email():
     daily_email_report.text = get_template('email/daily_report.html').render({ 'report_date': today.strftime('%m/%d/%Y'),
                                                                                'error_message':paypal_history_list["error_message"],
                                                                                'payments' : paypal_history_list["history"] })
-        
+    daily_email_report.date = todays_date()
+
     #plain text version
     plain_text = f"*** PayPal report for {today.strftime('%m/%d/%Y')}***\n\n"
 

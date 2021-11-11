@@ -5,8 +5,8 @@ class DailyEmailReport(models.Model):
     '''
     report about the previous days activity
     '''
-    text = models.CharField(verbose_name="Text", max_length = 10000)            #the text of the report
-    date = models.DateField(auto_now_add= True)
+    text = models.CharField(verbose_name="Text", max_length = 100000)            #the text of the report
+    date = models.DateField(verbose_name="Date of report")
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
