@@ -991,7 +991,7 @@ class experiment_sessions(models.Model):
 
             return list(valid_list_2)
 
-        #return valid subset of users that are not already participating at this date and time
+    #return valid subset of users that are not already participating at this date and time
     def getValidUserList_date_time_overlap(self, u_list, testSession):
         logger = logging.getLogger(__name__)
         logger.info(f"getValidUserList_date_time_overlap {self.id}")
