@@ -2,6 +2,7 @@
 build main.views
 '''
 from .userSearch import *
+from .userSearchParametersView import *
 from .userInfo import *
 from .experimentView import *
 from .experimentSessionView import *

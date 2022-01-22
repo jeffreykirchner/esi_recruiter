@@ -37,6 +37,7 @@ urlpatterns = [
 
     #staff
     path('userSearch/', views.userSearch, name='userSearch'),
+    path('userSearchParameters/', views.userSearchParametersView, name='userSearchParameters'),
     path('reports/', views.reportsView, name='reports'),
     path('userInfo/<id>/', views.userInfo, name='userInfo'),
     path('experimentSearch/', views.experimentSearch, name='experimentSearch'),
@@ -64,7 +65,7 @@ urlpatterns = [
     path('robots.txt', views.RobotsTxt, name='robotsTxt'),
     path('ads.txt', views.AdsTxt, name='adsTxt'),
     path('.well-known/security.txt', views.SecurityTxt, name='securityTxt'),
-     path('security.txt', views.SecurityTxt, name='securityTxt'),
+    path('security.txt', views.SecurityTxt, name='securityTxt'),
     path('humans.txt', views.HumansTxt, name='humansTxt'),
 
     #icons

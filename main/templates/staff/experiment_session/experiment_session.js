@@ -391,7 +391,7 @@ var app = new Vue({
             app.$data.subjectInvitationList ="";
             app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";   
             app.$data.inviteResultsEmptyText="";                      
-            },
+        },
 
         //cancel a session day (not in use)
         cancelSessionDay: function(){      
