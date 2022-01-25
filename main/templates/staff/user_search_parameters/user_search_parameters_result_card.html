@@ -1,0 +1,13 @@
+{% load crispy_forms_tags %}
+
+<div class="card" v-cloak>                  
+    <div class="card-header" >
+      Search Results ([[searchResults.length]])
+    </div>
+    <div class="card-body" v-cloak>  
+        <span v-for="(r, index) in searchResults" v-bind:key="r.id">
+            <span v-if="index != 0 ">,&nbsp;</span>
+            <a v-bind:href="'/userInfo/' + r.id ">[[r.email]]</a>
+        </span>
+    </div>
+</div>

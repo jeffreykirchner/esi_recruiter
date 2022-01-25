@@ -604,11 +604,11 @@ class experiment_sessions(models.Model):
         user_list_valid_clean=[]
 
         #valid list based on current experience
-        user_list_valid = self.getValidUserList(u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL) 
+        user_list_valid = self.getValidUserList(u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL) 
 
         #logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
-        #check experience constraints
+        #check django based constraints
         user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
 
         logger.info(f'getValidUserList_forward_check found {user_list_valid}')

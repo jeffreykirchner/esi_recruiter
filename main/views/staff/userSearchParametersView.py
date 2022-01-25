@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.db.models import CharField, F, Value as V
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
 
@@ -88,11 +89,14 @@ def search(data):
 
             u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
 
+            u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
+
             e.delete()
             i1.delete()
                                         
             return JsonResponse({"status":"success",
-                                 "result": {"count":len(u_list)}}, safe=False)
+                                 "result": {"count":len(u_list),
+                                            "u_list_json": list(u_list_json)}}, safe=False)
         else:
             print("invalid form2")
             e.delete()

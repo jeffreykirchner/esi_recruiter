@@ -35,6 +35,7 @@ var app = new Vue({
         loading:true,
         buttonText1:"Search",                 //recruitment parameters update button text         
         working:false,          
+        searchResults:[],
     },
 
     methods:{     
@@ -52,7 +53,7 @@ var app = new Vue({
 
         //update recruitment parameters 
         search: function(){           
-            this.working = true;
+            app.working = true;
 
             axios.post('{{ request.path }}', {
                     status :"search" ,                                
@@ -60,13 +61,13 @@ var app = new Vue({
                 })
                 .then(function (response) {     
                                                          
-                    this.working = false;
+                    app.working = false;
                     status=response.data.status; 
                     app.clearMainFormErrors();
 
                     if(status=="success")
                     {                                 
-                        
+                        app.searchResults = response.data.result.u_list_json;
                     }
                     else
                     {                                
