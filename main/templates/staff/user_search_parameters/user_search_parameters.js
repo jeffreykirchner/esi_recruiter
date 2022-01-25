@@ -10,8 +10,9 @@ var app = new Vue({
         experiment : {},
         recruitment_params:{                          //recruiment parameters
                 gender:[],
-                actual_participants:0,
-                registration_cutoff:0,
+                subject_type:[],
+                actual_participants:1,
+                registration_cutoff:2,
                 experience_min:0,
                 experience_max:1000,
                 experience_constraint:false,
@@ -25,12 +26,15 @@ var app = new Vue({
                 experiments_exclude:[],
                 experiments_include:[],
                 trait_constraints:[],
+                schools_include:[],
+                schools_exclude:[],
             },
         recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         confirmedCount:0,
         session:{confirmedCount:0},             //recruitment form parameter
         loading:true,
-        buttonText1:"Search",                 //recruitment parameters update button text                   
+        buttonText1:"Search",                 //recruitment parameters update button text         
+        working:false,          
     },
 
     methods:{     
@@ -47,13 +51,16 @@ var app = new Vue({
         },
 
         //update recruitment parameters 
-        updateRecruitmentParameters: function(){                       
+        search: function(){           
+            this.working = true;
+
             axios.post('{{ request.path }}', {
-                    status :"updateRecruitmentParameters" ,                                
-                    formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
+                    status :"search" ,                                
+                    formData : this.recruitment_params,                                                              
                 })
                 .then(function (response) {     
-                                                                           
+                                                         
+                    this.working = false;
                     status=response.data.status; 
                     app.clearMainFormErrors();
 
@@ -64,9 +71,7 @@ var app = new Vue({
                     else
                     {                                
                         app.displayErrors(response.data.errors);
-                    }          
-
-                    app.$data.buttonText1="Update"                      
+                    }                          
                 })
                 .catch(function (error) {
                     console.log(error);

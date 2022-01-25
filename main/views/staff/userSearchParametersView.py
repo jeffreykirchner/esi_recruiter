@@ -7,14 +7,21 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import CharField, F, Value as V
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 
 from main.decorators import user_is_staff
 
 from main.models import experiments
+from main.models import experiment_sessions
 from main.models import parameters
 from main.models import help_docs
 
+from main.views.staff.experimentView import addSessionBlank
+from main.views.staff.experimentSearchView import createExperimentBlank
+
 from main.forms import recruitmentParametersForm
+
+import main
 
 @login_required
 @user_is_staff
@@ -28,8 +35,8 @@ def userSearchParametersView(request):
         
         data = json.loads(request.body.decode('utf-8'))              
 
-        if data["status"] == "updateRecruitmentParameters":
-            return updateRecruitmentParameters(data,id)                     
+        if data["status"] == "search":
+            return search(data)                     
 
     else: #GET             
 
@@ -54,74 +61,83 @@ def userSearchParametersView(request):
                        'helpText':helpText,
                        })
 
-#get session info the show screen at load
-def getExperiment(data,id):
-    logger = logging.getLogger(__name__)
-    logger.info(f"get session paramters {data}")
-
-    e = experiments.objects.get(id=id)
-    
-    # logger.info(es.recruitment_params)
-
-    return JsonResponse({"experiment" : e.json(),
-                         "recruitment_params":e.recruitment_params_default.json()}, safe=False)
-
-#update the recruitment parameters for this session
-def updateRecruitmentParameters(data,id):
+def search(data):
+    '''
+    search for valid subjects based on recruiment parameters
+    '''
     logger = logging.getLogger(__name__)
     logger.info(f"Update default recruitment parameters: {data}")
 
-    e = experiments.objects.get(id=id)
+    with transaction.atomic():
+        i1=main.models.institutions(name="search")
+        i1.save()
 
-    form_data_dict = {} 
+        e = createExperimentBlank()
+        e.institution.set([i1])
+        e.save()
 
-    genderList=[]
-    subject_typeList=[]
-    institutionsExcludeList=[]
-    institutionsIncludeList=[]
-    experimentsExcludeList=[]
-    experimentsIncludeList=[]
-    schoolsExcludeList=[]
-    schoolsIncludeList=[]
+        form_data_dict = data["formData"]
 
-    for field in data["formData"]:            
-        if field["name"] == "gender":                 
-            genderList.append(field["value"])
-        elif field["name"] == "subject_type":                 
-            subject_typeList.append(field["value"])
-        elif field["name"] == "institutions_exclude":                 
-            institutionsExcludeList.append(field["value"])
-        elif field["name"] == "institutions_include":                 
-            institutionsIncludeList.append(field["value"])
-        elif field["name"] == "experiments_exclude":                 
-            experimentsExcludeList.append(field["value"])
-        elif field["name"] == "experiments_include":                 
-            experimentsIncludeList.append(field["value"])
-        elif field["name"] == "schools_exclude":                 
-            schoolsExcludeList.append(field["value"])
-        elif field["name"] == "schools_include":                 
-            schoolsIncludeList.append(field["value"])
+        form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+
+        if form.is_valid():
+            #print("valid form")                                
+            form.save()    
+
+            es = addSessionBlank(e)
+
+            u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+
+            e.delete()
+            i1.delete()
+                                        
+            return JsonResponse({"status":"success",
+                                 "result": {"count":len(u_list)}}, safe=False)
         else:
-            form_data_dict[field["name"]] = field["value"]
+            print("invalid form2")
+            e.delete()
+            return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
+        
+        
 
-    form_data_dict["gender"]=genderList
-    form_data_dict["subject_type"]=subject_typeList
-    form_data_dict["institutions_exclude"]=institutionsExcludeList
-    form_data_dict["institutions_include"]=institutionsIncludeList
-    form_data_dict["experiments_exclude"]=experimentsExcludeList
-    form_data_dict["experiments_include"]=experimentsIncludeList
-    form_data_dict["schools_exclude"]=schoolsExcludeList
-    form_data_dict["schools_include"]=schoolsIncludeList
+    # genderList=[]
+    # subject_typeList=[]
+    # institutionsExcludeList=[]
+    # institutionsIncludeList=[]
+    # experimentsExcludeList=[]
+    # experimentsIncludeList=[]
+    # schoolsExcludeList=[]
+    # schoolsIncludeList=[]
+
+    # for field in data["formData"]:            
+    #     if field["name"] == "gender":                 
+    #         genderList.append(field["value"])
+    #     elif field["name"] == "subject_type":                 
+    #         subject_typeList.append(field["value"])
+    #     elif field["name"] == "institutions_exclude":                 
+    #         institutionsExcludeList.append(field["value"])
+    #     elif field["name"] == "institutions_include":                 
+    #         institutionsIncludeList.append(field["value"])
+    #     elif field["name"] == "experiments_exclude":                 
+    #         experimentsExcludeList.append(field["value"])
+    #     elif field["name"] == "experiments_include":                 
+    #         experimentsIncludeList.append(field["value"])
+    #     elif field["name"] == "schools_exclude":                 
+    #         schoolsExcludeList.append(field["value"])
+    #     elif field["name"] == "schools_include":                 
+    #         schoolsIncludeList.append(field["value"])
+    #     else:
+    #         form_data_dict[field["name"]] = field["value"]
+
+    # form_data_dict["gender"]=genderList
+    # form_data_dict["subject_type"]=subject_typeList
+    # form_data_dict["institutions_exclude"]=institutionsExcludeList
+    # form_data_dict["institutions_include"]=institutionsIncludeList
+    # form_data_dict["experiments_exclude"]=experimentsExcludeList
+    # form_data_dict["experiments_include"]=experimentsIncludeList
+    # form_data_dict["schools_exclude"]=schoolsExcludeList
+    # form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
-
-    if form.is_valid():
-        #print("valid form")                                
-        form.save()    
-                                    
-        return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
-    else:
-        print("invalid form2")
-        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
+   
 
