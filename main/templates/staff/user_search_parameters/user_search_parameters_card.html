@@ -2,7 +2,14 @@
 
 <div class="card" >                  
     <div class="card-header" >
-      Search for users meeting recruitment parameters
+        Search for users meeting recruitment parameters
+        
+        <div class="float-right">
+            {%if experiment_title %}
+            <span class="mr-2"> <a href='{%url 'experimentView' experiment_id%}'>{{experiment_title}}</a></span>
+            {%endif%}
+            <i v-show="loading" class="fas fa-spinner fa-spin"></i>
+        </div>
     </div>
     <div class="card-body" v-cloak>  
         <form id="updateRecruitmentParametersForm">

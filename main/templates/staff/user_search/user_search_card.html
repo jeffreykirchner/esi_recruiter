@@ -4,12 +4,13 @@
         Search Users 
         
         <span class="float-right">
+            <a href="{% url 'userSearchParameters' %}" class="mr-2">Search by recruitment parameters</a>
             {%if user.is_superuser%}
-                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">
+                <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "showSendMessage()">
                     Email <i class="fa fa-envelope fa-xs" aria-hidden="true"></i>
                 </button> 
             {%endif%}
-            Active Users: {{activeCount|intcomma}}
+            <span>Active Users: {{activeCount|intcomma}}</span>
         </span>  
                                                        
     </div>

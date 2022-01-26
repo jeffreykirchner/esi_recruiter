@@ -617,7 +617,7 @@
                         <textarea class="form-control" rows="5" v-model="experiment.reminderText" readonly="true"></textarea>
                     </div>               
                 </div>
-                <div class = "row mt-2">
+                <div class = "row mt-2 mb-4">
                     <div class="col col-md-4 text-right">
                             
                     </div>
@@ -627,15 +627,19 @@
                 </div>                
                 <!-- end experiment parameters -->
 
-                <br>
-                <br>
-
                 {%include "snippits/recruitmentParametersTable.html"%}
 
-                <br>
-                <br>
+                <div class = "row mt-2">
+                    <div class="col col-md-4 text-right">
+                            
+                    </div>
+                    <div class="col col-md-8">                        
+                        <a href="{%url 'userSearchParameters_id' id %}">Search for available subjects.</a>
+                    </div>               
+                </div>
+
                 <!-- session table -->
-                <div class="row">                   
+                <div class="row mt-4">                   
                     <div class="col">
                         <table class="table table-hover table-condensed table-responsive-xl">
                             <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>

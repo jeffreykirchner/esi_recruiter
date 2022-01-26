@@ -8,27 +8,7 @@ var app = new Vue({
     el: '#root',        
     data:{        
         experiment : {},
-        recruitment_params:{                          //recruiment parameters
-                gender:[],
-                subject_type:[],
-                actual_participants:1,
-                registration_cutoff:2,
-                experience_min:0,
-                experience_max:1000,
-                experience_constraint:false,
-                institutions_exclude_all:0,
-                institutions_include_all:0,
-                experiments_exclude_all:0,
-                experiments_include_all:0,
-                allow_multiple_participations:false,
-                institutions_exclude:[],
-                institutions_include:[],
-                experiments_exclude:[],
-                experiments_include:[],
-                trait_constraints:[],
-                schools_include:[],
-                schools_exclude:[],
-            },
+        recruitment_params:{{recruitment_params|safe}},
         recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         confirmedCount:0,
         session:{confirmedCount:0},             //recruitment form parameter
@@ -54,6 +34,8 @@ var app = new Vue({
         //update recruitment parameters 
         search: function(){           
             app.working = true;
+            app.searchResults = [];
+            document.getElementById("id_search_results").scrollIntoView();
 
             axios.post('{{ request.path }}', {
                     status :"search" ,                                
@@ -110,7 +92,7 @@ var app = new Vue({
 
     //run when vue is mounted
     mounted: function(){
-        
+        this.loading = false;
     },                 
 
 });

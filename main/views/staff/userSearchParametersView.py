@@ -9,6 +9,7 @@ from django.db.models import CharField, F, Value as V
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.decorators import user_is_staff
 
@@ -26,7 +27,7 @@ import main
 
 @login_required
 @user_is_staff
-def userSearchParametersView(request):
+def userSearchParametersView(request, id=None):
     '''
     search for users using recruiment parameters
     '''
@@ -55,12 +56,39 @@ def userSearchParametersView(request):
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
 
+        recruitment_params = {}
+
+        if not id:
+            #no experiment id provided, create dummy experiment
+            with transaction.atomic():
+                i1=main.models.institutions(name="search")
+                i1.save()
+
+                e = createExperimentBlank()
+                e.institution.set([i1])
+                e.save()
+
+                recruitment_params = e.recruitment_params_default.json() 
+
+                e.delete()
+                i1.delete()
+        else:
+            try:
+                e = experiments.objects.get(id=id)     
+            except ObjectDoesNotExist :
+                raise Http404('Experiment Not Found')   
+            
+            recruitment_params = e.recruitment_params_default.json() 
+
         return render(request,
                       'staff/userSearchParameters.html',
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
-                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
+                       'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
-                       })
+                       'experiment_id':e.id if id else None,
+                       'experiment_title':e.title if id else None,
+                       'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),
+                       },)
 
 def search(data):
     '''
@@ -99,7 +127,10 @@ def search(data):
                                             "u_list_json": list(u_list_json)}}, safe=False)
         else:
             print("invalid form2")
+
             e.delete()
+            i1.delete()
+
             return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
         
         
