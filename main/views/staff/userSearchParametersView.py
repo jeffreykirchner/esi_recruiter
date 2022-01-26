@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import json
 import logging
 
@@ -38,7 +40,7 @@ def userSearchParametersView(request, id=None):
         data = json.loads(request.body.decode('utf-8'))              
 
         if data["status"] == "search":
-            return search(data)                     
+            return search(data, id)                     
 
     else: #GET             
 
@@ -90,37 +92,64 @@ def userSearchParametersView(request, id=None):
                        'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),
                        },)
 
-def search(data):
+def search(data, id):
     '''
     search for valid subjects based on recruiment parameters
     '''
     logger = logging.getLogger(__name__)
     logger.info(f"Update default recruitment parameters: {data}")
 
-    with transaction.atomic():
-        i1=main.models.institutions(name="search")
-        i1.save()
+    with transaction.atomic():    
 
-        e = createExperimentBlank()
-        e.institution.set([i1])
-        e.save()
+        form_data_dict = data["formData"]  
 
-        form_data_dict = data["formData"]
+        e = None
+        es = None
+        i1 = None
 
-        form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+        if not id:
+            #no experiment provided
+            i1=main.models.institutions(name="search")
+            i1.save()
+
+            e = createExperimentBlank()
+            e.institution.set([i1])
+            e.save()            
+
+            form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+        else:
+            #experiment provided
+            e = experiments.objects.get(id=id)
+            es = addSessionBlank(e)
+            esd = es.ESD.first()
+            esd.date = esd.date + timedelta(days=1000)
+
+            form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
 
         if form.is_valid():
-            #print("valid form")                                
+            #print("valid form")                       
             form.save()    
 
-            es = addSessionBlank(e)
+            if id:
+                #experiment provided
+                u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+                u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
 
-            u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+                es.delete()                
+            else:
+                #no experiment provided
 
-            u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
+                es = addSessionBlank(e)
 
-            e.delete()
-            i1.delete()
+                esd = es.ESD.first()
+                esd.date = esd.date + timedelta(days=1000)
+                esd.save()
+
+                u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+                u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
+
+                e.delete()
+                i1.delete()
                                         
             return JsonResponse({"status":"success",
                                  "result": {"count":len(u_list),
@@ -128,8 +157,15 @@ def search(data):
         else:
             print("invalid form2")
 
-            e.delete()
-            i1.delete()
+            if id:
+                #experiment provided
+                if es:
+                    es.delete()
+            else:
+                #no experiment provided
+                if e:
+                    e.delete()
+                    i1.delete()
 
             return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
         
