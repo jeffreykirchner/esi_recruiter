@@ -87,7 +87,11 @@ var app = new Vue({
                 elmnt.scrollIntoView();   
             }
         },
-        
+
+        //show edit trait
+        editTrait:function(index){
+
+        },        
     },
 
     //run when vue is mounted
