@@ -1,0 +1,203 @@
+{% load crispy_forms_tags %}
+
+<div class="card">
+    <div class="card-header">
+        Experiment: <span v-if="loading"><i class="fas fa-spinner fa-spin"></i></span><span v-html="experiment.title"></span>
+    </div>
+
+    <div class="card-body">
+        <!-- Experiment parameters-->
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                <!-- <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="modal" data-target="#setupModalCenter"><i class="fas fa-pen fa-xs"></i></button> <u>Experiment Parameters</u>  -->                      
+                <u>Experiment Parameters</u>
+            </div>
+            <div class="col col-md-8">
+                
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.title.label}}:
+            </div>
+            <div class="col col-md-8">
+                <span v-html="experiment.title"></span>
+            </div>               
+        </div>  
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.experiment_manager.label}}:
+            </div>
+            <div class="col col-md-8">
+                <span v-html="experiment.experiment_manager"></span>
+            </div>               
+        </div>                                
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.length_default.label}}:
+            </div>
+            <div class="col col-md-8">
+                <span v-html="experiment.length_default"></span>
+            </div>               
+        </div> 
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.school.label}}:
+            </div>
+            <div class="col col-md-8">
+                <span v-html="experiment.school_full.name"></span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.account_default.label}}:
+            </div>
+            <div class="col col-md-8">
+                <span v-html="experiment.account_default_full.str"></span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.showUpFee.label}}:
+            </div>
+            <div class="col col-md-8">
+                $<span v-html="experiment.showUpFee"></span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                Institution(s):
+            </div>
+            <div class="col col-md-8">
+                <span v-html="institutions_list"></span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col col-md-4 text-right">
+                {{form1.notes.label}}:
+            </div>
+            <div class="col col-md-8">   
+                <div class="form-control scrollable" v-html="experiment.notes"></div>                     
+            </div>               
+        </div>
+        <div class = "row row mt-2">
+            <div class="col col-md-4 text-right">
+                {{form1.invitationText.label}}:
+            </div>
+            <div class="col col-md-8">                        
+                <div class="form-control scrollable" v-html="experiment.invitationText"></div>
+            </div>               
+        </div>
+        <div class = "row row mt-2">
+            <div class="col col-md-4 text-right">
+                {{form1.reminderText.label}}:
+            </div>
+            <div class="col col-md-8">                        
+                <div class="form-control scrollable" v-html="experiment.reminderText"></div>
+            </div>               
+        </div>
+        <div class = "row mt-2">
+            <div class="col col-md-4 text-right">
+                    
+            </div>
+            <div class="col col-md-8">                        
+                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
+            </div>               
+        </div>                
+        <!-- end experiment parameters -->
+
+        <br>
+        <br>
+
+        {%include "snippits/recruitmentParametersTable.html"%}
+
+        <br>
+        <br>
+        <!-- session table -->
+        <div class="row">                   
+            <div class="col">
+                <table class="table table-hover table-condensed table-responsive-xl">
+                    <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>
+                    <thead>
+                        <th scope="col">
+                            Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
+                            <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Creator
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Status
+                        </th> 
+                        <th scope="col" style="text-align: center;">
+                            Confirmed/Invited
+                        </th>                                                      
+                        <th scope="col" style="text-align: center;">
+                            Edit
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Remove
+                        </th>
+                    </thead>
+                    <tbody id="sessionList">                                
+                        <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
+                            <td>
+                                <span v-for="(d,index) in s.experiment_session_days">
+                                    <div>
+                                        <span v-if="d.enable_time">
+                                            <span v-html="formatDate(d.date,false)"></span>
+                                        </span>
+                                        <span v-else>
+                                            <span v-html="formatDate(d.date,true)"></span> Anytime
+                                        </span>
+                                            
+                                        <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
+                                    </div>                                                                                                                                                                             
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span v-html="s.creator"></span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div v-if="s.complete">
+                                    <span v-html="'Complete'"></span>
+                                </div>
+                                <div v-else>
+                                    <span v-html="'Open'"></span>
+                                </div>
+                                <div v-if="s.canceled">
+                                    <span v-html="'Canceled'" style="color: red;"></span>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span v-for="(d,index) in s.experiment_session_days">
+                                    <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>                                                                        
+                                </span>                                        
+                            </td>                               
+                            <td style="text-align: center;">                                        
+                                <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">
+                                    Edit <i class="fas fa-edit fa-xs"></i>
+                                </button>                                                                                                                                                                   
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">
+                                    Delete <i class="fas fa-trash fa-xs"></i>
+                                </button>                                                                                                                                                                    
+                            </td>                            
+                        </tr>                                                  
+                    </tbody>
+                    <tfoot>
+                        <tr v-if="sessions.length === 0">
+                            <td><span v-html="'No Sessions'"></span></td>
+                            <td style="text-align: center;"><span v-html="'---'"></span></td>
+                            <td style="text-align: center;"><span v-html="'---'"></span></td>
+                            <td style="text-align: center;"><span v-html="'---'"></span></td>
+                        </tr>                                   
+                    </tfoot>
+                </table>
+            </div>
+        </div>             
+        
+        
+    </div>      
+</div>

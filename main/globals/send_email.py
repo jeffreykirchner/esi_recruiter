@@ -11,6 +11,7 @@ import sys
 
 from django.utils.crypto import get_random_string
 from django.conf import settings
+from django.utils.html import strip_tags
 
 from main.models import profile
 from main.models import parameters
@@ -45,7 +46,7 @@ def send_mass_email_verify(profile_list, request):
     memo = 'Bulk account deactivation'
 
     try:
-        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText, None, memo)             
+        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText,  params.deactivationText, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -69,7 +70,7 @@ def profile_create_send_email(user):
     memo = f'Verfiy email address for user {user.id}'
 
     try:
-        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, None, memo)             
+        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, params.emailVerificationResetText, memo)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -126,7 +127,7 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     data = {"user_list" : user_list,
             "message_subject" : message_subject,
-            "message_text" : message_text,
+            "message_text" : strip_tags(message_text).replace("&nbsp;", " "),
             "message_text_html" : message_text_html,
             "memo" : memo}
     
