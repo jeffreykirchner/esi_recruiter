@@ -217,6 +217,7 @@ class experiment_session_days(models.Model):
         message = message.replace("[session date and time]", self.getDateString())
         message = message.replace("[on time bonus]", "$" + self.experiment_session.experiment.getShowUpFeeString())
         message = message.replace("[contact email]", p.labManager.email)
+        message = message.replace("[session id]", str(self.experiment_session.id))
 
         return message
 
@@ -251,7 +252,13 @@ class experiment_session_days(models.Model):
 
         for i in users_list:
             user_list.append({'email':i.user.email,
-                              'variables':[{'name':'first name', 'text':i.user.first_name}]})
+                              'variables':[{"name" : "first name", "text" : i.user.first_name},
+                                           {"name" : "last name", "text" : i.user.last_name},
+                                           {"name" : "email", "text" : i.user.email},
+                                           {"name" : "recruiter id", "text" : str(i.user.id)},
+                                           {"name" : "student id", "text" : i.user.profile.studentID},
+                                          ]
+                             })
 
         logger.info(user_list)
 
