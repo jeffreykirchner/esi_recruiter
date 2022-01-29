@@ -18,12 +18,13 @@
             theme: "silver",
             auto_focus: 'id_invitationRawText',
             plugins: "directionality,paste,searchreplace,code,link",
+                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
             directionality: "{{ directionality }}",
         });
 
         // Prevent Bootstrap dialog from blocking focusin
-        document.addEventListener('focusin', (e) => {
-            if (e.target.closest(".tox-tinymce-aux, .moxman-window, .tam-assetmanager-root") !== null) {
+        $(document).on('focusin', function(e) {
+            if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
                 e.stopImmediatePropagation();
             }
         });
