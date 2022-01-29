@@ -502,6 +502,7 @@ var app = new Vue({
         //fill inviation text with experiment default
         fillInvitationWithDefault:function(){
             app.$data.session.invitationRawText = app.$data.experiment_invitation_text;
+            tinymce.get("id_invitationRawText").setContent(app.$data.session.invitationRawText);
         },
 
         //displays to the form errors
