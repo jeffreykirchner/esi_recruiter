@@ -1,7 +1,15 @@
+from tinymce.widgets import TinyMCE
+
 from django import forms
-from main.models import schools,accounts,institutions,experiments
+from main.models import schools
+from main.models import accounts
+from main.models import institutions
+from main.models import experiments
 
 class experimentForm1(forms.ModelForm):   
+    '''
+    edit experiment parmeters
+    '''
     title = forms.CharField(label='Title',
                             widget=forms.TextInput(attrs={"v-model":"experiment.title",
                                                           "v-on:keyup":"mainFormChange1"}))
@@ -40,14 +48,16 @@ class experimentForm1(forms.ModelForm):
                                                                                       "v-bind:disabled":"experiment.confirmationFound === true"}))    
 
     invitationText = forms.CharField(label='Recruitment Email',
-                                     widget=forms.Textarea(attrs={"v-model":"experiment.invitationText",
-                                                                  "v-on:keyup":"mainFormChange1",
-                                                                  "rows":"12"}))
+                                     widget=TinyMCE(attrs={"v-model":"experiment.invitationText",
+                                                           "v-on:keyup":"mainFormChange1",
+                                                           "plugins": "link image code",
+                                                           "rows":"12"}))
 
     reminderText = forms.CharField(label='Reminder Email',
-                                     widget=forms.Textarea(attrs={"v-model":"experiment.reminderText",
-                                                                  "v-on:keyup":"mainFormChange1",
-                                                                  "rows":"12"}))                                                                                                                                                                                                                                                                   
+                                   widget=TinyMCE(attrs={"v-model":"experiment.reminderText",
+                                                         "v-on:keyup":"mainFormChange1",
+                                                         "plugins": "link image code",
+                                                         "rows":"12"}))                                                                                                                                                                                                                                                                   
 
     class Meta:
         model=experiments
