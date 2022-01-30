@@ -175,7 +175,7 @@ def sendMessage(data, id):
             
     memo = f'Send message to session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
 
     #logger.info(userPkList)
 
@@ -230,7 +230,7 @@ def cancelSession(data, id):
                 
         memo = f'Cancel session: {es.id}'
 
-        mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
 
         logger.info(userPkList)
 
@@ -283,11 +283,16 @@ def inviteSubjects(data, id, request):
 
     for i in subjectInvitations:
         try:
-
             userPkList.append(i['id'])
             es.addUser(i['id'], request.user, False)
             user_list.append({"email" : i['email'],
-                              "variables": [{"name" : "first name", "text" : i["first_name"]}]})
+                              "variables": [{"name" : "first name", "text" : i["first_name"]},
+                                            {"name" : "last name", "text" : i["last_name"]},
+                                            {"name" : "email", "text" : i["email"]},
+                                            {"name" : "recruiter id", "text" : str(i["id"])},
+                                            {"name" : "student id", "text" : i["studentID"]},
+                                           ]
+                            })
 
         except IntegrityError:
             userFails.append(i)
@@ -295,7 +300,7 @@ def inviteSubjects(data, id, request):
             
     memo = f'Send invitations for session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
 
     if(mail_result["error_message"] != ""):
         status = "fail"
@@ -482,14 +487,20 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
             messageText = es.getInvitationEmail()
 
             user_list.append({"email" : u['email'],
-                              "variables": [{"name" : "first name", "text" : u["first_name"]}]})
+                              "variables": [{"name" : "first name", "text" : u["first_name"]},
+                                            {"name" : "last name", "text" : u["last_name"]},
+                                            {"name" : "email", "text" : u["email"]},
+                                            {"name" : "recruiter id", "text" : str(u["id"])},
+                                            {"name" : "student id", "text" : u["profile__studentID"]},
+                                           ]
+                            })
             
             memo = f'Manual invitation for session: {es.id}'
 
-            mail_result = send_mass_email_service(user_list, subjectText, messageText, None, memo)
+            mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
 
         else:
-            mail_result =  {"mail_count":0, "error_message":""}    
+            mail_result =  {"mail_count" : 0, "error_message" : ""}    
 
         #store invitation
         storeInvitation(id,[u["id"]], subjectText, messageText, mail_result['mail_count'], mail_result['error_message']) 

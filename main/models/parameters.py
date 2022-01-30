@@ -1,13 +1,11 @@
 '''
 site wide parameters
 '''
-# import logging
-# import traceback
+from tinymce.models import HTMLField
 
 from django.db import models
 from django.contrib.auth.models import User
 
-#gloabal parameters for site
 class parameters(models.Model):
     '''
     site wide parameters
@@ -30,19 +28,19 @@ class parameters(models.Model):
     invitationTextSubject = models.CharField(max_length=1000, default="")                 #email subject text for the single day invitation
         
     cancelationTextSubject = models.CharField(max_length = 1000, default="")              #email subject text when an experiment is canceled
-    cancelationText = models.CharField(max_length=10000, default="")                      #email text when an experiment is canceled
+    cancelationText = HTMLField(default="")                                               #email text when an experiment is canceled
     
     reminderTextSubject = models.CharField(max_length = 1000,default = "")                 #email subject text to remind subjects 24 hours before start
-    reminderText = models.CharField(max_length = 10000,default = "")                       #email text to remind subjects 24 hours before start
+    reminderText = HTMLField(default = "")                                                 #email text to remind subjects 24 hours before start
 
     deactivationTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text to  subject when account is deactivated
-    deactivationText = models.CharField(max_length = 10000,default = "")                   #email text to  subject when account is deactivated
+    deactivationText = HTMLField(default = "")                                             #email text to  subject when account is deactivated
 
     passwordResetTextSubject = models.CharField(max_length = 1000,default = "")             #email subject text when password reset
-    passwordResetText = models.CharField(max_length = 10000,default = "")                   #email text sent when password reset
+    passwordResetText = HTMLField(default = "")                                             #email text sent when password reset
 
     emailVerificationTextSubject = models.CharField(max_length = 1000,default = "")         #email subject sent to user to verify their email address
-    emailVerificationResetText = models.CharField(max_length = 10000,default = "")          #email text sent to user to verify their email address
+    emailVerificationResetText = HTMLField(default = "")                                    #email text sent to user to verify their email address
     
     consentForm = models.CharField(max_length = 50000, default ="")                         #consent for subject must agree to before participation 
 

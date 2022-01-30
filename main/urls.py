@@ -64,6 +64,7 @@ urlpatterns = [
     path('robots.txt', views.RobotsTxt, name='robotsTxt'),
     path('ads.txt', views.AdsTxt, name='adsTxt'),
     path('.well-known/security.txt', views.SecurityTxt, name='securityTxt'),
+     path('security.txt', views.SecurityTxt, name='securityTxt'),
     path('humans.txt', views.HumansTxt, name='humansTxt'),
 
     #icons
