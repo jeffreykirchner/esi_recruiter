@@ -1,14 +1,21 @@
+import pytz
+
+from tinymce.widgets import TinyMCE
+
 from django import forms
-from main.models import parameters
 from django.contrib.auth.models import User
 from django.forms import ModelChoiceField
-import pytz
+
+from main.models import parameters
 
 class UserModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
          return obj.get_full_name()
 
 class parametersForm(forms.ModelForm):
+    '''
+    site parameters admin form
+    '''
     labManager = UserModelChoiceField(label="Lab Manager",
                                       queryset=User.objects.filter(is_staff = True).order_by('last_name','first_name'),
                                       widget=forms.Select(attrs={})) 
@@ -41,34 +48,34 @@ class parametersForm(forms.ModelForm):
                                              widget=forms.TextInput(attrs={"size":"125"}))
 
     cancelationText = forms.CharField(label='Cancelation Email, Text',
-                                      widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                      widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
 
     reminderTextSubject = forms.CharField(label='Reminder Email, Subject',
                                           widget=forms.TextInput(attrs={"size":"125"}))
 
     reminderText = forms.CharField(label='Reminder Email, Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                   widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
     
     deactivationTextSubject = forms.CharField(label='Deactivation Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
     deactivationText = forms.CharField(label='Deactivation Email, Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                       widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
 
     passwordResetTextSubject = forms.CharField(label='Password Reset Email, Subject',
                                          widget=forms.TextInput(attrs={"size":"125"}))
 
     passwordResetText = forms.CharField(label='Password Reset Email, Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                        widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
 
     emailVerificationTextSubject = forms.CharField(label='Account Creation Verification, Subject',
-                                         widget=forms.TextInput(attrs={"size":"125"}))
+                                                   widget=forms.TextInput(attrs={"size":"125"}))
 
     emailVerificationResetText = forms.CharField(label='Account Creation Verification, Text',
-                                     widget=forms.Textarea(attrs={"rows":"15", "cols":"125"}))
+                                                 widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
     
     consentForm = forms.CharField(label='Consent Form',
-                                     widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))
+                                  widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))
 
     subjectTimeZone = forms.ChoiceField(label="Subject Timezone",
                                         choices=[(tz, tz) for tz in pytz.all_timezones])

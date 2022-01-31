@@ -1,6 +1,8 @@
 import logging
 import pytz
 
+from tinymce.models import HTMLField
+
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
@@ -25,11 +27,12 @@ class experiments(models.Model):
     title = models.CharField(max_length=300, default="***New Experiment***")                    #name of experimet 
     experiment_manager = models.CharField(max_length=300, default="***Manager Here***")         #faculty running experiment
 
-    length_default = models.IntegerField(default=60)                              #default length of experiment
+    length_default = models.IntegerField(default=60)                                #default length of experiment
     notes = models.TextField(default="")                                            #notes about the experiment
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)     #amount subjects earn for attending by default
-    invitationText = models.CharField(max_length=10000, default="")              #text of email invitation subjects receive
-    reminderText = models.CharField(max_length=10000, default="")                #text of email reminder subjects receive
+
+    invitationText = HTMLField(default="")                 #text of email invitation subjects receive
+    reminderText = HTMLField(default="")                   #text of email reminder subjects receive
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

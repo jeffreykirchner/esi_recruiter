@@ -1,5 +1,6 @@
 from random import randrange
 from datetime import datetime
+from tinymce.models import HTMLField
 
 import logging
 import pytz
@@ -28,7 +29,8 @@ class experiment_sessions(models.Model):
     canceled = models.BooleanField(default=False)
 
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
-    invitation_text = models.CharField(max_length=10000, default="")                                 #text of email invitation subjects receive
+
+    invitation_text = HTMLField(default="")                                 #text of email invitation subjects receive
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -81,6 +83,7 @@ class experiment_sessions(models.Model):
         message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
         message = message.replace("[contact email]", p.labManager.email)
         message = message.replace("[profile link]",p.siteURL + reverse('profile'))
+        message = message.replace("[session id]", str(self.id))
 
         return message
     
