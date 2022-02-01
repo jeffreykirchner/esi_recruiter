@@ -24,6 +24,7 @@ from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSearchView import createExperimentBlank
 
 from main.forms import recruitmentParametersForm
+from main.forms import TraitConstraintForm
 
 import main
 
@@ -87,6 +88,7 @@ def userSearchParametersView(request, id=None):
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
                        'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
+                       'traitConstraintForm':TraitConstraintForm(),
                        'experiment_id':e.id if id else None,
                        'experiment_title':e.title if id else None,
                        'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),

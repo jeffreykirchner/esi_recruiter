@@ -16,6 +16,15 @@ var app = new Vue({
         buttonText1:"Search",                 //recruitment parameters update button text         
         working:false,          
         searchResults:[],
+        addTraitButtonText:'Add <i class="fas fa-plus fa-xs"></i>',
+        updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
+        current_trait:{
+            id:0,
+            trait_id:0,
+            min_value:0,
+            max_vaue:0,
+            include_if_in_range:true,
+        },  
     },
 
     methods:{     
@@ -88,15 +97,85 @@ var app = new Vue({
             }
         },
 
-        //show edit trait
-        editTrait:function(index){
+        //add trait
+        addTrait:function(){
+            
+        },
 
-        },        
+        //update trait
+        updateTrait:function(){
+
+            trait = app.getTraitById(app.current_trait.id);
+            trait.min_value = app.current_trait.min_value;
+            trait.max_value = app.current_trait.max_value;
+            trait.trait_id = app.current_trait.trait_id;
+            trait.include_if_in_range = app.current_trait.include_if_in_range;
+
+            e = document.getElementById('id_trait');            
+            trait.trait_name = e.options[e.selectedIndex].text;
+
+            $('#updateTraitModal').modal('toggle');
+        },
+
+        //delete trait
+        deleteTrait:function(id){
+            
+        },  
+        
+        //fire when edit trait model needs to be shown
+        showEditTraits:function(){
+            
+            $('#editTraitsModal').modal('show');
+            //app.clearMainFormErrors();
+        },
+
+        //fire when hide edit traits
+        hideEditTraits:function(){
+            
+        },
+
+        // fire when edit trait model is shown
+        showUpdateTrait:function(id, index){
+
+            tc = app.recruitment_params.trait_constraints[index];
+
+            app.cancelModal=true;
+            app.current_trait.id = id;
+            app.current_trait.min_value = tc.min_value;
+            app.current_trait.max_value = tc.max_value;
+            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.include_if_in_range = tc.include_if_in_range;
+
+            $('#updateTraitModal').modal('show');
+            app.clearMainFormErrors();
+        },
+
+        getTraitById(id){
+            for(let i=0; i<app.recruitment_params.trait_constraints.length; i++)
+            {
+                if(app.recruitment_params.trait_constraints[i].id == id){
+                    return app.recruitment_params.trait_constraints[i];
+                }
+            }
+
+            return null;
+        },
+
+        //fire when edit experiment model hides, cancel action if nessicary
+        hideUpdateTrait:function(){
+            if(app.$data.cancelModal)
+            {
+               
+            }
+        },
+
     },
 
     //run when vue is mounted
     mounted: function(){
         this.loading = false;
+        $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
+        $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
     },                 
 
 });
