@@ -132,6 +132,8 @@ def search(data, id):
             esd = es.ESD.first()
             esd.date = esd.date + timedelta(days=1000)
 
+            es.recruitment_params.trait_constraints.all().delete()
+
             #traits
             es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
             for i in trait_data_list:
