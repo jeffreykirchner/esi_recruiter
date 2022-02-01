@@ -204,7 +204,7 @@ def updateForm1(data,id):
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #update the default recruitment parameters        
-def updateRecruitmentParameters(data,id):
+def updateRecruitmentParameters(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Update default recruitment parameters")
     logger.info(data)

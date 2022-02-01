@@ -96,7 +96,7 @@
                 <div class="form-control scrollable" v-html="experiment.reminderText"></div>
             </div>               
         </div>
-        <div class = "row mt-2">
+        <div class = "row mt-2 mb-2">
             <div class="col col-md-4 text-right">
                     
             </div>
@@ -106,13 +106,17 @@
         </div>                
         <!-- end experiment parameters -->
 
-        <br>
-        <br>
-
         {%include "snippits/recruitmentParametersTable.html"%}
 
-        <br>
-        <br>
+        <div class = "row mt-2 mb-4">
+            <div class="col col-md-4 text-right">
+                    
+            </div>
+            <div class="col col-md-8">                        
+                <a href="{%url 'userSearchParameters_id' id %}">Search for available subjects.</a>
+            </div>               
+        </div>
+
         <!-- session table -->
         <div class="row">                   
             <div class="col">
