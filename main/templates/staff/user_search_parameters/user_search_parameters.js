@@ -7,7 +7,6 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     el: '#root',        
     data:{        
-        experiment : {},
         recruitment_params:{{recruitment_params|safe}},
         recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         confirmedCount:0,
@@ -48,7 +47,9 @@ var app = new Vue({
 
             axios.post('{{ request.path }}', {
                     status :"search" ,                                
-                    formData : this.recruitment_params,                                                              
+                    formData : app.recruitment_params,          
+                    trait_parameters : app.recruitment_params.trait_constraints,     
+                    trait_constraints_require_all : app.recruitment_params.trait_constraints_require_all,                                          
                 })
                 .then(function (response) {     
                                                          
@@ -99,27 +100,63 @@ var app = new Vue({
 
         //add trait
         addTrait:function(){
+
+            var id = 0;
             
+            // find highest id
+            for(let i=0; i<app.recruitment_params.trait_constraints.length; i++)
+            {
+                if(app.recruitment_params.trait_constraints[i].id > id){
+                    id = app.recruitment_params.trait_constraints[i].id;
+                }
+            }
+
+            e = document.getElementById('id_trait');            
+            e.selectedIndex = 1;
+
+            trait = {"id":id+1,
+                     "name": e.options[e.selectedIndex].text + " Inc. 0.00-10.00",
+                     "trait_name":e.options[e.selectedIndex].text,
+                     "trait_id":e.value,
+                     "min_value":"0.00",
+                     "max_value":"10.00",
+                     "recruitment_parameter_id":0,
+                     "include_if_in_range":true};
+            
+            app.recruitment_params.trait_constraints.push(trait);
+        },
+
+        //no action when changed
+        updateRequireAllTraitContraints:function(){
         },
 
         //update trait
         updateTrait:function(){
 
             trait = app.getTraitById(app.current_trait.id);
-            trait.min_value = app.current_trait.min_value;
-            trait.max_value = app.current_trait.max_value;
+            trait.min_value = Number(app.current_trait.min_value).toFixed(2);
+            trait.max_value = Number(app.current_trait.max_value).toFixed(2);
             trait.trait_id = app.current_trait.trait_id;
             trait.include_if_in_range = app.current_trait.include_if_in_range;
 
             e = document.getElementById('id_trait');            
             trait.trait_name = e.options[e.selectedIndex].text;
 
+            let mode = trait.include_if_in_range ? "Inc." : "Exc.";
+            trait.name = trait.trait_name + " " + mode + " " + trait.min_value + "-" + trait.max_value;
+
             $('#updateTraitModal').modal('toggle');
         },
 
         //delete trait
         deleteTrait:function(id){
-            
+            for(let i=0; i<app.recruitment_params.trait_constraints.length; i++)
+            {
+                if(app.recruitment_params.trait_constraints[i].id == id){
+                    app.recruitment_params.trait_constraints.splice(i, 1);
+                    return;
+                }
+            }
         },  
         
         //fire when edit trait model needs to be shown

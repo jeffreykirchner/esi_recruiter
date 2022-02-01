@@ -19,6 +19,8 @@ from main.models import experiments
 from main.models import experiment_sessions
 from main.models import parameters
 from main.models import help_docs
+from main.models import Recruitment_parameters_trait_constraint
+from main.models import Traits
 
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSearchView import createExperimentBlank
@@ -99,11 +101,15 @@ def search(data, id):
     search for valid subjects based on recruiment parameters
     '''
     logger = logging.getLogger(__name__)
-    logger.info(f"Update default recruitment parameters: {data}")
+    #logger.info(f"Update default recruitment parameters: {data}")
 
     with transaction.atomic():    
 
         form_data_dict = data["formData"]  
+        trait_data_list = data["trait_parameters"]
+        trait_constraints_require_all = data["trait_constraints_require_all"]
+
+        logger.info(f'trait_data_dict: {trait_data_list}')
 
         e = None
         es = None
@@ -126,6 +132,17 @@ def search(data, id):
             esd = es.ESD.first()
             esd.date = esd.date + timedelta(days=1000)
 
+            #traits
+            es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
+            for i in trait_data_list:
+                tc = Recruitment_parameters_trait_constraint()
+                tc.recruitment_parameter = es.recruitment_params
+                tc.trait = Traits.objects.get(id=i["trait_id"])
+                tc.min_value = i["min_value"]
+                tc.max_value = i["max_value"]
+                tc.include_if_in_range = i["include_if_in_range"]
+                tc.save()
+
             form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
 
         if form.is_valid():
@@ -142,6 +159,18 @@ def search(data, id):
                 #no experiment provided
 
                 es = addSessionBlank(e)
+
+                #traits
+                es.recruitment_params.trait_constraints_require_all = True if trait_constraints_require_all=='true' else False
+
+                for i in trait_data_list:
+                    tc = Recruitment_parameters_trait_constraint()
+                    tc.recruitment_parameter = es.recruitment_params
+                    tc.trait = Traits.objects.get(id=i["trait_id"])
+                    tc.min_value = i["min_value"]
+                    tc.max_value = i["max_value"]
+                    tc.include_if_in_range = i["include_if_in_range"]
+                    tc.save()
 
                 esd = es.ESD.first()
                 esd.date = esd.date + timedelta(days=1000)
@@ -170,47 +199,5 @@ def search(data, id):
                     i1.delete()
 
             return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
-        
-        
-
-    # genderList=[]
-    # subject_typeList=[]
-    # institutionsExcludeList=[]
-    # institutionsIncludeList=[]
-    # experimentsExcludeList=[]
-    # experimentsIncludeList=[]
-    # schoolsExcludeList=[]
-    # schoolsIncludeList=[]
-
-    # for field in data["formData"]:            
-    #     if field["name"] == "gender":                 
-    #         genderList.append(field["value"])
-    #     elif field["name"] == "subject_type":                 
-    #         subject_typeList.append(field["value"])
-    #     elif field["name"] == "institutions_exclude":                 
-    #         institutionsExcludeList.append(field["value"])
-    #     elif field["name"] == "institutions_include":                 
-    #         institutionsIncludeList.append(field["value"])
-    #     elif field["name"] == "experiments_exclude":                 
-    #         experimentsExcludeList.append(field["value"])
-    #     elif field["name"] == "experiments_include":                 
-    #         experimentsIncludeList.append(field["value"])
-    #     elif field["name"] == "schools_exclude":                 
-    #         schoolsExcludeList.append(field["value"])
-    #     elif field["name"] == "schools_include":                 
-    #         schoolsIncludeList.append(field["value"])
-    #     else:
-    #         form_data_dict[field["name"]] = field["value"]
-
-    # form_data_dict["gender"]=genderList
-    # form_data_dict["subject_type"]=subject_typeList
-    # form_data_dict["institutions_exclude"]=institutionsExcludeList
-    # form_data_dict["institutions_include"]=institutionsIncludeList
-    # form_data_dict["experiments_exclude"]=experimentsExcludeList
-    # form_data_dict["experiments_include"]=experimentsIncludeList
-    # form_data_dict["schools_exclude"]=schoolsExcludeList
-    # form_data_dict["schools_include"]=schoolsIncludeList
-
-    #print(form_data_dict)
    
 

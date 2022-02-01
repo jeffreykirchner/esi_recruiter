@@ -104,11 +104,30 @@
         <!-- traits -->
         <div class="row mb-2">
             <div class = "col"> 
+                Traits:
+            </div>
+        </div>
+        <div v-if=" recruitment_params.trait_constraints.length>0">
+            <div class="row" v-for="(t, index) in recruitment_params.trait_constraints" v-bind:key="t.id">            
+                <div class = "col"> 
+                    [[t.name]]
+                </div>
+            </div>
+        </div>
+        <div v-else>
+            <div class="row">            
+                <div class = "col"> 
+                    No Trait Constraints
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2 mt-2">
+            <div class = "col"> 
                 <button type="button" 
                             class="btn btn-outline-primary" 
                             v-on:click = "showEditTraits()" 
                             v-bind:disabled = "working">
-                        Edit Traits
+                        Edit Traits <i class="fas fa-edit"></i>
                     </button>
             </div>
         </div>        

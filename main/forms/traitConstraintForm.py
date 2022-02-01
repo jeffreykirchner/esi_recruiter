@@ -7,8 +7,9 @@ import logging
 class TraitConstraintForm(forms.ModelForm):
 
     trait = forms.ModelChoiceField(label="Trait",
-                                     queryset=Traits.objects.order_by("name"),
-                                     widget=forms.Select(attrs={"v-model":"current_trait.trait_id"}))
+                                   empty_label=None,
+                                   queryset=Traits.objects.order_by("name"),
+                                   widget=forms.Select(attrs={"v-model":"current_trait.trait_id"}))
 
     include_if_in_range = forms.ChoiceField(label="Mode",
                                       choices=(('true', "Include if in range."), ('false', "Exclude if in range.")),
