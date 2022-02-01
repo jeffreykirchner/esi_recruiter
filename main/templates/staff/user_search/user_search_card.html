@@ -1,0 +1,114 @@
+{% load humanize %}
+<div class="card">                  
+    <div class="card-header">
+        Search Users 
+        
+        <span class="float-right">
+            <a href="{% url 'userSearchParameters' %}" class="mr-2">Search by recruitment parameters</a>
+            {%if user.is_superuser%}
+                <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "showSendMessage()">
+                    Email <i class="fa fa-envelope fa-xs" aria-hidden="true"></i>
+                </button> 
+            {%endif%}
+            <span>Active Users: {{activeCount|intcomma}}</span>
+        </span>  
+                                                       
+    </div>
+    <div class="card-body">
+        
+        <div class="row align-items-center">
+            <div class="col col-lg-3">
+                
+            </div>
+            <div class="col col-lg-6">
+                <center>
+                    <div class="input-group mb-3">
+                        <input  v-on:keyup.enter="getUsers()" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" v-on:click = "getUsers()">
+                                <span v-html="searchButtonText"></span>
+                            </button>
+                        </div>
+                    </div>
+                </center>
+            </div>
+            <div class="col col-lg-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="activeOnly">
+                    <label class="form-check-label" for="defaultCheck1">
+                        Active and Confirmed
+                    </label>
+                </div>
+            </div>                   
+        </div>
+        <div v-if="warningText != ''" class = "row justify-content-center mb-4">
+            <div class = "col">
+                <center><span v-html="warningText" style="color:red;"></span></center>  
+            </div>
+        </div>           
+        <div class = "row ">
+            <div class = "col">
+                <center>
+                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getBlackballs()">
+                        <span v-html="blackBallButtonText"></span>
+                    </button> 
+                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getNoShowBlocks()">
+                        <span v-html="noShowButtonText"></span>
+                    </button>
+                </center>                       
+            </div>
+        </div>
+        
+        <!-- search results table -->
+        <div class="row justify-content-center">
+            <div class="col">
+                <table class="table table-hover table-condensed table-responsive-xl">                            
+
+                    <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
+
+                    <thead>
+                        <th scope="col">
+                            Name
+                        </th> 
+                        <th scope="col" style="text-align: center;">
+                            Email
+                        </th> 
+                        <th scope="col" style="text-align: center;">
+                            Student ID
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Year
+                        </th>
+                        <th scope="col" style="text-align: center;">
+                            Type
+                        </th>                                                     
+                        
+                    </thead>
+
+                    <tbody id="userList">                                                  
+                        <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
+                            <td> 
+                                <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a>                                        
+                            </td>
+                            <td style="text-align: center;">                                        
+                                <span v-html="u.email"></span>                                         
+                            </td>  
+                            <td style="text-align: center;">  
+                                <span v-html="u.profile__studentID"></span>
+                            </td>
+                            <td style="text-align: center;">  
+                                <span v-html="u.profile__subject_type__name"></span>
+                            </td>
+                            <td style="text-align: center;">  
+                                <span v-html="u.profile__type__name.toUpperCase()"></span>
+                            </td>                                                         
+                        </tr>                                                    
+                    </tbody>
+                    
+                </table>  
+            </div>
+
+        </div>         
+
+    </div>                    
+</div>
