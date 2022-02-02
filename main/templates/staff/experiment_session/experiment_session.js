@@ -39,7 +39,7 @@ var app = new Vue({
         searchResultsEmptyText:"",           //show when no results found from manual add
         inviteResultsEmptyText:"",           //show when no subject fround for invitiation
         sendMessageSubject:"",               //subject of send message     
-        sendMessageText:"[first name],\n\nIf you have any questions contact [contact email].",   //text of send message     
+        sendMessageText:"<p>[first name],</p><p>If you have any questions contact [contact email].</p>",   //text of send message     
         emailMessageList:"",                 //emails for send message    
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
         session:{
@@ -781,6 +781,7 @@ var app = new Vue({
         showSendMessage:function(id){    
 
             app.$data.emailMessageList="";
+            tinymce.get("sendMessageText").setContent(app.sendMessageText);
 
             for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
             {
@@ -802,30 +803,32 @@ var app = new Vue({
 
         //fire when hide invite subjects  model, cancel action if nessicary
         hideSendMessage:function(){       
-            app.$data.sendMessageText="";      
+            app.$data.sendMessageText="<p>[first name],</p><p>If you have any questions contact [contact email].</p>";      
             app.$data.emailMessageList="";    
-            app.$data.sendMessageSubject=""; 
+            // app.$data.sendMessageSubject=""; 
             app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
         },
 
         //send an email to all of the confirmed subjects
         sendEmailMessage:function(){
 
-            if(app.$data.sendMessageSubject == "" )
+            if(app.sendMessageSubject == "" )
             {
                 confirm("Add a subject to your message.");
                 return;
             }
 
-            if(app.$data.sendMessageText == "" )
+            if(app.sendMessageText == "" )
             {
                 confirm("Your message is empty.");
                 return;
             }
 
-            if(app.$data.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+            if(app.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
-            app.$data.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.sendMessageText = tinymce.get("sendMessageText").getContent();
+
+            app.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSession/{{id}}/', {
                     status:"sendMessage", 
