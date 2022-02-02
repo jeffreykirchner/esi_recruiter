@@ -46,7 +46,7 @@ def send_mass_email_verify(profile_list, request):
     memo = 'Bulk account deactivation'
 
     try:
-        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText,  params.deactivationText, memo)             
+        return send_mass_email_service(user_list, params.deactivationTextSubject, params.deactivationText,  params.deactivationText, memo, 5)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -70,7 +70,7 @@ def profile_create_send_email(user):
     memo = f'Verfiy email address for user {user.id}'
 
     try:
-        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, params.emailVerificationResetText, memo)             
+        return send_mass_email_service(user_list, params.emailVerificationTextSubject, params.emailVerificationResetText, params.emailVerificationResetText, memo, 5)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
@@ -93,12 +93,12 @@ def send_daily_report(user_list, email_text, email_text_html):
     memo = f'Daily email report for {today.strftime("%#m/%#d/%Y")}'
 
     try:
-        return send_mass_email_service(user_list_valid, "Daily Report", email_text, email_text_html, memo)             
+        return send_mass_email_service(user_list_valid, "Daily Report", email_text, email_text_html, memo, 5)             
     except SMTPException as exc:
         logger.info(f'There was an error sending email: {exc}') 
         return {"mail_count":0, "error_message":str(exc)}
 
-def send_mass_email_service(user_list, message_subject, message_text, message_text_html, memo):
+def send_mass_email_service(user_list, message_subject, message_text, message_text_html, memo, timeout=1200):
     '''
     send mass email through ESI mass pay service
     returns : {mail_count:int, error_message:str}
@@ -115,10 +115,13 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
     :param memo : note about message's purpose
     :type memo: string 
 
-    :param unit_testing : if true do not send email, return expected result
-    :type unit_testing: bool
+    :param timeout : optionally set the numbe of seconds to wait for response from mail server
+    :type int
 
     '''
+    #min time out
+    timeout = min(10, timeout)
+
     logger = logging.getLogger(__name__)
 
     if hasattr(sys, '_called_from_test'):
@@ -135,10 +138,18 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
-    request_result = requests.post(f'{settings.EMAIL_MS_HOST}/send-email/',
-                                   json=data,
-                                   auth=(str(settings.EMAIL_MS_USER_NAME), str(settings.EMAIL_MS_PASSWORD)),
-                                   headers=headers)
+    try:
+        request_result = requests.post(f'{settings.EMAIL_MS_HOST}/send-email/',
+                                    json=data,
+                                    auth=(str(settings.EMAIL_MS_USER_NAME), str(settings.EMAIL_MS_PASSWORD)),
+                                    headers=headers,
+                                    timeout=timeout)
+    except requests.Timeout:
+        logger.error(f'send_mass_email_service error: Mail service timed out, {data}')
+        return {"mail_count":0, "error_message":"Mail service timed out."}
+    except requests.ConnectionError:
+        logger.error(f'send_mass_email_service error: Could not connect to mail service')
+        return {"mail_count":0, "error_message":"Counld not connect to mail service."}
     
     if request_result.status_code == 500:        
         logger.warning(f'send_mass_email_service error: {request_result}')

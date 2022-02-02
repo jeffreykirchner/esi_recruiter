@@ -166,7 +166,9 @@ def sendMessage(data, id):
     user_list = []
     userPkList = []
 
-    for i in es.getConfirmedEmailList():
+    confirmed_list = es.getConfirmedEmailList()
+
+    for i in confirmed_list:
         userPkList.append(i['user_id'])
 
         user_list.append({"email" : i['user_email'],
@@ -175,7 +177,7 @@ def sendMessage(data, id):
             
     memo = f'Send message to session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo, len(confirmed_list) * 2)
 
     #logger.info(userPkList)
 
@@ -222,7 +224,9 @@ def cancelSession(data, id):
         user_list = []
         userPkList = []
 
-        for i in es.getConfirmedEmailList():
+        confirmed_list = es.getConfirmedEmailList()
+
+        for i in confirmed_list:
             userPkList.append(i['user_id'])
 
             user_list.append({"email" : i['user_email'],
@@ -230,7 +234,7 @@ def cancelSession(data, id):
                 
         memo = f'Cancel session: {es.id}'
 
-        mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
+        mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo, len(confirmed_list) * 2)
 
         logger.info(userPkList)
 
@@ -300,7 +304,7 @@ def inviteSubjects(data, id, request):
             
     memo = f'Send invitations for session: {es.id}'
 
-    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
+    mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo, len(subjectInvitations) * 2)
 
     if(mail_result["error_message"] != ""):
         status = "fail"
@@ -497,7 +501,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
             
             memo = f'Manual invitation for session: {es.id}'
 
-            mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo)
+            mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo, 5)
 
         else:
             mail_result =  {"mail_count" : 0, "error_message" : ""}    

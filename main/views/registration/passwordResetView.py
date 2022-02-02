@@ -81,7 +81,7 @@ def send_reset(request, data):
 
             memo = f"Password reset for: {user}"
 
-            mail_result = send_mass_email_service(user_list, params.passwordResetTextSubject, params.passwordResetText, params.passwordResetText, memo)
+            mail_result = send_mass_email_service(user_list, params.passwordResetTextSubject, params.passwordResetText, params.passwordResetText, memo, 5)
 
             if mail_result.get("mail_count", -1) > 0:
                 logger.info(f"Reset password for {username}")
