@@ -1,0 +1,52 @@
+<div class="card">                  
+    <div class="card-header">
+        <span class="align-middle">Recent Experiments</span>                                                                               
+    </div>
+    
+    <div class="card-body">               
+                                
+        <!-- search results table -->
+        <table class="table table-hover table-condensed table-responsive-xl">                            
+
+            <caption style="caption-side:top;text-align: center;">Experiments</caption>
+
+            <thead>
+                <th scope="col">
+                    <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
+                        <span v-html="titleSortButtonText" class="table_header"></span>
+                    </button>
+                </th> 
+                <th scope="col" class="text-center text-nowrap">
+                    Date                            
+                </th>
+                <th scope="col" class="text-center text-nowrap">
+                    Manager
+                </th>                                                      
+                <th scope="col" class="text-center text-nowrap">
+                    Control
+                </th>
+            </thead>
+
+            <tbody id="experimentListRecent">                                                  
+                <tr v-for="(e,index) in experiments_recent" v-bind:key="e.id">                                                                          
+                    <td class="text-nowrap"> 
+                        <a :href="'/experiment/' + e.id + '/' "><span v-html="e.title"></span></a>                                        
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        <span v-html="e.date"></span>                                   
+                    </td>
+                    <td class="text-nowrap text-center">                                        
+                        <span v-html="e.experiment_manager"></span>                                       
+                    </td>                               
+                    <td class="text-nowrap text-center">
+                        <button v-bind:id="'deleteExperiment' + e.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteExperiment(e.id)" v-bind:disabled="e.allowDelete === false">
+                            Delete <i class="fas fa-user-minus fa-xs"></i>  
+                        </button>
+                    </td>                            
+                </tr>                                                    
+            </tbody>
+            
+        </table>                 
+        
+    </div>   
+</div>
