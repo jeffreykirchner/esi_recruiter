@@ -69,22 +69,22 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                          "v-on:change":"recruitmentFormChange"}))
     
     institutions_exclude_all = forms.TypedChoiceField(label='', 
-                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                   
+                                         choices=((1, 'Exclude if in all institutions.'), (0, 'Exclude if in at least one institution.')),                   
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitment_params.institutions_exclude_all",
                                                                          "v-on:change":"recruitmentFormChange"}))
 
     institutions_include_all = forms.TypedChoiceField(label='',             
-                                         choices=((1, 'Include if in all.'), (0,'Include if in at least one.')),                
+                                         choices=((1, 'Include if in all institutions.'), (0,'Include if in at least one institution.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitment_params.institutions_include_all",
                                                                          "v-on:change":"recruitmentFormChange"}))   
 
     experiments_exclude_all = forms.TypedChoiceField(label='',             
-                                         choices=((1, 'Exclude if in all.'), (0, 'Exclude if in at least one.')),                
+                                         choices=((1, 'Exclude if in all experiments.'), (0, 'Exclude if in at least one experiment.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitment_params.experiments_exclude_all",
                                                                          "v-on:change":"recruitmentFormChange"}))   
 
     experiments_include_all = forms.TypedChoiceField(label='',             
-                                         choices=((1, 'Include if in all.'), (0, 'Include if in at least one.')),                
+                                         choices=((1, 'Include if in all experiments.'), (0, 'Include if in at least one experiment.')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitment_params.experiments_include_all",
                                                                          "v-on:change":"recruitmentFormChange"}))
 
