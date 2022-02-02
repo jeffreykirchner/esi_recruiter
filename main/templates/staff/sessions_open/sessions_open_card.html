@@ -1,0 +1,93 @@
+<div class="card">                  
+    <div class="card-header">
+        <span class="align-middle">Open Sessions</span>     
+        
+        <span class="float-right d-none d-md-block">
+            [[last_refresh]]
+            <button class="btn btn-outline-primary" type="button" v-on:click = "autoRefreshButton()" title="Automatically refresh the table once per minute.">
+                <span v-html="autoRefreshButtonText"></span>
+            </button>
+            <!-- no currently needed -->
+            <button v-if="isAdmin"
+                    class="btn btn-outline-primary" 
+                    type="button" 
+                    v-on:click = "closeAllSessions()" 
+                    title="Mark all sessions as 'Complete'."
+                    v-show="false">
+                <span v-html="closeAllButtonText"></span>
+            </button>                    
+        <span>
+    </div>
+    
+    <div class="card-body">               
+        
+        <!-- open sessions table -->
+        <table class="table table-hover table-condensed table-responsive-xl">                            
+
+            <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>
+
+            <thead>
+                <th scope="col" >
+                    Title
+                </th> 
+                <th scope="col" style="text-align: center;">
+                    Date                            
+                </th>
+                <th scope="col" style="text-align: center;">
+                    Creator                            
+                </th>
+                <th scope="col" style="text-align: center;">
+                    Subjects Confirmed                            
+                </th>
+                <th scope="col" style="text-align: center;">
+                    Subjects Invited                            
+                </th>
+                <th scope="col"style="text-align: center;">
+                    Run
+                </th>                                                      
+                <th scope="col" style="text-align: center;">
+                    Session
+                </th>
+                <th scope="col" style="text-align: center;">
+                    Experiment
+                </th>
+            </thead>
+
+            <tbody id="sessionList">                                                  
+                <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
+                    <td class="text-nowrap"> 
+                        [[s.experiment_session__experiment__title]]                                        
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        [[s.date_str]]                                   
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        <span v-if="s.experiment_session__creator__first_name">
+                            [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]] 
+                        </span >      
+                        <span v-else>
+                            ---
+                        </span>                            
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        [[s.accepted_count]] / [[s.experiment_session__recruitment_params__registration_cutoff]]                              
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        [[s.invitation_count]]                                
+                    </td>
+                    <td class="text-nowrap text-center">                                        
+                        <a :href="'/experimentSessionRun/' + s.id + '/' " target="_self">Run <i class='fas fa-running fa-sm'></i></span></a>                                       
+                    </td>                               
+                    <td class="text-nowrap text-center">
+                        <a :href="'/experimentSession/' + s.experiment_session__id + '/' " target="_self">Session <i class='far fa-edit fa-sm'></i></span></a>
+                    </td>   
+                    <td class="text-nowrap text-center">
+                        <a :href="'/experiment/' + s.experiment_session__experiment__id + '/' " target="_self">Experiment <i class='fas fa-flask'></i></span></a>
+                    </td>                         
+                </tr>                                                    
+            </tbody>
+            
+        </table>                 
+        
+    </div>   
+</div>  
