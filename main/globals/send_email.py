@@ -149,7 +149,7 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
         return {"mail_count":0, "error_message":"Mail service timed out."}
     except requests.ConnectionError:
         logger.error(f'send_mass_email_service error: Could not connect to mail service')
-        return {"mail_count":0, "error_message":"Counld not connect to mail service."}
+        return {"mail_count":0, "error_message":"Could not connect to mail service."}
     
     if request_result.status_code == 500:        
         logger.warning(f'send_mass_email_service error: {request_result}')

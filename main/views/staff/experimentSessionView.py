@@ -37,7 +37,7 @@ from main.globals import send_mass_email_service
 
 @login_required
 @user_is_staff
-def experimentSessionView(request,id):
+def experimentSessionView(request, id):
     '''
     experiment session view
     ''' 
@@ -79,9 +79,11 @@ def experimentSessionView(request,id):
         elif data["status"] == "cancelSession":
             return cancelSession(data,id)     
         elif data["status"] == "sendMessage":
+            return sendMessage(data,id)
+        elif data["status"] == "sendMessage":
             return sendMessage(data,id)   
-        elif data["status"] == "showMessages":
-            return showMessages(data,id) 
+        elif data["status"] == "reSendInvitation":
+            return reSendInvitation(data,id) 
         elif data["status"] == "showInvitations":
             return showInvitations(data,id)  
         elif data["status"] == "updateInvitationText":
@@ -113,7 +115,11 @@ def experimentSessionView(request,id):
                        'id': id,
                        'max_invitation_block_size':p.max_invitation_block_size,
                        'helpText':helpText,
-                       'session':es})
+                       'session':es,
+                       'session_json':json.dumps(es.json(), cls=DjangoJSONEncoder),
+                       'recruitment_params_json':json.dumps(es.recruitment_params.json(), cls=DjangoJSONEncoder),
+                       'current_session_day_json':json.dumps(es.ESD.first().json(False), cls=DjangoJSONEncoder)
+                      })
 
 #get session info the show screen at load
 def getSesssion(data,id):
@@ -197,6 +203,24 @@ def sendMessage(data, id):
     message_count = es.experiment_session_messages_set.count()
 
     return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
+
+def reSendInvitation(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Re-send Invitation: {data}, session {id}")
+
+    status = "success"
+
+    try:
+        invitation = experiment_session_invitations.objects.get(id=data["id"]) 
+        invitation.send_email_invitations(f"Re-send invitations for session: {id}")
+    except ObjectDoesNotExist:
+        status="fail"
+
+    if status == "success":
+        return JsonResponse({"status":status, "invitation" : invitation.json()}, safe=False)
+    else:
+        return JsonResponse({"status":status}, safe=False)
+   
 
 #cancel session
 def cancelSession(data, id):
