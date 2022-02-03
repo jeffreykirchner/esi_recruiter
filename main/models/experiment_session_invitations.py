@@ -1,14 +1,18 @@
-from django.db import models
-import logging
-import main
-
-from . import experiment_sessions,recruitment_parameters
-from django.contrib.auth.models import User
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.contrib.auth.models import User
+from django.db import models
+
+from main.models import experiment_sessions
+from main.models import recruitment_parameters
+
+from main.globals import send_mass_email_service
 
 class experiment_session_invitations(models.Model):
+    '''
+    experiment session inivitation model
+    '''
     experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
 
@@ -30,8 +34,42 @@ class experiment_session_invitations(models.Model):
         verbose_name = 'Experiment Session Invitations'
         verbose_name_plural = 'Experiment Session Invitations'    
     
+    def send_email_invitations(self, memo):
+        '''
+        send email invitation to all users in this object
+        memo: string, note stored in email service about purpose of email
+        '''
+
+        user_list = []
+
+        for i in self.users.all().prefetch_related('profile'):
+            user_list.append({"email" : i.email,
+                              "variables": [{"name" : "first name", "text" : i.first_name},
+                                            {"name" : "last name", "text" : i.last_name},
+                                            {"name" : "email", "text" : i.email},
+                                            {"name" : "recruiter id", "text" : str(i.id)},
+                                            {"name" : "student id", "text" : i.profile.studentID},
+                                           ]
+                            })
+
+        mail_result = send_mass_email_service(user_list,
+                                              self.subjectText, 
+                                              self.messageText, 
+                                              self.messageText, 
+                                              memo, 
+                                              len(user_list) * 2)
+        
+        self.mailResultSentCount = mail_result['mail_count']
+        self.mailResultErrorText = mail_result['error_message']
+
+        self.save()
+
+        return mail_result
     
     def json(self):
+        '''
+        json object of model
+        '''
         return{
             "id":self.id,
             "subjectText":self.subjectText,
@@ -42,6 +80,7 @@ class experiment_session_invitations(models.Model):
             "mailResultErrorText":self.mailResultErrorText,
             "recruitment_params":self.recruitment_params.json_displayString(),
         }
+
 
 #delete recruitment parameters when deleted
 @receiver(post_delete, sender=experiment_session_invitations)
