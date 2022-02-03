@@ -8,6 +8,7 @@ from smtplib import SMTPException
 import logging
 import requests
 import sys
+import json
 
 from django.utils.crypto import get_random_string
 from django.conf import settings
@@ -151,9 +152,15 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
         logger.error(f'send_mass_email_service error: Could not connect to mail service')
         return {"mail_count":0, "error_message":"Could not connect to mail service."}
     
+    
     if request_result.status_code == 500:        
         logger.warning(f'send_mass_email_service error: {request_result}')
         return {"mail_count":0, "error_message":"Mail service error"}
    
-    logger.info(f"ESI mass email API response: {request_result.json()}")
+    try:
+        logger.info(f"ESI mass email API response: {request_result.json()}")
+    except json.decoder.JSONDecodeError:
+        logger.error(f'send_mass_email_service error: Invalid response from mail service.')
+        return {"mail_count":0, "error_message":"Invalid response from mail service."}
+        
     return request_result.json()
