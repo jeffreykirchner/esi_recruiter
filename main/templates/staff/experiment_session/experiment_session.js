@@ -23,7 +23,6 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     el: '#root',        
     data:{        
-        sessionURL:'',   
         loading: true,   
         message: null,       
         showLoadingSpinner : true,
@@ -39,36 +38,12 @@ var app = new Vue({
         searchResultsEmptyText:"",           //show when no results found from manual add
         inviteResultsEmptyText:"",           //show when no subject fround for invitiation
         sendMessageSubject:"",               //subject of send message     
-        sendMessageText:"[first name],\n\nIf you have any questions contact [contact email].",   //text of send message     
+        sendMessageText:"<p>[first name],</p><p>If you have any questions contact [contact email].</p>",   //text of send message     
         emailMessageList:"",                 //emails for send message    
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
-        session:{
-                    invitationText:"",                         //invitation text with variables filled in 
-                    experiment_session_days:[],                //days in session
-                    invitationRawText:"",                      //invitation text with editable variables             
-                    messageCount:"",                           //number of email messages sent out
-                    invitationCount:"",                        //number of invition groups sent out
-                    allowDelete:false,                         //allow session to be deleted or canceled
-                    confirmedCount:0,                          //number of subjects that have confirmed to be in session
-                    confirmedEmailList:[]},                    //list of emails that
-        recruitment_params:{                          //recruiment parameters
-                gender:[],
-                actual_participants:0,
-                registration_cutoff:0,
-                experience_min:0,
-                experience_max:1000,
-                experience_constraint:false,
-                institutions_exclude_all:0,
-                institutions_include_all:0,
-                experiments_exclude_all:0,
-                experiments_include_all:0,
-                allow_multiple_participations:false,
-                institutions_exclude:[],
-                institutions_include:[],
-                experiments_exclude:[],
-                experiments_include:[],
-                trait_constraints:[],
-            },
+        reSendMessageButtonText:"Re-send <i class='fas fa-envelope fa-xs'></i>",
+        session:{{session_json|safe}},                   
+        recruitment_params:{{recruitment_params_json|safe}},
         current_trait:{                   //current trait being edited
             id:0,
             trait_id:0,
@@ -87,27 +62,7 @@ var app = new Vue({
         showMessageListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show message list 
         invitationList:[],                         //list of invitations sent to users     
         showInvitationListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show invitation list                          
-        currentSessionDay:{ account:0,                              //session active in modal
-                            actual_participants:0,
-                            auto_reminder:true,
-                            enable_time:true,
-                            canceled:0,
-                            date_raw:"",
-                            date:"",
-                            date_local:"",
-                            reminder_time_raw:"",
-                            reminder_time:"",
-                            reminder_time_local:"",
-                            custom_reminder_time:false,
-                            account:0,
-                            id:0,
-                            length:0,
-                            location:0,
-                            registration_cutoff:0,
-                            experiment_session_days_user:[],
-                            experiment_session_days_user_unconfirmed:[],
-                            confirmedCount:"-",
-                            unConfirmedCount:"-"},       
+        currentSessionDay:{{current_session_day_json|safe}},       
         currentSessionDayActionAll:false,                          //actions taken in current should optionally affect all session days           
         include_institutions_list:"",                              //display lists of parameters
         exclude_institutions_list:"",
@@ -153,39 +108,6 @@ var app = new Vue({
             }
         },
 
-        //update recruitment parameters 
-        updateRecruitmentParameters: function(){                       
-            axios.post('/experimentSession/{{id}}/', {
-                    status :"updateRecruitmentParameters" ,                                
-                    formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
-                })
-                .then(function (response) {     
-                                                
-                    status=response.data.status;                               
-
-                    app.clearMainFormErrors();
-
-                    if(status=="success")
-                    {                                 
-                        app.$data.recruitment_params= response.data.recruitment_params;  
-                        app.updateDisplayLists();
-
-                        app.$data.cancelModal=false; 
-                        $('#recruitmentModalCenter').modal('toggle');
-                    }
-                    else
-                    {                                
-                        app.displayErrors(response.data.errors);
-                    }          
-
-                    app.$data.buttonText1="Update"                      
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    app.$data.searching=false;
-                });                        
-            },
-
         //creates lists  of recruitment parameters
         updateDisplayLists:function(errors){
             var e = app.$data.recruitment_params;
@@ -223,7 +145,7 @@ var app = new Vue({
 
         //gets session info from the server
         getSession: function(){
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status:"get",                                                              
                 })
                 .then(function (response) {                                                                   
@@ -250,7 +172,7 @@ var app = new Vue({
             {
                 app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-                axios.post('/experimentSession/{{id}}/', {
+                axios.post('{{request.get_full_path}}', {
                     status:"addSessionDay", 
                     count:app.$data.multiDayCount,                                                             
                 })
@@ -271,7 +193,7 @@ var app = new Vue({
         //deletes a session day
         removeSessionDay: function(id){
             if(confirm("Delete Session Day?")){
-                axios.post('/experimentSession/{{id}}/', {
+                axios.post('{{request.get_full_path}}', {
                         status:"removeSessionDay",    
                         id:id,                                                          
                     })
@@ -292,7 +214,7 @@ var app = new Vue({
 
             app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"inviteSubjects",     
                 subjectInvitations:app.$data.subjectInvitations,                                                                
             })
@@ -345,7 +267,7 @@ var app = new Vue({
             app.$data.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
             app.$data.inviteResultsEmptyText="";
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"findSubjectsToInvite",    
                 number:app.$data.subjectInvitationCount,                                                          
             })
@@ -401,7 +323,7 @@ var app = new Vue({
 
             app.$data.subjectCancelationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status:"cancelSession",   
                     //id:id,                                                           
                 })
@@ -447,7 +369,7 @@ var app = new Vue({
 
             //formData[1].value = moment.tz(formData[1].value, tz ).utc().format();
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status:"updateSessionDay",   
                     id:app.$data.currentSessionDay.id, 
                     formData : formData,
@@ -482,7 +404,7 @@ var app = new Vue({
             app.$data.updateInvitationButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             app.$data.session.invitationRawText = tinymce.get("id_invitationRawText").getContent();
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status:"updateInvitationText",   
                     invitationRawText : app.$data.session.invitationRawText,                                                          
                 })
@@ -566,7 +488,7 @@ var app = new Vue({
         //add trait
         addTrait:function(){
             app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status : "addTrait" ,                                                                                                                                                             
                 })
                 .then(function (response) {                                   
@@ -583,7 +505,7 @@ var app = new Vue({
         //update trait
         updateTrait:function(){
             app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status : "updateTrait",
                     trait_id:app.$data.current_trait.id,
                     formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
@@ -616,7 +538,7 @@ var app = new Vue({
         //delete trait
         deleteTrait:function(id){
             
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status : "deleteTrait", 
                     id:id,                                                                                                                                                            
                 })
@@ -632,7 +554,7 @@ var app = new Vue({
 
         //update require all trait constraints
         updateRequireAllTraitContraints:function(){
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                     status : "updateRequireAllTraitContraints", 
                     value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
                 })
@@ -781,6 +703,7 @@ var app = new Vue({
         showSendMessage:function(id){    
 
             app.$data.emailMessageList="";
+            tinymce.get("sendMessageText").setContent(app.sendMessageText);
 
             for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
             {
@@ -802,32 +725,34 @@ var app = new Vue({
 
         //fire when hide invite subjects  model, cancel action if nessicary
         hideSendMessage:function(){       
-            app.$data.sendMessageText="";      
+            app.$data.sendMessageText="<p>[first name],</p><p>If you have any questions contact [contact email].</p>";      
             app.$data.emailMessageList="";    
-            app.$data.sendMessageSubject=""; 
+            // app.$data.sendMessageSubject=""; 
             app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
         },
 
         //send an email to all of the confirmed subjects
         sendEmailMessage:function(){
 
-            if(app.$data.sendMessageSubject == "" )
+            if(app.sendMessageSubject == "" )
             {
                 confirm("Add a subject to your message.");
                 return;
             }
 
-            if(app.$data.sendMessageText == "" )
+            if(app.sendMessageText == "" )
             {
                 confirm("Your message is empty.");
                 return;
             }
 
-            if(app.$data.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+            if(app.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
-            app.$data.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.sendMessageText = tinymce.get("sendMessageText").getContent();
 
-            axios.post('/experimentSession/{{id}}/', {
+            app.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('{{request.get_full_path}}', {
                     status:"sendMessage", 
                     subject:app.$data.sendMessageSubject,
                     text:app.$data.sendMessageText,                                                                                                                                              
@@ -854,6 +779,42 @@ var app = new Vue({
                 });
         },
 
+         //send an email to all of the confirmed subjects
+         reSendInvitation:function(id){
+
+            if(app.reSendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+            app.reSendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('{{request.get_full_path}}', {
+                    status:"reSendInvitation", 
+                    id:id,                                                                                                                                           
+                })
+                .then(function (response) {
+                    
+                    if(response.data.status == "success")
+                    {
+
+                        for(i=0;i<app.invitationList.length;i++)
+                        {
+                            if(app.invitationList[i].id == id)
+                            {
+                                app.invitationList[i] = response.data.invitation;
+                                app.formatInvitations();
+                                break;
+                            }
+                        }
+                    }
+
+                    app.$data.reSendMessageButtonText = "Re-send <i class='fas fa-envelope fa-xs'></i>";                                                              
+
+                })
+                .catch(function (error) {
+                    console.log(error);
+                                                                         
+                });
+        },
+
         //remove subject from a sesssion day
         removeSubject: function(userId,esduId){
 
@@ -861,7 +822,7 @@ var app = new Vue({
 
                 $( '#removeSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-                axios.post('/experimentSession/{{id}}/', {
+                axios.post('{{request.get_full_path}}', {
                     status:"removeSubject",   
                     userId:userId, 
                     esduId:esduId,   
@@ -897,7 +858,7 @@ var app = new Vue({
 
             $( '#confirmSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"changeConfirmation",   
                 userId:userId, 
                 esduId:esduId,  
@@ -940,7 +901,7 @@ var app = new Vue({
             app.$data.searchAddResult = "";
 
             app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"searchForSubject",   
                 searchInfo:app.$data.searchText,                                                                                                                         
             })
@@ -990,7 +951,7 @@ var app = new Vue({
 
             $( '#manualAdd' + u.id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"manuallyAddSubject",   
                 user:u,
                 sendInvitation:app.$data.manualAddSendInvitation,                                                                                                                      
@@ -1042,7 +1003,7 @@ var app = new Vue({
 
             app.$data.showUnconfirmedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"showUnconfirmedSubjects",   
                                                                                                                                             
             })
@@ -1064,7 +1025,7 @@ var app = new Vue({
 
             app.$data.showMessageListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"showMessages",                                                                                                    
             })
             .then(function (response) {
@@ -1109,37 +1070,13 @@ var app = new Vue({
 
             app.$data.showInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            axios.post('/experimentSession/{{id}}/', {
+            axios.post('{{request.get_full_path}}', {
                 status:"showInvitations",                                                                                                    
             })
             .then(function (response) {
                 app.$data.invitationList = response.data.invitationList;     
 
-                for(i=0;i<app.$data.invitationList.length;i++)
-                {
-                    m=app.$data.invitationList[i];
-                    m.date_raw=app.formatDate(m.date_raw,false,false);
-
-                    emailMessageList="";
-
-                    for(j=0;j<m.users.length;j++)
-                    {                                            
-                            if (j >= 1)
-                            {
-                                if(j != m.users.length-1)
-                                    emailMessageList += ", ";
-                                else
-                                    emailMessageList += " and "; 
-                            }                                                                  
-
-                            emailMessageList += '<a href = "/userInfo/' + m.users[j].id + '" target="_blank" >';
-                            emailMessageList += m.users[j].first_name + " ";
-                            emailMessageList += m.users[j].last_name; 
-                            emailMessageList += "</a>";                                   
-                    }
-
-                    m.emailMessageList = emailMessageList;
-                }                        
+                app.formatInvitations();                                        
                 
                 app.$data.showInvitationListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
             })
@@ -1147,7 +1084,36 @@ var app = new Vue({
                 console.log(error);
                 //app.$data.searching=false;                                                              
             });
-            },
+        },
+        
+        //format inivation messages for display
+        formatInvitations:function(){
+            for(i=0;i<app.$data.invitationList.length;i++)
+            {
+                m=app.$data.invitationList[i];
+                m.date_raw=app.formatDate(m.date_raw,false,false);
+
+                emailMessageList="";
+
+                for(j=0;j<m.users.length;j++)
+                {                                            
+                        if (j >= 1)
+                        {
+                            if(j != m.users.length-1)
+                                emailMessageList += ", ";
+                            else
+                                emailMessageList += " and "; 
+                        }                                                                  
+
+                        emailMessageList += '<a href = "/userInfo/' + m.users[j].id + '" target="_blank" >';
+                        emailMessageList += m.users[j].first_name + " ";
+                        emailMessageList += m.users[j].last_name; 
+                        emailMessageList += "</a>";                                   
+                }
+
+                m.emailMessageList = emailMessageList;
+            }
+        },
 
         //fire when edit trait model needs to be shown
         showEditTraits:function(){                       
