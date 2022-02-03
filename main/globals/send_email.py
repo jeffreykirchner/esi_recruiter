@@ -121,7 +121,7 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     '''
     #min time out
-    timeout = min(10, timeout)
+    timeout = max(10, timeout)
 
     logger = logging.getLogger(__name__)
 
@@ -162,5 +162,5 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
     except json.decoder.JSONDecodeError:
         logger.error(f'send_mass_email_service error: Invalid response from mail service.')
         return {"mail_count":0, "error_message":"Invalid response from mail service."}
-        
+
     return request_result.json()
