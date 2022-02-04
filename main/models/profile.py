@@ -1,24 +1,29 @@
-from django.db import models
-import logging
-import traceback
-from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
-from django.db.models import F, Q, Sum
+from datetime import datetime, timedelta, timezone
 
-from main.models import *
-from main.models import institutions, parameters, experiment_sessions, profile
+import logging
+import pytz
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.db.models import F, Q
+from django.contrib import admin
+
+from main.models import institutions
+from main.models import parameters
+from main.models import experiment_sessions
+from main.models import profile
+from main.models import account_types
+from main.models import schools
+from main.models import majors
+from main.models import genders
+from main.models import subject_types
+
 from . import email_filters
 
 import main
 
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
-
-from datetime import date
-from datetime import datetime, timedelta, timezone
-import pytz
-
-import logging
 
 #user profile, extending the user model
 class profile(models.Model):
@@ -53,6 +58,10 @@ class profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
+    
+    @admin.display(ordering='user__last_login')
+    def last_login(self):
+        return self.user.last_login
 
     #find which email filter, if any applies to user
     def setup_email_filter(self):
