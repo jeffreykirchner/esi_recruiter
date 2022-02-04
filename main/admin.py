@@ -111,7 +111,7 @@ class UserAdmin(DjangoUserAdmin):
 
       ordering = ['-date_joined']
       search_fields = ['last_name', 'first_name', 'email']
-      list_display = ['last_name', 'first_name','email', 'is_active', 'is_staff','date_joined']
+      list_display = ['last_name', 'first_name', 'email', 'date_joined', 'last_login']
       actions = []
       list_filter = ('is_staff', 'is_active')
 
@@ -130,25 +130,24 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated_users, messages.SUCCESS)
       activate_all.short_description = "Activate selected subjects"
 
-      def deactivate_all(self, request, queryset):
+      def pause_all(self, request, queryset):
 
-            profile_list = queryset.exclude(user__is_staff=True) \
-                                   .filter(email_confirmed='yes')
+            profile_list = queryset.exclude(user__is_staff=True) 
 
             #queryset_active_profile = list(queryset.filter(user__is_active=True).exclude(user__is_staff=True).select_related('user'))
-            #profile_list.update(email_confirmed='no')
+            profile_list.update(paused=True)
 
-            updated3 = send_mass_email_verify(profile_list, request)         
+            #updated3 = send_mass_email_verify(profile_list, request)         
 
             self.message_user(request, ngettext(
-                  '%d user was deactivated.',
-                  '%d users were deactivated.',
+                  '%d user was paused.',
+                  '%d users were paused.',
                   len(profile_list),
             ) % len(profile_list), messages.SUCCESS)
 
-            self.message_user(request, "Emails Sent: " + str(updated3['mail_count']) + " " + updated3['error_message'], messages.SUCCESS)
+            #self.message_user(request, "Emails Sent: " + str(updated3['mail_count']) + " " + updated3['error_message'], messages.SUCCESS)
 
-      deactivate_all.short_description = "Deactivate selected active subjects and re-invite"
+      pause_all.short_description = "Paused selected accounts"
 
       #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
@@ -260,14 +259,14 @@ class ProfileAdmin(admin.ModelAdmin):
 
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
-      actions = [clear_blackBalls,confirm_active_email,un_confirm_emails,apply_email_filter,
-                 deactivate_all,activate_all,consent_form_required,activate_recent_users]
+      actions = [clear_blackBalls, confirm_active_email, un_confirm_emails, apply_email_filter,
+                 pause_all, activate_all, consent_form_required, activate_recent_users]
 
       if settings.DEBUG:
             actions.append(setup_test_users)
 
-      list_display = ['__str__', 'blackballed', 'email_filter', 'timestamp', 'updated']
-      list_filter = ('blackballed', 'user__is_active', 'email_filter')
+      list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
+      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login')
       readonly_fields = ['user', 'password_reset_key']
 
       def get_form(self, request, obj=None, **kwargs):
