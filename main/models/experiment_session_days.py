@@ -266,7 +266,12 @@ class experiment_session_days(models.Model):
 
         reminder_text = self.getReminderEmail()
 
-        mail_result = send_mass_email_service(user_list, p.reminderTextSubject, reminder_text, reminder_text, memo, len(users_list) * 2)
+        mail_result = send_mass_email_service(user_list,
+                                              p.reminderTextSubject.replace("[session date and time]",self.experiment_session.getSessionDayDateString()), 
+                                              reminder_text, 
+                                              reminder_text, 
+                                              memo, 
+                                              len(users_list) * 2)
         logger.info(mail_result)
 
         #store the number of reminders sent

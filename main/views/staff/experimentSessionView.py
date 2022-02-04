@@ -204,6 +204,7 @@ def sendMessage(data, id):
 
     return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 
+#send invitiations again to a failed group
 def reSendInvitation(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Re-send Invitation: {data}, session {id}")
@@ -221,7 +222,6 @@ def reSendInvitation(data, id):
     else:
         return JsonResponse({"status":status}, safe=False)
    
-
 #cancel session
 def cancelSession(data, id):
     '''
@@ -244,7 +244,7 @@ def cancelSession(data, id):
 
         params = parameters.objects.first()
 
-        subjectText = params.cancelationTextSubject
+        subjectText = params.cancelationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
         messageText = es.getCancelationEmail()
 
         user_list = []
@@ -444,7 +444,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 
         if sendInvitation:
             
-            subjectText = p.invitationTextSubject            
+            subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())            
             messageText = es.getInvitationEmail()            
             memo = f'Manual invitation for session: {es.id}'
 
@@ -482,7 +482,7 @@ def inviteSubjects(data, id, request):
     p = parameters.objects.first()
     subjectText = ""
 
-    subjectText = p.invitationTextSubject
+    subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
     messageText = es.getInvitationEmail()
 
     # #add users to session
