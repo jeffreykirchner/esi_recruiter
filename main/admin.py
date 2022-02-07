@@ -266,7 +266,7 @@ class ProfileAdmin(admin.ModelAdmin):
             actions.append(setup_test_users)
 
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
-      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login')
+      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login','type')
       readonly_fields = ['user', 'password_reset_key']
 
       def get_form(self, request, obj=None, **kwargs):
