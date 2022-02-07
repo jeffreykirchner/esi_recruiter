@@ -12,14 +12,16 @@ from django.contrib.auth.models import User
 from django.utils.translation import ngettext
 from django.contrib import messages
 from django.conf import settings
-from main.models import *
-from main.globals import send_mass_email_verify
-
-
 from django.db.models import Q,F,Value as V,Count
 from django.contrib.auth.hashers import make_password
 from django.db.models.functions import Lower
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.utils.translation import gettext_lazy as _
+
+from main.models import *
+
+from main.globals import send_mass_email_verify
+from main.globals import todays_date
 
 from main.forms import parametersForm
 from main.forms import faqForm
@@ -114,6 +116,42 @@ class UserAdmin(DjangoUserAdmin):
       list_display = ['last_name', 'first_name', 'email', 'date_joined', 'last_login']
       actions = []
       list_filter = ('is_staff', 'is_active')
+
+class NoLoginIn400Days(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('no login in last 400 days')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'user__last_login'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return (
+            ('no_recent_login', _('no login in 400 days')),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+
+        if self.value() == 'no_recent_login':
+            today_minus_400 =  todays_date() - timedelta(days=400)
+
+            return queryset.filter(
+                user__last_login__lte=today_minus_400,
+            )
+        
+
 
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -266,7 +304,7 @@ class ProfileAdmin(admin.ModelAdmin):
             actions.append(setup_test_users)
 
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
-      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login','type')
+      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key']
 
       def get_form(self, request, obj=None, **kwargs):
