@@ -1,6 +1,10 @@
 <div class="card">                  
     <div class="card-header">
-        Experiments                                                   
+        Experiments 
+
+        <div class="float-right" v-show="waiting">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>                                                  
     </div>
     <div class="card-body">    
         <div style="text-align: center;color:red;padding-bottom: 5px;">
