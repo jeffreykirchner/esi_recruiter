@@ -7,28 +7,32 @@
         </div>                                                  
     </div>
     <div class="card-body">    
-        <div style="text-align: center;color:red;padding-bottom: 5px;">
+        <div class="text-center mb-4" style="color: red;font-weight: bold;" v-show="account_paused">
+            Your account is paused.<br>
+            To participate in experiments, update your <a href="{%url 'profile'%}">profile</a>. 
+        </div>
+        <div class="text-center mb-4" style="color: red;" v-show="!account_paused">
             You cannot leave an experiment if it starts within 24 hours. 
         </div>
-        <div v-if="lastActionFailed"  style="text-align: center;color:red;padding-bottom: 5px;">
+        <div class="text-center mb-4" v-if="lastActionFailed"  style="color:red">
             <span v-html ="'***There was error processing your last request***'"></span>
         </div>           
         <!-- upcoming table -->
-        <table class="table table-hover table-condensed">
-            <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
+        <table class="table table-hover table-condensed" v-show="!account_paused">
+            <caption  class="text-center" style="caption-side:top;">Upcoming Experiments</caption>
 
             <thead>                         
-                <th width="50%" style="text-align: center;">
+                <th width="50%" class="text-center">
                     Date
                 </th>                                                      
-                <th width="50%" style="text-align: center;">
+                <th width="50%" class="text-center">
                     Control
                 </th>
             </thead>
             <tbody>
                 <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
                    
-                    <td  style="text-align: center;">      
+                    <td  class="text-center">      
                         <div style="cursor: pointer;" v-on:click="showInvitationText(index)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                             <span v-html=sd.date></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
@@ -47,13 +51,13 @@
                             <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
                         </div>                                    
                     </td>
-                    <td  style="text-align: center;">
+                    <td  class="text-center">
 
                             <div v-if="s.canceled">
                                 <span v-html="'*** Canceled ***'" style="color: red;"></span>
                             </div>
                             <div v-else-if="s.confirmed">
-                                <div style="margin-bottom: 5px">
+                                <div class="mb-2">
                                     You are attending.
                                 </div>
                                 <div v-if="s.hours_until_first_start > 24">
@@ -68,7 +72,7 @@
                                 </div>
                             </div>
                             <div v-else>
-                                <div style="margin-bottom: 5px">
+                                <div class="mb-2">
                                     You are not attending.
                                 </div>
                                 <div v-if ="s.hours_until_first_start <= -0.25">
@@ -103,27 +107,27 @@
             </tfoot>                                    
         </table>
         <br>
-        <hr>
+        <hr v-show="!account_paused">
         <br>
         <!-- attended table -->
         <table class="table table-hover table-condensed">
-            <caption style="caption-side:top;text-align: center;">Experiments Attended</caption>
+            <caption class="text-center" style="caption-side:top;">Experiments Attended</caption>
 
             <thead>                        
-                <th width="50%" style="text-align: center;">
+                <th width="50%" class="text-center">
                     Date
                 </th>                                                      
-                <th width="50%" style="text-align: center;">
+                <th width="50%" class="text-center">
                     Earnings
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in pastAcceptedInvitations" v-bind:key="s.id">                            
-                    <td  style="text-align: center;">                                                                
+                    <td  class="text-center">                                                                
                         <div v-html="s.date"></div>
                         <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
                     </td>
-                    <td  style="text-align: center;">     
+                    <td  class="text-center">     
                         <div v-if="s.bumped">
                             <div v-html="'$'+s.total_earnings"></div>
                             <div v-html="'(Bumped)'"></div>
@@ -145,7 +149,7 @@
         <br>              
         <!-- invitation table -->
         <table class="table table-hover table-condensed">
-            <caption style="caption-side:top;text-align: center;">Full Invitation List</caption>
+            <caption class="text-center" style="caption-side:top;">Full Invitation List</caption>
 
             <thead>
                 <th width="30%" style="text-align: center;">
