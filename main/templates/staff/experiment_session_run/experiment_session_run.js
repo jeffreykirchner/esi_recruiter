@@ -68,8 +68,8 @@ var app = new Vue({
                     app.calcPayoutTotal();      
 
                     app.$data.dateText = app.$data.sessionDay.date;      
-                    app.$data.dateText += " | " + app.$data.sessionDay.length + " Minutes";
-                    app.$data.dateText += " | " + app.$data.sessionDay.location.name;    
+                    app.$data.dateText += ", " + app.$data.sessionDay.length + " Minutes";
+                    app.$data.dateText += ", " + app.$data.sessionDay.location.name;    
                     
                     app.$data.fillShowUpFeeButtonText += app.$data.sessionDay.defaultShowUpFee;
 
