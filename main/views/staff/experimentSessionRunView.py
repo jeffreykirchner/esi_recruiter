@@ -21,6 +21,7 @@ from django.conf import settings
 from django.db.models import Q, F, CharField, Value
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.decorators import user_is_staff
 from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs, parameters
@@ -93,8 +94,12 @@ def experimentSessionRunView(request, id_=None):
         help_text = "No help doc was found."
 
     esd = experiment_session_days.objects.get(id=id_)
-    return render(request, 'staff/experimentSessionRun.html',
-                  {"sessionDay":esd, "id":id_, "helpText":help_text})
+    return render(request,
+                 'staff/experimentSessionRun.html',
+                 {"sessionDay":esd, 
+                  "sessionDay_json":json.dumps(esd.json_runInfo(request.user), cls=DjangoJSONEncoder),
+                  "id":id_, 
+                  "helpText":help_text})
 
 #return the session info to the client
 def getSession(data, id, request_user):
@@ -780,7 +785,6 @@ def takeEarningsUpload(f, id, request_user, auto_add_subjects):
     logger.info(text)
 
     return takeEarningsUpload2(id, text, request_user, auto_add_subjects)
-
 
 #process earnings upload
 def takeEarningsUpload2(id, text, request_user, auto_add_subjects):

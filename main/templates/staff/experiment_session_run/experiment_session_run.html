@@ -256,10 +256,16 @@
                                 </button>
                             </td>
                             <td class="text-nowrap text-center">
-                                <button v-show="sessionDay.complete === false && isAdmin" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
-                                        title="Pay subjects directly using PayPal's API" v-bind:disabled = "sessionDay.paypalAPI">
-                                    <span v-html='paypalDirectButtonText'></span> 
-                                </button>
+                                <div v-if="!sessionDay.is_during_session" v-show="sessionDay.complete === false && isAdmin">
+                                    PayPal window closed
+                                </div>
+                                <div v-else>
+                                    <button v-show="sessionDay.complete === false && isAdmin" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
+                                        title="Pay subjects directly using PayPal's API" 
+                                        v-bind:disabled = "sessionDay.paypalAPI">
+                                        <span v-html='paypalDirectButtonText'></span> 
+                                    </button>
+                                </div>                               
                             </td>
                         </tr>
                     </tfoot>

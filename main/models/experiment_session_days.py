@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import logging
+from operator import truediv
 import pytz
 
 from django.db import models
@@ -311,6 +312,22 @@ class experiment_session_days(models.Model):
 
     #info to send to session run page
     def json_runInfo(self, u):
+        '''
+        u:User
+        '''
+
+        is_during_session = False           #while session is taking place
+
+        if self.enable_time:
+            if datetime.now(pytz.UTC) >= self.date - timedelta(hours=2) and \
+                datetime.now(pytz.UTC) <= self.date_end + timedelta(hours=2) :
+
+                is_during_session = True
+        else:
+            if datetime.now(pytz.UTC) >= self.date - timedelta(hours=24) and \
+               datetime.now(pytz.UTC) <= self.date_end + timedelta(hours=24) :
+
+                is_during_session = True
 
         return{
             "id":self.id,
@@ -332,6 +349,7 @@ class experiment_session_days(models.Model):
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
+            "is_during_session" : is_during_session,
         }
 
     #json info for run session
