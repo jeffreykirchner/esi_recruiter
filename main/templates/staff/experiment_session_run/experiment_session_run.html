@@ -1,8 +1,14 @@
 <div class="card">                  
     <div class="card-header">
-      Run Session Day : <a href="{% url 'experimentView' sessionDay.experiment_session.experiment.id %}">{{sessionDay.experiment_session.experiment}}</a> | 
-                        <a href="{% url 'experimentSessionView' sessionDay.experiment_session.id %}">Session Info</a> |
-                        <span v-html="dateText"></span>
+        <div class="row">
+            <div class="col-md-auto pr-0 pl-0 pl-md-3 mr-0">Run Session Day</div>
+            <div class="col-md-auto p-0 m-0 d-none d-md-block">&nbsp;:&nbsp;</div>
+            <div class="col-md-auto p-0 p-md-0 m-0"><a href="{% url 'experimentView' sessionDay.experiment_session.experiment.id %}">{{sessionDay.experiment_session.experiment}}</a></div>
+            <div class="col-md-auto p-0 m-0 d-none d-md-block">&nbsp;|&nbsp;</div>
+            <div class="col-md-auto p-0 m-0"><a href="{% url 'experimentSessionView' sessionDay.experiment_session.id %}">Session Info</a></div>
+            <div class="col-md-auto p-0 m-0 d-none d-md-block">&nbsp;|&nbsp;</div>
+            <div class="col-md-auto p-0 m-0"><span v-html="dateText"></span></div>
+        </div>                        
     </div>
     <div class="card-body">  
         <!-- stripe reader -->
@@ -47,38 +53,38 @@
                                                                                     Bumped: [[sessionDay.bumpCount]]
                     </caption>
                     <thead>
-                        <th scope="col" width="25%">
+                        <th scope="col-auto">
                             Name 
                         </th>
-                        <th scope="col" width="15%">
+                        <th scope="col-auto" class="text-center text-nowrap">
                             ID Number 
                         </th>
-                        <th scope="col" width=15%  style="text-align: center;">  
+                        <th scope="col-auto" class="text-center text-nowrap">  
                             Earnings ($)
                         </th> 
-                        <th scope="col" width=15%  style="text-align: center;">  
-                            On-Time<br>Bonus ($)
+                        <th scope="col-auto" class="text-center text-nowrap">  
+                            On-Time Bonus ($)
                         </th>   
-                        <th scope="col" width=15%  style="text-align: center;">  
+                        <th scope="col-auto" class="text-center text-nowrap">  
                             Status
                         </th>                                                                             
-                        <th scope="col" width="15%" style="text-align: center;">
+                        <th scope="col-auto" class="text-center text-nowrap">
                             Control
                         </th>
                     </thead>
                     <tbody>
                         <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">
                                                        
-                            <td class="align-middle m-1 p-1">
+                            <td class="align-middle m-1 p-1 text-nowrap">
                                 <span v-html="index+1"></span>) 
                                 <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                     <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                 </a>                                    
                             </td>
-                            <td  class="align-middle m-1 p-1">                                       
+                            <td  class="align-middle text-center m-1 p-1 text-nowrap">                                       
                                 <span v-html="esdu.user.studentID"></span>                                    
                             </td> 
-                            <td class="align-middle m-1 p-1 text-center">
+                            <td class="align-middle m-1 p-1 text-center text-nowrap">
                                 <div v-if='esdu.attended'>
                                     <div v-if='sessionDay.complete'>
                                         $<span v-html="esdu.earnings"></span>
@@ -89,7 +95,7 @@
                                     </div>
                                 </div>                                                                                                                  
                             </td>                                    
-                            <td class="align-middle m-1 p-1 text-center">
+                            <td class="align-middle m-1 p-1 text-center text-nowrap">
                                 <div v-if='esdu.attended || esdu.bumped'>
                                     <div v-if='sessionDay.complete'>
                                         $<span v-html="esdu.show_up_fee"></span>
@@ -100,13 +106,13 @@
                                     </div>                                           
                                 </div>                                        
                             </td>
-                            <td class="align-middle m-1 p-1 text-center">                                       
+                            <td class="align-middle m-1 p-1 text-center text-nowrap">                                       
                                 <div v-if="esdu.attended">Attended</div>
                                 <div v-else-if="esdu.bumped">Bumped</div>
                                 <div v-else-if="sessionDay.canceled">Canceled</div>
                                 <div v-else>No Show</div>                                                                           
                             </td>
-                            <td class="align-middle m-1 p-1 text-center">
+                            <td class="align-middle m-1 p-1 text-center text-nowrap">
                                 <div v-show="sessionDay.complete === false">  
                                     <div v-if = "esdu.waiting">
                                         <span v-html='waitButtonText'></span>
@@ -138,17 +144,17 @@
                     <tfoot>
                         <!-- first button row -->
                         <tr>
-                            <td>
+                            <td class="text-nowrap">
                                 Payout Total: $[[payoutTotal]]                                      
                             </td>
                             
-                            <td><!-- save button -->                                        
+                            <td  class="text-nowrap text-center"><!-- save button -->                                        
                                 <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
                                         title="Save payouts to the database.">
                                     <span v-html='saveButtonText'></span> 
                                 </button>                                                                                
                             </td>
-                            <td style="text-align: center;">                                      
+                            <td class="text-nowrap text-center">                                      
                                 <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
                                     <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
                                             aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
@@ -159,19 +165,19 @@
                                     </div>
                                 </div>                                                                                                                    
                             </td>
-                            <td style="text-align: center;">                                        
+                            <td class="text-nowrap text-center">                                        
                                 <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
                                         title="Fill all present subject's on-time bonuses with the specified amount." >
                                     <span v-html='fillShowUpFeeButtonText'></span> 
                                 </button>                                                                                                                        
                             </td>
-                            <td style="text-align: center;">                                        
+                            <td class="text-nowrap text-center">                                        
                                 <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
                                         title = "Randomly bump extra subjects.">
                                     <span v-html='autoBumpButtonText'></span> 
                                 </button>                                        
                             </td>
-                            <td style="text-align: center;">        
+                            <td class="text-nowrap text-center">        
                                 <button v-show="sessionDay.complete === false"
                                         type="button"
                                         class="btn btn-outline-primary btn-sm"
@@ -184,7 +190,7 @@
                         
                         <!-- second button row -->
                         <tr>
-                            <td> 
+                            <td class="text-nowrap"> 
 
                                 <button type="button"
                                         class="btn btn-outline-primary btn-sm"
@@ -198,35 +204,35 @@
                                     </div>                                            
                                 </button>                                     
                             </td>
-                            <td>     
+                            <td class="text-nowrap text-center">     
                                 <button v-if="sessionDay.complete === false"
                                         type="button"
-                                        class="btn btn-outline-primary btn-sm d-none d-md-block"
+                                        class="btn btn-outline-primary btn-sm"
                                         v-on:click="showUploadEarnings()"
                                         title ="Upload an earnings formatted file.">
                                     Upload Earnings <i class="fas fa-upload"></i>
                                 </button>
                             </td>
-                            <td style="text-align: center;">                                        
+                            <td class="text-nowrap text-center">                                        
                                 <button type="button"
-                                        class="btn btn-link btn-sm d-none d-md-block"
+                                        class="btn btn-link btn-sm"
                                         v-on:click="printPayouts()">
                                     <span v-html='printPayoutsButtonText'></span> 
                                 </button>                                                                               
                             </td>
-                            <td style="text-align: center;">
-                                <button type="button" class="btn btn-link btn-sm d-none d-md-block" v-on:click = "printBumps()">
+                            <td class="text-nowrap text-center">
+                                <button type="button" class="btn btn-link btn-sm" v-on:click = "printBumps()">
                                     <span v-html='printBumpsButtonText'></span> 
                                 </button>                                        
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-nowrap text-center">
                                 <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
                                         title="Round earnings up to nearest 25 cents."  >
                                     <span v-html='roundUpButtonText'></span> 
                                 </button>                                       
                             </td>
-                            <td style="text-align: center;">   
-                                <button type="button" class="btn btn-outline-primary btn-sm d-none d-md-block" v-on:click = "payPalExport()"
+                            <td class="text-nowrap text-center">   
+                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
                                         title="Export a PayPal mass payment file."  >
                                     <span v-html='paypalExportButtonText'></span> 
                                 </button>                                     
@@ -237,19 +243,19 @@
                         <tr>
                             <td>
                             </td>
-                            <td>
+                            <td class="text-nowrap text-center">
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-nowrap text-center">
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-nowrap text-center">
                             </td>
-                            <td style="text-align: center;">
-                                <button type="button" class="btn btn-outline-primary btn-sm d-none d-md-block" v-on:click = "earningsExport()"
+                            <td class="text-nowrap text-center">
+                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
                                         title="Export a CSV file with a list of attending subjects."  >
                                     <span v-html='earningsExportButtonText'></span> 
                                 </button>
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-nowrap text-center">
                                 <button v-show="sessionDay.complete === false && isAdmin" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
                                         title="Pay subjects directly using PayPal's API" v-bind:disabled = "sessionDay.paypalAPI">
                                     <span v-html='paypalDirectButtonText'></span> 

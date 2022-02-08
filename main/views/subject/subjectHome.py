@@ -1,14 +1,22 @@
+from datetime import datetime, timedelta
+
+import json
+import logging
+import pytz
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_subject,email_confirmed
-import json
+from django.db.models import CharField, Q, F, Value as V
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from main.models import experiment_session_day_users,parameters,help_docs
-from datetime import datetime, timedelta,timezone
-import pytz
-from django.db.models import CharField,Q,F,Value as V
+from django.core.serializers.json import DjangoJSONEncoder
+
+from main.models import experiment_session_day_users
+from main.models import parameters
+from main.models import help_docs
+
+from main.decorators import user_is_subject
+from main.decorators import email_confirmed
 
 @login_required
 @user_is_subject
@@ -52,6 +60,7 @@ def subjectHome(request):
             helpText = "No help doc was found."
         
         return render(request,'subject/home.html',{"labManager":labManager,
+                                                   "account_paused": json.dumps(u.profile.paused, cls=DjangoJSONEncoder),
                                                    "helpText":helpText})      
 
 #return invitations for subject

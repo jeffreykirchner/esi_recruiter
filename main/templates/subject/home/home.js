@@ -16,6 +16,7 @@ var app = new Vue({
         consentFormText:"",
         waiting:true,
         current_invitation_text:"",
+        account_paused : {{account_paused|safe}},
     },
 
     methods:{
