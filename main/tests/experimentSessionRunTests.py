@@ -277,7 +277,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
-        #check add to sessin
+        #check add to session
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u3.id).first()
         self.assertEquals(esdu,None)
 
@@ -290,7 +290,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
                                                    "ignoreConstraints":False},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotIn("is now attending",r['status']['message'])
+        self.assertIn("is now attending",r['status']['message'])
 
         #check recruitment violation
         #remove user 3 from sessoin
