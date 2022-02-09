@@ -253,6 +253,9 @@ def getPayPalExport(data, id, request_user):
     esd = experiment_session_days.objects.get(id=id)
     esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
 
+    esd.user_who_paypal_paysheet = request_user
+    esd.save()
+
     csv_response = HttpResponse(content_type='text/csv')
     csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
@@ -516,6 +519,7 @@ def completeSession(data, id, request_user):
 
         if status == "success":
             esd.complete = not esd.complete
+            esd.user_who_closed_session = request_user
             esd.save()
 
             #clear any extra earnings fields entered
@@ -877,7 +881,6 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                          "message":message,
                         }, safe=False)
 
-
 #round earnings up to nearest 25 cents
 def roundEarningsUp(data, id, request_user):
     '''
@@ -951,6 +954,7 @@ def payPalAPI(data, id_, request_user):
             error_message += f'<div>{payment["data"]["email"]}: {payment["detail"]}</div>'
     else:
         esd.paypal_api = True
+        esd.user_who_paypal_api = request_user
         esd.save()
         for payment in req.json():
             result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'

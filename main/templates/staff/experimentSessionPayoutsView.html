@@ -45,6 +45,7 @@
                         sessionDayUsers:[],
                         payGroup:"{{payGroup}}",
                         payoutTotal:"",
+                        experiment_session_day:{{experiment_session_day_json|safe}},
                     },
         
                     methods:{
@@ -58,6 +59,7 @@
                             .then(function (response) {     
                                 app.$data.sessionDayUsers = response.data.sessionDayUsers;   
                                 app.$data.payGroup = payGroup;
+                                app.$data.experiment_session_day = response.data.experiment_session_day;
                                 
                                 app.calcPayoutTotal();
                             })
@@ -156,6 +158,46 @@
                 </div>
                 <div class = "col-sm-8 float-left">
                     $[[payoutTotal]]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Printed Paysheet:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    [[experiment_session_day.user_who_printed_paysheet]]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Printed Bumpsheet:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    [[experiment_session_day.user_who_printed_bumps]]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    PayPal Direct:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    [[experiment_session_day.user_who_paypal_api]]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    PayPal Upload:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    [[experiment_session_day.user_who_paypal_paysheet]]
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Closed Session:
+                </div>
+                <div class = "col-sm-8 float-left">
+                    [[experiment_session_day.user_who_closed_session]]
                 </div>
             </div>
             <div class="row mt-4">
