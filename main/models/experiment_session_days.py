@@ -46,11 +46,10 @@ class experiment_session_days(models.Model):
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
 
-    user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a',blank=True, null=True,)       #user that pressed paypal api button
-    user_who_paypal_paysheet = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_b',blank=True, null=True,)  #user that pressed paypal paysheet
-    user_who_closed_session = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_c',blank=True, null=True,)   #user that closed session
-    user_who_printed_paysheet = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_d',blank=True, null=True,) #user that printed paysheet
-    user_who_printed_bumps = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_e',blank=True, null=True,)    #user that printed bumpsheet
+    user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
+    users_who_paypal_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_b', blank=True)  #users that pressed paypal paysheet
+    users_who_printed_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_d', blank=True) #users that printed paysheet
+    users_who_printed_bumps = models.ManyToManyField(User, related_name='experiment_session_days_e', blank=True)    #users that printed bumpsheet
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -316,6 +315,11 @@ class experiment_session_days(models.Model):
             else:
                 return True
 
+    #convert input into comma dilimited string
+    def convertToCommaString(self, in_str):
+        converted_list = [element.get_full_name() for element in in_str]
+        return ", ".join(converted_list)
+
     #info to send to session run page
     def json_runInfo(self, u):
         '''
@@ -356,11 +360,10 @@ class experiment_session_days(models.Model):
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
             "is_during_session" : is_during_session,
-            "user_who_paypal_api" : self.user_who_paypal_api.get_full_name() if self.user_who_paypal_api else "---",
-            "user_who_paypal_paysheet" : self.user_who_paypal_paysheet.get_full_name() if self.user_who_paypal_paysheet else "---",
-            "user_who_closed_session" : self.user_who_closed_session.get_full_name() if self.user_who_closed_session else "---",
-            "user_who_printed_paysheet" : self.user_who_printed_paysheet.get_full_name() if self.user_who_printed_paysheet else "---",
-            "user_who_printed_bumps" : self.user_who_printed_bumps.get_full_name() if self.user_who_printed_bumps else "---",
+            "user_who_paypal_api" :  self.user_who_paypal_api.get_full_name() if self.user_who_paypal_api else "---",
+            "users_who_paypal_paysheet" : self.convertToCommaString(self.users_who_paypal_paysheet.all()) if len(self.users_who_paypal_paysheet.all()) != 0 else "---",
+            "users_who_printed_paysheet" : self.convertToCommaString(self.users_who_printed_paysheet.all()) if len(self.users_who_printed_paysheet.all()) != 0 else "---",
+            "users_who_printed_bumps" : self.convertToCommaString(self.users_who_printed_bumps.all()) if len(self.users_who_printed_bumps.all()) != 0 else "---",
         }
 
     #json info for run session

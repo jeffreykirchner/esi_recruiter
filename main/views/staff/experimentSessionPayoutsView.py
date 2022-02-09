@@ -48,17 +48,16 @@ def getSession(data, id, request_user):
 
     esd = experiment_session_days.objects.get(id=id)
 
-    if payGroup == "bumps":      
-        if not esd.complete:
-            esd.user_who_printed_bumps = request_user
-            esd.save()
+    if payGroup == "bumps":     
+
+        esd.users_who_printed_bumps.add(request_user)
+        esd.save()
 
         esdu = esd.experiment_session_day_users_set.filter(bumped = True)\
                                                    .order_by(Lower('user__last_name'), Lower('user__first_name'))
     else:
-        if not esd.complete:
-            esd.user_who_printed_paysheet = request_user
-            esd.save()
+        esd.users_who_printed_paysheet.add(request_user)
+        esd.save()
 
         esdu = esd.experiment_session_day_users_set.filter(attended = True)\
                                                    .order_by(Lower('user__last_name'), Lower('user__first_name')) 
