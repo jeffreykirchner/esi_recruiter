@@ -3,6 +3,7 @@ Run Session View
 '''
 from datetime import datetime, timedelta, timezone
 from decimal import *
+from operator import truediv
 
 import random
 import csv
@@ -150,7 +151,10 @@ def getStripeReaderCheckin(data, id, request_user):
 
     if status["message"] == "":
 
-        esdu = getSubjectByID(id, studentID, request_user)
+        #if autoAddUser:
+        esdu = getSubjectByID(id, studentID, request_user, False)
+        # else:
+        #     esdu = getSubjectByID(id, studentID, request_user, True)
 
         logger.info(esdu)
 
@@ -162,9 +166,15 @@ def getStripeReaderCheckin(data, id, request_user):
             
             logger.info("Stripe Reader Error, multiple users found")
         else:
-            if autoAddUser and request_user.is_superuser:
+            if autoAddUser and request_user.is_superuser and len(esdu)==0:
+                #user not in session, add them
                 status = autoAddSubject(studentID, id, request_user, ignoreConstraints)
                 #status = r['status']
+            elif autoAddUser and request_user.is_superuser and len(esdu)==1:
+                #user is in session confirm them
+                esdu_first = esdu.first()
+                esdu_first.confirmed = True
+                esdu_first.save()
 
             if status["message"] == "":
                 status["message"] = attendSubjectAction(esdu.first(), id, request_user)
@@ -176,12 +186,15 @@ def getStripeReaderCheckin(data, id, request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status": status}, safe=False)
 
 #get subjects by student id
-def getSubjectByID(id, studentID, request_user):
-
-    return  experiment_session_day_users.objects.filter(experiment_session_day__id=id,
-                                                        user__profile__studentID__icontains=studentID,
-                                                        confirmed=True)\
+def getSubjectByID(id, studentID, request_user, filter_confirmed):
+    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id,
+                                                        user__profile__studentID__icontains=studentID)\
                                                 .select_related('user')
+
+    if filter_confirmed:
+        return esdu.filter(confirmed = True) 
+
+    return esdu
 
 #automatically add subject when during card swipe
 def autoAddSubject(studentID, id, request_user, ignoreConstraints):
@@ -821,7 +834,10 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
 
         #store earnings
         for i in v:
-            esdu = getSubjectByID(id, i[0], request_user)
+            # if auto_add_subjects:
+            #     esdu = getSubjectByID(id, i[0], request_user, False)
+            # else:
+            esdu = getSubjectByID(id, i[0], request_user, False)
 
             # logger.info(esdu.count())
 
@@ -838,7 +854,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                     if value["message"] != "":
                         m = value["message"] + "<br>"
 
-                    esdu = getSubjectByID(id, i[0], request_user)
+                    esdu = getSubjectByID(id, i[0], request_user, True)
                 else:
                     m = f'Error: No user found for ID {i[0]}<br>'
 
@@ -848,6 +864,11 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
 
                 #logger.info(esdu)
                 esdu = esdu.first()
+
+                #confirm user if auto add
+                if request_user.is_superuser and auto_add_subjects:
+                    esdu.confirmed = True
+                    esdu.save()
 
                 m = attendSubjectAction(esdu, id, request_user)
 
