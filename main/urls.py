@@ -75,6 +75,9 @@ urlpatterns = [
     path('apple-touch-icon.png', RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'), name='favicon'),
     path('apple-touch-icon-120x120-precomposed.png', RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'), name='favicon'),
 
+    #google verification
+    path('googleefdaedc1ef1e492e.html', RedirectView.as_view(url='/static/googleefdaedc1ef1e492e.html'), name='google_verification'),
+
     #sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 
