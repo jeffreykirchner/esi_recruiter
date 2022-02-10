@@ -120,7 +120,7 @@ class UserAdmin(DjangoUserAdmin):
 class NoLoginIn400Days(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = _('no login in last 400 days')
+    title = _('no login in last N days')
 
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'user__last_login'
@@ -134,25 +134,47 @@ class NoLoginIn400Days(admin.SimpleListFilter):
         in the right sidebar.
         """
         return (
-            ('no_recent_login', _('no login in 400 days')),
+            ('400', _('400 days')),
+            ('300', _('300 days')),
+            ('200', _('200 days')),
+            ('100', _('100 days')),
         )
 
     def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
+      """
+      Returns the filtered queryset based on the value
+      provided in the query string and retrievable via
+      `self.value()`.
+      """
 
-        if self.value() == 'no_recent_login':
+      if self.value() == '400':
             today_minus_400 =  todays_date() - timedelta(days=400)
 
             return queryset.filter(
-                user__last_login__lte=today_minus_400,
+                  user__last_login__lte=today_minus_400,
+            )
+
+      if self.value() == '300':
+            today_minus_300 =  todays_date() - timedelta(days=300)
+
+            return queryset.filter(
+                  user__last_login__lte=today_minus_300,
+            )
+      
+      if self.value() == '200':
+            today_minus_200 =  todays_date() - timedelta(days=200)
+
+            return queryset.filter(
+                  user__last_login__lte=today_minus_200,
+            )
+      
+      if self.value() == '100':
+            today_minus_100 =  todays_date() - timedelta(days=100)
+
+            return queryset.filter(
+                  user__last_login__lte=today_minus_100,
             )
         
-
-
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
       

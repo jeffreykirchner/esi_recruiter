@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import logging
+from operator import truediv
 import pytz
 
 from django.db import models
@@ -44,6 +45,11 @@ class experiment_session_days(models.Model):
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
+
+    user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
+    users_who_paypal_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_b', blank=True)  #users that pressed paypal paysheet
+    users_who_printed_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_d', blank=True) #users that printed paysheet
+    users_who_printed_bumps = models.ManyToManyField(User, related_name='experiment_session_days_e', blank=True)    #users that printed bumpsheet
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -309,8 +315,29 @@ class experiment_session_days(models.Model):
             else:
                 return True
 
+    #convert input into comma dilimited string
+    def convertToCommaString(self, in_str):
+        converted_list = [element.get_full_name() for element in in_str]
+        return ", ".join(converted_list)
+
     #info to send to session run page
     def json_runInfo(self, u):
+        '''
+        u:User
+        '''
+
+        is_during_session = False           #while session is taking place
+
+        if self.enable_time:
+            if datetime.now(pytz.UTC) >= self.date - timedelta(hours=2) and \
+                datetime.now(pytz.UTC) <= self.date_end + timedelta(hours=2) :
+
+                is_during_session = True
+        else:
+            if datetime.now(pytz.UTC) >= self.date - timedelta(hours=24) and \
+               datetime.now(pytz.UTC) <= self.date_end + timedelta(hours=24) :
+
+                is_during_session = True
 
         return{
             "id":self.id,
@@ -332,6 +359,11 @@ class experiment_session_days(models.Model):
             "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
+            "is_during_session" : is_during_session,
+            "user_who_paypal_api" :  self.user_who_paypal_api.get_full_name() if self.user_who_paypal_api else "---",
+            "users_who_paypal_paysheet" : self.convertToCommaString(self.users_who_paypal_paysheet.all()) if len(self.users_who_paypal_paysheet.all()) != 0 else "---",
+            "users_who_printed_paysheet" : self.convertToCommaString(self.users_who_printed_paysheet.all()) if len(self.users_who_printed_paysheet.all()) != 0 else "---",
+            "users_who_printed_bumps" : self.convertToCommaString(self.users_who_printed_bumps.all()) if len(self.users_who_printed_bumps.all()) != 0 else "---",
         }
 
     #json info for run session

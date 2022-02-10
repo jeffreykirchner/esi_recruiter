@@ -3,6 +3,7 @@ Run Session View
 '''
 from datetime import datetime, timedelta, timezone
 from decimal import *
+from operator import truediv
 
 import random
 import csv
@@ -21,6 +22,7 @@ from django.conf import settings
 from django.db.models import Q, F, CharField, Value
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.decorators import user_is_staff
 from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs, parameters
@@ -93,8 +95,12 @@ def experimentSessionRunView(request, id_=None):
         help_text = "No help doc was found."
 
     esd = experiment_session_days.objects.get(id=id_)
-    return render(request, 'staff/experimentSessionRun.html',
-                  {"sessionDay":esd, "id":id_, "helpText":help_text})
+    return render(request,
+                 'staff/experimentSessionRun.html',
+                 {"sessionDay":esd, 
+                  "sessionDay_json":json.dumps(esd.json_runInfo(request.user), cls=DjangoJSONEncoder),
+                  "id":id_, 
+                  "helpText":help_text})
 
 #return the session info to the client
 def getSession(data, id, request_user):
@@ -145,7 +151,10 @@ def getStripeReaderCheckin(data, id, request_user):
 
     if status["message"] == "":
 
-        esdu = getSubjectByID(id, studentID, request_user)
+        #if autoAddUser:
+        esdu = getSubjectByID(id, studentID, request_user, False)
+        # else:
+        #     esdu = getSubjectByID(id, studentID, request_user, True)
 
         logger.info(esdu)
 
@@ -157,9 +166,15 @@ def getStripeReaderCheckin(data, id, request_user):
             
             logger.info("Stripe Reader Error, multiple users found")
         else:
-            if autoAddUser and request_user.is_superuser:
+            if autoAddUser and request_user.is_superuser and len(esdu)==0:
+                #user not in session, add them
                 status = autoAddSubject(studentID, id, request_user, ignoreConstraints)
                 #status = r['status']
+            elif autoAddUser and request_user.is_superuser and len(esdu)==1:
+                #user is in session confirm them
+                esdu_first = esdu.first()
+                esdu_first.confirmed = True
+                esdu_first.save()
 
             if status["message"] == "":
                 status["message"] = attendSubjectAction(esdu.first(), id, request_user)
@@ -171,12 +186,15 @@ def getStripeReaderCheckin(data, id, request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status": status}, safe=False)
 
 #get subjects by student id
-def getSubjectByID(id, studentID, request_user):
-
-    return  experiment_session_day_users.objects.filter(experiment_session_day__id=id,
-                                                        user__profile__studentID__icontains=studentID,
-                                                        confirmed=True)\
+def getSubjectByID(id, studentID, request_user, filter_confirmed):
+    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id,
+                                                        user__profile__studentID__icontains=studentID)\
                                                 .select_related('user')
+
+    if filter_confirmed:
+        return esdu.filter(confirmed = True) 
+
+    return esdu
 
 #automatically add subject when during card swipe
 def autoAddSubject(studentID, id, request_user, ignoreConstraints):
@@ -247,6 +265,9 @@ def getPayPalExport(data, id, request_user):
 
     esd = experiment_session_days.objects.get(id=id)
     esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
+
+    esd.users_who_paypal_paysheet.add(request_user)
+    esd.save()
 
     csv_response = HttpResponse(content_type='text/csv')
     csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
@@ -781,7 +802,6 @@ def takeEarningsUpload(f, id, request_user, auto_add_subjects):
 
     return takeEarningsUpload2(id, text, request_user, auto_add_subjects)
 
-
 #process earnings upload
 def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
     logger = logging.getLogger(__name__)
@@ -814,7 +834,10 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
 
         #store earnings
         for i in v:
-            esdu = getSubjectByID(id, i[0], request_user)
+            # if auto_add_subjects:
+            #     esdu = getSubjectByID(id, i[0], request_user, False)
+            # else:
+            esdu = getSubjectByID(id, i[0], request_user, False)
 
             # logger.info(esdu.count())
 
@@ -831,7 +854,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                     if value["message"] != "":
                         m = value["message"] + "<br>"
 
-                    esdu = getSubjectByID(id, i[0], request_user)
+                    esdu = getSubjectByID(id, i[0], request_user, True)
                 else:
                     m = f'Error: No user found for ID {i[0]}<br>'
 
@@ -841,6 +864,11 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
 
                 #logger.info(esdu)
                 esdu = esdu.first()
+
+                #confirm user if auto add
+                if request_user.is_superuser and auto_add_subjects:
+                    esdu.confirmed = True
+                    esdu.save()
 
                 m = attendSubjectAction(esdu, id, request_user)
 
@@ -872,7 +900,6 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),
                          "message":message,
                         }, safe=False)
-
 
 #round earnings up to nearest 25 cents
 def roundEarningsUp(data, id, request_user):
@@ -947,6 +974,7 @@ def payPalAPI(data, id_, request_user):
             error_message += f'<div>{payment["data"]["email"]}: {payment["detail"]}</div>'
     else:
         esd.paypal_api = True
+        esd.user_who_paypal_api = request_user
         esd.save()
         for payment in req.json():
             result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'
