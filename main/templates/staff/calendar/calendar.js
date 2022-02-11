@@ -48,6 +48,8 @@ var app = new Vue({
                     
                     app.$data.working = false;
                     app.$data.load_url_month = false;
+
+                    setTimeout(app.scollToToday, 250);
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -148,6 +150,16 @@ var app = new Vue({
             app.$data.jump_to_month = response.data.jump_to_month;
 
             history.replaceState({}, null, '/calendar/' + app.$data.currentMonth +'/' + app.$data.currentYear + '/');
+
+            
+        },
+
+        //scroll to today's cell
+        scollToToday(){
+            v = "id_" + app.$data.todayDay + "_" + app.$data.todayMonth + "_" + app.$data.todayYear;
+            var elmnt = document.getElementById(v);
+
+            if(elmnt) elmnt.scrollIntoView(); 
         },
     },            
 

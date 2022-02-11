@@ -57,7 +57,7 @@
     <div class="col-md border rounded no-gutters cell" v-for="(d,indexD) in w" v-bind:key="d.id">
 
         <!-- calendar cell -->
-        <div class="row">
+        <div class="row" v-bind:id="'id_' + d.day + '_' + d.month + '_' + d.year">
 
             <div class = "col cell_content text-right">
                 <div v-if="d.day === todayDay && d.month === todayMonth  && d.year === todayYear">
