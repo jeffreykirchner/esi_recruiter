@@ -115,7 +115,7 @@ class UserAdmin(DjangoUserAdmin):
       search_fields = ['last_name', 'first_name', 'email']
       list_display = ['last_name', 'first_name', 'email', 'date_joined', 'last_login']
       actions = []
-      list_filter = ('is_staff', 'is_active')
+      list_filter = ['profile__type', 'is_superuser']
 
 class NoLoginIn400Days(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
