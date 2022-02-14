@@ -1,166 +1,176 @@
 <div class="card">                  
     <div class="card-header">
-        User Information: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
+        User Info: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
         
         {%if u.profile.type.name == "staff"%}
         (Staff)
         {%endif%}
 
-        <span class="float-right">
-            {%if user.is_superuser%}
-            <a href="{%url 'subject_auto_login' u.id %}">
-                Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
-            </a> | 
-            <a href="/admin/main/profile/{{u.profile.id}}/change">
-                Edit Subject <i class="fas fa-edit fa-xs"></i>
-            </a> |  
-            {%endif%}
-            {%if u.profile.type.name == "subject"%}
-            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showMakeNote()">
-                Make Note <i class="fas fa-sticky-note fa-xs"></i>
-            </button>
-            {%endif%}
+        <span class="float-md-right">
+            <div class="row">
+                {%if user.is_superuser%}
+                    <div class="col-md-auto pl-3 mr-0">
+                        <a href="{%url 'subject_auto_login' u.id %}">
+                            Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-auto pl-3 pr-md-3">
+                        <a href="/admin/main/profile/{{u.profile.id}}/change">
+                            Edit Subject <i class="fas fa-edit fa-xs"></i>
+                        </a>
+                    </div>                
+                {%endif%}
+                {%if u.profile.type.name == "subject"%}
+                <div class="col-md-auto pl-3 m-0">
+                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showMakeNote()">
+                        Make Note <i class="fas fa-sticky-note fa-xs"></i>
+                    </button>
+                </div>
+                {%endif%}
+            </div>
+            
         </span>
                                                          
     </div>
     <div class="card-body">              
                           
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Email:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Email:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.email}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.email}}</span>
             </div>
-            <div class = "col"> 
-                <span class="float-right">Email Confirmed:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Email Confirmed:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
             </div>                
         </div>
 
         {%if u.profile.type.name == "subject"%}
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Major:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Major:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.profile.major}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.major}}</span>
             </div>
-            <div class = "col"> 
-                <span class="float-right">Gender:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Gender:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.profile.gender}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.gender}}</span>
             </div>               
         </div>
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Enrollment Status:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Enrollment Status:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.profile.subject_type}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.subject_type}}</span>
             </div>
-            <div class = "col"> 
-                <span class="float-right">Student Worker:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Student Worker:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
             </div>               
         </div>
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Phone:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Phone:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.profile.phone}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.phone}}</span>
             </div>
-            <div class = "col"> 
-                <span class="float-right">Blackballed:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Blackballed:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>               
         </div>
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Student ID:</span>                            
+            <div class = "col-md"> 
+                <span class="float-md-right">Student ID:</span>                            
             </div>
-            <div class = "col"> 
-                <span class="float-left">{{u.profile.studentID}}</span>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.studentID}}</span>
             </div>   
-            <div class = "col"> 
-                <span class="float-right">Active:</span>                             
+            <div class = "col-md"> 
+                <span class="float-md-right">Active:</span>                             
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
             </div>                                    
         </div>
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">Paused:</span>                        
+            <div class = "col-md"> 
+                <span class="float-md-right">Paused:</span>                        
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div> 
-            <div class = "col"> 
-                <span class="float-right">Consent Required:</span>                             
+            <div class = "col-md"> 
+                <span class="float-md-right">Consent Required:</span>                             
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if u.profile.consent_required%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.consent_required%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>
         </div>
         <div class = "row">
-            <div class = "col"> 
-                <span class="float-right">YTD Earnings</span>                    
+            <div class = "col-md"> 
+                <span class="float-md-right">YTD Earnings</span>                    
             </div>
-            <div class = "col"> 
-                {{u.profile.get_ytd_payouts}}
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.profile.get_ytd_payouts}}</span>
             </div> 
-            <div class = "col"> 
-                <span class="float-right">No-show block:</span>                             
+            <div class = "col-md"> 
+                <span class="float-md-right">No-show block:</span>                             
             </div>
-            <div class = "col"> 
-                <span class="float-left">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
             </div>
         </div>
-        <div class = "row">
-            <div class = "col"> 
+        <div class = "row mb-4">
+            <div class = "col-md"> 
                                     
             </div>
-            <div class = "col"> 
+            <div class = "col-md"> 
                
             </div> 
-            <div class = "col"> 
-                <span class="float-right">In Institutions:</span>                             
+            <div class = "col-md"> 
+                <span class="float-md-right">In Institutions:</span>                             
             </div>
-            <div class = "col"> 
-                <span v-html="institutionsList"></span> 
+            <div class = "col-md"> 
+                <span class="float-right float-md-left" v-html="institutionsList"></span> 
             </div>
         </div>
         {%endif%}
-        <br>
-        <br>
-        {%if u.profile.type.name == 'subject'%}                
+
+        {%if u.profile.type.name == 'subject'%}       
+
         <!-- notes table -->
-        <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed table-responsive-md mb-4">
             <caption style="caption-side:top;text-align: center;">Notes</caption>
 
             <thead>
-                <th width="25%">                            
+                <th width="25%" class="text-nowrap">                            
                     Date
                 </th> 
-                <th width="25%" style="text-align: center;">
+                <th width="25%" class="text-nowrap text-center">
                     Made By
                 </th>                                                      
-                <th width="50%" style="text-align: center;">
+                <th width="50%"  class="text-nowrap text-center">
                     Text
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(n,index) in notes" v-bind:key="n.id">
-                    <td> 
+                    <td class="text-nowrap"> 
                         <span v-if="su">
                             <button type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteNote(n.id)">
                                <i class="fas fa-trash-alt"></i>
@@ -168,48 +178,48 @@
                         </span>                                
                         [[n.date]]
                     </td>
-                    <td  style="text-align: center;">                                                                
+                    <td class="text-nowrap text-center">                                                                
                         [[n.noteMaker.last_name]], [[n.noteMaker.first_name]]                                    
                     </td>
-                    <td >     
+                    <td>     
                         <span v-html="n.text" style="white-space: pre-line;"></span>                            
                     </td>
                 </tr>                        
             </tbody>
             <tfoot v-if="notes.length === 0">
                 <tr>
-                    <td>No Notes.</td>
+                    <td class="text-nowrap">No Notes.</td>
                 </tr>
             </tfoot>                                    
         </table>
-        <br>
-        <br>
+        
+
         <!-- upcoming table -->
-        <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed table-responsive-md mb-4">
             <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
 
             <thead>
-                <th width="35%">
+                <th width="35%" class="text-nowrap">
                     Experiment
                 </th> 
-                <th width="30%" style="text-align: center;">
+                <th width="30%" class="text-nowrap text-center">
                     Date
                 </th>                                                      
-                <th width="35%" style="text-align: center;">
+                <th width="35%" class="text-nowrap text-center">
                     Earnings<br>
                     Experiment | Bonus
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in session_day_upcoming" v-bind:key="s.id">
-                    <td>                                
+                    <td class="text-nowrap">                                
                         <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
                     </td>
-                    <td  style="text-align: center;">                                                                
+                    <td  class="text-nowrap text-center">                                                                
                         [[s.date]]
                         <div v-if="s.multiDay">(Multi-day)</div>                                    
                     </td>
-                    <td  style="text-align: center;">     
+                    <td  class="text-nowrap text-center">     
                         <div v-if="s.bumped">
                             Bumped | $[[s.show_up_fee]]
                         </div>
@@ -221,39 +231,37 @@
             </tbody>
             <tfoot v-if="session_day_upcoming.length === 0">
                 <tr>
-                    <td>No upcoming experiments.</td>
+                    <td class="text-nowrap">No upcoming experiments.</td>
                 </tr>
             </tfoot>                                    
         </table>
-        <br>
-        <hr>
-        <br>
+
         <!-- attended table -->
-        <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed table-responsive-md mb-4">
             <caption style="caption-side:top;text-align: center;">Experiments Attended</caption>
 
             <thead>
-                <th width="35%">
+                <th width="35%" class="text-nowrap">
                     Experiment
                 </th> 
-                <th width="30%" style="text-align: center;">
+                <th width="30%" class="text-nowrap text-center">
                     Date
                 </th>                                                      
-                <th width="35%" style="text-align: center;">
+                <th width="35%" class="text-nowrap text-center">
                     Earnings<br>
                     Experiment | Bonus
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in session_day_attended" v-bind:key="s.id">
-                    <td>                                
+                    <td class="text-nowrap">                                
                         <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
                     </td>
-                    <td  style="text-align: center;">                                                                
+                    <td  class="text-nowrap text-center">                                                                
                         [[s.date]]
                         <div v-if="s.multiDay">(Multi-day)</div>                                    
                     </td>
-                    <td  style="text-align: center;">     
+                    <td  class="text-nowrap text-center">     
                         <div v-if="s.bumped">
                             Bumped | $[[s.show_up_fee]]
                         </div>
@@ -265,42 +273,40 @@
             </tbody>
             <tfoot v-if="session_day_attended.length === 0">
                 <tr>
-                    <td>No experiments attended.</td>
+                    <td class="text-nowrap">No experiments attended.</td>
                 </tr>
             </tfoot>                                    
         </table>
-        <br>     
-        <hr>
-        <br>           
+         
         <!-- invitation table -->
-        <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed table-responsive-md mb-4">
             <caption style="caption-side:top;text-align: center;">Full Invitation List</caption>
 
             <thead>
-                <th width="35%">
+                <th width="35%" class="text-nowrap">
                     Experiment
 
                     <button id="showInvitations" type="button" class="btn btn-primary btn-sm" v-on:click ="showInvitations()">
                         <span v-html="showInvitationsText"></span>
                     </button> 
                 </th> 
-                <th width="30%" style="text-align: center;">
+                <th width="30%" class="text-nowrap text-center">
                     Date
                 </th>                                                      
-                <th width="35%" style="text-align: center;">
+                <th width="35%" class="text-nowrap text-center">
                     Status
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in invitations" v-bind:key="s.id">
-                    <td>                                
+                    <td class="text-nowrap">                                
                         <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
                     </td>
-                    <td  style="text-align: center;">                                                                
+                    <td  class="text-nowrap text-center">                                                                
                         [[s.date]]
                         <div v-if="s.multiDay">(Multi-day)</div>                                    
                     </td>
-                    <td  style="text-align: center;">  
+                    <td  class="text-nowrap text-center">  
                         <div v-if="s.noShow" style="color: red;">No Show</div>   
                         <div v-else-if="s.canceled">Canceled</div>
                         <div v-else-if="s.bumped">Bumped</div>
@@ -311,48 +317,50 @@
             </tbody>
             <tfoot v-if="invitations.length === 0">
                 <tr>
-                    <td>[[noInvitationsFoundText]]</td>
+                    <td class="text-nowrap">[[noInvitationsFoundText]]</td>
                 </tr>
             </tfoot>                                    
         </table>
+
         <!-- traits table -->
-        <table class="table table-hover table-condensed">
+        <table class="table table-hover table-condensed table-responsive-md">
             <caption style="caption-side:top;text-align: center;">Traits</caption>
 
             <thead>
-                <th width="35%">
+                <th width="35%" class="text-nowrap">
                     Name
 
                     <button id="showTraits" type="button" class="btn btn-primary btn-sm" v-on:click ="showTraits()">
                         <span v-html="showTraitsButtonText"></span>
                     </button> 
                 </th> 
-                <th width="30%" style="text-align: center;">
+                <th width="30%" class="text-nowrap text-center">
                     Date of Upload
                 </th>                                                      
-                <th width="35%" style="text-align: center;">
+                <th width="35%" class="text-nowrap text-center">
                     Value
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in subject_traits" v-bind:key="s.id">
-                    <td>                                
+                    <td class="text-nowrap">                                
                         [[s.name]]
                     </td>
-                    <td  style="text-align: center;">                                                                
+                    <td class="text-nowrap text-center">                                                                
                         [[s.date]]                                
                     </td>
-                    <td  style="text-align: center;">  
+                    <td class="text-nowrap text-center">  
                         [[s.value]]                                                                
                     </td>
                 </tr>                        
             </tbody>
             <tfoot v-if="subject_traits.length === 0">
                 <tr>
-                    <td>[[noTraitsFoundText]]</td>
+                    <td class="text-nowrap">[[noTraitsFoundText]]</td>
                 </tr>
             </tfoot>
         </table>
+        
         {%endif%}
     </div>                    
 </div>                
