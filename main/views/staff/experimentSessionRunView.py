@@ -13,6 +13,7 @@ import json
 import logging
 import pytz
 import requests
+import re
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -817,7 +818,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
         v=text.splitlines()
 
         for i in range(len(v)):
-            v[i] = v[i].split(',')
+            v[i] = re.split(r',|\t',v[i])
 
             v[i][0] = int(v[i][0])
             v[i][1] = float(v[i][1].replace('$',''))
