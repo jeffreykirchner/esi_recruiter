@@ -1,50 +1,50 @@
 {% load crispy_forms_tags %}
 <!-- recruitment parameters -->
 <div class = "row">
-    <div class="col col-md-4 text-right">                        
+    <div class="col-md-4 text-md-right">                        
         <u><span v-html="recruitmentTitle"></span></u>
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8">
         
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Genders(s):
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="genders_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Subject Type(s):
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="subject_type_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Number of Participants:
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="recruitment_params.actual_participants"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Registration Cutoff:
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="recruitment_params.registration_cutoff"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Experience Level:
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <div v-if="recruitment_params.experience_constraint">
             <span v-html="recruitment_params.experience_min + ' to ' + recruitment_params.experience_max"></span>
         </div>
@@ -54,10 +54,10 @@
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Allow Multiple Participations:
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <div v-if="recruitment_params.allow_multiple_participations">
            <span v-html="'Yes'"></span>
         </div>
@@ -67,66 +67,66 @@
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Include Institution Experience (<span v-if="recruitment_params.institutions_include_all">All</span><span v-else>1+</span>):
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="include_institutions_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Exclude Institution Experience (<span v-if="recruitment_params.institutions_exclude_all">All</span><span v-else>1+</span>):
     </div>
-    <div class="col col-md-8">    
+    <div class="col-md-8 text-right text-md-left">    
         <span v-html="exclude_institutions_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Include Experiment Experience (<span v-if="recruitment_params.experiments_include_all">All</span><span v-else>1+</span>):
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="include_experiments_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Exclude Experiment Experience (<span v-if="recruitment_params.experiments_exclude_all">All</span><span v-else>1+</span>):
     </div>
-    <div class="col col-md-8">    
+    <div class="col-md-8 text-right text-md-left">    
         <span v-html="exclude_experiments_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Include Only Subjects in Schools (<span v-if="recruitment_params.schools_include_constraint">On</span><span v-else>Off</span>):
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8 text-right text-md-left">
         <span v-html="include_schools_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Exclude Subjects in Schools (<span v-if="recruitment_params.schools_exclude_constraint">On</span><span v-else>Off</span>):
     </div>
-    <div class="col col-md-8">    
+    <div class="col-md-8 text-right text-md-left">    
         <span v-html="exclude_schools_list"></span>
     </div>               
 </div>
 <div class = "row">
-    <div class="col col-md-4 text-right">
+    <div class="col-md-4 text-md-right">
         Trait Constraints (<span v-if="recruitment_params.trait_constraints_require_all">All</span><span v-else>1+</span>):
     </div>
-    <div class="col col-md-8">    
+    <div class="col-md-8 text-right text-md-left">    
         <span v-html="trait_constraint_list"></span>
     </div>               
 </div>
-<div class = "row mt-2">
-    <div class="col col-md-4 text-right">
+<div class = "row mt-2 text-right text-md-left">
+    <div class="col-md-4 text-md-right">
 
     </div>
-    <div class="col col-md-8">
+    <div class="col-md-8">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditTraits()">Traits <i class="fas fa-pen fa-xs"></i></button>
     </div>               
