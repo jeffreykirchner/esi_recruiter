@@ -14,34 +14,34 @@
                     <!-- experiment parameters -->
 
                     <div class="row">
-                        <div class = "col"> 
+                        <div class = "col-md"> 
                             {{form1.title | as_crispy_field }}                            
                         </div>
-                        <div class = "col"> 
+                        <div class = "col-md"> 
                             {{form1.experiment_manager | as_crispy_field }}
                         </div>
                     </div>
                     <div class="row">
-                        <div class = "col">  
+                        <div class = "col-md">  
                             {{form1.account_default | as_crispy_field }}  
                         </div>
-                        <div class = "col">
+                        <div class = "col-md">
                             {{form1.school | as_crispy_field }}
                         </div>            
                     </div>                                 
                     <div class="row">                         
-                        <div class = "col">  
+                        <div class = "col-md">  
                             {{form1.length_default | as_crispy_field }}
                         </div>
-                        <div class = "col">
+                        <div class = "col-md">
                             {{form1.showUpFee | as_crispy_field }}
                         </div>                                       
                     </div>
                     <div class="row">
-                        <div class = "col" style="height: 300px;">                         
+                        <div class = "col-md">                         
                             {{form1.notes | as_crispy_field }}
                         </div>
-                        <div class = "col">
+                        <div class = "col-md">
                             Institution(s)
                             <div id="institution_list_area" class = "overflow-auto" style="height: 300px;">
                                  {{form1.institution | as_crispy_field }} 
@@ -49,7 +49,7 @@
                         </div>            
                     </div> 
                     <div class="row mt-4">
-                        <div class = "col" >                         
+                        <div class = "col-md" >                         
                             {{form1.invitationText | as_crispy_field }}
                         </div>                                    
                     </div>
@@ -57,14 +57,14 @@
                         <div class="col-md-10">
                             {{invitationEmailTemplateForm.invitation_email_template| as_crispy_field}}
                         </div>
-                        <div class="col align-self-center">
+                        <div class="col-md align-self-center">
                             <button type="button" class="btn btn-outline-primary" v-on:click = "fillInvitationTextFromTemplate()">
                                 <span v-html="fillInvitationFromTemplateButtonText"></span>
                             </button>                            
                         </div>
                     </div>  
                     <div class="row mt-3">
-                        <div class = "col" >
+                        <div class = "col-md" >
                              {{form1.reminderText | as_crispy_field }}
                              <button type="button" class="btn btn-outline-primary" v-on:click = "fillWithDefaultReminder()">
                                 <span v-html="fillDefaultReminderButtonText"></span>
