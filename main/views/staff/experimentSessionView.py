@@ -86,6 +86,8 @@ def experimentSessionView(request, id):
             return reSendInvitation(data,id) 
         elif data["status"] == "showInvitations":
             return showInvitations(data,id)  
+        elif data["status"] == "showMessages":
+            return showMessages(data, id)
         elif data["status"] == "updateInvitationText":
             return updateInvitationText(data,id)         
         elif data["status"] == "addTrait":

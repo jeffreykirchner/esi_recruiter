@@ -11,10 +11,10 @@
             </div>
             <div class="modal-body">   
                 <div class="row">
-                    <div class = "col col-2 text-center">
+                    <div class = "col-md-2 text-center">
                         
                     </div>
-                    <div class = "col col-8">                                                   
+                    <div class = "col-md-8">                                                   
                         <div class="input-group mb-3">
                             <input id="findInvitesInput"
                                    v-on:keyup.enter="findSubjectsToInvite()"
@@ -34,25 +34,25 @@
                         </div>
                         <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>                        
                     </div>
-                    <div class = "col col-2" style="text-align: right">
+                    <div class = "mb-3 mb-md-0 col-md-2 text-right">
                         <button v-on:click="showEditInvitation()" class="btn btn-outline-primary" type="button">Edit <i class="fas fa-pen"></i></button>
                     </div>
                 </div>   
                 <div class="row">
-                    <div class = "col">
+                    <div class = "col-md">
                         <div class="form-control scrollable"  v-html="session.invitationText" id="invitationText1"></div>
                     </div>
                 </div>
                 <hr>                
                 <div class="row">
-                    <div class="col">
+                    <div class="col-md">
                         <span v-html="subjectInvitationList"></span>
                     </div>
                 </div>                            
             </div>
             <div class="modal-footer">
                 <div v-if="session.canceled">
-                    <div style="text-align: center;color: red;">Session Canceled</div>
+                    <div class = "text-center" style="color: red;">Session Canceled</div>
                 </div>
                 <div v-else>
                     <button v-on:click="inviteSubjects()" type="button" class="btn btn-outline-success">

@@ -5,21 +5,21 @@
         <div class="modal-content">
            
             <div class="modal-body">    
-                <table class="table table-hover table-condensed">
+                <table class="table table-hover table-condensed table-responsive-xl">
                     <thead>
                         <th>
                             Trait                             
                         </th>
-                        <th style="text-align: center;">
+                        <th class="text-center text-nowrap">
                             Mode
                         </th>
-                        <th style="text-align: center;">
+                        <th class="text-center text-nowrap">
                             Min Value 
                         </th>
-                        <th style="text-align: center;">
+                        <th class="text-center text-nowrap">
                             Max Value
                         </th>                         
-                        <th style="text-align: center;">
+                        <th class="text-center text-nowrap">
                             Control
                         </th>
                     </thead>           
@@ -28,17 +28,17 @@
                             <td> 
                                 <span v-html="t.trait_name"></span>                                      
                             </td>
-                            <td style="text-align: center;"> 
+                            <td class="text-center text-nowrap"> 
                                 <span v-if="t.include_if_in_range">Include</span>
                                 <span v-else>Exclude</span>                                      
                             </td>
-                            <td style="text-align: center;"> 
+                            <td class="text-center text-nowrap"> 
                                 <span v-html="t.min_value"></span>                                      
                             </td>
-                            <td style="text-align: center;"> 
+                            <td class="text-center text-nowrap"> 
                                 <span v-html="t.max_value"></span>                                      
                             </td>
-                            <td style="text-align: center;"> 
+                            <td class="text-center text-nowrap"> 
                                 <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
                                     Edit <i class="far fa-edit"></i>  
                                 </button> 
