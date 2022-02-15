@@ -127,9 +127,10 @@
 
 {%block content%}
 <div class="row justify-content-lg-center">
-        <div class="col col-lg-1">
+        <div class="col-md-1">
         </div>
-        <div class="col col-lg-4">
+
+        <div class="col-md-4 mb-4 md-md-0">
             <div class="card">                  
                 <div class="card-header">
                    Upload New Traits
@@ -139,7 +140,7 @@
                 </div>
                 <div class="card-body">            
                     <div class="row">
-                        <div class = "col" style="text-align: center;">
+                        <div class = "col-md text-center">
                             
                             <div class="custom-file">
                                 <input type="file" ref="file" class="custom-file-input" id="file" v-on:change="handleFileUpload()">
@@ -149,12 +150,12 @@
                         </div>   
                     </div>
                     <div class="row mt-2">
-                        <div class = "col" style="text-align: center;">
+                        <div class = "col-md text-center">
                             <button class="btn btn-outline-primary" v-on:click="uploadCSV()"><span v-html="upload_button_text"></span></button>
                         </div>   
                     </div>
                     <div class="row mt-4">
-                        <div class = "col">
+                        <div class = "col-md text-center">
                             <span v-html="upload_messaage"></span>
                         </div>
                     </div>                    
@@ -162,7 +163,7 @@
             </div>                
         </div>
 
-        <div class="col col-lg-4">
+        <div class="col-md-4">
             <div class="card">                  
                 <div class="card-header">
                    Download Report                                                 
@@ -170,7 +171,7 @@
                 <div class="card-body">
                     <form id="traitReportForm">               
                         <div class="row">
-                            <div class = "col border" style="text-align: left;">
+                            <div class = "col-md border" style="text-align: left;">
                                 <div id="trait_list_area" class = "overflow-auto" style="height: 600px;">
                                     {{ traitReportForm.traits|as_crispy_field }}
                                 </div>
@@ -178,13 +179,13 @@
                         </div>
                     </form>
                     <div class="row mt-2">
-                        <div class = "col" style="text-align: center;">
+                        <div class = "col-md text-center">
                             <button class="btn btn-outline-primary" v-on:click="selectAll()" title="Select all traits.">Select All <i class="fas fa-check-double"></i></button>
                         </div>
-                        <div class = "col" style="text-align: center;">
+                        <div class = "col-md text-center mt-2 mt-md-0">
                             <button class="btn btn-outline-primary" v-on:click="getReport()" title="Generate report for selected traits."><span v-html="download_button_text"></span></button>
                         </div>
-                        <div class = "col" style="text-align: center;">
+                        <div class = "col-md text-center mt-2 mt-md-0">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="activeOnly" v-model="active_only" >
                                 <label class="form-check-label" for="activeOnly" title = "Limit report to active users only.">Active Only</label>
@@ -192,14 +193,15 @@
                         </div>
                     </div>
                     <div class="row mt-4">
-                        <div class = "col">
+                        <div class = "col-md">
                             <span v-html="download_messaage"></span>
                         </div>
                     </div>
                 </div>                    
             </div>                
         </div>
-        <div class="col col-lg-1">
+
+        <div class="col-md-1">
         </div>
 
     </div>
