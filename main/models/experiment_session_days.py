@@ -45,6 +45,7 @@ class experiment_session_days(models.Model):
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
+    paypal_api_batch_id = models.CharField(verbose_name="PayPal Batch Payout ID", max_length = 100, default="") 
 
     user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
     users_who_paypal_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_b', blank=True)  #users that pressed paypal paysheet
