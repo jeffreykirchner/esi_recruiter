@@ -559,10 +559,15 @@ var app = new Vue({
 
         //pay subjects with PayPal API
         payPalAPI:function(){
-            var r = confirm("Pay subjects directly with PayPal's API?");
-
-            if (r == false)
+            if(app.$data.sessionDay.experiment_session_days_user.length == 0)
             {
+                alert("No subjects in session.") ; 
+                return;
+            }
+
+            if(app.$data.payoutTotal == "0.00")
+            {
+                alert("No payouts entered.") ; 
                 return;
             }
 
@@ -571,6 +576,14 @@ var app = new Vue({
                 alert("Save payouts before continuing.") ;                    
                 return;                        
             }
+
+            var r = confirm("Pay subjects directly with PayPal's API?");
+
+            if (r == false)
+            {
+                return;
+            }           
+
 
             app.$data.paypalDirectButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 

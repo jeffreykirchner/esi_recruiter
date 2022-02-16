@@ -140,8 +140,12 @@
                                 </div>                                                                               
                             </td>                                
                         </tr>
+
+                        <tr v-if="sessionDay.experiment_session_days_user.length == 0">
+                            <td>No confirmed users</td>
+                        </tr>
                     </tbody>                                                                      
-                    <tfoot>
+                    <tfoot v-if="sessionDay.experiment_session_days_user.length > 0">
                         <!-- first button row -->
                         <tr>
                             <td class="text-nowrap">
