@@ -7,12 +7,13 @@ from datetime import timedelta
 import logging
 from operator import truediv
 import pytz
+import requests
 
 from django.db import models
 from django.db.models.functions import Lower
 from django.contrib.auth.models import User
 from django.utils.timezone import now
-from django.contrib.auth.models import User
+from django.conf import settings
 
 import main
 
@@ -45,6 +46,7 @@ class experiment_session_days(models.Model):
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
+    paypal_api_batch_id = models.CharField(verbose_name="PayPal Batch Payout ID", max_length = 100, default="") 
 
     user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
     users_who_paypal_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_b', blank=True)  #users that pressed paypal paysheet
@@ -286,22 +288,6 @@ class experiment_session_days(models.Model):
 
         return {"emailList": users_list, "status":"success"}
 
-    #get small json object
-    def json_min(self):
-        confirmedCount = self.experiment_session_day_users_set.filter(confirmed=True).count()
-        totalCount = self.experiment_session_day_users_set.count()
-
-
-        return{
-            "id":self.id,
-            "date":self.date,
-            "name":self.experiment_session.experiment.title,
-            "session_id":self.experiment_session.id,
-            "confirmedCount": confirmedCount,
-            "totalCount": totalCount,
-            "enable_time":self.enable_time,
-        }
-
     #return true if re-opening is allowed
     def reopenAllowed(self, u):
 
@@ -319,6 +305,45 @@ class experiment_session_days(models.Model):
     def convertToCommaString(self, in_str):
         converted_list = [element.get_full_name() for element in in_str]
         return ", ".join(converted_list)
+
+    #upate paypal batch id from paypal service memo text
+    def updatePayPalBatchIDFromMemo(self):
+
+        logger = logging.getLogger(__name__)
+
+        headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
+
+        req = requests.get(f'{settings.PPMS_HOST}/payments/memo_search/{self.id}/',
+                           auth=(str(settings.PPMS_USER_NAME), 
+                                 str(settings.PPMS_PASSWORD)))
+        
+        if len(req.json())>0:
+
+            for i in req.json():
+                self.paypal_api_batch_id = i['payout_batch_id_paypal']
+                self.save()
+
+                logger.info(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: {self.paypal_api_batch_id}')
+                break
+
+        else:
+            logger.info(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
+
+    #get small json object
+    def json_min(self):
+        confirmedCount = self.experiment_session_day_users_set.filter(confirmed=True).count()
+        totalCount = self.experiment_session_day_users_set.count()
+
+
+        return{
+            "id":self.id,
+            "date":self.date,
+            "name":self.experiment_session.experiment.title,
+            "session_id":self.experiment_session.id,
+            "confirmedCount": confirmedCount,
+            "totalCount": totalCount,
+            "enable_time":self.enable_time,
+        }
 
     #info to send to session run page
     def json_runInfo(self, u):
