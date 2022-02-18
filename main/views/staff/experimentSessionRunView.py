@@ -976,10 +976,12 @@ def payPalAPI(data, id_, request_user):
     else:
         esd.paypal_api = True
         esd.user_who_paypal_api = request_user
-        esd.save()
+       
         for payment in req.json():
             result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'
+            esd.payout_batch_id_paypal = payment["payout_batch_id_paypal"]
         #result = req.json()
+        esd.save()
 
     json_info = esd.json_runInfo(request_user)
 
