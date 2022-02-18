@@ -320,7 +320,7 @@ class experiment_session_days(models.Model):
         if len(req.json())>0:
 
             for i in req.json():
-                self.paypal_api_batch_id = i['payout_batch_id_paypal']
+                self.paypal_api_batch_id = i.get('payout_batch_id_paypal', 'No Batch ID')
                 self.save()
 
                 logger.info(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: {self.paypal_api_batch_id}')
