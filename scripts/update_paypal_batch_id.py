@@ -4,3 +4,5 @@ esds = experiment_session_days.objects.filter(paypal_api = True, paypal_api_batc
 
 for i in esds:
     i.updatePayPalBatchIDFromMemo()
+
+exit()

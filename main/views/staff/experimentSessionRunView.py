@@ -944,7 +944,7 @@ def payPalAPI(data, id_, request_user):
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
     data = {}
-    data["info"] = {"payment_id" : id_, #, random.randrange(0, 99999999)
+    data["info"] = {"payment_id" : id_, #,random.randrange(0, 99999999)
                     "email_subject" : parm.paypal_email_subject}
 
     data["items"] = payments
@@ -979,7 +979,7 @@ def payPalAPI(data, id_, request_user):
        
         for payment in req.json():
             result += f'<div>{payment["email"]}: ${float(payment["amount"]):0.2f}</div>'
-            esd.payout_batch_id_paypal = payment["payout_batch_id_paypal"]
+            esd.paypal_api_batch_id = payment["payout_batch_id_paypal"]
         #result = req.json()
         esd.save()
 
