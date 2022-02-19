@@ -313,9 +313,9 @@ class experiment_session_days(models.Model):
 
         headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
-        req = requests.get(f'{settings.PPMS_HOST}/payments/memo_search/{self.id}/',
-                           auth=(str(settings.PPMS_USER_NAME), 
-                                 str(settings.PPMS_PASSWORD)))
+        req = requests.get(f'{settings.PPMS_HOST}/payments/memo_search/{self.id}/')
+                        #    auth=(str(settings.PPMS_USER_NAME), 
+                        #          str(settings.PPMS_PASSWORD)))
         
         if len(req.json())>0:
 
