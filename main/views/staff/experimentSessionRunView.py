@@ -673,7 +673,7 @@ def attendSubjectAction(esdu, id, request_user):
             esdu.bumped = False
             esdu.attended = False
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " must agree to the consent form."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the consent form.</span>'
             logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #check if user has confirmed for session
@@ -681,7 +681,7 @@ def attendSubjectAction(esdu, id, request_user):
             esdu.attended = False
             esdu.bumped = False
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name}, {esdu.user.first_name} has not confirmed.</span>'
             logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #backup check that subject has not already done this experiment if excluded
@@ -689,7 +689,7 @@ def attendSubjectAction(esdu, id, request_user):
             esdu.attended = False
             esdu.bumped = True
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name}, {esdu.user.first_name} has already done this experiment.</span>'
             logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #attend subject
@@ -701,7 +701,7 @@ def attendSubjectAction(esdu, id, request_user):
 
         esdu.save()
     else:
-        status = "No subject found."
+        status = f'<span style="color:red;font-weight: bold;">No subject found.</span>'
 
     return status
 
