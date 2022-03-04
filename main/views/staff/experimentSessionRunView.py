@@ -144,10 +144,10 @@ def getStripeReaderCheckin(data, id, request_user):
             studentID = int(card_data_list[1])
             logger.info(id)
         else:
-            status["message"] = "Card read error, invalid stripe data."
+            status["message"] = '<span style="color:red;font-weight: bold;">Card read error, invalid stripe data.</span>'
             logger.info("Stripe Reader Error, no equals or no semi colon")
     except:
-        status["message"] = "Card read error, invalid stripe data."
+        status["message"] = '<span style="color:red;font-weight: bold;">Card read error, invalid stripe data.</span>'
         logger.info("Stripe Reader card read error")
 
     if status["message"] == "":
