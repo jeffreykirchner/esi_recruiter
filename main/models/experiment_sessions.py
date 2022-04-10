@@ -1180,7 +1180,7 @@ class experiment_sessions(models.Model):
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
-            "invitation_text" : session_invitation.messageText.replace("[first name]", u.first_name)
+            "invitation_text" : session_invitation.get_message_text_filled(u)
                                 if (session_invitation := u.experiment_session_invitation_users.filter(experiment_session=self).first())
                                 else "Invitation text not found.",
         }
