@@ -66,6 +66,24 @@ class experiment_session_invitations(models.Model):
 
         return mail_result
     
+    def get_message_text_filled(self, u):
+        '''
+        return message text filled with variables from u (User)
+        '''
+
+        if not u:
+            return self.messageText
+
+        t = self.messageText
+
+        t = t.replace("[first name]", u.first_name)
+        t = t.replace("[last name]", u.last_name)
+        t = t.replace("[email]", u.email)
+        t = t.replace("[recruiter id]", str(u.id))
+        t = t.replace("[student id]", u.profile.studentID)
+
+        return t
+    
     def json(self):
         '''
         json object of model
