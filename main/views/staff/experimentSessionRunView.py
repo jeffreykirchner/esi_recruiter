@@ -806,7 +806,7 @@ def takeEarningsUpload(f, id, request_user, auto_add_subjects):
 #process earnings upload
 def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
     logger = logging.getLogger(__name__)
-    logger.info(f"Upload earnings process text: auto add: {auto_add_subjects}")
+    logger.info(f"Upload earnings process text: id {id}, text {text}, {request_user}, auto add: {auto_add_subjects}")
 
     message = ""
 
@@ -848,7 +848,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                 m = f'Error: More than one user found for ID {i[0]}<br>'
             elif esdu.count() == 0:
                 #try to manually add user
-                if request_user.is_superuser and auto_add_subjects == 'true':
+                if request_user.is_superuser and auto_add_subjects:
                     value = autoAddSubject(i[0], id, request_user, False)
 
                     #if error add to return message
