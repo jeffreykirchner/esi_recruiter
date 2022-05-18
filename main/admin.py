@@ -31,7 +31,6 @@ from main.forms import InvitationEmailTemplateForm
 
 
 admin.site.register(accounts)
-#admin.site.register(account_types)
 admin.site.register(departments)
 admin.site.register(genders)
 admin.site.register(institutions)
@@ -39,6 +38,7 @@ admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
+admin.site.register(ConsentForm)
 
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER

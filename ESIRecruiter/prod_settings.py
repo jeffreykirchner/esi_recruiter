@@ -11,6 +11,7 @@ DEBUG = os.environ.get('DEBUG',False)
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = 'main/static/'
+MEDIA_ROOT = os.environ['MEDIA_ROOT']
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 

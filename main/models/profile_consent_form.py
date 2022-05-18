@@ -2,24 +2,25 @@ from django.db import models
 import logging
 import traceback
 from main.models import profile
+from main.models import ConsentForm
 from django.contrib.auth.models import User
 
-#a note or comment made abbout a user
-class profile_note(models.Model):
+class ProfileConsentForm(models.Model):
+    '''
+    consent form agreed to by subject
+    '''
     my_profile = models.ForeignKey(profile, on_delete=models.CASCADE)               #profile that note is attached to
-    noteMaker = models.ForeignKey(User, on_delete=models.CASCADE)                   #user that made the note
-
-    text = models.CharField(max_length = 1000)                                      #text of the note
+    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE)         #consent form
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.note
+        return f'User: {self.my_profile}, Form: {self.consent_form}'
 
     class Meta:
-        verbose_name = 'Profile Note'
-        verbose_name_plural = 'Profile Notes'
+        verbose_name = 'Profile Consent Form'
+        verbose_name_plural = 'Profile Consent Forms'
     
     def json(self):
         return {
