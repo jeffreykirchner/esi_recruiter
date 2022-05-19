@@ -12,7 +12,6 @@ var app = new Vue({
         showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
         noInvitationsFoundText:'',
         lastActionFailed:false,
-        consent_required:false,
         consentFormText:"",
         waiting:true,
         current_invitation_text:"",
@@ -28,7 +27,6 @@ var app = new Vue({
                         .then(function (response) {    
                             
                             app.takeUpcomingInvitations(response);
-                            app.$data.consentFormText = response.data.consentFormText;
                             
                             app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                         
@@ -129,9 +127,8 @@ var app = new Vue({
                         });                        
         },
         
-        takeUpcomingInvitations:function(response){
-            
-            app.$data.consent_required=response.data.consent_required; 
+        takeUpcomingInvitations:function(response){            
+             
             app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
             for(var i=0;i<app.$data.upcomingInvitations.length;i++)
@@ -149,17 +146,17 @@ var app = new Vue({
             
             app.$data.lastActionFailed = response.data.failed;
 
-            if(app.$data.consent_required)
-            {
-                $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
-            }
-            else
-            {
-                if(($("#consentModal").data('bs.modal') || {})._isShown)
-                {
-                    $('#consentModal').modal('toggle');
-                }                        
-            }
+            // if(app.$data.consent_required)
+            // {
+            //     $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
+            // }
+            // else
+            // {
+            //     if(($("#consentModal").data('bs.modal') || {})._isShown)
+            //     {
+            //         $('#consentModal').modal('toggle');
+            //     }                        
+            // }
         },
 
         showInvitationText:function(index){

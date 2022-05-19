@@ -1182,6 +1182,51 @@ var app = new Vue({
             
             }
         },
+
+        //fire when edit trait model needs to be shown
+        showEditSession:function(){         
+            app.clearMainFormErrors();              
+            app.$data.cancelModal=true;
+            app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+
+            $('#editSessionModal').modal('show');
+        },
+
+        //fire when hide edit traits
+        hideEditSession:function(){
+            app.clearMainFormErrors();
+            if(app.$data.cancelModal)
+            {
+                Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+                app.$data.sessionBeforeEdit=null;
+            }
+        },
+
+        //update require all trait constraints
+        sendUpdateSession:function(){
+            axios.post('{{request.get_full_path}}', {
+                    status : "updateSession", 
+                    formData : $("#mainForm1").serializeArray(),                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.session = response.data.session;  
+                        app.updateDisplayLists();   
+                        $('#editSessionModal').modal('toggle');   
+                    }
+                    else
+                    {
+                        app.$data.cancelModal=true;                           
+                        app.displayErrors(response.data.errors);
+                    }
+         
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
         
         formatDate: function(value,date_only,show_timezone){
             if (value) {        
@@ -1234,6 +1279,7 @@ var app = new Vue({
         $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
         $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
         $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
+        $('#editSessionModal').on("hidden.bs.modal", this.hideEditSession);
     },                 
 
 });

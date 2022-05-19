@@ -98,7 +98,9 @@ def experimentSessionView(request, id):
         elif data["status"] == "updateTrait":
            return updateTrait(data,id)
         elif data["status"] == "updateRequireAllTraitContraints":
-           return updateRequireAllTraitContraints(data,id)
+           return updateRequireAllTraitContraints(data, id)
+        elif data["status"] == "updateSession":
+           return updateSession(data, id)
 
     else: #GET             
 
@@ -868,3 +870,25 @@ def updateRequireAllTraitContraints(data,id):
     es.recruitment_params.save()
     
     return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#update experiment parameters
+def updateSession(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Update session: {data}")
+
+    s = experiment_sessions.objects.get(id=id)
+
+    form_data_dict = {} 
+    institutionList=[]               
+
+    for field in data["formData"]:            
+        form_data_dict[field["name"]] = field["value"]
+
+    form = experimentSessionForm1(form_data_dict, instance=s)
+
+    if form.is_valid():           
+        session=form.save()               
+        return JsonResponse({"session" : session.json(), "status":"success"}, safe=False)
+    else:
+        print("invalid experiment session form1")
+        return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)

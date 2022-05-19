@@ -7,7 +7,7 @@ class ConsentForm(models.Model):
     '''
     consent form for a session
     '''
-    name = models.CharField(max_length = 300, default="Name Here", unique=True)
+    name = models.CharField(max_length = 300, default="", unique=True)
     pdf_file = models.FileField(unique=True)
 
     timestamp = models.DateTimeField(auto_now_add=True)
