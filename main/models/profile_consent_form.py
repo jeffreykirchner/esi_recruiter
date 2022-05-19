@@ -1,9 +1,11 @@
-from django.db import models
 import logging
 import traceback
+
+from django.db import models
+from django.contrib.auth.models import User
+
 from main.models import profile
 from main.models import ConsentForm
-from django.contrib.auth.models import User
 
 class ProfileConsentForm(models.Model):
     '''
@@ -25,12 +27,6 @@ class ProfileConsentForm(models.Model):
     def json(self):
         return {
             "id" : self.id,
-            "text" : self.text,
-            "noteMaker" : {"id" : self.noteMaker.id,
-                           "first_name" : self.noteMaker.first_name,
-                           "last_name" : self.noteMaker.last_name,
-                            },
-            "date" : self.timestamp,
         }
         
 
