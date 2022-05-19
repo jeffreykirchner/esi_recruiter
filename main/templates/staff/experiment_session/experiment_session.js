@@ -42,8 +42,8 @@ var app = new Vue({
         emailMessageList:"",                 //emails for send message    
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
         reSendMessageButtonText:"Re-send <i class='fas fa-envelope fa-xs'></i>",
-        session:{{session_json|safe}},                   
-        recruitment_params:{{recruitment_params_json|safe}},
+        session:null,                   
+        recruitment_params:null,
         current_trait:{                   //current trait being edited
             id:0,
             trait_id:0,
@@ -87,10 +87,39 @@ var app = new Vue({
             showClear: false,
             showClose: true,
             sideBySide: true,
-            },                         
+            },   
+        first_load : false,              //true after first load done                      
     },
 
-    methods:{     
+    methods:{ 
+        do_first_load:function(){
+            tinyMCE.init({
+                target: document.getElementById('id_invitationRawText'),
+                height : "400",
+                theme: "silver",
+                auto_focus: 'id_invitationRawText',
+                plugins: "directionality,paste,searchreplace,code,link",
+                    toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+    
+            tinyMCE.init({
+                target: document.getElementById('sendMessageText'),
+                height : "400",
+                theme: "silver",
+                auto_focus: 'id_invitationRawText',
+                plugins: "directionality,paste,searchreplace,code,link",
+                    toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+    
+            // Prevent Bootstrap dialog from blocking focusin
+            $(document).on('focusin', function(e) {
+                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+                    e.stopImmediatePropagation();
+                }
+            });
+        },    
 
         //remove all the form errors
         clearMainFormErrors:function(){
@@ -151,13 +180,19 @@ var app = new Vue({
                 .then(function (response) {                                                                   
                     app.$data.session= response.data.session;
                     app.$data.experiment_invitation_text = response.data.experiment_invitation_text;
-                    app.$data.recruitment_params= response.data.recruitment_params;                                
+                    app.$data.recruitment_params = response.data.recruitment_params;                                
                     app.updateDisplayLists();
                     app.$data.showLoadingSpinner=false;
 
                     if(app.$data.session.canceled)
                     {
                         app.$data.cancelSessionButtonText = "*** CANCELED ***";
+                    }
+
+                    if(!app.$data.first_load)
+                    {   
+                        setTimeout(app.do_first_load, 250);
+                        app.$data.first_load = true;
                     }
                 })
                 .catch(function (error) {

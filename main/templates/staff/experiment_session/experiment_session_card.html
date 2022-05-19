@@ -4,6 +4,24 @@
     </div>
 
     <div class="card-body">
+        <!-- session parameters -->
+
+        <div class = "row">
+            <div class="col-md-4 text-md-right">                        
+                <u>Session Parameters</u>
+            </div>
+            <div class="col-md-8">
+                
+            </div>               
+        </div>
+        <div class = "row mb-2">
+            <div class="col-md-4 text-md-right">
+                {{form1.consent_form.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="session.consent_form">[[experiment.consent_form_full.name]]</span><span v-else>---</span>
+            </div>               
+        </div>
 
         {%include "snippits/recruitmentParametersTable.html"%}
 

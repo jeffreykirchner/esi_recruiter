@@ -30,6 +30,7 @@ from main.models import Traits
 from main.views.staff.userSearch import lookup
 
 from main.forms import recruitmentParametersForm
+from main.forms import experimentSessionForm1
 from main.forms import experimentSessionForm2
 from main.forms import TraitConstraintForm
 
@@ -105,21 +106,20 @@ def experimentSessionView(request, id):
 
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+                                        .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
 
         return render(request,
                       'staff/experimentSession.html',
-                      {'form2':experimentSessionForm2(),      
+                      {'form2':experimentSessionForm2(), 
+                       'form1':experimentSessionForm1(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
                        'max_invitation_block_size':p.max_invitation_block_size,
                        'helpText':helpText,
                        'session':es,
-                       'session_json':json.dumps(es.json(), cls=DjangoJSONEncoder),
-                       'recruitment_params_json':json.dumps(es.recruitment_params.json(), cls=DjangoJSONEncoder),
                        'current_session_day_json':json.dumps(es.ESD.first().json(False), cls=DjangoJSONEncoder)
                       })
 
