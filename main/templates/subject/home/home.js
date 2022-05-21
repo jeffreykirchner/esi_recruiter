@@ -14,7 +14,7 @@ var app = new Vue({
         lastActionFailed:false,
         consentFormText:"",
         waiting:true,
-        current_invitation_text:"",
+        current_invitation:null,
         account_paused : {{account_paused|safe}},
     },
 
@@ -160,8 +160,14 @@ var app = new Vue({
         },
 
         showInvitationText:function(index){
-            app.$data.current_invitation_text = app.$data.upcomingInvitations[index].invitation_text;
+            app.$data.current_invitation = app.$data.upcomingInvitations[index];
             $('#subject_invitation_text_modal').modal('toggle');
+        },
+
+        viewConsentForm:function(invitation){
+            app.$data.current_invitation = invitation;
+            $('#subject_invitation_text_modal').modal('hide');
+            $('#subject_consent_form_modal').modal('toggle');
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -194,7 +200,7 @@ var app = new Vue({
                 else{
                     return "date format error";
                 }
-            },
+        },
     },
 
     mounted: function(){

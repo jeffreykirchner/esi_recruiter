@@ -1133,7 +1133,7 @@ class experiment_sessions(models.Model):
         return d
 
     #json sent to subject screen
-    def json_subject(self, u):
+    def json_subject(self, u, consent_form_list):
         logger = logging.getLogger(__name__)
         logger.info("json subject, session:" + str(self.id))
 
@@ -1162,6 +1162,8 @@ class experiment_sessions(models.Model):
                                                                                 self.experiment.institution.values_list("id", flat=True),
                                                                                 self.experiment.id)                  
 
+        consent_form_id = self.consent_form.id if self.consent_form else -1
+        
         return{
             "id":self.id,                                  
             "experiment_session_days" : [{"id" : esd.id,
@@ -1175,9 +1177,12 @@ class experiment_sessions(models.Model):
                                                                    if esd.hoursUntilStart() >= 1 else
                                                                     str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes'   ,
                                           } for esd in self.ESD.all().annotate(first_date=models.Min('date'))
-                                                                                          .order_by('-first_date')],
+                                                                     .order_by('-first_date')
+                                        ],
             "canceled":self.canceled,
-            "confirmed":esdu.confirmed if esdu else False,
+            "consented" : True if consent_form_id in consent_form_list else False,
+            "confirmed" : esdu.confirmed if esdu else False,
+            "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,

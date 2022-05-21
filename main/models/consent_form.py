@@ -24,5 +24,5 @@ class ConsentForm(models.Model):
         return{            
             "id" : self.id,
             "name" : self.name,     
-            "pdf_file_name" : self.pdf_file.name,
+            "pdf_file_url" : self.pdf_file.url,
         }

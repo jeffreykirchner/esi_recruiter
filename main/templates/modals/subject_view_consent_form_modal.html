@@ -1,0 +1,17 @@
+<!-- subject view invitation text -->  
+<div class="modal" id="subject_consent_form_modal" tabindex="-1" role="dialog" aria-labelledby="subject_consent_form_modal_label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalTitle">Informed Consent to Participate in Research</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" v-if="current_invitation && current_invitation.consent_form">
+                <object class="conset_form" id="consent_pdf_id" v-bind:data="current_invitation.consent_form.pdf_file_url" type="text/html" target="_parent"></object>                                                             
+            </div>  
+                      
+        </div>
+    </div>
+</div>

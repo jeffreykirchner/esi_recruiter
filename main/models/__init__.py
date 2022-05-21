@@ -26,6 +26,7 @@ from .faq import faq
 from .help_docs import help_docs
 from .traits import Traits
 from .profile_trait import profile_trait
+from .profile_consent_form import ProfileConsentForm
 from .recruitment_parameters_trait_constraint import Recruitment_parameters_trait_constraint
 from .front_page_notice import Front_page_notice
 from .invitation_email_templates import Invitation_email_templates

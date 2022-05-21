@@ -17,6 +17,10 @@
             height: 200px;
             overflow: auto;
         }
+
+        [v-cloak] {
+            display: none;
+        }
     </style>
 {%endblock head%}
 
@@ -34,7 +38,7 @@
         {%include "staff/experiment/experiment_card.html"%}
     </div>
 </div>
-<div class="row justify-content-lg-center mt-4" v-cloak v-else>
+<div class="row justify-content-lg-center mt-4" v-else>
     <div class = "col mt-4 text-center">
         <i class="fas fa-cog fa-spin fa-2x"></i>
     </div>

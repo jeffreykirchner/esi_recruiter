@@ -11,8 +11,8 @@ class ProfileConsentForm(models.Model):
     '''
     consent form agreed to by subject
     '''
-    my_profile = models.ForeignKey(profile, on_delete=models.CASCADE)               #profile that note is attached to
-    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE)         #consent form
+    my_profile = models.ForeignKey(profile, on_delete=models.CASCADE, related_name="consent_forms_a")               #profile that note is attached to
+    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, related_name="consent_forms_b")         #consent form
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)

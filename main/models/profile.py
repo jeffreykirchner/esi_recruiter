@@ -5,7 +5,7 @@ import pytz
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import F, Q
+from django.db.models import F, Q, When, Case
 from django.contrib import admin
 
 from main.models import institutions
@@ -161,9 +161,10 @@ class profile(models.Model):
         logger = logging.getLogger(__name__) 
 
         session_list = self.sessions_upcoming(False, datetime.now(pytz.utc) - timedelta(hours=1))
+        consent_form_list = self.consent_forms_a.values_list("id", flat=True)
 
-        out_lst = [es.json_subject(self.user) for es in session_list.all()
-                                    .annotate(first_date=models.Min("ESD__date"))
+        out_lst = [es.json_subject(self.user, consent_form_list) for es in session_list.all()
+                                    .annotate(first_date=models.Min("ESD__date"))                                    
                                     .order_by('-first_date')]
 
         return out_lst
