@@ -419,7 +419,7 @@ var app = new Vue({
                     {
                         app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
                         app.$data.cancelModal=false;
-                        $('#setupModalCenter').modal('toggle');
+                        $('#sessionModal').modal('toggle');
                     }
                     else
                     {
@@ -611,7 +611,7 @@ var app = new Vue({
             app.$data.currentSessionDay.reminder_time_local = app.formatDate(app.$data.currentSessionDay.reminder_time_raw,false,true);
             app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
             app.$data.buttonText2="Update";
-            $('#setupModalCenter').modal('show');
+            $('#sessionModal').modal('show');
             //$('#id_date').datepicker('update');;
             app.clearMainFormErrors();
             //$('#id_date').val(app.formatDate(app.$data.currentSessionDay.date));
@@ -1269,7 +1269,7 @@ var app = new Vue({
         this.getSession();
         //attach modal close events to vue
         $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
-        $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
+        $('#sessionModal').on("hidden.bs.modal", this.hideSetup);
         $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
         $('#id_date').on("dp.hide",this.mainFormChange2);
         $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
