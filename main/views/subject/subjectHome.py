@@ -14,6 +14,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from main.models import experiment_session_day_users
 from main.models import parameters
 from main.models import help_docs
+from main.models import ConsentForm
+from main.models import ProfileConsentForm
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
@@ -81,7 +83,7 @@ def getCurrentInvitations(data,u):
                          "failed":failed}, safe=False)
 
 #subject accepts consent form
-def acceptConsentForm(data,u):
+def acceptConsentForm(data, u):
     '''
     Subject accepts consent form
     
@@ -96,7 +98,18 @@ def acceptConsentForm(data,u):
     logger.info("Accept consent form")    
     logger.info(data)
 
-    u.profile.save()
+    try:
+
+        consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
+
+        profile_consent_form = ProfileConsentForm(my_profile=u.profile, consent_form=consent_form)
+        profile_consent_form.save()
+
+    except Exception  as e:
+        logger.warning("accept consent form error")             
+        logger.warning("User: " + str(u.id))    
+        logger.warning(e)
+        failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
@@ -144,6 +157,13 @@ def acceptInvitation(data,u):
                     logger.warning(f"Invitation failed accept session full, user: {u}")             
                     failed=True
             
+            #check that user has consent form
+            if not failed:
+                consent_forms = u.profile.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+                if qs.consent_form.id not in consent_forms:
+                    logger.warning(f"Invitation failed no consent, user: {u}")             
+                    failed=True
+            
             #check user is not already attending a recruitment violation
             if not failed:
                 user_list_valid = qs.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False,1)
@@ -175,7 +195,7 @@ def acceptInvitation(data,u):
             logger.warning(f"Invitation not found {u} {esdu}")             
             failed=True
 
-    except Exception  as e:
+    except Exception as e:
         logger.warning(e)
         logger.warning(f"Accept invitation error {u}")             
        
@@ -242,9 +262,9 @@ def cancelAcceptInvitation(data,u):
             failed = True
 
     except Exception  as e:
-        logger.info("Cancel invitation error")             
-        logger.info("User: " + str(u.id))    
-        logger.info(e)
+        logger.warning("Cancel invitation error")             
+        logger.warning("User: " + str(u.id))    
+        logger.warning(e)
         failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
