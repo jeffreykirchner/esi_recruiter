@@ -6,6 +6,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ['SECRET_KEY']
 
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG',False)
 
@@ -19,10 +22,6 @@ AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
 AZURE_OVERWRITE_FILES = True
 AZURE_CONNECTION_STRING =  os.environ['AZURE_CONNECTION_STRING']
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
