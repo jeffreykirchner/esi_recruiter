@@ -1,3 +1,6 @@
+'''
+experiment model
+'''
 import logging
 import pytz
 
@@ -8,21 +11,25 @@ from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 
-from main.models import schools, accounts, institutions, recruitment_parameters, parameters
+from main.models import schools
+from main.models import accounts
+from main.models import institutions 
+from main.models import recruitment_parameters
+from main.models import parameters
+from main.models import ConsentForm
+
 import main
 
-#info for each experiment
 class experiments(models.Model):    
+    '''
+    experiment model
+    '''
 
-    #experiment parameters
     school = models.ForeignKey(schools, on_delete=models.CASCADE)
     account_default = models.ForeignKey(accounts, on_delete=models.CASCADE)
-    recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)    #default parameters used for new sessions
-
-    actual_participants_legacy = models.IntegerField(default=1, null=True)                        #legacy parameters carried over from old recruiter
-    registration_cutoff_legacy = models.IntegerField(default=1, null=True)
-
-    institution = models.ManyToManyField(institutions, through="experiments_institutions")         #institutions to which this experiment belongs  
+    recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
+    consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                   #default consent form used for new sessions
+    institution = models.ManyToManyField(institutions, through="experiments_institutions")                       #institutions to which this experiment belongs  
 
     title = models.CharField(max_length=300, default="***New Experiment***")                    #name of experimet 
     experiment_manager = models.CharField(max_length=300, default="***Manager Here***")         #faculty running experiment
@@ -48,9 +55,7 @@ class experiments(models.Model):
     def clean(self):
         for field in self._meta.fields:
             if isinstance(field, (models.CharField, models.TextField)):
-                setattr(self, field.name, getattr(self, field.name).strip())
-
-        #check if this session can be deleted    
+                setattr(self, field.name, getattr(self, field.name).strip()) 
     
     #check if experiment can be deleted
     def allowDelete(self):
@@ -137,6 +142,8 @@ class experiments(models.Model):
             "id":self.id,
             "title":  mark_safe(self.title),
             "experiment_manager":self.experiment_manager,
+            "consent_form_default":self.consent_form_default.id if self.consent_form_default else None,
+            "consent_form_default_full":self.consent_form_default.json() if self.consent_form_default else None,
             "length_default":self.length_default,
             "notes":self.notes,
             "invitationText":self.invitationText,

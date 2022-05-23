@@ -12,6 +12,13 @@ DEBUG = os.environ.get('DEBUG',False)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = 'main/static/'
 
+
+MEDIA_ROOT = os.environ['MEDIA_ROOT']
+DEFAULT_FILE_STORAGE = 'ESIRecruiter.custom_azure.AzureMediaStorage'
+AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
+AZURE_OVERWRITE_FILES = True
+AZURE_CONNECTION_STRING =  os.environ['AZURE_CONNECTION_STRING']
+
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 
 # Database

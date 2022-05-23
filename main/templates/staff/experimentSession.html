@@ -11,33 +11,6 @@
 
     $(document).ready(function(){  
         {%include "staff/experiment_session/experiment_session.js"%}
-
-        tinyMCE.init({
-            target: document.getElementById('id_invitationRawText'),
-            height : "400",
-            theme: "silver",
-            auto_focus: 'id_invitationRawText',
-            plugins: "directionality,paste,searchreplace,code,link",
-                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
-            directionality: "{{ directionality }}",
-        });
-
-        tinyMCE.init({
-            target: document.getElementById('sendMessageText'),
-            height : "400",
-            theme: "silver",
-            auto_focus: 'id_invitationRawText',
-            plugins: "directionality,paste,searchreplace,code,link",
-                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
-            directionality: "{{ directionality }}",
-        });
-
-        // Prevent Bootstrap dialog from blocking focusin
-        $(document).on('focusin', function(e) {
-            if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
-                e.stopImmediatePropagation();
-            }
-        });
     }); 
 </script>   
 
@@ -57,12 +30,18 @@
 
 {%block content%}    
 
-<div class="row justify-content-xl-center" v-cloak>
+<div class="row justify-content-xl-center" v-cloak v-if="session">
     <div class="col col-md-12">
         {%include "staff/experiment_session/experiment_session_card.html"%}
     </div>
 </div>
+<div class="row justify-content-lg-center mt-4" v-cloak v-else>
+    <div class = "col mt-4 text-center">
+        <i class="fas fa-cog fa-spin fa-2x"></i>
+    </div>
+</div>
 
+<div v-if="session">
 {%include "staff/experiment_session/manually_add_subject_modal.html"%}
 {%include "staff/experiment_session/cancel_session_modal.html"%}
 {%include "modals/sendMessageModal.html"%}
@@ -73,5 +52,8 @@
 {%include "modals/updateTraitModal.html"%}
 {%include "modals/sessionDayModal.html"%}
 {%include "modals/viewSubjectsModal.html"%}
+{%include "modals/sessionModal.html"%}
+{%include "modals/experimentSetupModal.html"}
+</div>
 
 {%endblock content%}

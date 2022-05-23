@@ -31,7 +31,6 @@ from main.forms import InvitationEmailTemplateForm
 
 
 admin.site.register(accounts)
-#admin.site.register(account_types)
 admin.site.register(departments)
 admin.site.register(genders)
 admin.site.register(institutions)
@@ -39,6 +38,7 @@ admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
+admin.site.register(ConsentForm)
 
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
@@ -259,18 +259,6 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % c, messages.SUCCESS)
       apply_email_filter.short_description = "Apply email filters to selected profiles" 
 
-      #require all selected users to agree to consent form before attending another experiment
-      def consent_form_required(self, request, queryset):
-
-            updated = queryset.exclude(user__is_staff = True).update(consent_required=True)
-
-            self.message_user(request, ngettext(
-                  '%d user was updated.',
-                  '%d users were updated.',
-                  updated,
-            ) % updated, messages.SUCCESS)
-      consent_form_required.short_description = "Require selected users to agree to consent form"
-
       #activate users who were attended within last two years
       def activate_recent_users(self, request, queryset):
             logger = logging.getLogger(__name__)
@@ -299,8 +287,7 @@ class ProfileAdmin(admin.ModelAdmin):
             logger = logging.getLogger(__name__)
             logger.info("setup_test_users")
 
-            updated = queryset.exclude(user__is_staff = True).update(consent_required=False,
-                                                                     blackballed=False,
+            updated = queryset.exclude(user__is_staff = True).update(blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)
             
@@ -320,7 +307,7 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls, confirm_active_email, un_confirm_emails, apply_email_filter,
-                 pause_all, activate_all, consent_form_required, activate_recent_users]
+                 pause_all, activate_all, activate_recent_users]
 
       if settings.DEBUG:
             actions.append(setup_test_users)

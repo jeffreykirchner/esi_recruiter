@@ -10,8 +10,8 @@ class accounts(models.Model):
     number = models.CharField(max_length = 100)
     department = models.ForeignKey(departments,on_delete=models.CASCADE)
 
-    timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated= models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Account'

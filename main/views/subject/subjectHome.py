@@ -75,12 +75,9 @@ def getCurrentInvitations(data,u):
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
                          "pastAcceptedInvitations":pastAcceptedInvitations,
-                         "consent_required":consent_required,
-                         "consentFormText":p.consentForm,
                          "failed":failed}, safe=False)
 
 #subject accepts consent form
@@ -99,14 +96,11 @@ def acceptConsentForm(data,u):
     logger.info("Accept consent form")    
     logger.info(data)
 
-    u.profile.consent_required=False
     u.profile.save()
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consent_required":consent_required,
                          "failed":False}, safe=False)
 
 #subject has accepted an invitation
@@ -134,9 +128,9 @@ def acceptInvitation(data,u):
 
         if qs:
             #subject cannot attend before consent form accepted
-            if u.profile.consent_required:
-                logger.warning(f"Consent required before accept, user: {u}") 
-                failed=True
+            # if u.profile.consent_required:
+            #     logger.warning(f"Consent required before accept, user: {u}") 
+            #     failed=True
 
             #check that session has not started
             if not failed:
@@ -188,10 +182,8 @@ def acceptInvitation(data,u):
         failed=True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return invitations for subject
@@ -256,10 +248,8 @@ def cancelAcceptInvitation(data,u):
         failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations":upcomingInvitations,
-                         "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return list of past declined invitations

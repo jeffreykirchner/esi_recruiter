@@ -51,6 +51,9 @@ jobs:
         DBPASS: postgres
         DBUSER: postgres
         LOG_LOCATION: abc
+        MEDIA_ROOT : abc
+        AZURE_CONTAINER : abc
+        AZURE_CONNECTION_STRING : abc
         EMAIL_MS_HOST: ${{ secrets.TEST_EMAIL_MS_HOST }}
         EMAIL_MS_USER_NAME: ${{ secrets.TEST_EMAIL_MS_USER_NAME }}
         EMAIL_MS_PASSWORD: ${{ secrets.TEST_EMAIL_MS_PASSWORD }}

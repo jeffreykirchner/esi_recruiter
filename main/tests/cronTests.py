@@ -91,7 +91,6 @@ class cronTests(TestCase):
 
         self.u.is_active = True
         self.u.profile.email_confirmed = 'yes'
-        self.u.profile.consent_required = False
 
         self.u.profile.save()
         self.u.save()
@@ -107,7 +106,6 @@ class cronTests(TestCase):
 
         self.u2.is_active = True
         self.u2.profile.email_confirmed = 'yes'
-        self.u2.profile.consent_required = False
 
         self.u2.profile.save()
         self.u2.save()

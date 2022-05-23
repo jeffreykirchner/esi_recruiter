@@ -669,15 +669,15 @@ def attendSubjectAction(esdu, id, request_user):
     #check subject session day exists
     if esdu:
         #check that subject has agreed to consent form
-        if esdu.user.profile.consent_required:
-            esdu.bumped = False
-            esdu.attended = False
+        # if esdu.user.profile.consent_required:
+        #     esdu.bumped = False
+        #     esdu.attended = False
 
-            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the consent form.</span>'
-            logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+        #     status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the consent form.</span>'
+        #     logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #check if user has confirmed for session
-        elif not esdu.confirmed:
+        if not esdu.confirmed:
             esdu.attended = False
             esdu.bumped = False
 
