@@ -161,7 +161,9 @@ class profile(models.Model):
         logger = logging.getLogger(__name__) 
 
         session_list = self.sessions_upcoming(False, datetime.now(pytz.utc) - timedelta(hours=1))
-        consent_form_list = self.consent_forms_a.values_list("id", flat=True)
+        consent_form_list = self.profile_consent_forms_a.values_list("consent_form__id", flat=True)
+
+        # logger.info(f"consent_form_list: {consent_form_list}")
 
         out_lst = [es.json_subject(self.user, consent_form_list) for es in session_list.all()
                                     .annotate(first_date=models.Min("ESD__date"))                                    

@@ -109,6 +109,22 @@ class profile_traitAdmin(admin.ModelAdmin):
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
+
+#instruction set page
+class ProfileConsentFormInline(admin.TabularInline):
+      '''
+      profile consent form inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = ProfileConsentForm
+      can_delete = True
+
 class UserAdmin(DjangoUserAdmin):
 
       ordering = ['-date_joined']
@@ -315,6 +331,7 @@ class ProfileAdmin(admin.ModelAdmin):
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
       list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key']
+      inlines = [ProfileConsentFormInline,]
 
       def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

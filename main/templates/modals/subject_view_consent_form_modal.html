@@ -11,6 +11,19 @@
             <div class="modal-body" v-if="current_invitation && current_invitation.consent_form">
                 <object class="conset_form" id="consent_pdf_id" v-bind:data="current_invitation.consent_form.pdf_file_url" type="text/html" target="_parent"></object>                                                             
             </div>  
+            <div class="modal-footer">
+                <b>I certify that I am at least 18 years of age and I agree to the statement above.</b>     
+                
+                <div v-if="current_invitation && current_invitation.consented" class="text-success">
+                    <i class="fas fa-check fa-2x"></i>
+                </div>
+                <div v-if="current_invitation && !current_invitation.consented">
+                    <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()">
+                        Submit <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </div>
+                
+            </div>
                       
         </div>
     </div>
