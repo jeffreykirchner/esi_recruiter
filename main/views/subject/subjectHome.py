@@ -141,11 +141,7 @@ def acceptInvitation(data,u):
         qs = qs.filter(id = es_id).first()                               #session being accepted
 
         if qs:
-            #subject cannot attend before consent form accepted
-            # if u.profile.consent_required:
-            #     logger.warning(f"Consent required before accept, user: {u}") 
-            #     failed=True
-
+           
             #check that session has not started
             if not failed:
                 if qs.hoursUntilFirstStart() <= -0.25:
@@ -161,9 +157,8 @@ def acceptInvitation(data,u):
                     failed=True
             
             #check that user has consent form
-            if not failed:
-                consent_forms = u.profile.profile_consent_forms_a.values_list('consent_form__id', flat=True)
-                if qs.consent_form.id not in consent_forms:
+            if not failed:                
+                if not u.profile.check_for_consent(qs.consent_form):
                     message=f"Invitation failed no consent."
                     logger.warning(message)             
                     failed=True

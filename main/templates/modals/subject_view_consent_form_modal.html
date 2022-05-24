@@ -8,10 +8,16 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" v-if="current_invitation && current_invitation.consent_form">
-                <object class="conset_form" id="consent_pdf_id" v-bind:data="current_invitation.consent_form.pdf_file_url" type="text/html" target="_parent"></object>                                                             
+            <div class="modal-body">
+                <div v-if="current_invitation && current_invitation.consent_form">
+                    <object class="conset_form" id="consent_pdf_id" v-bind:data="current_invitation.consent_form.pdf_file_url" type="text/html" target="_parent"></object>                                                             
+                </div>
+                <div v-else class="text-center mt-4">
+                    <h4>No consent form found.</h4>
+                    For more information contact us at: {{labManager}}
+                </div>
             </div>  
-            <div class="modal-footer">
+            <div class="modal-footer" v-if="current_invitation && current_invitation.consent_form">
                 <b>I certify that I am at least 18 years of age and I agree to the statement above.</b>     
                 
                 <div v-if="current_invitation && current_invitation.consented" class="text-success">
@@ -21,8 +27,7 @@
                     <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()">
                         Submit <i class="fas fa-sign-in-alt"></i>
                     </button>
-                </div>
-                
+                </div>                
             </div>
                       
         </div>

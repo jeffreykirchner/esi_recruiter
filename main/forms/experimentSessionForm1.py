@@ -16,6 +16,7 @@ class experimentSessionForm1(forms.ModelForm):
     '''
     consent_form = forms.ModelChoiceField(label='Consent Form',
                                           queryset=ConsentForm.objects.all(),
+                                          required=False,
                                           widget=forms.Select(attrs={"v-model":"session.consent_form",
                                                                     }))
 
