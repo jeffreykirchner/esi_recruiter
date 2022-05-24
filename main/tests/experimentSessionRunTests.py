@@ -211,6 +211,15 @@ class sessionRunTestCase(TestCase):
         """Test subject confirm and cancel no conflicts""" 
         logger = logging.getLogger(__name__)
 
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         esd1 = self.es1.ESD.first()
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
@@ -332,6 +341,15 @@ class sessionRunTestCase(TestCase):
         """Test super user manual check in""" 
         logger = logging.getLogger(__name__)
 
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
@@ -415,6 +433,15 @@ class sessionRunTestCase(TestCase):
         """Test fill earning with fixed amount""" 
         logger = logging.getLogger(__name__)
 
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
@@ -454,6 +481,12 @@ class sessionRunTestCase(TestCase):
         """Test fill default show up fees""" 
         logger = logging.getLogger(__name__)
 
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
@@ -492,6 +525,12 @@ class sessionRunTestCase(TestCase):
     def testCompleteSession(self):
         """Test complete session""" 
         logger = logging.getLogger(__name__)
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
@@ -597,6 +636,9 @@ class sessionRunTestCase(TestCase):
     def testSavePayouts(self):
         """Test save payouts""" 
         logger = logging.getLogger(__name__)
+        
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
@@ -638,6 +680,15 @@ class sessionRunTestCase(TestCase):
         """Test background save payouts""" 
         logger = logging.getLogger(__name__)
 
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
@@ -677,6 +728,15 @@ class sessionRunTestCase(TestCase):
     def testBumpAll(self):
         """Test bump all""" 
         logger = logging.getLogger(__name__)
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
         esd1 = self.es1.ESD.first()
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
@@ -825,6 +885,15 @@ class sessionRunTestCase(TestCase):
     def test_earnings_upload(self):
         """Test earnings upload""" 
         logger = logging.getLogger(__name__)
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
         esd1 = self.es1.ESD.first()
 
