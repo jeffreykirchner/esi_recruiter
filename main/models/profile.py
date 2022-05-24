@@ -312,6 +312,18 @@ class profile(models.Model):
                         
         return False
 
+    #check if use has consent form
+    def check_for_consent(self, consent_form):
+        if not consent_form:
+            return True
+
+        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+
+        if consent_form.id in consent_forms:
+            return True
+        
+        return False
+
     #json version of model, small
     def json_min(self):
         return{
