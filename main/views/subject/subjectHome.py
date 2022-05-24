@@ -132,6 +132,7 @@ def acceptInvitation(data,u):
     logger.info(data)
 
     failed=False
+    message=""
 
     try:
         es_id = data["id"]
@@ -148,20 +149,23 @@ def acceptInvitation(data,u):
             #check that session has not started
             if not failed:
                 if qs.hoursUntilFirstStart() <= -0.25:
-                    logger.warning(f"Invitation failed session started, user: {u}")            
+                    message=f"Invitation failed session started."
+                    logger.warning(message)            
                     failed=True
 
             #check session not already full
             if not failed:
                 if qs.getFull(): 
-                    logger.warning(f"Invitation failed accept session full, user: {u}")             
+                    message=f"Invitation failed accept session full."
+                    logger.warning(message)             
                     failed=True
             
             #check that user has consent form
             if not failed:
                 consent_forms = u.profile.profile_consent_forms_a.values_list('consent_form__id', flat=True)
                 if qs.consent_form.id not in consent_forms:
-                    logger.warning(f"Invitation failed no consent, user: {u}")             
+                    message=f"Invitation failed no consent."
+                    logger.warning(message)             
                     failed=True
             
             #check user is not already attending a recruitment violation
@@ -169,7 +173,8 @@ def acceptInvitation(data,u):
                 user_list_valid = qs.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False,1)
                 logger.info(f"Accept Invitation Valid User List: {user_list_valid}")
                 if not u in user_list_valid:
-                    logger.warning(f"Invitation failed recruitment violation, user {u}")             
+                    message = f"Invitation failed recruitment violation"
+                    logger.warning(message)             
                     failed=True
 
             #do a backup check that user has not already done this experiment, if prohibited
@@ -178,9 +183,11 @@ def acceptInvitation(data,u):
                                                 user__id=u.id).first()
                 
                 if esdu.getAlreadyAttended():
-                    logger.warning("Invitation failed, user has already done this experiment")
+                    message = "Invitation failed, user has already done this experiment."
+                    logger.warning(message)
                     logger.warning(f"User: {u}, attending session: {esdu.id}")
                     failed=True
+                    
             
             #update confirmed status
             if not failed:
@@ -192,6 +199,7 @@ def acceptInvitation(data,u):
                 logger.warning(f"Accept Failed {u}") 
 
         else:
+            message="Invitation not found"
             logger.warning(f"Invitation not found {u} {esdu}")             
             failed=True
 
@@ -204,6 +212,7 @@ def acceptInvitation(data,u):
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "message":message,
                          "failed":failed}, safe=False)
 
 #return invitations for subject

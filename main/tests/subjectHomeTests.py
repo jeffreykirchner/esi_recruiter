@@ -1,28 +1,37 @@
 from datetime import datetime, timedelta
 
 import json
-import ast
 import pytz
 import logging
-import unittest
 import sys
 
 from django.test import TestCase
-from django.db.models import Q, F
-from django.contrib.auth.models import User
 
-from main.views import profileCreateUser, update_profile
-from main.models import genders, experiments, subject_types, account_types, majors,\
-                        parameters, accounts, departments, locations, institutions, schools, email_filters,\
-                        experiment_session_day_users    
+from main.models import genders
+from main.models import subject_types
+from main.models import account_types
+from main.models import majors
+from main.models import parameters
+from main.models import accounts
+from main.models import departments
+from main.models import locations
+from main.models import institutions
+from main.models import schools
+from main.models import email_filters
+from main.models import ConsentForm         
+from main.models import ProfileConsentForm           
+
+from main.views import profileCreateUser
+from main.views import update_profile
 from main.views import createExperimentBlank
 from main.views import addSessionBlank
-from main.views import changeConfirmationStatus, updateSessionDay, cancelSession
-from main.views import acceptInvitation, cancelAcceptInvitation
+from main.views import updateSessionDay
+from main.views import acceptInvitation
+from main.views import cancelAcceptInvitation
 
 class subjectHomeTestCase(TestCase):
 
-    fixtures = ['subject_types.json']
+    fixtures = ['subject_types.json', 'ConsentForm.json']
 
     e1 = None         #experiments
     e2 = None
@@ -102,6 +111,7 @@ class subjectHomeTestCase(TestCase):
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
         self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.consent_form_default = ConsentForm.objects.first()
         self.e1.save()
 
         self.es1 = addSessionBlank(self.e1)    
@@ -125,6 +135,7 @@ class subjectHomeTestCase(TestCase):
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
         self.e2.institution.set(institutions.objects.filter(name="two"))
+        self.e1.consent_form_default = ConsentForm.objects.first()
         self.e2.save()
 
         self.es2 = addSessionBlank(self.e2)    
@@ -279,15 +290,24 @@ class subjectHomeTestCase(TestCase):
 
         temp_u.profile.setup_email_filter()
 
+        #add consent form
+        profile_consent_form = ProfileConsentForm(my_profile=temp_u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
         self.es1.addUser(temp_u.id,self.staff_u,True)
         temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
         #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
 
         r = json.loads(acceptInvitation({"id":self.es1.id},temp_u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed accept session full.", r['message'])
 
         #change limit to 2
         self.es1.recruitment_params.registration_cutoff = 2
@@ -295,6 +315,7 @@ class subjectHomeTestCase(TestCase):
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
 
     def test_update_profile(self):
         '''
