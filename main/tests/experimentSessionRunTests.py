@@ -1,14 +1,28 @@
-from django.test import TestCase
-import unittest
+from datetime import datetime, timedelta
+import pytz
+import logging
+import json
 import io
 
-from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.test import TestCase
+
+from main.models import genders
+from main.models import subject_types
+from main.models import account_types
+from main.models import majors
+from main.models import parameters
+from main.models import accounts
+from main.models import departments
+from main.models import locations
+from main.models import institutions 
+from main.models import schools 
+from main.models import email_filters
+from main.models import experiment_session_day_users
+from main.models import ProfileConsentForm
+from main.models import ConsentForm
 
 from main.views.registration import profileCreateUser
-from main.models import genders, experiments, subject_types, account_types, majors,\
-                        parameters ,accounts, departments, locations, institutions, schools, email_filters,\
-                        experiment_session_day_users    
 from main.views.staff.experimentSearchView import createExperimentBlank
 from main.views.staff.experimentView import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus, updateSessionDay, cancelSession, removeSubject
@@ -16,14 +30,8 @@ from main.views.staff.experimentSessionRunView import getStripeReaderCheckin, no
 from main.views.staff.experimentSessionRunView import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload
 from main.views.subject.subjectHome import cancelAcceptInvitation, acceptInvitation
 
-from datetime import datetime, timedelta
-import pytz
-import logging
-from django.db.models import Q,F
-import json
-import ast
-
 class sessionRunTestCase(TestCase):
+    fixtures = ['subject_types.json', 'ConsentForm.json']
 
     e1 = None         #experiments
     e2 = None
@@ -136,6 +144,7 @@ class sessionRunTestCase(TestCase):
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
         self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.consent_form_default = ConsentForm.objects.first()
         self.e1.save()
 
         self.es1 = addSessionBlank(self.e1)    
@@ -167,6 +176,7 @@ class sessionRunTestCase(TestCase):
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
         self.e2.institution.set(institutions.objects.filter(name="two"))
+        self.e2.consent_form_default = ConsentForm.objects.first()
         self.e2.save()
 
         self.es2 = addSessionBlank(self.e2)    
@@ -718,6 +728,12 @@ class sessionRunTestCase(TestCase):
 
         esdu2.confirmed=True
         esdu2.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])

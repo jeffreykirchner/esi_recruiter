@@ -173,7 +173,7 @@ def acceptInvitation(data,u):
                 user_list_valid = qs.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False,1)
                 logger.info(f"Accept Invitation Valid User List: {user_list_valid}")
                 if not u in user_list_valid:
-                    message = f"Invitation failed recruitment violation"
+                    message = f"Invitation failed recruitment violation."
                     logger.warning(message)             
                     failed=True
 
