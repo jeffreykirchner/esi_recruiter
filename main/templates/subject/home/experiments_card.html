@@ -87,9 +87,16 @@
                                     </div>
                                     <div v-else>
                                         <div v-show="waiting===false">
-                                            <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
-                                                <span v-html="'I want to attend.'"></span>
-                                            </button>
+                                            <div v-if="!s.consented">
+                                                <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s)">
+                                                    <span v-html="'I want to attend.<br>(Consent Required)'"></span>
+                                                </button>
+                                            </div>
+                                            <div v-else>
+                                                <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                    <span v-html="'I want to attend.'"></span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <div v-show="waiting">
                                             <i class="fas fa-spinner fa-spin"></i>
