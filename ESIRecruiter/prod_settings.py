@@ -6,16 +6,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ['SECRET_KEY']
 
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG',False)
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = 'main/static/'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+MEDIA_ROOT = os.environ['MEDIA_ROOT']
+DEFAULT_FILE_STORAGE = 'ESIRecruiter.custom_azure.AzureMediaStorage'
+AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
+AZURE_ACCOUNT_NAME = os.environ['AZURE_ACCOUNT_NAME']
+AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
+AZURE_CUSTOM_DOMAIN = os.environ['AZURE_CUSTOM_DOMAIN']
+AZURE_OVERWRITE_FILES = True
 
 DATABASES = {
     'default': {

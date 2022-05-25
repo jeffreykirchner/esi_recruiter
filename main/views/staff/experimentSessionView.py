@@ -30,6 +30,7 @@ from main.models import Traits
 from main.views.staff.userSearch import lookup
 
 from main.forms import recruitmentParametersForm
+from main.forms import experimentSessionForm1
 from main.forms import experimentSessionForm2
 from main.forms import TraitConstraintForm
 
@@ -97,7 +98,9 @@ def experimentSessionView(request, id):
         elif data["status"] == "updateTrait":
            return updateTrait(data,id)
         elif data["status"] == "updateRequireAllTraitContraints":
-           return updateRequireAllTraitContraints(data,id)
+           return updateRequireAllTraitContraints(data, id)
+        elif data["status"] == "updateSession":
+           return updateSession(data, id)
 
     else: #GET             
 
@@ -105,21 +108,20 @@ def experimentSessionView(request, id):
 
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                    .filter(rp__icontains = F('path')).first().text
+                                        .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
 
         return render(request,
                       'staff/experimentSession.html',
-                      {'form2':experimentSessionForm2(),      
+                      {'form2':experimentSessionForm2(), 
+                       'form1':experimentSessionForm1(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': id,
                        'max_invitation_block_size':p.max_invitation_block_size,
                        'helpText':helpText,
                        'session':es,
-                       'session_json':json.dumps(es.json(), cls=DjangoJSONEncoder),
-                       'recruitment_params_json':json.dumps(es.recruitment_params.json(), cls=DjangoJSONEncoder),
                        'current_session_day_json':json.dumps(es.ESD.first().json(False), cls=DjangoJSONEncoder)
                       })
 
@@ -868,3 +870,25 @@ def updateRequireAllTraitContraints(data,id):
     es.recruitment_params.save()
     
     return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
+
+#update experiment parameters
+def updateSession(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Update session: {data}")
+
+    s = experiment_sessions.objects.get(id=id)
+
+    form_data_dict = {} 
+    institutionList=[]               
+
+    for field in data["formData"]:            
+        form_data_dict[field["name"]] = field["value"]
+
+    form = experimentSessionForm1(form_data_dict, instance=s)
+
+    if form.is_valid():           
+        session=form.save()               
+        return JsonResponse({"session" : session.json(), "status":"success"}, safe=False)
+    else:
+        print("invalid experiment session form1")
+        return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)

@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',  
     'django.contrib.sitemaps',
     'tinymce',
+    'storages',
+    'azure',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
                 'ESIRecruiter.context_processors.get_debug',
             ],
         },

@@ -9,34 +9,8 @@ var app = new Vue({
         experimentURL:'',   
         loading: true,   
         message: null,              
-        experiment:{institution:[],                                               
-                    account_default_full:{str:""},
-                    title:'',
-                    invitationText:'',
-                    reminderText:'',
-                    school_full:{name:""},
-                    department_default_full:{name:""},
-                    confirmationFound:false,
-            },
-        recruitment_params:{
-                gender:[],
-                actual_participants:0,
-                registration_cutoff:0,
-                experience_min:0,
-                experience_max:1000,
-                experience_constraint:false,
-                institutions_exclude_all:0,
-                institutions_include_all:0,
-                experiments_exclude_all:0,
-                experiments_include_all:0,
-                allow_multiple_participations:false,
-                institutions_exclude:[],
-                institutions_include:[],
-                experiments_exclude:[],
-                experiments_include:[],
-                trait_constraints:[],
-                trait_constraints_require_all:false,
-            },
+        experiment: null,
+        recruitment_params: null,
         current_trait:{
             id:0,
             trait_id:0,
@@ -68,9 +42,37 @@ var app = new Vue({
         session:{confirmedCount:0},             //recruitment form parameter
         addSessionErrorText:"",  
         invitation_email_template:"{{invitationEmailTemplateForm_default}}",           //selected invitation email template 
+        first_load : false,              //true after first load done
     },
 
-    methods:{            
+    methods:{       
+        
+        do_first_load:function(){
+            tinyMCE.init({
+                target: document.getElementById('id_reminderText'),
+                height : "400",
+                theme: "silver",
+                plugins: "directionality,paste,searchreplace,code,link",
+                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+
+            tinyMCE.init({
+                target: document.getElementById('id_invitationText'),
+                height : "400",
+                theme: "silver",
+                plugins: "directionality,paste,searchreplace,code,link",
+                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+
+            // Prevent Bootstrap dialog from blocking focusin
+            $(document).on('focusin', function(e) {
+                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+                    e.stopImmediatePropagation();
+                }
+            });
+        },
 
         clearMainFormErrors:function(){
             for(var item in app.$data.experiment)
@@ -142,6 +144,12 @@ var app = new Vue({
                     app.$data.recruitment_params = response.data.recruitment_params;                                        
                     app.$data.loading=false; 
                     app.updateDisplayLists();
+
+                    if(!app.$data.first_load)
+                    {   
+                        setTimeout(app.do_first_load, 250);
+                        app.$data.first_load = true;
+                    }
                 })
                 .catch(function (error) {
                     console.log(error);

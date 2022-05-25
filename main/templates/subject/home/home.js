@@ -12,10 +12,9 @@ var app = new Vue({
         showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
         noInvitationsFoundText:'',
         lastActionFailed:false,
-        consent_required:false,
         consentFormText:"",
         waiting:true,
-        current_invitation_text:"",
+        current_invitation:null,
         account_paused : {{account_paused|safe}},
     },
 
@@ -28,7 +27,6 @@ var app = new Vue({
                         .then(function (response) {    
                             
                             app.takeUpcomingInvitations(response);
-                            app.$data.consentFormText = response.data.consentFormText;
                             
                             app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                         
@@ -53,11 +51,27 @@ var app = new Vue({
 
         acceptConsentForm:function(){
 
+            if(!app.$data.current_invitation) return;
+            if(!app.$data.current_invitation.consent_form) return;
+
             axios.post('/subjectHome/', {
-                            action :"acceptConsentForm",                                                                                                                                                                
+                            action :"acceptConsentForm",        
+                            consent_form_id : app.$data.current_invitation.consent_form.id,                                                                                                                                                        
                         })
                         .then(function (response) {     
-                            app.takeUpcomingInvitations(response);                                                                     
+                            app.takeUpcomingInvitations(response);
+                            
+                            if(app.$data.current_invitation)
+                            {
+                                for(i=0;i<app.$data.upcomingInvitations.length;i++)
+                                {
+                                    if(app.$data.current_invitation.id == app.$data.upcomingInvitations[i].id)
+                                    {
+                                        app.$data.current_invitation = app.$data.upcomingInvitations[i];
+                                        break;
+                                    }
+                                }
+                            }
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -129,9 +143,8 @@ var app = new Vue({
                         });                        
         },
         
-        takeUpcomingInvitations:function(response){
-            
-            app.$data.consent_required=response.data.consent_required; 
+        takeUpcomingInvitations:function(response){            
+             
             app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
             for(var i=0;i<app.$data.upcomingInvitations.length;i++)
@@ -149,22 +162,28 @@ var app = new Vue({
             
             app.$data.lastActionFailed = response.data.failed;
 
-            if(app.$data.consent_required)
-            {
-                $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
-            }
-            else
-            {
-                if(($("#consentModal").data('bs.modal') || {})._isShown)
-                {
-                    $('#consentModal').modal('toggle');
-                }                        
-            }
+            // if(app.$data.consent_required)
+            // {
+            //     $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
+            // }
+            // else
+            // {
+            //     if(($("#consentModal").data('bs.modal') || {})._isShown)
+            //     {
+            //         $('#consentModal').modal('toggle');
+            //     }                        
+            // }
         },
 
         showInvitationText:function(index){
-            app.$data.current_invitation_text = app.$data.upcomingInvitations[index].invitation_text;
+            app.$data.current_invitation = app.$data.upcomingInvitations[index];
             $('#subject_invitation_text_modal').modal('toggle');
+        },
+
+        viewConsentForm:function(invitation){
+            app.$data.current_invitation = invitation;
+            $('#subject_invitation_text_modal').modal('hide');
+            $('#subject_consent_form_modal').modal('toggle');
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -197,7 +216,7 @@ var app = new Vue({
                 else{
                     return "date format error";
                 }
-            },
+        },
     },
 
     mounted: function(){

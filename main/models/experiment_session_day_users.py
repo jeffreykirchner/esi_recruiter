@@ -113,7 +113,9 @@ class experiment_session_day_users(models.Model):
             "total_earnings":self.get_total_payout(),
             "confirmed":self.confirmed,
             "multiDay":self.getMultiDay(),
-            "alreadyAttending":self.getAlreadyAttended(),            
+            "alreadyAttending":self.getAlreadyAttended(),
+            "consent_form":self.experiment_session_day.experiment_session.consent_form.json() if self.experiment_session_day.experiment_session.consent_form else None,      
+            "consented" : self.user.profile.check_for_consent(self.experiment_session_day.experiment_session.consent_form),      
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and

@@ -13,11 +13,10 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                   "v-on:keyup":"recruitmentFormChange",
                                                                                   "v-on:change":"recruitmentFormChange"}))  
     gender = forms.ModelMultipleChoiceField(label="Gender(s)", 
-                                                    queryset=genders.objects.all(),
-                                                    widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.gender",
-                                                                                        "v-on:change":"recruitmentFormChange",
-                                                                                        "class":"selectpicker",
-                                                                                        "size":"4"}))                                                               
+                                                queryset=genders.objects.all(),
+                                                widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.gender",
+                                                                                    "v-on:change":"recruitmentFormChange",}))   
+                                                                                                                                                
     subject_type = forms.ModelMultipleChoiceField(label="Subject Type(s)",
                                                     queryset=subject_types.objects.all(),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.subject_type",

@@ -1,18 +1,29 @@
 <!-- subject view invitation text -->  
 <div class="modal" id="subject_invitation_text_modal" tabindex="-1" role="dialog" aria-labelledby="noticeModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="helpModalTitle">Invitation</h5>
+
+                                   
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div  style="width: 100%;height: 400px;overflow:scroll;overflow-x: hidden;">
-                    <span v-html="current_invitation_text" style="white-space: pre-wrap"></span>
+                <div  style="width: 100%;height: 500px;overflow:scroll;overflow-x: hidden;">
+                    <span v-if="current_invitation" v-html="current_invitation.invitation_text" style="white-space: pre-wrap"></span>
                 </div>                                                             
-            </div>            
+            </div>  
+            <div class="modal-footer" v-if="current_invitation && current_invitation.consent_form">
+                    <button type="button" 
+                            class="btn btn-outline-primary" 
+                            v-on:click = "viewConsentForm(current_invitation)"
+                            >
+                        View Consent Form
+                    </button> 
+            </div>          
         </div>
     </div>
 </div>

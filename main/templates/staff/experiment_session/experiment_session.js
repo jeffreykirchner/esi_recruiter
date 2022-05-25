@@ -42,8 +42,8 @@ var app = new Vue({
         emailMessageList:"",                 //emails for send message    
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
         reSendMessageButtonText:"Re-send <i class='fas fa-envelope fa-xs'></i>",
-        session:{{session_json|safe}},                   
-        recruitment_params:{{recruitment_params_json|safe}},
+        session:null,                   
+        recruitment_params:null,
         current_trait:{                   //current trait being edited
             id:0,
             trait_id:0,
@@ -87,10 +87,39 @@ var app = new Vue({
             showClear: false,
             showClose: true,
             sideBySide: true,
-            },                         
+            },   
+        first_load : false,              //true after first load done                      
     },
 
-    methods:{     
+    methods:{ 
+        do_first_load:function(){
+            tinyMCE.init({
+                target: document.getElementById('id_invitationRawText'),
+                height : "400",
+                theme: "silver",
+                auto_focus: 'id_invitationRawText',
+                plugins: "directionality,paste,searchreplace,code,link",
+                    toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+    
+            tinyMCE.init({
+                target: document.getElementById('sendMessageText'),
+                height : "400",
+                theme: "silver",
+                auto_focus: 'id_invitationRawText',
+                plugins: "directionality,paste,searchreplace,code,link",
+                    toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+    
+            // Prevent Bootstrap dialog from blocking focusin
+            $(document).on('focusin', function(e) {
+                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+                    e.stopImmediatePropagation();
+                }
+            });
+        },    
 
         //remove all the form errors
         clearMainFormErrors:function(){
@@ -151,13 +180,19 @@ var app = new Vue({
                 .then(function (response) {                                                                   
                     app.$data.session= response.data.session;
                     app.$data.experiment_invitation_text = response.data.experiment_invitation_text;
-                    app.$data.recruitment_params= response.data.recruitment_params;                                
+                    app.$data.recruitment_params = response.data.recruitment_params;                                
                     app.updateDisplayLists();
                     app.$data.showLoadingSpinner=false;
 
                     if(app.$data.session.canceled)
                     {
                         app.$data.cancelSessionButtonText = "*** CANCELED ***";
+                    }
+
+                    if(!app.$data.first_load)
+                    {   
+                        setTimeout(app.do_first_load, 250);
+                        app.$data.first_load = true;
                     }
                 })
                 .catch(function (error) {
@@ -384,7 +419,7 @@ var app = new Vue({
                     {
                         app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
                         app.$data.cancelModal=false;
-                        $('#setupModalCenter').modal('toggle');
+                        $('#sessionModal').modal('toggle');
                     }
                     else
                     {
@@ -576,7 +611,7 @@ var app = new Vue({
             app.$data.currentSessionDay.reminder_time_local = app.formatDate(app.$data.currentSessionDay.reminder_time_raw,false,true);
             app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
             app.$data.buttonText2="Update";
-            $('#setupModalCenter').modal('show');
+            $('#sessionModal').modal('show');
             //$('#id_date').datepicker('update');;
             app.clearMainFormErrors();
             //$('#id_date').val(app.formatDate(app.$data.currentSessionDay.date));
@@ -1147,6 +1182,51 @@ var app = new Vue({
             
             }
         },
+
+        //fire when edit trait model needs to be shown
+        showEditSession:function(){         
+            app.clearMainFormErrors();              
+            app.$data.cancelModal=true;
+            app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+
+            $('#editSessionModal').modal('show');
+        },
+
+        //fire when hide edit traits
+        hideEditSession:function(){
+            app.clearMainFormErrors();
+            if(app.$data.cancelModal)
+            {
+                Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+                app.$data.sessionBeforeEdit=null;
+            }
+        },
+
+        //update require all trait constraints
+        sendUpdateSession:function(){
+            axios.post('{{request.get_full_path}}', {
+                    status : "updateSession", 
+                    formData : $("#mainForm1").serializeArray(),                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.session = response.data.session;  
+                        app.updateDisplayLists();   
+                        $('#editSessionModal').modal('toggle');   
+                    }
+                    else
+                    {
+                        app.$data.cancelModal=true;                           
+                        app.displayErrors(response.data.errors);
+                    }
+         
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
         
         formatDate: function(value,date_only,show_timezone){
             if (value) {        
@@ -1189,7 +1269,7 @@ var app = new Vue({
         this.getSession();
         //attach modal close events to vue
         $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
-        $('#setupModalCenter').on("hidden.bs.modal", this.hideSetup);
+        $('#sessionModal').on("hidden.bs.modal", this.hideSetup);
         $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
         $('#id_date').on("dp.hide",this.mainFormChange2);
         $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
@@ -1199,6 +1279,7 @@ var app = new Vue({
         $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
         $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
         $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
+        $('#editSessionModal').on("hidden.bs.modal", this.hideEditSession);
     },                 
 
 });

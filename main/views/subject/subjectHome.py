@@ -14,6 +14,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from main.models import experiment_session_day_users
 from main.models import parameters
 from main.models import help_docs
+from main.models import ConsentForm
+from main.models import ProfileConsentForm
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
@@ -75,16 +77,13 @@ def getCurrentInvitations(data,u):
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
                          "pastAcceptedInvitations":pastAcceptedInvitations,
-                         "consent_required":consent_required,
-                         "consentFormText":p.consentForm,
                          "failed":failed}, safe=False)
 
 #subject accepts consent form
-def acceptConsentForm(data,u):
+def acceptConsentForm(data, u):
     '''
     Subject accepts consent form
     
@@ -99,14 +98,22 @@ def acceptConsentForm(data,u):
     logger.info("Accept consent form")    
     logger.info(data)
 
-    u.profile.consent_required=False
-    u.profile.save()
+    try:
+
+        consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
+
+        profile_consent_form = ProfileConsentForm(my_profile=u.profile, consent_form=consent_form)
+        profile_consent_form.save()
+
+    except Exception  as e:
+        logger.warning("accept consent form error")             
+        logger.warning("User: " + str(u.id))    
+        logger.warning(e)
+        failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consent_required":consent_required,
                          "failed":False}, safe=False)
 
 #subject has accepted an invitation
@@ -125,6 +132,7 @@ def acceptInvitation(data,u):
     logger.info(data)
 
     failed=False
+    message=""
 
     try:
         es_id = data["id"]
@@ -133,21 +141,26 @@ def acceptInvitation(data,u):
         qs = qs.filter(id = es_id).first()                               #session being accepted
 
         if qs:
-            #subject cannot attend before consent form accepted
-            if u.profile.consent_required:
-                logger.warning(f"Consent required before accept, user: {u}") 
-                failed=True
-
+           
             #check that session has not started
             if not failed:
                 if qs.hoursUntilFirstStart() <= -0.25:
-                    logger.warning(f"Invitation failed session started, user: {u}")            
+                    message=f"Invitation failed session started."
+                    logger.warning(message)            
                     failed=True
 
             #check session not already full
             if not failed:
                 if qs.getFull(): 
-                    logger.warning(f"Invitation failed accept session full, user: {u}")             
+                    message=f"Invitation failed accept session full."
+                    logger.warning(message)             
+                    failed=True
+            
+            #check that user has consent form
+            if not failed:                
+                if not u.profile.check_for_consent(qs.consent_form):
+                    message=f"Invitation failed no consent."
+                    logger.warning(message)             
                     failed=True
             
             #check user is not already attending a recruitment violation
@@ -155,7 +168,8 @@ def acceptInvitation(data,u):
                 user_list_valid = qs.getValidUserList_forward_check([{'id':u.id}],False,0,0,[],False,1)
                 logger.info(f"Accept Invitation Valid User List: {user_list_valid}")
                 if not u in user_list_valid:
-                    logger.warning(f"Invitation failed recruitment violation, user {u}")             
+                    message = f"Invitation failed recruitment violation."
+                    logger.warning(message)             
                     failed=True
 
             #do a backup check that user has not already done this experiment, if prohibited
@@ -164,9 +178,11 @@ def acceptInvitation(data,u):
                                                 user__id=u.id).first()
                 
                 if esdu.getAlreadyAttended():
-                    logger.warning("Invitation failed, user has already done this experiment")
+                    message = "Invitation failed, user has already done this experiment."
+                    logger.warning(message)
                     logger.warning(f"User: {u}, attending session: {esdu.id}")
                     failed=True
+                    
             
             #update confirmed status
             if not failed:
@@ -178,20 +194,20 @@ def acceptInvitation(data,u):
                 logger.warning(f"Accept Failed {u}") 
 
         else:
+            message="Invitation not found"
             logger.warning(f"Invitation not found {u} {esdu}")             
             failed=True
 
-    except Exception  as e:
+    except Exception as e:
         logger.warning(e)
         logger.warning(f"Accept invitation error {u}")             
        
         failed=True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "consent_required":consent_required,
+                         "message":message,
                          "failed":failed}, safe=False)
 
 #return invitations for subject
@@ -250,16 +266,14 @@ def cancelAcceptInvitation(data,u):
             failed = True
 
     except Exception  as e:
-        logger.info("Cancel invitation error")             
-        logger.info("User: " + str(u.id))    
-        logger.info(e)
+        logger.warning("Cancel invitation error")             
+        logger.warning("User: " + str(u.id))    
+        logger.warning(e)
         failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    consent_required = u.profile.consent_required
 
     return JsonResponse({"upcomingInvitations":upcomingInvitations,
-                         "consent_required":consent_required,
                          "failed":failed}, safe=False)
 
 #return list of past declined invitations

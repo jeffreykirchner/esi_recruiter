@@ -5,7 +5,7 @@ import pytz
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import F, Q
+from django.db.models import F, Q, When, Case
 from django.contrib import admin
 
 from main.models import institutions
@@ -45,7 +45,8 @@ class profile(models.Model):
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
     nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien", default=False)                           #true is subject is a not a US Citizen or US Resident
 
-    consent_required = models.BooleanField(verbose_name="Consent Form Required", default=True)                        #true if the subject must agree to the current consent form  
+    consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                 #true if the subject must agree to the current consent form (used before session by session consent forms)
+
     send_daily_email_report = models.BooleanField(verbose_name="Send Daily Email Report", default=False)              #if true, send daily report of the past day's activity
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 
@@ -161,8 +162,10 @@ class profile(models.Model):
 
         session_list = self.sessions_upcoming(False, datetime.now(pytz.utc) - timedelta(hours=1))
 
+        # logger.info(f"consent_form_list: {consent_form_list}")
+
         out_lst = [es.json_subject(self.user) for es in session_list.all()
-                                    .annotate(first_date=models.Min("ESD__date"))
+                                    .annotate(first_date=models.Min("ESD__date"))                                    
                                     .order_by('-first_date')]
 
         return out_lst
@@ -306,6 +309,18 @@ class profile(models.Model):
                 logger.info(f'check_for_future_constraints Invitation failed attended recruitment violation User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {experiment_id}')
                 return True
                         
+        return False
+
+    #check if use has consent form
+    def check_for_consent(self, consent_form):
+        if not consent_form:
+            return True
+
+        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+
+        if consent_form.id in consent_forms:
+            return True
+        
         return False
 
     #json version of model, small

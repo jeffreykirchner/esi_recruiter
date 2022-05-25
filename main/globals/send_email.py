@@ -139,6 +139,8 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
+    request_result = {}
+
     try:
         request_result = requests.post(f'{settings.EMAIL_MS_HOST}/send-email/',
                                     json=data,
@@ -159,8 +161,8 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
    
     try:
         logger.info(f"ESI mass email API response: {request_result.json()}")
-    except json.decoder.JSONDecodeError:
-        logger.error(f'send_mass_email_service error: Invalid response from mail service.')
+    except json.decoder.JSONDecodeError as exc:
+        logger.error(f'send_mass_email_service error: Invalid response from mail service, Error {exc}, Result {request_result}')
         return {"mail_count":0, "error_message":"Invalid response from mail service."}
 
     return request_result.json()

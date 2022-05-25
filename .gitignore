@@ -3,9 +3,10 @@
 db.sqlite3-journal
 *.pyc
 logs/*
-ESIRecruiterEnv/*
+ESIRecruiterEnv
 .vscode/*
 Notes.txt
 *.sql
 database_dumps
 setup.sh
+media
