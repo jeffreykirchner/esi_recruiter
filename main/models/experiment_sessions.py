@@ -1133,7 +1133,7 @@ class experiment_sessions(models.Model):
         return d
 
     #json sent to subject screen
-    def json_subject(self, u, consent_form_list):
+    def json_subject(self, u):
         logger = logging.getLogger(__name__)
         logger.info("json subject, session:" + str(self.id))
 
@@ -1161,8 +1161,6 @@ class experiment_sessions(models.Model):
                                                                                 self.getFirstDate(),
                                                                                 self.experiment.institution.values_list("id", flat=True),
                                                                                 self.experiment.id)                  
-
-        consent_form_id = self.consent_form.id if self.consent_form else -1
         
         return{
             "id":self.id,                                  
@@ -1180,7 +1178,7 @@ class experiment_sessions(models.Model):
                                                                      .order_by('-first_date')
                                         ],
             "canceled":self.canceled,
-            "consented" : True if consent_form_id in consent_form_list else False,
+            "consented" : u.profile.check_for_consent(self.consent_form),
             "confirmed" : esdu.confirmed if esdu else False,
             "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
