@@ -58,8 +58,8 @@ def getOpenSessions(data):
                                                                              'experiment_session__creator__last_name',
                                                                              'experiment_session__creator__first_name',
                                                                              'experiment_session__experiment__id')\
-                                                                     .annotate(invitation_count = Count('experiment_session_day_users'))\
-                                                                     .annotate(accepted_count = Count('experiment_session_day_users',filter = Q(experiment_session_day_users__confirmed=True)))\
+                                                                     .annotate(invitation_count = Count('ESDU_b'))\
+                                                                     .annotate(accepted_count = Count('ESDU_b',filter = Q(ESDU_b__confirmed=True)))\
                                                                      .order_by('date')
    
     s_list = list(s_dict)
