@@ -135,8 +135,10 @@
                             <td class="text-center text-nowrap">                                      
                                 <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
                             </td>    
-                            <td class="text-center text-nowrap">                                        
-                                <button style="width:80px;" class="btn btn-link btn-sm" type="button" v-on:click = "runSession(sd.id)"> Run <i class="fas fa-running fa-xs"></i></i></button>
+                            <td class="text-center text-nowrap">      
+                                <a  v-bind:href='"/experimentSessionRun/" + sd.id'>
+                                    Run <i class="fas fa-running fa-xs"></i>
+                                </a>                                   
                             </td> 
                             <td class="text-center text-nowrap">                                        
                                 <div v-show="session.experiment_session_days.length > 1">                                        
