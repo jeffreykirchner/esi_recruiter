@@ -53,13 +53,13 @@ def getSession(data, id, request_user):
         esd.users_who_printed_bumps.add(request_user)
         esd.save()
 
-        esdu = esd.experiment_session_day_users_set.filter(bumped = True)\
+        esdu = esd.ESDU_b.filter(bumped = True)\
                                                    .order_by(Lower('user__last_name'), Lower('user__first_name'))
     else:
         esd.users_who_printed_paysheet.add(request_user)
         esd.save()
 
-        esdu = esd.experiment_session_day_users_set.filter(attended = True)\
+        esdu = esd.ESDU_b.filter(attended = True)\
                                                    .order_by(Lower('user__last_name'), Lower('user__first_name')) 
 
     return JsonResponse({"sessionDayUsers" : [i.json_runInfo() for i in esdu],

@@ -236,7 +236,7 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
             info.append(p.user.id)
         else:
             #confirm newly added user
-            temp_esdu = esd.experiment_session_day_users_set.filter(user__id=p.user.id).first()
+            temp_esdu = esd.ESDU_b.filter(user__id=p.user.id).first()
 
             if not temp_esdu:
                 status = f"{p.user.last_name}, {p.user.first_name} could not be added to the session, try manual add."
@@ -265,7 +265,7 @@ def getPayPalExport(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-    esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
+    esdu = esd.ESDU_b.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
 
     esd.users_who_paypal_paysheet.add(request_user)
     esd.save()
@@ -290,7 +290,7 @@ def getEarningsExport(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-    esdu = esd.experiment_session_day_users_set.filter(attended=True)
+    esdu = esd.ESDU_b.filter(attended=True)
 
     csv_response = HttpResponse(content_type='text/csv')
     csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
@@ -326,7 +326,7 @@ def autoBump(data, id_, request_user):
     try:
         esd = experiment_session_days.objects.get(id=id_)
 
-        esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
+        esdu_attended = esd.ESDU_b.filter(attended=True)
 
         attendedCount = esdu_attended.count()
         bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
@@ -381,7 +381,7 @@ def bumpAll(data, id, request_user):
 
     try:
         esd = experiment_session_days.objects.get(id=id)
-        esd.experiment_session_day_users_set.filter(attended=True) \
+        esd.ESDU_b.filter(attended=True) \
                                             .update(attended=False,bumped=True)
         json_info = esd.json_runInfo(request_user)
     except Exception  as e:
@@ -537,10 +537,10 @@ def completeSession(data, id, request_user):
 
             #clear any extra earnings fields entered
             if esd.complete:
-                esdu = esd.experiment_session_day_users_set.all().filter(attended = False,bumped=False)
+                esdu = esd.ESDU_b.all().filter(attended = False,bumped=False)
                 esdu.update(earnings = 0, show_up_fee=0)
 
-                esdu = esd.experiment_session_day_users_set.all().filter(bumped=True)
+                esdu = esd.ESDU_b.all().filter(bumped=True)
                 esdu.update(earnings = 0)
 
         json_info = esd.json_runInfo(request_user)
@@ -573,7 +573,7 @@ def fillEarningsWithFixed(data, id, request_user):
 
         amount = data["amount"]
 
-        esd.experiment_session_day_users_set.filter(attended=True) \
+        esd.ESDU_b.filter(attended=True) \
                                             .update(earnings = Decimal(amount))
 
         status = "success"
@@ -609,10 +609,10 @@ def fillDefaultShowUpFee(data, id, request_user):
         showUpFee = esd.experiment_session.experiment.showUpFee
         #logger.info(showUpFee)
 
-        esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)) \
+        esd.ESDU_b.filter(Q(attended=True)|Q(bumped=True)) \
                                             .update(show_up_fee = showUpFee)
 
-        #logger.info(esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)))
+        #logger.info(esd.ESDU_b.filter(Q(attended=True)|Q(bumped=True)))
 
         status="success"
         json_info = esd.json_runInfo(request_user)
@@ -913,7 +913,7 @@ def roundEarningsUp(data, id, request_user):
 
     esd = experiment_session_days.objects.get(id=id)
 
-    for i in esd.experiment_session_day_users_set.filter(attended=True):
+    for i in esd.ESDU_b.filter(attended=True):
         i.earnings = math.ceil(i.earnings*4)/4
         i.save()
 
@@ -932,7 +932,7 @@ def payPalAPI(data, id_, request_user):
     parm = parameters.objects.first()
 
     esd = experiment_session_days.objects.get(id=id_)
-    esdu_list = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
+    esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
 
     payments = []
 

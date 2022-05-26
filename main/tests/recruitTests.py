@@ -321,13 +321,13 @@ class recruiteTestCase(TestCase):
 
         temp_u = self.user_list[1]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[2]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -352,19 +352,19 @@ class recruiteTestCase(TestCase):
 
         temp_u = self.user_list[3]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[4]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[5]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))  
         self.assertEqual(r['status'],"success")
 
@@ -385,7 +385,7 @@ class recruiteTestCase(TestCase):
 
         temp_u = self.user_list[6]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -406,7 +406,7 @@ class recruiteTestCase(TestCase):
 
         temp_u = self.user_list[7]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
     
@@ -483,7 +483,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         #r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
 
         #move session 1 experiment 1 into past so experience is counted
@@ -491,15 +491,15 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         e=self.e2
         es=self.e2.ES.first()
 
-        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+        #esdu = esd1.ESDU_b.all().filter(user__username="g1@chapman.edu").first()
 
         #logger.info("here:" + str(esdu.attended))
 
@@ -537,7 +537,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -546,8 +546,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         cancelSession({},es.id)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
@@ -556,7 +556,7 @@ class recruiteTestCase(TestCase):
         e=self.e2
         es=self.e2.ES.first()
 
-        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+        #esdu = esd1.ESDU_b.all().filter(user__username="g1@chapman.edu").first()
 
         #logger.info("here:" + str(esdu.attended))
 
@@ -587,7 +587,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -596,8 +596,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=False,attended=False)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=False,attended=False)
 
         cancelSession({},es.id)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
@@ -606,7 +606,7 @@ class recruiteTestCase(TestCase):
         e=self.e2
         es=self.e2.ES.first()
 
-        #esdu = esd1.experiment_session_day_users_set.all().filter(user__username="g1@chapman.edu").first()
+        #esdu = esd1.ESDU_b.all().filter(user__username="g1@chapman.edu").first()
 
         #logger.info("here:" + str(esdu.attended))
 
@@ -643,7 +643,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -652,12 +652,12 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        esdu = esd1.ESDU_b.all().filter(user=self.user_list[1]).first()
         logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
 
         e=self.e2
@@ -696,7 +696,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -705,14 +705,14 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         cancelSession({},es.id)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # esdu = esd1.ESDU_b.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
 
         e=self.e2
@@ -752,7 +752,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -761,13 +761,13 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # esdu = esd1.ESDU_b.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
 
         e=self.e2
@@ -807,7 +807,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -816,8 +816,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -827,11 +827,11 @@ class recruiteTestCase(TestCase):
         es=self.e2.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        #esd1.ESDU_b.all().update(confirmed=False)
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -840,9 +840,9 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -897,7 +897,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -908,8 +908,8 @@ class recruiteTestCase(TestCase):
 
         e.institution.set(institutions.objects.filter(name="one"))
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -922,7 +922,7 @@ class recruiteTestCase(TestCase):
          #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -931,9 +931,9 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -990,7 +990,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -999,8 +999,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1013,7 +1013,7 @@ class recruiteTestCase(TestCase):
          #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1022,9 +1022,9 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
 
         cancelSession({},es.id)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
@@ -1109,7 +1109,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         #cancelAcceptInvitation({"id":es.id},self.user_list[1])
 
         #move session 1 experiment 1 into past so experience is counted
@@ -1117,13 +1117,13 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # esdu = esd1.ESDU_b.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
 
         e=self.e2
@@ -1164,7 +1164,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1173,8 +1173,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1184,11 +1184,11 @@ class recruiteTestCase(TestCase):
         es=self.e2.ES.first()
         esd1 = es.ESD.first()
 
-        #esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        #esd1.ESDU_b.all().update(confirmed=False)
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1197,9 +1197,9 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -1222,10 +1222,10 @@ class recruiteTestCase(TestCase):
         #add user one to experiment two, confirmed
         temp_u = self.user_list[1]
         es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1284,7 +1284,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1293,8 +1293,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1307,7 +1307,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1316,9 +1316,9 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -1377,7 +1377,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1386,8 +1386,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1569,7 +1569,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1578,13 +1578,13 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        # esdu = esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).first()
+        # esdu = esd1.ESDU_b.all().filter(user=self.user_list[1]).first()
         # logger.info("here:" + str(esdu.attended) + " " + str(esdu.confirmed))
 
         e=self.e2
@@ -1624,7 +1624,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1633,8 +1633,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1647,7 +1647,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1659,20 +1659,20 @@ class recruiteTestCase(TestCase):
         #add user two to experiment two, confirmed
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1728,7 +1728,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1737,8 +1737,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1751,7 +1751,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1763,20 +1763,20 @@ class recruiteTestCase(TestCase):
         #add user two to experiment two, confirmed
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1836,7 +1836,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -1845,8 +1845,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         cancelSession({},es.id)
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
@@ -1860,7 +1860,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -1872,20 +1872,20 @@ class recruiteTestCase(TestCase):
         #add user two to experiment two, confirmed
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1973,7 +1973,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         #r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
 
         #move session 1 experiment 1 into past so experience is counted
@@ -1981,8 +1981,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
        
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -2024,7 +2024,7 @@ class recruiteTestCase(TestCase):
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.experiment_session_day_users_set.all().update(confirmed=False)
+        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
@@ -2033,8 +2033,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -2047,7 +2047,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -2059,20 +2059,20 @@ class recruiteTestCase(TestCase):
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user one to experiment two, confirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -2136,7 +2136,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -2145,8 +2145,8 @@ class recruiteTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True)
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -2156,7 +2156,7 @@ class recruiteTestCase(TestCase):
         #cancel all
         for i in e.ES.all():
             for j in i.ESD.all():
-                for k in j.experiment_session_day_users_set.all():
+                for k in j.ESDU_b.all():
                     k.confirmed=False
                     k.save()
 
@@ -2171,20 +2171,20 @@ class recruiteTestCase(TestCase):
         #add user two to experiment two, unconfirmed
         temp_u = self.user_list[2]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
         #add user one to experiment two, confirmed
         temp_u = self.user_list[1]
         es.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False)
 
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
-        esd1.experiment_session_day_users_set.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True,attended=True)  
+        esd1.ESDU_b.all().filter(user=self.user_list[5]).update(confirmed=True,bumped=True)     
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -2238,7 +2238,7 @@ class recruiteTestCase(TestCase):
         esd1 = es.ESD.first()
         
         temp_u = self.user_list[1]
-        temp_esdu = esd1.experiment_session_day_users_set.get(user__id = temp_u.id)
+        temp_esdu = esd1.ESDU_b.get(user__id = temp_u.id)
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -2246,7 +2246,7 @@ class recruiteTestCase(TestCase):
         es.recruitment_params.gender.clear()
         es.save()
         esd1 = es.ESD.first()
-        temp_esdu = esd1.experiment_session_day_users_set.get(user__id = temp_u.id)
+        temp_esdu = esd1.ESDU_b.get(user__id = temp_u.id)
 
         #only check on recruiment email, not on confirmation
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
