@@ -668,7 +668,7 @@ def removeSessionDay(data,id):
     esd = es.ESD.get(id = data["id"])
 
     if esd.allowDelete():
-        esd.experiment_session_day_users_set.all().delete()
+        esd.ESDU_b.all().delete()
         esd.delete()
 
     es.save()
