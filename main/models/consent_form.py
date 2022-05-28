@@ -16,6 +16,7 @@ class ConsentForm(models.Model):
     class Meta:
         verbose_name = 'Consent Form'
         verbose_name_plural = 'Consent Forms'   
+        ordering = ['name']
     
     def __str__(self):
         return self.name

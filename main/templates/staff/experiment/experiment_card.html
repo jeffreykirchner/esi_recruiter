@@ -53,7 +53,8 @@
                 {{form1.consent_form_default.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">
-                <span v-if="experiment.consent_form_default_full">[[experiment.consent_form_default_full.name]]</span><span v-else>---</span>
+                <span v-if="experiment.consent_form_default_full"><a v-bind:href="experiment.consent_form_default_full.pdf_file_url">[[experiment.consent_form_default_full.name]]</a></span>
+                <span v-else>---</span>
             </div>               
         </div>
         <div class = "row">
