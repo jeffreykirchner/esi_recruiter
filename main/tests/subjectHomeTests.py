@@ -184,7 +184,7 @@ class subjectHomeTestCase(TestCase):
 
         #todo, add consent form tests       
 
-        #no consent form
+        #no subject does not have required consent form
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
         self.assertEqual("Invitation failed no consent.", r['message'])
@@ -196,6 +196,22 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+
+        #test no consent form required by session
+        profile_consent_form.delete()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed no consent.", r['message'])
+
+        self.es1.consent_form=None
+        self.es1.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
+
+
 
     #subject cancels attendence within 24 hours
     def testCancelAttendenceWithin24Hours(self):
