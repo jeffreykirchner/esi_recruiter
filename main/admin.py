@@ -109,7 +109,6 @@ class profile_traitAdmin(admin.ModelAdmin):
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
-
 #instruction set page
 class ProfileConsentFormInline(admin.TabularInline):
       '''
@@ -364,6 +363,16 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
 
       ordering = ['-date']
 admin.site.register(DailyEmailReport, DailyEmailReportAdmin)
+
+@admin.register(experiments)
+class ExperimentsAdmin(admin.ModelAdmin):
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      ordering = ['title']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
