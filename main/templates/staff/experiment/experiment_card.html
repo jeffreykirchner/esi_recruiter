@@ -53,7 +53,8 @@
                 {{form1.consent_form_default.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">
-                <span v-if="experiment.consent_form_default_full">[[experiment.consent_form_default_full.name]]</span><span v-else>---</span>
+                <span v-if="experiment.consent_form_default_full"><a v-bind:href="experiment.consent_form_default_full.pdf_file_url">[[experiment.consent_form_default_full.name]]</a></span>
+                <span v-else>---</span>
             </div>               
         </div>
         <div class = "row">
@@ -108,7 +109,7 @@
             <div class="col-md-4 text-md-right">
                     
             </div>
-            <div class="col-md-8 text-right text-md-left">                        
+            <div class="col-md-8 text-right text-md-left">      
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
             </div>               
         </div>                
@@ -186,10 +187,10 @@
                                     <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>                                                                        
                                 </span>                                        
                             </td>                               
-                            <td class="text-center text-nowrap">                                        
-                                <button class="btn btn-link btn-sm" type="button" v-on:click = "editSession(s.id)">
+                            <td class="text-center text-nowrap">                                       
+                                <a  v-bind:href='"/experimentSession/" + s.id'>
                                     Edit <i class="fas fa-edit fa-xs"></i>
-                                </button>                                                                                                                                                                   
+                                </a>                                                                                                                                                            
                             </td>
                             <td class="text-center text-nowrap">                                        
                                 <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">

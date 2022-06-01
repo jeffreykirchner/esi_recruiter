@@ -129,7 +129,7 @@ class subjectHomeTestCase(TestCase):
 
 
         self.es1.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
         #changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
 
         #setup experiment three days from now
@@ -153,7 +153,7 @@ class subjectHomeTestCase(TestCase):
 
 
         self.es2.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
         #changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},self.es2.id)
 
     #subject confirms attendence to an experiment where there are no conflicts
@@ -184,7 +184,7 @@ class subjectHomeTestCase(TestCase):
 
         #todo, add consent form tests       
 
-        #no consent form
+        #no subject does not have required consent form
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
         self.assertEqual("Invitation failed no consent.", r['message'])
@@ -196,6 +196,22 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+
+        #test no consent form required by session
+        profile_consent_form.delete()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed no consent.", r['message'])
+
+        self.es1.consent_form=None
+        self.es1.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
+
+
 
     #subject cancels attendence within 24 hours
     def testCancelAttendenceWithin24Hours(self):
@@ -286,7 +302,7 @@ class subjectHomeTestCase(TestCase):
 
 
         temp_es1.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
@@ -329,7 +345,7 @@ class subjectHomeTestCase(TestCase):
         profile_consent_form.save()
 
         self.es1.addUser(temp_u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = temp_u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
         #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
 
         r = json.loads(acceptInvitation({"id":self.es1.id},temp_u).content.decode("UTF-8"))

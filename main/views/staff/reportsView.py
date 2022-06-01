@@ -230,14 +230,14 @@ def pettyCash(data):
 
         writer = csv.writer(csv_response)   
 
-        ESD = experiment_session_days.objects.annotate(totalEarnings=Sum(Case(When(experiment_session_day_users__attended = 1,
-                                                                                 then = 'experiment_session_day_users__earnings'),
+        ESD = experiment_session_days.objects.annotate(totalEarnings=Sum(Case(When(ESDU_b__attended = 1,
+                                                                                 then = 'ESDU_b__earnings'),
                                                                                  default = Decimal("0")),
                                                                         output_field=DecimalField()))\
-                                             .annotate(totalBumps=Sum(Case(When(experiment_session_day_users__bumped = 1,
-                                                                               then = 'experiment_session_day_users__show_up_fee'),
-                                                                             When(experiment_session_day_users__attended = 1,
-                                                                               then = 'experiment_session_day_users__show_up_fee'),
+                                             .annotate(totalBumps=Sum(Case(When(ESDU_b__bumped = 1,
+                                                                               then = 'ESDU_b__show_up_fee'),
+                                                                             When(ESDU_b__attended = 1,
+                                                                               then = 'ESDU_b__show_up_fee'),
                                                                              default=Decimal("0")),
                                                                         output_field=DecimalField()))\
                                              .filter(account__in = dpt.accounts_set.all(),

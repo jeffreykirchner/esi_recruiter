@@ -1213,7 +1213,7 @@ class experiment_sessions(models.Model):
 
     #get full json object
     def json(self):
-        #days_list = self.ESD.order_by("-date").prefetch_related('experiment_session_day_users_set')
+        #days_list = self.ESD.order_by("-date").prefetch_related('ESDU_b')
 
         return{
             "id":self.id,            

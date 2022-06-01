@@ -137,13 +137,13 @@ class cronTests(TestCase):
 
         #add subject 1
         self.es1.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add subject 2
         self.es1.addUser(self.u2.id,self.staff_u,True)
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u2.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -167,13 +167,13 @@ class cronTests(TestCase):
 
         #add subject 1
         self.es2.addUser(self.u.id,self.staff_u,True)
-        temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd2.ESDU_b.filter(user__id = self.u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},self.es2.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add subject 2
         self.es2.addUser(self.u2.id,self.staff_u,True)
-        temp_esdu = esd2.experiment_session_day_users_set.filter(user__id = self.u2.id).first()
+        temp_esdu = esd2.ESDU_b.filter(user__id = self.u2.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -212,7 +212,7 @@ class cronTests(TestCase):
         self.assertEquals("fail",r['status'])
 
         #test cron job
-        temp_esdu = esd1.experiment_session_day_users_set.filter(user__id = self.u.id).first()
+        temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 

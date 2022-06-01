@@ -152,7 +152,7 @@ def getOpenExperiments(data):
     logger.info("Get Open Experiments")
     logger.info(data)
 
-    esd_open = experiment_session_days.objects.annotate(user_count = Count('experiment_session_day_users'))\
+    esd_open = experiment_session_days.objects.annotate(user_count = Count('ESDU_b'))\
                                       .filter(complete=False)\
                                       .values_list('experiment_session__experiment__id',flat=True)
 
