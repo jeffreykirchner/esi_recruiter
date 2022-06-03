@@ -43,9 +43,9 @@ resetPixiApp(){
     signature_line.lineStyle(2, 0xDCDCDC)
                   .moveTo(5, canvas.height*0.75)                    //horizontal line
                   .lineTo(canvas.width-10, canvas.height*0.75)
-                  .moveTo(5, canvas.height*0.70)                    //x   
+                  .moveTo(5, canvas.height*0.65)                    //x   
                   .lineTo(15, canvas.height*0.74)
-                  .moveTo(15, canvas.height*0.70)                     
+                  .moveTo(15, canvas.height*0.65)                     
                   .lineTo(5, canvas.height*0.74);
 
     app.$data.pixi_app.stage.addChild(signature_line);
@@ -102,4 +102,16 @@ handleStagePointerMove(event){
     i = app.$data.pixi_signatures_rope_array.length-1;
 
     app.$data.pixi_signatures_rope_array[i].points.push(new PIXI.Point(event.data.global.x, event.data.global.y));    
+},
+
+/**
+ * clear signature
+ */
+clearSignature(event){
+    for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+    {
+        app.$data.pixi_signatures_rope_array[i].rope.destroy();
+    }
+
+    app.$data.pixi_signatures_rope_array = [];
 },
