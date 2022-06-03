@@ -16,6 +16,11 @@ var app = new Vue({
         waiting:true,
         current_invitation:null,
         account_paused : {{account_paused|safe}},
+
+        pixi_app:null,
+        pixi_pointer_down:false,        
+        pixi_signatures_rope_array:[],
+        pixi_signature_texture:null,
     },
 
     methods:{
@@ -43,6 +48,9 @@ var app = new Vue({
                             }
 
                             app.$data.waiting=false;
+                            
+                            //test code
+                            app.viewConsentForm(app.$data.upcomingInvitations[0])
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -184,6 +192,7 @@ var app = new Vue({
             app.$data.current_invitation = invitation;
             $('#subject_invitation_text_modal').modal('hide');
             $('#subject_consent_form_modal').modal('toggle');
+            setTimeout(app.setupPixi, 250);
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -217,9 +226,14 @@ var app = new Vue({
                     return "date format error";
                 }
         },
+
+        {%include "subject/home/pixi_setup.js"%}
     },
+
 
     mounted: function(){
         this.getCurrentInvitations();                    
     },
 });
+
+// pixi app
