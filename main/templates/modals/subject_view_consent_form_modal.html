@@ -33,7 +33,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row" v-if="current_invitation && !current_invitation.consented">
                     <div class="col text-center ">                        
                         <button type="button" class="btn btn-outline-primary" v-on:click = "clearSignature()">
                             Clear <i class="fas fa-eraser"></i>
@@ -48,7 +48,6 @@
                         <div v-if="current_invitation && current_invitation.consented" class="text-success">
                             <i class="fas fa-check fa-2x"></i>
                         </div>
-
                         <div v-if="current_invitation && !current_invitation.consented">                           
                             <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()">
                                 Submit <i class="fas fa-sign-in-alt"></i>

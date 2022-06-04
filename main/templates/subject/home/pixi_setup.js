@@ -3,7 +3,7 @@
 /**
  * update the pixi players with new info
  */
- setupPixi(){    
+setupPixi(){    
     app.resetPixiApp();
 },
 
@@ -14,12 +14,13 @@ resetPixiApp(){
     // app.$data.canvas_width = ctx.canvas.width;
     // app.$data.canvas_height = ctx.canvas.height;
 
-    app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
-                                               backgroundColor : 0xFFFFFF,
-                                               autoResize: true,
-                                               antialias: true,
-                                               resolution: 1,
-                                               view: canvas });
+    if(!app.$data.pixi_app)
+        app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
+                                                backgroundColor : 0xFFFFFF,
+                                                autoResize: true,
+                                                antialias: true,
+                                                resolution: 1,
+                                                view: canvas });
     
     app.$data.pixi_signature_texture = PIXI.Texture.from('{% static "signature_4.png" %}');
 
@@ -60,6 +61,32 @@ resetPixiApp(){
     app.$data.pixi_app.ticker.add((delta) => {               
         app.pixiTicker(delta)
     });
+
+    //load signature
+    app.loadSignature();
+},
+
+//load past signature
+loadSignature(){
+    app.$data.pixi_signatures_rope_array = [];
+
+    if(app.current_invitation && !app.current_invitation.consented) return;
+
+    for (let i in app.current_invitation.consent_signature) {
+
+        let t = app.current_invitation.consent_signature[i];
+        let points = [];
+
+        for(let j=0;j<t.length;j++)
+        {
+            points.push(new PIXI.Point(t[j].x, t[j].y))
+        }
+
+        v = {points:points, rope:new PIXI.SimpleRope(app.$data.pixi_signature_texture, new PIXI.Point(0, 0))};
+            
+       //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
+       app.$data.pixi_signatures_rope_array.push(v);
+    }
 },
 
 pixiTicker(delta){
@@ -78,6 +105,9 @@ pixiTicker(delta){
  *pointer up on stage
 */
 handleStagePointerDown(event){
+
+    if(app.current_invitation && app.current_invitation.consented) return;
+
     app.$data.pixi_pointer_down=true;
     v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)],
          rope:new PIXI.SimpleRope(app.$data.pixi_signature_texture, new PIXI.Point(event.data.global.x, event.data.global.y))};
@@ -97,6 +127,7 @@ handleStagePointerUp(){
  * pointer move over stage
  */
 handleStagePointerMove(event){
+    if(app.current_invitation && app.current_invitation.consented) return;
     if(!app.$data.pixi_pointer_down) return;
 
     i = app.$data.pixi_signatures_rope_array.length-1;

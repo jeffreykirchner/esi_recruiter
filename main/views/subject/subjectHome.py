@@ -101,8 +101,9 @@ def acceptConsentForm(data, u):
     try:
 
         consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
+        singnature_points = data["consent_form_signature"]
 
-        profile_consent_form = ProfileConsentForm(my_profile=u.profile, consent_form=consent_form)
+        profile_consent_form = ProfileConsentForm(my_profile=u.profile, consent_form=consent_form, singnature_points=singnature_points)
         profile_consent_form.save()
 
     except Exception  as e:

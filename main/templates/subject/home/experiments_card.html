@@ -33,7 +33,7 @@
                 <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
                    
                     <td  class="text-center">      
-                        <div style="cursor: pointer;" v-on:click="showInvitationText(index)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                        <div style="cursor: pointer;" v-on:click="showInvitationText(s)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                             <span v-html=sd.date></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                 <div v-if="sd.enable_time">

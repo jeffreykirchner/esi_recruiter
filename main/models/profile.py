@@ -322,6 +322,19 @@ class profile(models.Model):
             return True
         
         return False
+    
+    def consent_signature(self, consent_form):
+
+        if not consent_form:
+            return None
+       
+        consent_form = self.profile_consent_forms_a.filter(consent_form__id=consent_form.id)
+
+        if not consent_form:
+            return None
+
+        return consent_form.first().singnature_points 
+
 
     #json version of model, small
     def json_min(self):
