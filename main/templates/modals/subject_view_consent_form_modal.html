@@ -27,7 +27,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-4">
+                <div class="row mt-4" v-if="current_invitation && current_invitation.consent_form && current_invitation.consent_form.signature_required">
                     <div class="col text-center">
                         <canvas class="signature" key="signature_canvas" id="signature_canvas_id" style="border-style: solid;border-width: 1px;"></canvas>
                     </div>

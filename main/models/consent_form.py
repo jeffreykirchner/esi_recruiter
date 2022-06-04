@@ -9,6 +9,7 @@ class ConsentForm(models.Model):
     '''
     name = models.CharField(max_length = 300, default="", unique=True)
     pdf_file = models.FileField(unique=True)
+    signature_required = models.BooleanField(default=True) 
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
@@ -26,4 +27,5 @@ class ConsentForm(models.Model):
             "id" : self.id,
             "name" : self.name,     
             "pdf_file_url" : self.pdf_file.url,
+            "signature_required" : self.signature_required,
         }
