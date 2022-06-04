@@ -23,7 +23,8 @@
 
             <thead>                         
                 <th width="50%" class="text-center">
-                    Date
+                    Date<br>
+                    Click for Consent
                 </th>                                                      
                 <th width="50%" class="text-center">
                     Control
@@ -33,7 +34,7 @@
                 <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
                    
                     <td  class="text-center">      
-                        <div style="cursor: pointer;" v-on:click="showInvitationText(s)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                        <div style="cursor: pointer;" v-on:click="viewConsentForm(s)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                             <span v-html=sd.date></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                 <div v-if="sd.enable_time">
@@ -89,7 +90,7 @@
                                         <div v-show="waiting===false">
                                             <div v-if="!s.consented && s.consent_form">
                                                 <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s)">
-                                                    <span v-html="'I want to attend.<br>(Consent Required)'"></span>
+                                                    <span v-html="'I want to attend.<br>Consent Required'"></span>
                                                 </button>
                                             </div>
                                             <div v-else>
@@ -103,7 +104,12 @@
                                         </div>
                                     </div>  
                                 </div>                                       
-                            </div>                                                                                               
+                            </div> 
+                            <div class="text-center mt-1">
+                                <button type="button" class="btn btn-secondary" v-on:click ="showInvitationText(s)">
+                                    Invitation
+                                </button>
+                            </div>                                                                                              
                     </td>
                 </tr>                        
             </tbody>

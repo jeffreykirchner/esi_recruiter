@@ -202,7 +202,6 @@ var app = new Vue({
             $('#subject_consent_form_modal').modal('show');
 
             setTimeout(app.updateConsentForm(invitation), 250);
-
             setTimeout(app.setupPixi, 250);
         },
 
