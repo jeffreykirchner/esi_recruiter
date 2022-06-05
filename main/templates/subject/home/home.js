@@ -72,8 +72,8 @@ var app = new Vue({
                     consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
                 }
 
-                consent_form_signature_resolution['x']=app.$data.canvas_width;
-                consent_form_signature_resolution['y']=app.$data.canvas_height;
+                consent_form_signature_resolution['width']=app.$data.canvas_width;
+                consent_form_signature_resolution['height']=app.$data.canvas_height;
             }
 
             
@@ -211,16 +211,23 @@ var app = new Vue({
             $('#subject_invitation_text_modal').modal('hide');
             $('#subject_consent_form_modal').modal('show');
 
-            setTimeout(app.updateConsentForm(invitation), 250);
-            setTimeout(app.setupPixi, 250);
+            app.$data.current_invitation = invitation;
+            setTimeout(app.setupPixi, 750);
         },
 
-        updateConsentForm:function(invitation){
-            app.$data.current_invitation = invitation;
-        },
+        // updateConsentForm:function(invitation){
+        //     app.$data.current_invitation = invitation;
+        // },
 
         hideConsentForm:function(){           
-            $('#subject_consent_form_modal').modal('dispose');
+            //$('#subject_consent_form_modal').modal('dispose');
+        },
+
+        handleResize:function(){
+            if(app.$data.current_invitation)
+            {
+                app.resetPixiApp();
+            }
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -263,7 +270,9 @@ var app = new Vue({
 
     mounted: function(){
         this.getCurrentInvitations();        
-        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);            
+        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);       
+
+        window.addEventListener('resize', this.handleResize);     
     },
 });
 

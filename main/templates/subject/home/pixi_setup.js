@@ -71,15 +71,30 @@ loadSignature(){
     app.$data.pixi_signatures_rope_array = [];
 
     if(app.current_invitation && !app.current_invitation.consented) return;
+    if(!app.current_invitation.consent_signature) return;
+
+    let s = app.current_invitation.consent_signature.singnature_resolution;
+
+    if(!s)
+    {
+         s={width:app.$data.canvas_width,height:app.$data.canvas_height};
+    }
+    // else
+    // {
+    //     s.width=app.$data.canvas_width/s.width;
+    //     s.height=app.$data.canvas_height/s.height;
+    // }
 
     for (let i in app.current_invitation.consent_signature.signature_points) {
 
-        let t = app.current_invitation.consent_signature.signature_points[i];
+        let t = app.current_invitation.consent_signature.signature_points[i];        
+
         let points = [];
 
         for(let j=0;j<t.length;j++)
         {
-            points.push(new PIXI.Point(t[j].x, t[j].y))
+            points.push(new PIXI.Point(t[j].x * app.$data.canvas_width / s.width,
+                                       t[j].y * app.$data.canvas_height / s.height))
         }
 
         v = {points:points, rope:new PIXI.SimpleRope(app.$data.pixi_signature_texture, new PIXI.Point(0, 0))};
