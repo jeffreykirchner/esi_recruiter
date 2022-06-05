@@ -333,7 +333,7 @@ class profile(models.Model):
         if not consent_form:
             return None
 
-        return consent_form.first().singnature_points 
+        return consent_form.first().json() 
 
 
     #json version of model, small

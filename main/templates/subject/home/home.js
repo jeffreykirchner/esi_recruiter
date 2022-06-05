@@ -63,16 +63,26 @@ var app = new Vue({
             if(!app.$data.current_invitation.consent_form) return;
 
             consent_form_signature = {};
+            consent_form_signature_resolution = {};
 
-            for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+            if(app.$data.current_invitation.consent_form.signature_required)
             {
-                consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
+                for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+                {
+                    consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
+                }
+
+                consent_form_signature_resolution['x']=app.$data.canvas_width;
+                consent_form_signature_resolution['y']=app.$data.canvas_height;
             }
+
+            
 
             axios.post('/subjectHome/', {
                             action :"acceptConsentForm",        
                             consent_form_id : app.$data.current_invitation.consent_form.id, 
-                            consent_form_signature : consent_form_signature,                                                                                                                                                       
+                            consent_form_signature : consent_form_signature, 
+                            consent_form_signature_resolution : consent_form_signature_resolution,                                                                                                                                                      
                         })
                         .then(function (response) {     
                             app.takeUpcomingInvitations(response);

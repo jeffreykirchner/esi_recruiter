@@ -72,9 +72,9 @@ loadSignature(){
 
     if(app.current_invitation && !app.current_invitation.consented) return;
 
-    for (let i in app.current_invitation.consent_signature) {
+    for (let i in app.current_invitation.consent_signature.signature_points) {
 
-        let t = app.current_invitation.consent_signature[i];
+        let t = app.current_invitation.consent_signature.signature_points[i];
         let points = [];
 
         for(let j=0;j<t.length;j++)
