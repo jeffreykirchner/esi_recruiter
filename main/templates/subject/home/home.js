@@ -82,8 +82,10 @@ var app = new Vue({
                     consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
                 }
 
-                consent_form_signature_resolution['width']=app.$data.canvas_width;
-                consent_form_signature_resolution['height']=app.$data.canvas_height;
+                let canvas = document.getElementById('signature_canvas_id');
+
+                consent_form_signature_resolution['width']=canvas.width;;
+                consent_form_signature_resolution['height']=canvas.height;
             }
 
             axios.post('/subjectHome/', {

@@ -9,10 +9,6 @@ setupPixi(){
 
 resetPixiApp(){
     
-    //     ctx = canvas.getContext('2d');
-
-    // app.$data.canvas_width = ctx.canvas.width;
-    // app.$data.canvas_height = ctx.canvas.height;
     let canvas = document.getElementById('signature_canvas_id');
 
     if(!app.$data.pixi_app)
