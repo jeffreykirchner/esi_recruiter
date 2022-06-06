@@ -8,7 +8,7 @@ setupPixi(){
 },
 
 resetPixiApp(){
-    let canvas = document.getElementById('signature_canvas_id');
+    
     //     ctx = canvas.getContext('2d');
 
     // app.$data.canvas_width = ctx.canvas.width;
@@ -18,6 +18,8 @@ resetPixiApp(){
     {
         app.$data.pixi_app.destroy();
     }
+
+    let canvas = document.getElementById('signature_canvas_id');
 
     app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
                                             backgroundColor : 0xFFFFFF,
