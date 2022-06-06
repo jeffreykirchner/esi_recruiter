@@ -13,20 +13,17 @@ resetPixiApp(){
 
     // app.$data.canvas_width = ctx.canvas.width;
     // app.$data.canvas_height = ctx.canvas.height;
-
-    if(app.$data.pixi_app)
-    {
-        app.$data.pixi_app.destroy();
-    }
-
     let canvas = document.getElementById('signature_canvas_id');
 
-    app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
-                                            backgroundColor : 0xFFFFFF,
-                                            autoResize: true,
-                                            antialias: true,
-                                            resolution: 1,
-                                            view: canvas });
+    if(!app.$data.pixi_app)
+    {
+        app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
+                                                backgroundColor : 0xFFFFFF,
+                                                autoResize: true,
+                                                antialias: true,
+                                                resolution: 1,
+                                                view: canvas });
+    }
     
     app.$data.pixi_signature_texture = PIXI.Texture.from('{% static "signature_4.png" %}');
 
