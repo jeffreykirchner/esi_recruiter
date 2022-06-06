@@ -21,6 +21,8 @@ var app = new Vue({
         pixi_pointer_down:false,        
         pixi_signatures_rope_array:[],
         pixi_signature_texture:null,
+
+        consent_form_error:"",
     },
 
     methods:{
@@ -62,11 +64,19 @@ var app = new Vue({
             if(!app.$data.current_invitation) return;
             if(!app.$data.current_invitation.consent_form) return;
 
+            app.$data.consent_form_error = "";
+
             consent_form_signature = {};
             consent_form_signature_resolution = {};
 
             if(app.$data.current_invitation.consent_form.signature_required)
             {
+                if(app.$data.pixi_signatures_rope_array.length==0)
+                {
+                    app.$data.consent_form_error = "Sign before accepting.";
+                    return;
+                } 
+
                 for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
                 {
                     consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
@@ -75,8 +85,6 @@ var app = new Vue({
                 consent_form_signature_resolution['width']=app.$data.canvas_width;
                 consent_form_signature_resolution['height']=app.$data.canvas_height;
             }
-
-            
 
             axios.post('/subjectHome/', {
                             action :"acceptConsentForm",        
@@ -187,18 +195,6 @@ var app = new Vue({
             }
             
             app.$data.lastActionFailed = response.data.failed;
-
-            // if(app.$data.consent_required)
-            // {
-            //     $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
-            // }
-            // else
-            // {
-            //     if(($("#consentModal").data('bs.modal') || {})._isShown)
-            //     {
-            //         $('#consentModal').modal('toggle');
-            //     }                        
-            // }
         },
 
         showInvitationText:function(index){
@@ -263,8 +259,7 @@ var app = new Vue({
         },
 
         {%include "subject/home/pixi_setup.js"%}
-
-        
+  
     },
 
 

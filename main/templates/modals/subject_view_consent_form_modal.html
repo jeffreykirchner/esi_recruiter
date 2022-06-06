@@ -11,8 +11,8 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col text-center">
-                        <div v-if="current_invitation && current_invitation.consent_form">
-                            <object class="conset_form" id="consent_pdf_id" v-bind:data="current_invitation.consent_form.pdf_file_url" type="text/html" target="_parent"></object>                                                             
+                        <div v-show="current_invitation && current_invitation.consent_form">
+                            <object class="conset_form" id="consent_pdf_id" v-bind:data="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url : null" type="text/html" target="_parent"></object>                                                             
                         </div>
 
                         <div v-show="!current_invitation || !current_invitation.consent_form" class="text-center mt-4">
@@ -50,7 +50,11 @@
                             <i class="fas fa-check fa-2x"></i>
                         </div>
                         
-                        <div v-show="current_invitation && !current_invitation.consented">                           
+                        <div v-show="current_invitation && !current_invitation.consented">
+                            <span class="mr-2 text-danger">
+                                [[consent_form_error]]
+                            </span>
+                            
                             <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()">
                                 Submit <i class="fas fa-sign-in-alt"></i>
                             </button>
