@@ -208,7 +208,7 @@ var app = new Vue({
             $('#subject_consent_form_modal').modal('show');
 
             app.$data.current_invitation = invitation;
-            setTimeout(app.setupPixi, 250);
+            setTimeout(app.setupPixi, 500);
         },
 
         // updateConsentForm:function(invitation){
