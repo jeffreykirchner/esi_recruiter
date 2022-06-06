@@ -12,12 +12,24 @@
                 <div class="row">
                     <div class="col text-center">
                         <div v-show="current_invitation && current_invitation.consent_form">
-                            <object class="conset_form" 
+
+                            <div v-if="checkMobile()">
+                                 <a v-bind:href="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url : ''" 
+                                    download="Consent_Form.pdf"
+                                    >
+                                     <h4>Download Consent Form</h4>
+                                </a>
+                            </div>
+
+                            <div v-else>
+                                <object class="conset_form" 
                                     id="consent_pdf_id" 
-                                    v-bind:data="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url+'?embedded=true' : null" 
+                                    v-bind:data="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url : null" 
                                     type="text/html" 
                                     target="_parent">
-                                </object>                                                             
+                                </object>
+                            </div>
+                                                                                        
                         </div>
 
                         <div v-show="!current_invitation || !current_invitation.consent_form" class="text-center mt-4">

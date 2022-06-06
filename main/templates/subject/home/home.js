@@ -260,6 +260,16 @@ var app = new Vue({
                 }
         },
 
+        checkMobile:function(){
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        },
+
         {%include "subject/home/pixi_setup.js"%}
   
     },
