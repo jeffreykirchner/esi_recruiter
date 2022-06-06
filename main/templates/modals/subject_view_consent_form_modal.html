@@ -34,7 +34,7 @@
                     </div>
                 </div>
 
-                <div class="row" v-show="current_invitation && !current_invitation.consented">
+                <div class="row" v-show="current_invitation && !current_invitation.consented && current_invitation.consent_form.signature_required">
                     <div class="col text-center ">                        
                         <button type="button" class="btn btn-outline-primary" v-on:click = "clearSignature()">
                             Clear <i class="fas fa-eraser"></i>
