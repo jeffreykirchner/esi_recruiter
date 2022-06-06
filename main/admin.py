@@ -123,6 +123,8 @@ class ProfileConsentFormInline(admin.TabularInline):
       extra = 0  
       model = ProfileConsentForm
       can_delete = True
+      show_view_link = True
+      fields=('consent_form',)
 
 class UserAdmin(DjangoUserAdmin):
 

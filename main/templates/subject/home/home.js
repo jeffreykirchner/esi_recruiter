@@ -16,6 +16,13 @@ var app = new Vue({
         waiting:true,
         current_invitation:null,
         account_paused : {{account_paused|safe}},
+
+        pixi_app:null,
+        pixi_pointer_down:false,        
+        pixi_signatures_rope_array:[],
+        pixi_signature_texture:null,
+
+        consent_form_error:"",
     },
 
     methods:{
@@ -43,6 +50,9 @@ var app = new Vue({
                             }
 
                             app.$data.waiting=false;
+                            
+                            //test code
+                            //app.viewConsentForm(app.$data.upcomingInvitations[0])
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -54,9 +64,33 @@ var app = new Vue({
             if(!app.$data.current_invitation) return;
             if(!app.$data.current_invitation.consent_form) return;
 
+            app.$data.consent_form_error = "";
+
+            consent_form_signature = {};
+            consent_form_signature_resolution = {};
+
+            if(app.$data.current_invitation.consent_form.signature_required)
+            {
+                if(app.$data.pixi_signatures_rope_array.length==0)
+                {
+                    app.$data.consent_form_error = "Sign before accepting.";
+                    return;
+                } 
+
+                for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+                {
+                    consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
+                }
+
+                consent_form_signature_resolution['width']=app.$data.canvas_width;
+                consent_form_signature_resolution['height']=app.$data.canvas_height;
+            }
+
             axios.post('/subjectHome/', {
                             action :"acceptConsentForm",        
-                            consent_form_id : app.$data.current_invitation.consent_form.id,                                                                                                                                                        
+                            consent_form_id : app.$data.current_invitation.consent_form.id, 
+                            consent_form_signature : consent_form_signature, 
+                            consent_form_signature_resolution : consent_form_signature_resolution,                                                                                                                                                      
                         })
                         .then(function (response) {     
                             app.takeUpcomingInvitations(response);
@@ -161,29 +195,35 @@ var app = new Vue({
             }
             
             app.$data.lastActionFailed = response.data.failed;
-
-            // if(app.$data.consent_required)
-            // {
-            //     $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
-            // }
-            // else
-            // {
-            //     if(($("#consentModal").data('bs.modal') || {})._isShown)
-            //     {
-            //         $('#consentModal').modal('toggle');
-            //     }                        
-            // }
         },
 
         showInvitationText:function(index){
-            app.$data.current_invitation = app.$data.upcomingInvitations[index];
-            $('#subject_invitation_text_modal').modal('toggle');
+            $('#subject_consent_form_modal').modal('hide');
+            app.$data.current_invitation = index;
+            $('#subject_invitation_text_modal').modal('show');
         },
 
-        viewConsentForm:function(invitation){
-            app.$data.current_invitation = invitation;
+        viewConsentForm:function(invitation){           
             $('#subject_invitation_text_modal').modal('hide');
-            $('#subject_consent_form_modal').modal('toggle');
+            $('#subject_consent_form_modal').modal('show');
+
+            app.$data.current_invitation = invitation;
+            setTimeout(app.setupPixi, 750);
+        },
+
+        // updateConsentForm:function(invitation){
+        //     app.$data.current_invitation = invitation;
+        // },
+
+        hideConsentForm:function(){           
+            //$('#subject_consent_form_modal').modal('dispose');
+        },
+
+        handleResize:function(){
+            if(app.$data.current_invitation)
+            {
+                app.resetPixiApp();
+            }
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -217,9 +257,18 @@ var app = new Vue({
                     return "date format error";
                 }
         },
+
+        {%include "subject/home/pixi_setup.js"%}
+  
     },
 
+
     mounted: function(){
-        this.getCurrentInvitations();                    
+        this.getCurrentInvitations();        
+        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);       
+
+        window.addEventListener('resize', this.handleResize);     
     },
 });
+
+// pixi app

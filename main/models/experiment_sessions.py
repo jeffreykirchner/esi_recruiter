@@ -1179,6 +1179,7 @@ class experiment_sessions(models.Model):
                                         ],
             "canceled":self.canceled,
             "consented" : u.profile.check_for_consent(self.consent_form),
+            "consent_signature" : u.profile.consent_signature(self.consent_form),
             "confirmed" : esdu.confirmed if esdu else False,
             "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),

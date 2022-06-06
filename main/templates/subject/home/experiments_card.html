@@ -33,7 +33,7 @@
                 <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
                    
                     <td  class="text-center">      
-                        <div style="cursor: pointer;" v-on:click="showInvitationText(index)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                        <div v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                             <span v-html=sd.date></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                 <div v-if="sd.enable_time">
@@ -89,7 +89,7 @@
                                         <div v-show="waiting===false">
                                             <div v-if="!s.consented && s.consent_form">
                                                 <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s)">
-                                                    <span v-html="'I want to attend.<br>(Consent Required)'"></span>
+                                                    <span v-html="'I want to attend.<br>Consent Required'"></span>
                                                 </button>
                                             </div>
                                             <div v-else>
@@ -103,7 +103,15 @@
                                         </div>
                                     </div>  
                                 </div>                                       
-                            </div>                                                                                               
+                            </div> 
+                            <div class="text-center mt-1">
+                                <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                                    <i class="fas fa-scroll"></i>
+                                </button>
+                                <button type="button" class="btn btn-secondary" v-on:click ="showInvitationText(s)" title="View Invitation">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                            </div>                                                                                              
                     </td>
                 </tr>                        
             </tbody>
@@ -130,7 +138,7 @@
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in pastAcceptedInvitations" v-bind:key="s.id">                            
-                    <td  class="text-center" style="cursor: pointer;" v-on:click="viewConsentForm(s)">                                                                
+                    <td  class="text-center">                                                                
                         <div v-html="s.date"></div>
                         <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
                     </td>
@@ -141,7 +149,12 @@
                         </div>
                         <div v-else>
                             <span v-html="'$' + s.total_earnings"></span>
-                        </div>                             
+                        </div>
+                        <div class="text-center mt-1">
+                            <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                                <i class="fas fa-scroll"></i>
+                            </button>                     
+                        </div>    
                     </td>
                 </tr>                        
             </tbody>
