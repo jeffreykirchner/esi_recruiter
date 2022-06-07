@@ -52,7 +52,7 @@ resetPixiApp(){
 
     //sign here text
     let text = "";
-    if(app.current_invitation && app.current_invitation.consent_form && app.current_invitation.consent_form.signature_required)
+    if(app.consent_form && app.consent_form.signature_required)
     {
         text = new PIXI.Text('Sign Here',{fontFamily : 'Arial', fontSize: 24, fill : 0xDCDCDC, align : 'center'});
     }
@@ -78,14 +78,12 @@ loadSignature(){
 
     app.$data.pixi_signatures_rope_array = [];
 
-    if(!app.current_invitation) return;
-
-    if(!app.current_invitation.consented) return;
-    if(!app.current_invitation.consent_signature) return;
-    if(!app.current_invitation.consent_form.signature_required) return;
+    if(!app.consent_form) return;
+    if(!app.consent_form.signature_required) return;
+    if(!app.consent_form_subject) return;
 
     
-    let s = app.current_invitation.consent_signature.singnature_resolution;
+    let s = app.consent_form_subject.singnature_resolution;
 
     if(!s)
     {
@@ -97,9 +95,9 @@ loadSignature(){
     //     s.height=app.$data.canvas_height/s.height;
     // }
 
-    for (let i in app.current_invitation.consent_signature.signature_points) {
+    for (let i in app.consent_form_subject.signature_points) {
 
-        let t = app.current_invitation.consent_signature.signature_points[i];        
+        let t = app.consent_form_subject.signature_points[i];        
 
         let points = [];
 
@@ -133,7 +131,7 @@ pixiTicker(delta){
 */
 handleStagePointerDown(event){
 
-    if(app.current_invitation && app.current_invitation.consented) return;
+    if(app.consent_form_subject) return;
     if(app.waiting) return;
 
     app.$data.pixi_pointer_down=true;
@@ -155,7 +153,7 @@ handleStagePointerUp(){
  * pointer move over stage
  */
 handleStagePointerMove(event){
-    if(app.current_invitation && app.current_invitation.consented) return;
+    if(app.waiting) return;
     if(!app.$data.pixi_pointer_down) return;
 
     i = app.$data.pixi_signatures_rope_array.length-1;
@@ -167,6 +165,8 @@ handleStagePointerMove(event){
  * clear signature
  */
 clearSignature(event){
+    if(!app.consent_form_subject) return;
+    
     for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
     {
         app.$data.pixi_signatures_rope_array[i].rope.destroy();

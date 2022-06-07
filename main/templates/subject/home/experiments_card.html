@@ -105,9 +105,9 @@
                                 </div>                                       
                             </div> 
                             <div class="text-center mt-1">
-                                <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                                <a v-bind:href="'/subjectConsent/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary">
                                     <i class="fas fa-scroll"></i>
-                                </button>
+                                </a>
                                 <button type="button" class="btn btn-secondary" v-on:click ="showInvitationText(s)" title="View Invitation">
                                     <i class="fas fa-envelope"></i>
                                 </button>
@@ -150,10 +150,13 @@
                         <div v-else>
                             <span v-html="'$' + s.total_earnings"></span>
                         </div>
-                        <div class="text-center mt-1">
-                            <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                        <div class="text-center mt-2">
+                            <!-- <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
                                 <i class="fas fa-scroll"></i>
-                            </button>                     
+                            </button>                      -->
+                            <a v-bind:href="'/subjectConsent/'+s.session_id" title="View Consent Form" class="border p-2 rounded border-primary">
+                                <i class="fas fa-scroll"></i>
+                            </a>
                         </div>    
                     </td>
                 </tr>                        
