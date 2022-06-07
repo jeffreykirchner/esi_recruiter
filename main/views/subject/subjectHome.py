@@ -101,8 +101,13 @@ def acceptConsentForm(data, u):
     try:
 
         consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
+        signature_points = data["consent_form_signature"]
+        singnature_resolution = data["consent_form_signature_resolution"]
 
-        profile_consent_form = ProfileConsentForm(my_profile=u.profile, consent_form=consent_form)
+        profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
+                                                 consent_form=consent_form, 
+                                                 signature_points=signature_points,
+                                                 singnature_resolution=singnature_resolution)
         profile_consent_form.save()
 
     except Exception  as e:
@@ -112,8 +117,10 @@ def acceptConsentForm(data, u):
         failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
+    pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "pastAcceptedInvitations":pastAcceptedInvitations,
                          "failed":False}, safe=False)
 
 #subject has accepted an invitation

@@ -16,14 +16,7 @@
                     <span v-if="current_invitation" v-html="current_invitation.invitation_text" style="white-space: pre-wrap"></span>
                 </div>                                                             
             </div>  
-            <div class="modal-footer" v-if="current_invitation && current_invitation.consent_form">
-                    <button type="button" 
-                            class="btn btn-outline-primary" 
-                            v-on:click = "viewConsentForm(current_invitation)"
-                            >
-                        View Consent Form
-                    </button> 
-            </div>          
+                      
         </div>
     </div>
 </div>

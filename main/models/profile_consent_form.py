@@ -1,8 +1,7 @@
-import logging
-import traceback
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import profile
 from main.models import ConsentForm
@@ -13,6 +12,9 @@ class ProfileConsentForm(models.Model):
     '''
     my_profile = models.ForeignKey(profile, on_delete=models.CASCADE, related_name="profile_consent_forms_a")               #profile that note is attached to
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, related_name="profile_consent_forms_b")         #consent form
+
+    signature_points = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)                #points used to draw signature
+    singnature_resolution = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)                #points used to draw signature
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
@@ -31,6 +33,8 @@ class ProfileConsentForm(models.Model):
     def json(self):
         return {
             "id" : self.id,
+            "signature_points" : self.signature_points,
+            "singnature_resolution" : self.singnature_resolution,
         }
         
 
