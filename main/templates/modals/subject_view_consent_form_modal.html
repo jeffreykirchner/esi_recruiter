@@ -1,10 +1,10 @@
 <!-- subject view invitation text -->  
-<div class="modal" id="subject_consent_form_modal" tabindex="-1" role="dialog" aria-labelledby="subject_consent_form_modal_label" aria-hidden="true">
+<div class="modal" id="subject_consent_form_modal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="subject_consent_form_modal_label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="helpModalTitle">Informed Consent to Participate in Research</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" v-on:click="closeConsentForm()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>

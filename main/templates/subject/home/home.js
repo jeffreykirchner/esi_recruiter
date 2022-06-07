@@ -71,7 +71,7 @@ var app = new Vue({
 
                 let canvas = document.getElementById('signature_canvas_id');
 
-                consent_form_signature_resolution['width']=canvas.width;;
+                consent_form_signature_resolution['width']=canvas.width;
                 consent_form_signature_resolution['height']=canvas.height;
             }
 
@@ -235,6 +235,10 @@ var app = new Vue({
             $('#subject_consent_form_modal').modal('show');
 
             //setTimeout(app.setupPixi, 500);
+        },
+
+        closeConsentForm:function(){
+            $('#subject_consent_form_modal').modal('hide');
         },
 
         // updateConsentForm:function(invitation){
