@@ -39,7 +39,6 @@ var app = new Vue({
                             console.log(error);                                    
                         });                        
         },
-
         
         acceptInvitation:function(id,index){
             //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
@@ -146,6 +145,10 @@ var app = new Vue({
             $('#subject_consent_form_modal').modal('hide');
             app.$data.current_invitation = index;
             $('#subject_invitation_text_modal').modal('show');
+        },
+
+        viewConsentForm:function(id){
+            window.open("/subjectConsent/" + id, '_self');
         },
 
         formatDate: function(value,value2,enable_time,length){

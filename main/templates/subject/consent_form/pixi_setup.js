@@ -165,8 +165,8 @@ handleStagePointerMove(event){
  * clear signature
  */
 clearSignature(event){
-    if(!app.consent_form_subject) return;
-    
+    if(app.consent_form_subject) return;
+
     for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
     {
         app.$data.pixi_signatures_rope_array[i].rope.destroy();

@@ -25,12 +25,18 @@ var app = new Vue({
 
         acceptConsentForm:function(){
 
+            if(app.$data.consent_form_subject)
+            {
+                app.$data.consent_form_error = "Refresh the page.";
+                return;
+            }
+
             app.$data.consent_form_error = "";
 
             consent_form_signature = {};
             consent_form_signature_resolution = {};
 
-            if(app.$data.current_invitation.consent_form.signature_required)
+            if(app.$data.consent_form.signature_required)
             {
                 if(app.$data.pixi_signatures_rope_array.length==0)
                 {
@@ -51,56 +57,28 @@ var app = new Vue({
 
             app.$data.waiting=true;
 
-            axios.post('/subjectHome/', {
+            axios.post('{{request.get_full_path}}', {
                             action :"acceptConsentForm",        
-                            consent_form_id : app.$data.current_invitation.consent_form.id, 
+                            consent_form_id : app.$data.consent_form.id, 
                             consent_form_signature : consent_form_signature, 
                             consent_form_signature_resolution : consent_form_signature_resolution,                                                                                                                                                      
                         })
                         .then(function (response) {     
-                            app.takeUpcomingInvitations(response);
-                            app.takePastAcceptedInvitations(response);
 
-                            if(app.$data.current_invitation)
-                            {
-                                let found = false;
-                                for(let i=0;i<app.$data.upcomingInvitations.length;i++)
-                                {
-                                    if(app.$data.current_invitation.id == app.$data.upcomingInvitations[i].id)
-                                    {
-                                        app.$data.current_invitation = app.$data.upcomingInvitations[i];
-                                        found=true;
-                                        break;
-                                    }
-                                }
-
-                                if(!found)
-                                {
-                                    for(let i=0;i<app.$data.pastAcceptedInvitations.length;i++)
-                                    {
-                                        if(app.$data.current_invitation.id == app.$data.pastAcceptedInvitations[i].id)
-                                        {
-                                            app.$data.current_invitation = app.$data.pastAcceptedInvitations[i];
-                                            found=true
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                app.$data.waiting=false;
-                            }
+                            app.$data.consent_form_subject = response.data.consent_form_subject_json;                                
+                            app.$data.waiting=false;
+                            
                         })
                         .catch(function (error) {
                             console.log(error);                                    
                         });                        
         },
         
-        handleResize:function(){
-            if(app.$data.current_invitation)
+        handleResize:function(){      
+            if(app.$data.consent_form_subject)
             {
-                
-            }
-            app.resetPixiApp();
+                app.resetPixiApp();
+            } 
         },
 
         {%include "subject/consent_form/pixi_setup.js"%}

@@ -52,7 +52,33 @@
       
     </div> 
     <div class="card-footer">    
-                 
+
+        <div class="row">
+            <div class="col text-left">
+                <a href="/subjectHome/" class="mr-4"><i class="fas fa-angle-double-left"></i> Return</a>
+            </div>
+            <div class="col text-right">
+                <div v-show="consent_form_subject" class="text-success">                    
+                    <i class="fas fa-check fa-2x"></i>
+                </div>
+                
+                <div v-show="!consent_form_subject">
+                    <span class="mr-2 text-danger">
+                        [[consent_form_error]]
+                    </span>
+                    
+                    <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()" v-bind:disabled="waiting">
+                        <span v-show="waiting">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                        <span v-show="!waiting">
+                            Submit <i class="fas fa-sign-in-alt"></i>
+                        </span>                                
+                    </button>
+                </div>
+            </div>
+        </div>               
+    </div>         
        
       
     </div>                   

@@ -59,8 +59,8 @@ def subjectConsent(request, id):
             subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
             session = experiment_sessions.objects.filter(id__in=subject_session_list).filter(id=id)
 
-            logger.info(subject_session_list)
-            logger.info(session)
+            # logger.info(subject_session_list)
+            # logger.info(session)
 
             if not session:
                 raise Http404('Consent Form Not Found')
@@ -114,4 +114,6 @@ def acceptConsentForm(data, u):
         logger.warning(e)
         failed = True
 
-    return JsonResponse({"failed":failed}, safe=False)
+    return JsonResponse({"failed":failed,
+                         "consent_form_subject_json": json.dumps(profile_consent_form.json(),cls=DjangoJSONEncoder) if profile_consent_form else json.dumps(None,cls=DjangoJSONEncoder),
+                         }, safe=False)
