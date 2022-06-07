@@ -51,7 +51,15 @@ resetPixiApp(){
     app.$data.pixi_app.stage.addChild(signature_line);
 
     //sign here text
-    let text = new PIXI.Text('Sign Here',{fontFamily : 'Arial', fontSize: 24, fill : 0xDCDCDC, align : 'center'});
+    let text = "";
+    if(app.current_invitation && app.current_invitation.consent_form && app.current_invitation.consent_form.signature_required)
+    {
+        text = new PIXI.Text('Sign Here',{fontFamily : 'Arial', fontSize: 24, fill : 0xDCDCDC, align : 'center'});
+    }
+    else
+    {
+        text = new PIXI.Text('No Signature Required',{fontFamily : 'Arial', fontSize: 24, fill : 0xDC143C, align : 'center'});
+    }
     text.x = canvas.width/2-text.width/2;
     text.y = canvas.height*0.74-text.height;
     app.$data.pixi_app.stage.addChild(text);
@@ -71,6 +79,7 @@ loadSignature(){
 
     if(app.current_invitation && !app.current_invitation.consented) return;
     if(!app.current_invitation.consent_signature) return;
+    if(!app.current_invitation.consent_form.signature_required) return;
 
     let s = app.current_invitation.consent_signature.singnature_resolution;
 
