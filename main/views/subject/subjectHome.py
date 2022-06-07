@@ -117,8 +117,10 @@ def acceptConsentForm(data, u):
         failed = True
 
     upcomingInvitations = u.profile.sorted_session_list_upcoming()
+    pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
 
     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+                         "pastAcceptedInvitations":pastAcceptedInvitations,
                          "failed":False}, safe=False)
 
 #subject has accepted an invitation

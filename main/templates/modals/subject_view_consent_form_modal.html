@@ -50,7 +50,7 @@
 
                 <div class="row" v-show="current_invitation && !current_invitation.consented && current_invitation.consent_form.signature_required">
                     <div class="col text-center ">                        
-                        <button type="button" class="btn btn-outline-primary" v-on:click = "clearSignature()">
+                        <button type="button" class="btn btn-outline-primary" v-on:click = "clearSignature()" v-bind:disabled="waiting">
                             Clear <i class="fas fa-eraser"></i>
                         </button>                        
                     </div>
@@ -69,8 +69,13 @@
                                 [[consent_form_error]]
                             </span>
                             
-                            <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()">
-                                Submit <i class="fas fa-sign-in-alt"></i>
+                            <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()" v-bind:disabled="waiting">
+                                <span v-show="waiting">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span v-show="!waiting">
+                                    Submit <i class="fas fa-sign-in-alt"></i>
+                                </span>                                
                             </button>
                         </div>
                     </div>

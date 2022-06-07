@@ -34,21 +34,8 @@ var app = new Vue({
                         .then(function (response) {    
                             
                             app.takeUpcomingInvitations(response);
+                            app.takePastAcceptedInvitations(response);
                             
-                            app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
-                        
-                            for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
-                            {
-                                app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
-                                                                                            null,
-                                                                                            app.$data.pastAcceptedInvitations[i].enable_time,
-                                                                                            null);
-
-                                app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
-                                app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
-                                app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
-                            }
-
                             app.$data.waiting=false;
                             
                             //test code
@@ -88,6 +75,8 @@ var app = new Vue({
                 consent_form_signature_resolution['height']=canvas.height;
             }
 
+            app.$data.waiting=true;
+
             axios.post('/subjectHome/', {
                             action :"acceptConsentForm",        
                             consent_form_id : app.$data.current_invitation.consent_form.id, 
@@ -96,17 +85,35 @@ var app = new Vue({
                         })
                         .then(function (response) {     
                             app.takeUpcomingInvitations(response);
-                            
+                            app.takePastAcceptedInvitations(response);
+
                             if(app.$data.current_invitation)
                             {
-                                for(i=0;i<app.$data.upcomingInvitations.length;i++)
+                                let found = false;
+                                for(let i=0;i<app.$data.upcomingInvitations.length;i++)
                                 {
                                     if(app.$data.current_invitation.id == app.$data.upcomingInvitations[i].id)
                                     {
                                         app.$data.current_invitation = app.$data.upcomingInvitations[i];
+                                        found=true;
                                         break;
                                     }
                                 }
+
+                                if(!found)
+                                {
+                                    for(let i=0;i<app.$data.pastAcceptedInvitations.length;i++)
+                                    {
+                                        if(app.$data.current_invitation.id == app.$data.pastAcceptedInvitations[i].id)
+                                        {
+                                            app.$data.current_invitation = app.$data.pastAcceptedInvitations[i];
+                                            found=true
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                app.$data.waiting=false;
                             }
                         })
                         .catch(function (error) {
@@ -199,18 +206,35 @@ var app = new Vue({
             app.$data.lastActionFailed = response.data.failed;
         },
 
+        takePastAcceptedInvitations:function(response){
+            app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
+                        
+            for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
+            {
+                app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
+                                                                            null,
+                                                                            app.$data.pastAcceptedInvitations[i].enable_time,
+                                                                            null);
+
+                app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
+                app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
+                app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
+            }
+        },
+
         showInvitationText:function(index){
             $('#subject_consent_form_modal').modal('hide');
             app.$data.current_invitation = index;
             $('#subject_invitation_text_modal').modal('show');
         },
 
-        viewConsentForm:function(invitation){           
+        viewConsentForm:function(invitation){   
+            app.$data.current_invitation = invitation;
+
             $('#subject_invitation_text_modal').modal('hide');
             $('#subject_consent_form_modal').modal('show');
 
-            app.$data.current_invitation = invitation;
-            setTimeout(app.setupPixi, 500);
+            //setTimeout(app.setupPixi, 500);
         },
 
         // updateConsentForm:function(invitation){
@@ -224,8 +248,9 @@ var app = new Vue({
         handleResize:function(){
             if(app.$data.current_invitation)
             {
-                app.resetPixiApp();
+                
             }
+            app.resetPixiApp();
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -277,7 +302,8 @@ var app = new Vue({
 
     mounted: function(){
         this.getCurrentInvitations();        
-        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);       
+        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);
+        $('#subject_consent_form_modal').on("shown.bs.modal", this.handleResize);       
 
         window.addEventListener('resize', this.handleResize);     
     },

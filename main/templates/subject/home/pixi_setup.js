@@ -75,12 +75,16 @@ resetPixiApp(){
 
 //load past signature
 loadSignature(){
+
     app.$data.pixi_signatures_rope_array = [];
 
-    if(app.current_invitation && !app.current_invitation.consented) return;
+    if(!app.current_invitation) return;
+
+    if(!app.current_invitation.consented) return;
     if(!app.current_invitation.consent_signature) return;
     if(!app.current_invitation.consent_form.signature_required) return;
 
+    
     let s = app.current_invitation.consent_signature.singnature_resolution;
 
     if(!s)
@@ -130,6 +134,7 @@ pixiTicker(delta){
 handleStagePointerDown(event){
 
     if(app.current_invitation && app.current_invitation.consented) return;
+    if(app.waiting) return;
 
     app.$data.pixi_pointer_down=true;
     v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)],
