@@ -104,13 +104,13 @@
                                     </div>  
                                 </div>                                       
                             </div> 
-                            <div class="text-center mt-2">
+                            <div class="text-center mt-3">
                                 <a v-bind:href="'/subjectConsent/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary">
                                     <i class="fas fa-scroll"></i>
                                 </a>
-                                <button type="button" class="btn btn-secondary" v-on:click ="showInvitationText(s)" title="View Invitation">
+                                <a v-bind:href="'/subjectInvitation/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary ml-2">
                                     <i class="fas fa-envelope"></i>
-                                </button>
+                                </a>                                
                             </div>                                                                                              
                     </td>
                 </tr>                        

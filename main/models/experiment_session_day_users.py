@@ -113,9 +113,7 @@ class experiment_session_day_users(models.Model):
             "confirmed":self.confirmed,
             "multiDay":self.getMultiDay(),
             "alreadyAttending":self.getAlreadyAttended(),
-            "consent_form":self.experiment_session_day.experiment_session.consent_form.json() if self.experiment_session_day.experiment_session.consent_form else None,      
-            "consented" : self.user.profile.check_for_consent(self.experiment_session_day.experiment_session.consent_form),     
-            "consent_signature" : self.user.profile.consent_signature(self.experiment_session_day.experiment_session.consent_form),  
+            "consent_form":{"id":self.experiment_session_day.experiment_session.consent_form.id} if self.experiment_session_day.experiment_session.consent_form else None,        
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and

@@ -58,6 +58,7 @@ urlpatterns = [
     #subject
     path('subjectHome/', views.subjectHome, name='subjectHome'),
     path('subjectConsent/<int:id>/', views.subjectConsent, name='subjectConsent'),
+    path('subjectInvitation/<int:id>/', views.subjectInvitation, name='subjectInvitation'),
     path('faq/', views.faqView, name='faqView'),
 
     #cron

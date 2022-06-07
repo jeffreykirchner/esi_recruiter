@@ -91,5 +91,3 @@ var app = new Vue({
         window.addEventListener('resize', this.handleResize);     
     },
 });
-
-// pixi app

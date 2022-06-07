@@ -1,0 +1,26 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {%include "subject/invitation/invitation.js"%}
+    });
+
+    </script>
+    <style>
+        [v-cloak] {
+          display: none;
+        }
+    </style>
+{%endblock head%}
+
+{%block content%}
+<div class="row justify-content-center" v-cloak>
+    <div class="col-lg-6">
+        {%include "subject/invitation/invitation_card.html"%}                   
+    </div>
+</div>
+
+{%endblock content%}
