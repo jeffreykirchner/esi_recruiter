@@ -241,6 +241,10 @@ var app = new Vue({
             $('#subject_consent_form_modal').modal('hide');
         },
 
+        openConsentForm:function(){
+            setTimeout(app.setupPixi, 500);
+        },
+
         // updateConsentForm:function(invitation){
         //     app.$data.current_invitation = invitation;
         // },
@@ -307,7 +311,7 @@ var app = new Vue({
     mounted: function(){
         this.getCurrentInvitations();        
         $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);
-        $('#subject_consent_form_modal').on("shown.bs.modal", this.handleResize);       
+        $('#subject_consent_form_modal').on("shown.bs.modal", this.openConsentForm);       
 
         window.addEventListener('resize', this.handleResize);     
     },
