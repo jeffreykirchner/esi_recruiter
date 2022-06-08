@@ -33,9 +33,9 @@ def experimentSessionPayoutsView(request, id=None, payGroup=None):
 
         return render(request,
                      'staff/experimentSessionPayoutsView.html',
-                      {"sessionDay":esd,
-                       "experiment_session_day_json" : json.dumps(esd.json_runInfo(request.user), cls=DjangoJSONEncoder),
+                      {"sessionDay":esd,                      
                        "id":id,
+                       "consent_form" : json.dumps(esd.experiment_session.consent_form.json(), cls=DjangoJSONEncoder) if esd.experiment_session.consent_form else json.dumps(None,cls=DjangoJSONEncoder),
                        "payGroup":payGroup})  
 
 #return the session info to the client
@@ -54,13 +54,14 @@ def getSession(data, id, request_user):
         esd.save()
 
         esdu = esd.ESDU_b.filter(bumped = True)\
-                                                   .order_by(Lower('user__last_name'), Lower('user__first_name'))
-    else:
+                         .order_by(Lower('user__last_name'), Lower('user__first_name'))
+
+    elif payGroup == "payouts" or  payGroup == "consent":
         esd.users_who_printed_paysheet.add(request_user)
         esd.save()
 
         esdu = esd.ESDU_b.filter(attended = True)\
-                                                   .order_by(Lower('user__last_name'), Lower('user__first_name')) 
+                         .order_by(Lower('user__last_name'), Lower('user__first_name')) 
 
-    return JsonResponse({"sessionDayUsers" : [i.json_runInfo() for i in esdu],
+    return JsonResponse({"sessionDayUsers" : [i.json_runInfo() for i in esdu],                         
                          "experiment_session_day" : esd.json_runInfo(request_user)}, safe=False)

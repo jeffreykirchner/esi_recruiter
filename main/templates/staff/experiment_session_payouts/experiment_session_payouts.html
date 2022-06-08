@@ -1,12 +1,15 @@
-<div class="container mt-4" id="root">
+<div class="container mt-4" id="root" v-if="experiment_session_day">
     <div class="row">
         <div class="col">
             <h4>                    
                 <div v-if="payGroup === 'bumps'">
                     Session Bumps
                 </div>
-                <div v-else>
+                <div v-else-if="payGroup === 'payouts'">
                     Session Attendees
+                </div>
+                <div v-else>
+                    Session Attendees - Consent
                 </div>
             </h4>                    
         </div>               
@@ -25,6 +28,14 @@
         </div>
         <div class = "col-sm-8 float-left">
             {{sessionDay.experiment_session.experiment.experiment_manager}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            Consent Form:
+        </div>
+        <div class = "col-sm-8 float-left">
+            <a v-bind:href="consentForm ? consentForm.pdf_file_url : ''">[[consentForm ? consentForm.name : '---']]</a>
         </div>
     </div>
     <div class="row">
@@ -84,13 +95,13 @@
                     <th width="15%">
                         ID Number
                     </th>
-                    <th width=25%  style="text-align: center;">  
+                    <th width=25%>  
                         Name
                     </th> 
-                    <th width=15%  style="text-align: center;">  
+                    <th width=15%  class="text-center">  
                         Payout
                     </th>   
-                    <th width=40%  style="text-align: center;">  
+                    <th width=40%  class="text-center">  
                         Signature
                     </th>                                                                                                  
                 </thead>
@@ -107,22 +118,21 @@
                         <td>
                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span> 
                         </td>  
-                        <td style="text-align: center;">
+                        <td class="text-center">
                             $<span v-html="esdu.payout"></span>
                         </td>
-                        <td>
-
+                        <td class="m-0 p-0 text-center">
+                            <canvas class="signature m-0 p-0" key="signature_canvas" v-bind:id="'signature_canvas_id_'+esdu.id"></canvas>
                         </td> 
-                                                     
-                                                                             
+                                                                                           
                     </tr>
                 </tbody> 
             </table>
         </div>
         
     </div>
-    <div class="row mt-4">
-        <div class = "col" style="text-align: right;">                                    
+    <div class="row mt-4" v-if="payGroup != 'consent'">
+        <div class = "col" class="text-right">                                    
            I certify the above amounts are true and correct _______________________________                                       
         </div>                                
     </div>
@@ -134,7 +144,11 @@
             
             <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('bumps')">
                 Show Bumps 
-            </button>                                        
+            </button>
+            
+            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm">
+                Show Consent 
+            </button>
         </div>
                         
     </div>
