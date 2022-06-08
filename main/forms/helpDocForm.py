@@ -1,8 +1,8 @@
-from django import forms
-from main.models import faq
-from django.contrib.auth.models import User
-import pytz
+from tinymce.widgets import TinyMCE
 
+from django import forms
+
+from main.models import faq
 
 class helpDocForm(forms.ModelForm):
 
@@ -14,8 +14,7 @@ class helpDocForm(forms.ModelForm):
                            widget=forms.TextInput(attrs={"size":"125"}))
 
     text = forms.CharField(label='Text',
-                           widget=forms.Textarea(attrs={"rows":"30", "cols":"125"}))
-
+                           widget=TinyMCE(attrs={"rows":30, "cols":125, "plugins": "link image code"}))
 
     class Meta:
         model=faq
