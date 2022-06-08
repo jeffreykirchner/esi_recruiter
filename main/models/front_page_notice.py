@@ -1,19 +1,16 @@
-from django.db import models
-import logging
-import traceback
-from . import profile,Traits,parameters
-from django.contrib.auth.models import User
+from tinymce.models import HTMLField
 
-from datetime import datetime, timedelta,timezone
-import pytz
+from django.db import models
+
+from django.contrib.auth.models import User
 
 
 class Front_page_notice(models.Model):
     '''
     notices shown on long in screen
     '''
-    subject_text = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")   #text displayed in the header portion of the notification card
-    body_text = models.CharField(verbose_name="Body Text", max_length = 10000,default = "")        #text displayed in the body portion of the card
+    subject_text = models.CharField(verbose_name="Subject Text", max_length = 1000,default = "")  #text displayed in the header portion of the notification card
+    body_text = HTMLField(verbose_name="Body Text", default="")                                   #text displayed in the body portion of the card
 
     enabled = models.BooleanField(default=True)
 
