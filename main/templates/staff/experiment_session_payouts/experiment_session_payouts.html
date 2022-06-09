@@ -102,7 +102,12 @@
                         Payout
                     </th>   
                     <th width=40%  class="text-center">  
-                        Signature
+                        <span v-if="consentForm && !consentForm.signature_required && payGroup=='consent'">
+                            Agreement
+                        </span>
+                        <span v-else>
+                            Signature
+                        </span>                        
                     </th>                                                                                                  
                 </thead>
                 <tbody>
@@ -122,7 +127,12 @@
                             $<span v-html="esdu.payout"></span>
                         </td>
                         <td class="m-0 p-0 text-center">
-                            <canvas class="signature m-0 mt-1 p-0" key="signature_canvas" v-bind:id="'signature_canvas_id_'+esdu.id"></canvas>
+                            <span v-if="consentForm && consentForm.signature_required">
+                                <canvas class="signature m-0 mt-1 p-0" key="signature_canvas" v-bind:id="'signature_canvas_id_'+esdu.id"></canvas>
+                            </span>
+                            <span v-if="consentForm && !consentForm.signature_required && payGroup=='consent'">
+                                <i class="fas fa-check fa-2x"></i>
+                            </span>
                         </td> 
                                                                                            
                     </tr>
