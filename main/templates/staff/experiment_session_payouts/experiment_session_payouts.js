@@ -7,14 +7,33 @@ var app = new Vue({
     el: '#root',        
     data:{
         sessionDayUsers:[],
-        payGroup:"{{payGroup}}",
+        payGroup:"{{payGroup|safe}}",
         payoutTotal:"",
-        experiment_session_day:{{experiment_session_day_json|safe}},
+        experiment_session_day:null,
+        consentForm:{{consent_form|safe}},
     },
 
     methods:{
+
+        
         //get the session day json info
-        getSession:function(payGroup){                           
+        getSession:function(payGroup){           
+            if(app)
+            {                
+                for(let i=0;i<app.$data.sessionDayUsers.length;i++)
+                {
+                    if(app.$data.sessionDayUsers[i].pixi_app)
+                    {
+                        // app.clearPixi(app.$data.sessionDayUsers[i].pixi_app, 
+                        //               "signature_canvas_id_" + app.$data.sessionDayUsers[i].id );
+                        
+                        app.$data.sessionDayUsers[i].pixi_app.stage.removeChildren();
+                        app.$data.sessionDayUsers[i].pixi_app.destroy(true,true);
+                    }
+                }
+
+                app.$data.sessionDayUsers =[];
+            }
 
             axios.post('/experimentSessionPayouts/{{id}}/'+payGroup+'/', {
                 action : "getSession" ,  
@@ -26,6 +45,8 @@ var app = new Vue({
                 app.$data.experiment_session_day = response.data.experiment_session_day;
                 
                 app.calcPayoutTotal();
+
+                setTimeout(app.setupPixi, 500);
             })
             .catch(function (error) {
                 console.log(error);                                   
@@ -67,6 +88,8 @@ var app = new Vue({
                 return "date format error";
             }
         },
+
+        {%include "staff/experiment_session_payouts/pixi_setup.js"%}
     },
 
     mounted: function(){
