@@ -1180,7 +1180,7 @@ class experiment_sessions(models.Model):
             "canceled":self.canceled,
             "consented" : u.profile.check_for_consent(self.consent_form),
             "confirmed" : esdu.confirmed if esdu else False,
-            "consent_form":{"id":self.consent_form.id} if self.consent_form else None,
+            "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,

@@ -181,8 +181,7 @@ class subjectHomeTestCase(TestCase):
     def testConfirmAttendenceConsent_required(self):
         """Test subject consent required acceptence""" 
         logger = logging.getLogger(__name__)
-
-        #todo, add consent form tests       
+   
 
         #no subject does not have required consent form
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
@@ -210,6 +209,22 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+
+        #test no agreement required
+        self.es1.consent_form=ConsentForm.objects.first()
+        self.es1.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed no consent.", r['message'])
+
+        self.es1.consent_form.agreement_required=False
+        self.es1.consent_form.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
+
 
 
 
