@@ -156,7 +156,7 @@
                 Show Bumps 
             </button>
             
-            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm">
+            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm && consentForm.agreement_required">
                 Show Consent 
             </button>
         </div>
