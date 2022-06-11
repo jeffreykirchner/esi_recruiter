@@ -1,4 +1,4 @@
-<div class="container mt-4" id="root" v-if="experiment_session_day">
+<div class="container mt-4 mb-4" id="root" v-if="experiment_session_day">
     <div class="row">
         <div class="col">
             <h4>                    
@@ -156,7 +156,7 @@
                 Show Bumps 
             </button>
             
-            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm">
+            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm && consentForm.agreement_required">
                 Show Consent 
             </button>
         </div>

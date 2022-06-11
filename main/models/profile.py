@@ -315,6 +315,9 @@ class profile(models.Model):
     def check_for_consent(self, consent_form):
         if not consent_form:
             return True
+        
+        if not consent_form.agreement_required:
+            return True
 
         consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
 

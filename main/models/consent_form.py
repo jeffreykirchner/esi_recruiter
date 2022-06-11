@@ -7,9 +7,10 @@ class ConsentForm(models.Model):
     '''
     consent form for a session
     '''
-    name = models.CharField(max_length = 300, default="", unique=True)
-    pdf_file = models.FileField(unique=True)
-    signature_required = models.BooleanField(default=True) 
+    name = models.CharField(max_length = 300, default="", unique=True)         #title of the consent form
+    pdf_file = models.FileField(unique=True)                                   #pdf file from the IRB
+    signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
+    agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
@@ -28,4 +29,5 @@ class ConsentForm(models.Model):
             "name" : self.name,     
             "pdf_file_url" : self.pdf_file.url,
             "signature_required" : self.signature_required,
+            "agreement_required" : self.agreement_required,
         }
