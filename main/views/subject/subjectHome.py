@@ -45,8 +45,8 @@ def subjectHome(request):
             return cancelAcceptInvitation(data,u)
         elif data["action"] == "showAllInvitations":
             return showAllInvitations(data,u)
-        elif data["action"] == "acceptConsentForm":
-            return acceptConsentForm(data,u)
+        # elif data["action"] == "acceptConsentForm":
+        #     return acceptConsentForm(data,u)
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
@@ -83,48 +83,48 @@ def getCurrentInvitations(data,u):
                          "failed":failed}, safe=False)
 
 #subject accepts consent form
-def acceptConsentForm(data, u):
-    '''
-    Subject accepts consent form
+# def acceptConsentForm(data, u):
+#     '''
+#     Subject accepts consent form
     
-    :param data: Form data{} empty
-    :type data: dict
+#     :param data: Form data{} empty
+#     :type data: dict
 
-    :param u: Subject User
-    :type u: django.contrib.auth.models.User
-    '''
+#     :param u: Subject User
+#     :type u: django.contrib.auth.models.User
+#     '''
 
-    logger = logging.getLogger(__name__)
-    logger.info("Accept consent form")    
-    logger.info(data)
+#     logger = logging.getLogger(__name__)
+#     logger.info("Accept consent form")    
+#     logger.info(data)
 
-    try:
+#     try:
 
-        consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
-        signature_points = data["consent_form_signature"]
-        singnature_resolution = data["consent_form_signature_resolution"]
+#         consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
+#         signature_points = data["consent_form_signature"]
+#         singnature_resolution = data["consent_form_signature_resolution"]
 
-        profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
-                                                 consent_form=consent_form, 
-                                                 signature_points=signature_points,
-                                                 singnature_resolution=singnature_resolution)
-        profile_consent_form.save()
+#         profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
+#                                                  consent_form=consent_form, 
+#                                                  signature_points=signature_points,
+#                                                  singnature_resolution=singnature_resolution)
+#         profile_consent_form.save()
 
-    except Exception  as e:
-        logger.warning("accept consent form error")             
-        logger.warning("User: " + str(u.id))    
-        logger.warning(e)
-        failed = True
+#     except Exception  as e:
+#         logger.warning("accept consent form error")             
+#         logger.warning("User: " + str(u.id))    
+#         logger.warning(e)
+#         failed = True
 
-    upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
+#     upcomingInvitations = u.profile.sorted_session_list_upcoming()
+#     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "pastAcceptedInvitations":pastAcceptedInvitations,
-                         "failed":False}, safe=False)
+#     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
+#                          "pastAcceptedInvitations":pastAcceptedInvitations,
+#                          "failed":False}, safe=False)
 
 #subject has accepted an invitation
-def acceptInvitation(data,u):    
+def acceptInvitation(data, u):    
     '''
     Subject cancels invitation acceptance 
     
