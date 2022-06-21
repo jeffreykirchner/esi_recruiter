@@ -1,8 +1,5 @@
-from datetime import datetime, timedelta
-
 import json
 import logging
-import pytz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -13,7 +10,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.models import experiment_session_day_users
 from main.models import parameters
 from main.models import help_docs
 from main.models import ConsentForm
@@ -22,6 +18,8 @@ from main.models import experiment_sessions
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
+
+import  main
 
 @login_required
 @user_is_subject
@@ -34,13 +32,20 @@ def subjectConsent(request, id):
 
     if request.method == 'POST':     
 
-       
-        #u=User.objects.get(id=11330)  #tester
+        try:
+            subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
+            session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
+
+            if not session:
+                 return JsonResponse({"response" :  "fail"},safe=False)  
+
+        except ObjectDoesNotExist :
+            return JsonResponse({"response" :  "fail"},safe=False)  
 
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "acceptConsentForm":
-            return acceptConsentForm(data,u)
+            return acceptConsentForm(data, u, session)
            
         return JsonResponse({"response" :  "fail"},safe=False)       
     else:      
@@ -79,7 +84,7 @@ def subjectConsent(request, id):
                                                            "helpText":helpText})      
 
 #subject accepts consent form
-def acceptConsentForm(data, u):
+def acceptConsentForm(data, u, session):
     '''
     Subject accepts consent form
     
@@ -88,11 +93,13 @@ def acceptConsentForm(data, u):
 
     :param u: Subject User
     :type u: django.contrib.auth.models.User
+
+    :param session: Experiment Session
+    :type u: Experiment Session model
     '''
 
     logger = logging.getLogger(__name__)
-    logger.info("Accept consent form")    
-    logger.info(data)
+    logger.info(f"Accept consent form: user {u}, session : {session}, data {data}")    
 
     failed = False
 
@@ -102,11 +109,18 @@ def acceptConsentForm(data, u):
         signature_points = data["consent_form_signature"]
         singnature_resolution = data["consent_form_signature_resolution"]
 
-        profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
-                                                 consent_form=consent_form, 
-                                                 signature_points=signature_points,
-                                                 singnature_resolution=singnature_resolution)
-        profile_consent_form.save()
+        if session.consent_form != consent_form:
+            logger.warning("consent form does not match")
+            failed = True
+
+        if not failed:
+            profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
+                                                    consent_form=consent_form, 
+                                                    signature_points=signature_points,
+                                                    singnature_resolution=singnature_resolution)
+            profile_consent_form.save()
+
+            main.views.acceptInvitation({"id":session.id},u)
 
     except Exception  as e:
         logger.warning("accept consent form error")             
