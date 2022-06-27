@@ -12,11 +12,11 @@ var app = new Vue({
         showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
         noInvitationsFoundText:'',
         lastActionFailed:false,
-        consent_required:false,
         consentFormText:"",
         waiting:true,
-        current_invitation_text:"",
+        current_invitation:null,
         account_paused : {{account_paused|safe}},
+
     },
 
     methods:{
@@ -28,36 +28,12 @@ var app = new Vue({
                         .then(function (response) {    
                             
                             app.takeUpcomingInvitations(response);
-                            app.$data.consentFormText = response.data.consentFormText;
+                            app.takePastAcceptedInvitations(response);
                             
-                            app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
-                        
-                            for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
-                            {
-                                app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
-                                                                                            null,
-                                                                                            app.$data.pastAcceptedInvitations[i].enable_time,
-                                                                                            null);
-
-                                app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
-                                app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
-                                app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
-                            }
-
                             app.$data.waiting=false;
-                        })
-                        .catch(function (error) {
-                            console.log(error);                                    
-                        });                        
-        },
-
-        acceptConsentForm:function(){
-
-            axios.post('/subjectHome/', {
-                            action :"acceptConsentForm",                                                                                                                                                                
-                        })
-                        .then(function (response) {     
-                            app.takeUpcomingInvitations(response);                                                                     
+                            
+                            //test code
+                            //app.viewConsentForm(app.$data.upcomingInvitations[0])
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -129,9 +105,8 @@ var app = new Vue({
                         });                        
         },
         
-        takeUpcomingInvitations:function(response){
-            
-            app.$data.consent_required=response.data.consent_required; 
+        takeUpcomingInvitations:function(response){            
+             
             app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
 
             for(var i=0;i<app.$data.upcomingInvitations.length;i++)
@@ -148,23 +123,32 @@ var app = new Vue({
             }
             
             app.$data.lastActionFailed = response.data.failed;
+        },
 
-            if(app.$data.consent_required)
+        takePastAcceptedInvitations:function(response){
+            app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
+                        
+            for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
             {
-                $('#consentModal').modal({backdrop: 'static', keyboard: false}).show();
-            }
-            else
-            {
-                if(($("#consentModal").data('bs.modal') || {})._isShown)
-                {
-                    $('#consentModal').modal('toggle');
-                }                        
+                app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
+                                                                            null,
+                                                                            app.$data.pastAcceptedInvitations[i].enable_time,
+                                                                            null);
+
+                app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
+                app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
+                app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
             }
         },
 
         showInvitationText:function(index){
-            app.$data.current_invitation_text = app.$data.upcomingInvitations[index].invitation_text;
-            $('#subject_invitation_text_modal').modal('toggle');
+            $('#subject_consent_form_modal').modal('hide');
+            app.$data.current_invitation = index;
+            $('#subject_invitation_text_modal').modal('show');
+        },
+
+        viewConsentForm:function(id){
+            window.open("/subjectConsent/" + id, '_self');
         },
 
         formatDate: function(value,value2,enable_time,length){
@@ -197,10 +181,16 @@ var app = new Vue({
                 else{
                     return "date format error";
                 }
-            },
+        },
+  
     },
 
+
     mounted: function(){
-        this.getCurrentInvitations();                    
+        this.getCurrentInvitations();        
+        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);
+        $('#subject_consent_form_modal').on("shown.bs.modal", this.openConsentForm);       
+
+        window.addEventListener('resize', this.handleResize);     
     },
 });

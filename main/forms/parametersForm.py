@@ -73,9 +73,6 @@ class parametersForm(forms.ModelForm):
 
     emailVerificationResetText = forms.CharField(label='Account Creation Verification, Text',
                                                  widget=TinyMCE(attrs={"rows":10, "cols":200, "plugins": "link image code"}))
-    
-    consentForm = forms.CharField(label='Consent Form',
-                                  widget=forms.Textarea(attrs={"rows":"25", "cols":"125"}))
 
     subjectTimeZone = forms.ChoiceField(label="Subject Timezone",
                                         choices=[(tz, tz) for tz in pytz.all_timezones])

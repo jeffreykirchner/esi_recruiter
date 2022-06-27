@@ -4,18 +4,9 @@ from django.http import Http404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from main.decorators import user_is_staff
-from main.models import experiment_session_days, \
-                        experiment_session_day_users, \
-                        experiment_sessions, \
-                        institutions, \
-                        experiments, \
-                        parameters,\
-                        experiment_session_messages,\
-                        experiment_session_invitations,\
-                        recruitment_parameters,\
-                        help_docs,\
-                        Recruitment_parameters_trait_constraint,\
-                        Traits
+from main.models import experiment_sessions
+from main.models import parameters,\
+                        help_docs
 from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
 from django.http import JsonResponse
 from django.forms.models import model_to_dict

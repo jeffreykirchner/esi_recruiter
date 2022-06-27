@@ -41,8 +41,6 @@ class parameters(models.Model):
 
     emailVerificationTextSubject = models.CharField(max_length = 1000,default = "")         #email subject sent to user to verify their email address
     emailVerificationResetText = HTMLField(default = "")                                    #email text sent to user to verify their email address
-    
-    consentForm = models.CharField(max_length = 50000, default ="")                         #consent for subject must agree to before participation 
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated= models.DateTimeField(auto_now= True)
@@ -60,7 +58,6 @@ class parameters(models.Model):
             "subjectTimeZone":self.subjectTimeZone,
             "defaultShowUpFee":str(self.defaultShowUpFee),
             "reminderText":self.reminderText,
-            "consentForm":self.consentForm,
             "noShowCutoff":str(self.noShowCutoff),
             "noShowCutoffWindow":(self.noShowCutoffWindow),
         }

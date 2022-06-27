@@ -106,21 +106,7 @@
             <div class = "col-md"> 
                 <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
             </div>                                    
-        </div>
-        <div class = "row">
-            <div class = "col-md"> 
-                <span class="float-md-right">Paused:</span>                        
-            </div>
-            <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
-            </div> 
-            <div class = "col-md"> 
-                <span class="float-md-right">Consent Required:</span>                             
-            </div>
-            <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.consent_required%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
-            </div>
-        </div>
+        </div>        
         <div class = "row">
             <div class = "col-md"> 
                 <span class="float-md-right">YTD Earnings</span>                    
@@ -128,6 +114,20 @@
             <div class = "col-md"> 
                 <span class="float-right float-md-left">{{u.profile.get_ytd_payouts}}</span>
             </div> 
+            <div class = "col-md"> 
+                <span class="float-md-right">Paused:</span>                        
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+            </div>             
+        </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                                        
+            </div>
+            <div class = "col-md"> 
+                
+            </div>
             <div class = "col-md"> 
                 <span class="float-md-right">No-show block:</span>                             
             </div>

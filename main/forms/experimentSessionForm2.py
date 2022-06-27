@@ -7,7 +7,9 @@ import logging
 
 from django import forms
 
-from main.models import locations, accounts, experiment_session_days
+from main.models import locations
+from main.models import accounts
+from main.models import experiment_session_days
 
 class experimentSessionForm2(forms.ModelForm):
     '''

@@ -67,7 +67,7 @@ class experiment_session_days(models.Model):
     def getListOfUserIDs(self):
         u_list=[]
 
-        for u in self.experiment_session_day_users_set.all():
+        for u in self.ESDU_b.all():
             u_list.append({'user':u.user,'confirmed':u.confirmed})
 
         #u_list.sort()
@@ -75,7 +75,7 @@ class experiment_session_days(models.Model):
         return u_list
 
     def checkUserInSession(self, check_user):
-        return self.experiment_session_day_users_set.filter(user=check_user).exists()
+        return self.ESDU_b.filter(user=check_user).exists()
 
     #add user to session day
     def addUser(self, userID, staffUser, manuallyAdded):
@@ -132,11 +132,11 @@ class experiment_session_days(models.Model):
     #check if this session day can be deleted
     def allowDelete(self):
 
-        # ESDU = self.experiment_session_day_users_set.filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) |
+        # ESDU = self.ESDU_b.filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) |
         #                                                     (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
         #                                             .exists()
 
-        ESDU = self.experiment_session_day_users_set.filter(confirmed = True).exists()
+        ESDU = self.ESDU_b.filter(confirmed = True).exists()
 
         if ESDU:
             return False
@@ -249,7 +249,7 @@ class experiment_session_days(models.Model):
         p = parameters.objects.first()
         logger.info(f"Send Reminder emails to: session {self.experiment_session}, session day {self.id}")
 
-        users_list = self.experiment_session_day_users_set.filter(confirmed=True).select_related("user")
+        users_list = self.ESDU_b.filter(confirmed=True).select_related("user")
 
         if len(users_list) == 0:
             logger.info(f"No confirmed users for session {self.experiment_session}")
@@ -320,7 +320,7 @@ class experiment_session_days(models.Model):
         if len(req.json())>0:
 
             for i in req.json():
-                self.paypal_api_batch_id = i['payout_batch_id_paypal']
+                self.paypal_api_batch_id = i.get('payout_batch_id_paypal', 'No Batch ID')
                 self.save()
 
                 logger.info(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: {self.paypal_api_batch_id}')
@@ -331,8 +331,8 @@ class experiment_session_days(models.Model):
 
     #get small json object
     def json_min(self):
-        confirmedCount = self.experiment_session_day_users_set.filter(confirmed=True).count()
-        totalCount = self.experiment_session_day_users_set.count()
+        confirmedCount = self.ESDU_b.filter(confirmed=True).count()
+        totalCount = self.ESDU_b.count()
 
 
         return{
@@ -378,10 +378,10 @@ class experiment_session_days(models.Model):
             "complete":self.complete,
             "canceled":self.experiment_session.canceled,
             "enable_time":self.enable_time,
-            "confirmedCount": self.experiment_session_day_users_set.filter(confirmed=True).count(),
-            "attendingCount" : self.experiment_session_day_users_set.filter(attended=True).count(),
+            "confirmedCount": self.ESDU_b.filter(confirmed=True).count(),
+            "attendingCount" : self.ESDU_b.filter(attended=True).count(),
             "requiredCount" : self.experiment_session.recruitment_params.actual_participants,
-            "bumpCount" : self.experiment_session_day_users_set.filter(bumped=True).count(),
+            "bumpCount" : self.ESDU_b.filter(bumped=True).count(),
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
             "is_during_session" : is_during_session,
@@ -393,7 +393,7 @@ class experiment_session_days(models.Model):
 
     #json info for run session
     def json_runInfoUserList(self):
-        u_list_c = self.experiment_session_day_users_set.\
+        u_list_c = self.ESDU_b.\
                        filter(confirmed=True).\
                        order_by(Lower('user__last_name'),Lower('user__first_name'))
 
@@ -406,12 +406,12 @@ class experiment_session_days(models.Model):
         logger.info("Experiment Session Days JSON")
         logger.info(f"Get un-confirmed: {getUnconfirmed}")
 
-        u_list_c = self.experiment_session_day_users_set.\
+        u_list_c = self.ESDU_b.\
                        filter(confirmed=True).\
                        select_related('user').\
                        order_by(Lower('user__last_name'), Lower('user__first_name'))
 
-        u_list_u = self.experiment_session_day_users_set.\
+        u_list_u = self.ESDU_b.\
                        filter(confirmed=False).\
                        select_related('user').\
                        order_by(Lower('user__last_name'), Lower('user__first_name'))

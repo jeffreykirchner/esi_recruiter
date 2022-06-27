@@ -4,10 +4,10 @@ import traceback
 
 #subject, staff
 class account_types(models.Model):
-    name = models.CharField(max_length = 300)
+    name = models.CharField(max_length = 300, verbose_name="Name")
 
-    timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated= models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name.upper()

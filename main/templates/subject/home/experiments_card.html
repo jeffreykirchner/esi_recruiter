@@ -33,7 +33,7 @@
                 <tr v-for="(s, index) in upcomingInvitations" v-bind:key="s.id">
                    
                     <td  class="text-center">      
-                        <div style="cursor: pointer;" v-on:click="showInvitationText(index)" v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
+                        <div v-for="(sd,index2) in s.experiment_session_days"  v-bind:key="sd.id" style="padding-bottom: 5px;"> 
                             <span v-html=sd.date></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                 <div v-if="sd.enable_time">
@@ -87,16 +87,43 @@
                                     </div>
                                     <div v-else>
                                         <div v-show="waiting===false">
-                                            <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
-                                                <span v-html="'I want to attend.'"></span>
-                                            </button>
+                                            <div v-if="!s.consented && s.consent_form">
+                                                <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s.id)">
+                                                    <span v-html="'I want to attend.<br>Consent Required'"></span>
+                                                </button>
+                                            </div>
+                                            <div v-else>
+                                                <button v-bind:id="'acceptInvitation' + s.id" type="button" class="btn btn-success" v-on:click ="acceptInvitation(s.id,index)">
+                                                    <span v-html="'I want to attend.'"></span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <div v-show="waiting">
                                             <i class="fas fa-spinner fa-spin"></i>
                                         </div>
                                     </div>  
                                 </div>                                       
-                            </div>                                                                                               
+                            </div> 
+                            <div class="text-center mt-3">
+
+                                <a v-bind:href="'/subjectConsent/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary">
+                                    <i class="fas fa-scroll"></i>
+                                </a>
+
+                                <!-- <span v-if="s.consent_form.agreement_required">
+                                    
+                                </span>
+                                <span v-else>
+                                    <a v-bind:href="s.consent_form.pdf_file_url" title="View Consent Form" class="border p-2 rounded border-primary" target="_blank">
+                                        <i class="fas fa-scroll"></i>
+                                    </a>
+                                </span> -->
+                                
+                                <a v-bind:href="'/subjectInvitation/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary ml-2">
+                                    <i class="fas fa-envelope"></i>
+                                </a> 
+
+                            </div>                                                                                              
                     </td>
                 </tr>                        
             </tbody>
@@ -134,7 +161,15 @@
                         </div>
                         <div v-else>
                             <span v-html="'$' + s.total_earnings"></span>
-                        </div>                             
+                        </div>
+                        <div class="text-center mt-2">
+                            <!-- <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                                <i class="fas fa-scroll"></i>
+                            </button>                      -->
+                            <a v-bind:href="'/subjectConsent/'+s.session_id" title="View Consent Form" class="border p-2 rounded border-primary">
+                                <i class="fas fa-scroll"></i>
+                            </a>
+                        </div>    
                     </td>
                 </tr>                        
             </tbody>

@@ -31,7 +31,6 @@ from main.forms import InvitationEmailTemplateForm
 
 
 admin.site.register(accounts)
-#admin.site.register(account_types)
 admin.site.register(departments)
 admin.site.register(genders)
 admin.site.register(institutions)
@@ -39,6 +38,7 @@ admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
+admin.site.register(ConsentForm)
 
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
@@ -108,6 +108,23 @@ class profile_traitAdmin(admin.ModelAdmin):
       fields = ['value']
 
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
+
+#consent form inline
+class ProfileConsentFormInline(admin.TabularInline):
+      '''
+      profile consent form inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = ProfileConsentForm
+      can_delete = True
+      show_view_link = True
+      fields=('consent_form',)
 
 class UserAdmin(DjangoUserAdmin):
 
@@ -259,18 +276,6 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % c, messages.SUCCESS)
       apply_email_filter.short_description = "Apply email filters to selected profiles" 
 
-      #require all selected users to agree to consent form before attending another experiment
-      def consent_form_required(self, request, queryset):
-
-            updated = queryset.exclude(user__is_staff = True).update(consent_required=True)
-
-            self.message_user(request, ngettext(
-                  '%d user was updated.',
-                  '%d users were updated.',
-                  updated,
-            ) % updated, messages.SUCCESS)
-      consent_form_required.short_description = "Require selected users to agree to consent form"
-
       #activate users who were attended within last two years
       def activate_recent_users(self, request, queryset):
             logger = logging.getLogger(__name__)
@@ -299,8 +304,7 @@ class ProfileAdmin(admin.ModelAdmin):
             logger = logging.getLogger(__name__)
             logger.info("setup_test_users")
 
-            updated = queryset.exclude(user__is_staff = True).update(consent_required=False,
-                                                                     blackballed=False,
+            updated = queryset.exclude(user__is_staff = True).update(blackballed=False,
                                                                      email_confirmed='yes',
                                                                      paused=False)
             
@@ -320,7 +324,7 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls, confirm_active_email, un_confirm_emails, apply_email_filter,
-                 pause_all, activate_all, consent_form_required, activate_recent_users]
+                 pause_all, activate_all, activate_recent_users]
 
       if settings.DEBUG:
             actions.append(setup_test_users)
@@ -328,6 +332,7 @@ class ProfileAdmin(admin.ModelAdmin):
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
       list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key']
+      inlines = [ProfileConsentFormInline,]
 
       def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -360,6 +365,103 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
 
       ordering = ['-date']
 admin.site.register(DailyEmailReport, DailyEmailReportAdmin)
+
+#Experiment session admin
+@admin.register(experiment_session_days)
+class ExperimentSessionDaysAdmin(admin.ModelAdmin):
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+
+      readonly_fields=('experiment_session',)
+
+class ExperimentSessionDayInline(admin.TabularInline):
+      '''
+      experiment session inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiment_session_days
+      can_delete = False
+      show_change_link = True
+      fields=('date','length', 'complete')
+
+@admin.register(experiment_sessions)
+class ExperimentSessionsAdmin(admin.ModelAdmin):
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+
+      readonly_fields=('experiment','recruitment_params')
+      inlines = [ExperimentSessionDayInline]
+
+class ExperimentSessionInline(admin.TabularInline):
+      '''
+      experiment session inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiment_sessions
+      can_delete = False
+      show_change_link = True
+      fields=('creator','consent_form')
+
+class ExperimentInstitutionsInline(admin.TabularInline):
+      '''
+      experiment session inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiments_institutions
+      can_delete = False
+      show_change_link = True
+
+@admin.register(experiments)
+class ExperimentsAdmin(admin.ModelAdmin):
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      def get_form(self, request, obj=None, **kwargs):
+            form = super().get_form(request, obj, **kwargs)
+
+            form.base_fields['school'].widget.can_change_related = False
+            form.base_fields['school'].widget.can_add_related = False
+
+            form.base_fields['account_default'].widget.can_change_related = False
+            form.base_fields['account_default'].widget.can_add_related = False
+
+            form.base_fields['consent_form_default'].widget.can_change_related = False
+            form.base_fields['consent_form_default'].widget.can_add_related = False
+
+            return form
+      
+      ordering = ['-timestamp']
+      inlines = [ExperimentSessionInline,ExperimentInstitutionsInline]
+      search_fields = ['title','experiment_manager',]
+      readonly_fields = ('recruitment_params_default',)
+      list_display = ['title','experiment_manager','timestamp']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

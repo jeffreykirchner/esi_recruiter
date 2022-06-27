@@ -1,23 +1,20 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
-import logging
-import traceback
 import uuid
 import pytz
 
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.contrib.auth.models import User
+
+from main.models import experiment_session_days
 
 import main
-from main.models import experiment_session_days, experiment_sessions
-
-from django.contrib.auth.models import User
 
 #user results from a session day
 class experiment_session_day_users(models.Model):        
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ESDU')    
-    experiment_session_day = models.ForeignKey(experiment_session_days, on_delete=models.CASCADE, null = True)                                                                                               
-    experiment_session_legacy = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, null=True)
+    experiment_session_day = models.ForeignKey(experiment_session_days, on_delete=models.CASCADE, null = True, related_name='ESDU_b')                                                                                               
     addedByUser = models.ForeignKey(User,on_delete=models.CASCADE, null=True)              #staff user who added to session
 
     attended = models.BooleanField(default=False)                                    #true once a subject has been marked as attended
@@ -113,7 +110,8 @@ class experiment_session_day_users(models.Model):
             "total_earnings":self.get_total_payout(),
             "confirmed":self.confirmed,
             "multiDay":self.getMultiDay(),
-            "alreadyAttending":self.getAlreadyAttended(),            
+            "alreadyAttending":self.getAlreadyAttended(),
+            "consent_form":self.experiment_session_day.experiment_session.consent_form.json() if self.experiment_session_day.experiment_session.consent_form else None,        
             "noShow":True if self.confirmed and
                              not self.attended and
                              not self.bumped and
@@ -164,14 +162,7 @@ class experiment_session_day_users(models.Model):
 
     def json_runInfo(self):
 
-        # tempPayout=0
-
-        # if self.attended:
-        #     tempPayout = self.earnings+self.show_up_fee
-        # elif self.bumped:
-        #     tempPayout = self.show_up_fee
-        # else:
-        #     tempPayout = 0
+        profile_consent_form = self.user.profile.profile_consent_forms_a.filter(consent_form=self.experiment_session_day.experiment_session.consent_form).first()
 
         return{"id":self.id,            
                 "attended":self.attended,
@@ -181,6 +172,7 @@ class experiment_session_day_users(models.Model):
                 "payout":  f'{self.get_total_payout():.2f}',
                 "waiting":False,
                 "show":True,
+                "profile_consent_form":profile_consent_form.json() if profile_consent_form else None,
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),

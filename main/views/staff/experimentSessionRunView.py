@@ -144,10 +144,10 @@ def getStripeReaderCheckin(data, id, request_user):
             studentID = int(card_data_list[1])
             logger.info(id)
         else:
-            status["message"] = "Card read error, invalid stripe data."
+            status["message"] = '<span style="color:red;font-weight: bold;">Card read error, invalid stripe data.</span>'
             logger.info("Stripe Reader Error, no equals or no semi colon")
     except:
-        status["message"] = "Card read error, invalid stripe data."
+        status["message"] = '<span style="color:red;font-weight: bold;">Card read error, invalid stripe data.</span>'
         logger.info("Stripe Reader card read error")
 
     if status["message"] == "":
@@ -236,7 +236,7 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
             info.append(p.user.id)
         else:
             #confirm newly added user
-            temp_esdu = esd.experiment_session_day_users_set.filter(user__id=p.user.id).first()
+            temp_esdu = esd.ESDU_b.filter(user__id=p.user.id).first()
 
             if not temp_esdu:
                 status = f"{p.user.last_name}, {p.user.first_name} could not be added to the session, try manual add."
@@ -265,7 +265,7 @@ def getPayPalExport(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-    esdu = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
+    esdu = esd.ESDU_b.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
 
     esd.users_who_paypal_paysheet.add(request_user)
     esd.save()
@@ -290,7 +290,7 @@ def getEarningsExport(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-    esdu = esd.experiment_session_day_users_set.filter(attended=True)
+    esdu = esd.ESDU_b.filter(attended=True)
 
     csv_response = HttpResponse(content_type='text/csv')
     csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
@@ -326,7 +326,7 @@ def autoBump(data, id_, request_user):
     try:
         esd = experiment_session_days.objects.get(id=id_)
 
-        esdu_attended = esd.experiment_session_day_users_set.filter(attended=True)
+        esdu_attended = esd.ESDU_b.filter(attended=True)
 
         attendedCount = esdu_attended.count()
         bumpsNeeded = attendedCount - esd.experiment_session.recruitment_params.actual_participants
@@ -381,7 +381,7 @@ def bumpAll(data, id, request_user):
 
     try:
         esd = experiment_session_days.objects.get(id=id)
-        esd.experiment_session_day_users_set.filter(attended=True) \
+        esd.ESDU_b.filter(attended=True) \
                                             .update(attended=False,bumped=True)
         json_info = esd.json_runInfo(request_user)
     except Exception  as e:
@@ -537,10 +537,10 @@ def completeSession(data, id, request_user):
 
             #clear any extra earnings fields entered
             if esd.complete:
-                esdu = esd.experiment_session_day_users_set.all().filter(attended = False,bumped=False)
+                esdu = esd.ESDU_b.all().filter(attended = False,bumped=False)
                 esdu.update(earnings = 0, show_up_fee=0)
 
-                esdu = esd.experiment_session_day_users_set.all().filter(bumped=True)
+                esdu = esd.ESDU_b.all().filter(bumped=True)
                 esdu.update(earnings = 0)
 
         json_info = esd.json_runInfo(request_user)
@@ -573,7 +573,7 @@ def fillEarningsWithFixed(data, id, request_user):
 
         amount = data["amount"]
 
-        esd.experiment_session_day_users_set.filter(attended=True) \
+        esd.ESDU_b.filter(attended=True) \
                                             .update(earnings = Decimal(amount))
 
         status = "success"
@@ -609,10 +609,10 @@ def fillDefaultShowUpFee(data, id, request_user):
         showUpFee = esd.experiment_session.experiment.showUpFee
         #logger.info(showUpFee)
 
-        esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)) \
+        esd.ESDU_b.filter(Q(attended=True)|Q(bumped=True)) \
                                             .update(show_up_fee = showUpFee)
 
-        #logger.info(esd.experiment_session_day_users_set.filter(Q(attended=True)|Q(bumped=True)))
+        #logger.info(esd.ESDU_b.filter(Q(attended=True)|Q(bumped=True)))
 
         status="success"
         json_info = esd.json_runInfo(request_user)
@@ -669,11 +669,11 @@ def attendSubjectAction(esdu, id, request_user):
     #check subject session day exists
     if esdu:
         #check that subject has agreed to consent form
-        if esdu.user.profile.consent_required:
+        if not esdu.user.profile.check_for_consent(esdu.experiment_session_day.experiment_session.consent_form):
             esdu.bumped = False
             esdu.attended = False
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " must agree to the consent form."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the consent form.</span>'
             logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #check if user has confirmed for session
@@ -681,7 +681,7 @@ def attendSubjectAction(esdu, id, request_user):
             esdu.attended = False
             esdu.bumped = False
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has not confirmed."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name}, {esdu.user.first_name} has not confirmed.</span>'
             logger.info("User has not confirmed:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #backup check that subject has not already done this experiment if excluded
@@ -689,7 +689,7 @@ def attendSubjectAction(esdu, id, request_user):
             esdu.attended = False
             esdu.bumped = True
 
-            status = esdu.user.last_name + ", " + esdu.user.first_name + " has already done this experiment."
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name}, {esdu.user.first_name} has already done this experiment.</span>'
             logger.info("Double experiment checkin attempt:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
         #attend subject
@@ -701,7 +701,7 @@ def attendSubjectAction(esdu, id, request_user):
 
         esdu.save()
     else:
-        status = "No subject found."
+        status = f'<span style="color:red;font-weight: bold;">No subject found.</span>'
 
     return status
 
@@ -806,7 +806,7 @@ def takeEarningsUpload(f, id, request_user, auto_add_subjects):
 #process earnings upload
 def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
     logger = logging.getLogger(__name__)
-    logger.info(f"Upload earnings process text: auto add: {auto_add_subjects}")
+    logger.info(f"Upload earnings process text: id {id}, text {text}, {request_user}, auto add: {auto_add_subjects}")
 
     message = ""
 
@@ -848,7 +848,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                 m = f'Error: More than one user found for ID {i[0]}<br>'
             elif esdu.count() == 0:
                 #try to manually add user
-                if request_user.is_superuser and auto_add_subjects == 'true':
+                if request_user.is_superuser and auto_add_subjects:
                     value = autoAddSubject(i[0], id, request_user, False)
 
                     #if error add to return message
@@ -913,7 +913,7 @@ def roundEarningsUp(data, id, request_user):
 
     esd = experiment_session_days.objects.get(id=id)
 
-    for i in esd.experiment_session_day_users_set.filter(attended=True):
+    for i in esd.ESDU_b.filter(attended=True):
         i.earnings = math.ceil(i.earnings*4)/4
         i.save()
 
@@ -932,7 +932,7 @@ def payPalAPI(data, id_, request_user):
     parm = parameters.objects.first()
 
     esd = experiment_session_days.objects.get(id=id_)
-    esdu_list = esd.experiment_session_day_users_set.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
+    esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
 
     payments = []
 

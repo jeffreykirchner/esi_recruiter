@@ -1,6 +1,8 @@
 from random import randrange
 from datetime import datetime
 from tinymce.models import HTMLField
+from functools import reduce
+from operator import or_
 
 import logging
 import pytz
@@ -13,23 +15,22 @@ from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.db.models import Q, F, Value as V, Count
 
-from main.models import experiments, parameters, recruitment_parameters, parameters
+from main.models import experiments
+from main.models import parameters
+from main.models import recruitment_parameters
+from main.models import parameters
+from main.models import ConsentForm
 
 import main
-
-from functools import reduce
-from operator import or_
 
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator',blank=True, null=True,)  #user that created the session
-
-    showUpFee_legacy = models.DecimalField(decimal_places=6, max_digits=10, null = True) 
-    canceled = models.BooleanField(default=False)
-
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator',blank=True, null=True,)   #user that created the session
+    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                           #consent form used for new sessions
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
 
+    canceled = models.BooleanField(default=False)
     invitation_text = HTMLField(default="")                                 #text of email invitation subjects receive
 
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -1160,7 +1161,7 @@ class experiment_sessions(models.Model):
                                                                                 self.getFirstDate(),
                                                                                 self.experiment.institution.values_list("id", flat=True),
                                                                                 self.experiment.id)                  
-
+        
         return{
             "id":self.id,                                  
             "experiment_session_days" : [{"id" : esd.id,
@@ -1174,15 +1175,15 @@ class experiment_sessions(models.Model):
                                                                    if esd.hoursUntilStart() >= 1 else
                                                                     str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes'   ,
                                           } for esd in self.ESD.all().annotate(first_date=models.Min('date'))
-                                                                                          .order_by('-first_date')],
+                                                                     .order_by('-first_date')
+                                        ],
             "canceled":self.canceled,
-            "confirmed":esdu.confirmed if esdu else False,
+            "consented" : u.profile.check_for_consent(self.consent_form),
+            "confirmed" : esdu.confirmed if esdu else False,
+            "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
-            "invitation_text" : session_invitation.messageText.replace("[first name]", u.first_name)
-                                if (session_invitation := u.experiment_session_invitation_users.filter(experiment_session=self).first())
-                                else "Invitation text not found.",
         }
     
     #get session days attached to this session
@@ -1209,12 +1210,14 @@ class experiment_sessions(models.Model):
 
     #get full json object
     def json(self):
-        #days_list = self.ESD.order_by("-date").prefetch_related('experiment_session_day_users_set')
+        #days_list = self.ESD.order_by("-date").prefetch_related('ESDU_b')
 
         return{
             "id":self.id,            
             "experiment":self.experiment.id,
             "canceled":self.canceled,
+            "consent_form":self.consent_form.id if self.consent_form else None,
+            "consent_form_full":self.consent_form.json() if self.consent_form else None,
             "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "invitationRawText" : self.invitation_text,

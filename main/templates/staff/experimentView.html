@@ -9,31 +9,6 @@
         $(document).ready(function(){   
 
             {%include "staff/experiment/experimentView.js"%}
-
-            tinyMCE.init({
-                target: document.getElementById('id_reminderText'),
-                height : "400",
-                theme: "silver",
-                plugins: "directionality,paste,searchreplace,code,link",
-                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
-                directionality: "{{ directionality }}",
-            });
-
-            tinyMCE.init({
-                target: document.getElementById('id_invitationText'),
-                height : "400",
-                theme: "silver",
-                plugins: "directionality,paste,searchreplace,code,link",
-                toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
-                directionality: "{{ directionality }}",
-            });
-
-            // Prevent Bootstrap dialog from blocking focusin
-            $(document).on('focusin', function(e) {
-                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
-                    e.stopImmediatePropagation();
-                }
-            });
         });
         
     </script>
@@ -42,18 +17,30 @@
             height: 200px;
             overflow: auto;
         }
+
+        [v-cloak] {
+            display: none;
+        }
     </style>
 {%endblock head%}
 
 {%block content%}    
 <!-- modals -->
-{%include "modals/experimentSetupModal.html"%}
-{%include "modals/editTraitsModal.html"%}
-{%include "modals/updateTraitModal.html"%}
+<div v-if="experiment">
+    {%include "modals/experimentSetupModal.html"%}
+    {%include "modals/editTraitsModal.html"%}
+    {%include "modals/updateTraitModal.html"%}
+</div>
 
-<div class="row justify-content-md-center mb-4">
+
+<div class="row justify-content-md-center mb-4" v-cloak v-if="experiment">
     <div class="col col-md-12">
         {%include "staff/experiment/experiment_card.html"%}
+    </div>
+</div>
+<div class="row justify-content-lg-center mt-4" v-else>
+    <div class = "col mt-4 text-center">
+        <i class="fas fa-cog fa-spin fa-2x"></i>
     </div>
 </div>
 

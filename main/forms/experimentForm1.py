@@ -5,6 +5,7 @@ from main.models import schools
 from main.models import accounts
 from main.models import institutions
 from main.models import experiments
+from main.models import ConsentForm
 
 class experimentForm1(forms.ModelForm):   
     '''
@@ -21,14 +22,23 @@ class experimentForm1(forms.ModelForm):
                                                   widget=forms.NumberInput(attrs={"v-model":"experiment.length_default",
                                                                                   "v-on:keyup":"mainFormChange1",
                                                                                   "v-on:change":"mainFormChange1"}))
+
+    consent_form_default = forms.ModelChoiceField(label='Consent Form (default)',
+                                                  queryset=ConsentForm.objects.all(),
+                                                  required=False,
+                                                  widget=forms.Select(attrs={"v-model":"experiment.consent_form_default",
+                                                                             "v-on:change":"mainFormChange1"}))
+
     notes = forms.CharField(label='Notes',
                             widget=forms.Textarea(attrs={"v-model":"experiment.notes",
                                                          "v-on:keyup":"mainFormChange1",
                                                          "rows":"12"}),
                             required=False)
+
     school = forms.ModelChoiceField(queryset=schools.objects.all(),
                                     widget=forms.Select(attrs={"v-model":"experiment.school",
                                                                "v-on:change":"mainFormChange1"}))
+    
     account_default = forms.ModelChoiceField(label="Account (default)",
                                             queryset=accounts.objects.all(),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
@@ -62,7 +72,7 @@ class experimentForm1(forms.ModelForm):
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['actual_participants_legacy','registration_cutoff_legacy','recruitment_params_default']
+        exclude=['recruitment_params_default']
 
     def clean_length_default(self):
         length_default = self.data['length_default']

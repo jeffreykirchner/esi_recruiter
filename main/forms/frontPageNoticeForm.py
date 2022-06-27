@@ -1,8 +1,8 @@
-from django import forms
-from main.models import Front_page_notice
-from django.contrib.auth.models import User
-import pytz
+from tinymce.widgets import TinyMCE
 
+from django import forms
+
+from main.models import Front_page_notice
 
 class frontPageNoticeForm(forms.ModelForm):
 
@@ -11,7 +11,7 @@ class frontPageNoticeForm(forms.ModelForm):
                                          widget=forms.TextInput(attrs={"size":"125"}))
     
     body_text = forms.CharField(label='Body Text',
-                                         widget=forms.Textarea(attrs={"rows":"30", "cols":"125"}))
+                                widget=TinyMCE(attrs={"rows":30, "cols":125, "plugins": "link image code"}))
 
     enabled = forms.BooleanField(label='Activate',required=False)
 

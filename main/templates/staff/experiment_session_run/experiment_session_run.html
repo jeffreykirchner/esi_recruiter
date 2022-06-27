@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                <div class = "col" style="text-align: left;padding-top: 10px;">
+                <div class = "col text-left pt-3">
                     <span v-html="stripeReaderStatus"></span>
                 </div>                    
             </div>  
@@ -145,7 +145,7 @@
                             <td>No confirmed users</td>
                         </tr>
                     </tbody>                                                                      
-                    <tfoot v-if="sessionDay.experiment_session_days_user.length > 0">
+                    <tfoot>
                         <!-- first button row -->
                         <tr>
                             <td class="text-nowrap">
@@ -260,11 +260,11 @@
                                 </button>
                             </td>
                             <td class="text-nowrap text-center">
-                                <div v-if="!sessionDay.is_during_session" v-show="sessionDay.complete === false && isAdmin">
+                                <div v-show="sessionDay.complete === false && isAdmin && !sessionDay.is_during_session">
                                     PayPal window closed
                                 </div>
-                                <div v-else>
-                                    <button v-show="sessionDay.complete === false && isAdmin" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
+                                <div v-show="sessionDay.complete === false && isAdmin && sessionDay.is_during_session">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
                                         title="Pay subjects directly using PayPal's API" 
                                         v-bind:disabled = "sessionDay.paypalAPI">
                                         <span v-html='paypalDirectButtonText'></span> 
