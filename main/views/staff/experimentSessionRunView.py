@@ -3,7 +3,6 @@ Run Session View
 '''
 from datetime import datetime, timedelta, timezone
 from decimal import *
-from operator import truediv
 
 import random
 import csv
@@ -110,6 +109,9 @@ def getSession(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
+
+    if esd.complete and esd.paypal_api:
+        esd.pullPayPalResult()
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user)}, safe=False)
 
