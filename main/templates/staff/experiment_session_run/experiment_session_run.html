@@ -107,10 +107,20 @@
                                 </div>                                        
                             </td>
                             <td class="align-middle m-1 p-1 text-center text-nowrap">                                       
-                                <div v-if="esdu.attended">Attended</div>
-                                <div v-else-if="esdu.bumped">Bumped</div>
-                                <div v-else-if="sessionDay.canceled">Canceled</div>
-                                <div v-else>No Show</div>                                                                           
+                                <span v-if="esdu.attended">Attended</span>
+                                <span v-else-if="esdu.bumped">Bumped</span>
+                                <span v-else-if="sessionDay.canceled">Canceled</span>
+                                <span v-else>No Show</span>
+                                
+                                <span v-if="sessionDay.complete && 
+                                            sessionDay.paypalAPI && 
+                                            esdu.paypal_response && 
+                                            esdu.paypal_response.transaction_status !='SUCCESS'"
+                                      v-bind:title="esdu.paypal_response && esdu.paypal_response.hasOwnProperty('errors') ? 
+                                                    esdu.paypal_response.errors.name + ': ' + esdu.paypal_response.errors.message : ''"  
+                                    >
+                                     (PayPal: [[esdu.paypal_response.transaction_status]])
+                                </span>
                             </td>
                             <td class="align-middle m-1 p-1 text-center text-nowrap">
                                 <div v-show="sessionDay.complete === false">  
@@ -149,7 +159,30 @@
                         <!-- first button row -->
                         <tr>
                             <td class="text-nowrap">
-                                Payout Total: $[[payoutTotal]]                                      
+                                <div class="row">
+                                    <div class="col">
+                                        Payout Total: $[[payoutTotal]] 
+                                        <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Payouts">
+                                            ($[[sessionDay.paypal_realized_totals.realized_payouts]])
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI && sessionDay.paypal_response">
+                                    <div class="col">
+                                        <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+sessionDay.paypal_response.payout_batch_id" target='_blank'>
+                                            PayPal Fees: 
+                                            <span v-if="sessionDay.paypal_response.fees">
+                                                $[[sessionDay.paypal_response.fees.value]]
+                                            </span>
+                                            <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Fees">
+                                                ($[[sessionDay.paypal_realized_totals.realized_fees]])
+                                            </span>
+                                            <span v-if="sessionDay.paypal_response.batch_status != 'SUCCESS'">
+                                                 ***[[sessionDay.paypal_response.batch_status]]***
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>                                     
                             </td>
                             
                             <td  class="text-nowrap text-center"><!-- save button -->                                        

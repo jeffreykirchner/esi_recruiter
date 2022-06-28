@@ -3,9 +3,9 @@ Experiment Session Day Model
 '''
 from datetime import datetime
 from datetime import timedelta
+from decimal import Decimal
 
 import logging
-from operator import truediv
 import pytz
 import requests
 
@@ -14,6 +14,10 @@ from django.db.models.functions import Lower
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Sum
+from django.db.models.functions import Cast
+from django.db.models import FloatField
 
 import main
 
@@ -47,6 +51,7 @@ class experiment_session_days(models.Model):
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
     paypal_api_batch_id = models.CharField(verbose_name="PayPal Batch Payout ID", max_length = 100, default="") 
+    paypal_response = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)   #response from paypal after payment
 
     user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
     users_who_paypal_paysheet = models.ManyToManyField(User, related_name='experiment_session_days_b', blank=True)  #users that pressed paypal paysheet
@@ -327,7 +332,69 @@ class experiment_session_days(models.Model):
                 break
 
         else:
-            logger.info(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
+            logger.warning(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
+
+    #pull paypal batch payment status from PayPal API
+    def pullPayPalResult(self):
+        logger = logging.getLogger(__name__)
+
+        if not self.complete:
+            return
+        
+        if not self.paypal_api:
+            return
+
+        if self.paypal_api_batch_id == "":
+            logger.error(f'pullPayPalResult: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
+            return
+
+        headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
+
+        req = requests.get(f'{settings.PPMS_HOST}/payments/get_batch_status/{self.paypal_api_batch_id}/',
+                           auth=(str(settings.PPMS_USER_NAME), 
+                                 str(settings.PPMS_PASSWORD)))
+
+        if len(req.json())>0:
+
+            req_json = req.json()
+
+            #store header in esd
+            self.paypal_response = req_json["batch_header"]
+            self.save()
+
+            #store items in esdu
+            esdu_list = []
+            for i in req_json.get("items", []):
+                esdu  = self.ESDU_b.filter(user__email = i['payout_item']['receiver']).first()
+                esdu.paypal_response = i
+                esdu_list.append(esdu)
+            
+            if len(esdu_list)>0:
+                main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])
+
+        else:
+            logger.error(f'pullPayPalResult: ESD ID:{self.id}, status not found: Not Found')
+
+    #return paypal fees and totals for successful payments
+    def get_paypal_realized_totals(self):
+
+        result = {"realized_fees":0, "realized_payouts":0}
+
+        if not self.complete or not self.paypal_api:
+            result
+    
+        payouts =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                                .filter(paypal_response__transaction_status="SUCCESS")\
+                                .values_list('paypal_response__payout_item__amount__value',flat=True)
+        
+        fees =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                                .filter(paypal_response__transaction_status="SUCCESS")\
+                                .values_list('paypal_response__payout_item_fee__value',flat=True)
+
+        result['realized_fees']=sum(map(lambda n:Decimal(n), fees))
+        result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
+
+        return result
 
     #get small json object
     def json_min(self):
@@ -384,6 +451,8 @@ class experiment_session_days(models.Model):
             "bumpCount" : self.ESDU_b.filter(bumped=True).count(),
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
+            "paypal_response":self.paypal_response,
+            "paypal_realized_totals":self.get_paypal_realized_totals(),
             "is_during_session" : is_during_session,
             "user_who_paypal_api" :  self.user_who_paypal_api.get_full_name() if self.user_who_paypal_api else "---",
             "users_who_paypal_paysheet" : self.convertToCommaString(self.users_who_paypal_paysheet.all()) if len(self.users_who_paypal_paysheet.all()) != 0 else "---",
