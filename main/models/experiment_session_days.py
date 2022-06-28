@@ -3,6 +3,7 @@ Experiment Session Day Model
 '''
 from datetime import datetime
 from datetime import timedelta
+from decimal import Decimal
 
 import logging
 import pytz
@@ -14,6 +15,9 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Sum
+from django.db.models.functions import Cast
+from django.db.models import FloatField
 
 import main
 
@@ -360,16 +364,37 @@ class experiment_session_days(models.Model):
 
             #store items in esdu
             esdu_list = []
-            for i in req_json["items"]:
+            for i in req_json.get("items", []):
                 esdu  = self.ESDU_b.filter(user__email = i['payout_item']['receiver']).first()
                 esdu.paypal_response = i
                 esdu_list.append(esdu)
             
-            main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])
+            if len(esdu_list)>0:
+                main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])
 
         else:
             logger.error(f'pullPayPalResult: ESD ID:{self.id}, status not found: Not Found')
 
+    #return paypal fees and totals for successful payments
+    def get_paypal_realized_totals(self):
+
+        result = {"realized_fees":0, "realized_payouts":0}
+
+        if not self.complete or not self.paypal_api:
+            result
+    
+        payouts =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                                .filter(paypal_response__transaction_status="SUCCESS")\
+                                .values_list('paypal_response__payout_item__amount__value',flat=True)
+        
+        fees =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                                .filter(paypal_response__transaction_status="SUCCESS")\
+                                .values_list('paypal_response__payout_item_fee__value',flat=True)
+
+        result['realized_fees']=sum(map(lambda n:Decimal(n), fees))
+        result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
+
+        return result
 
     #get small json object
     def json_min(self):
@@ -426,6 +451,8 @@ class experiment_session_days(models.Model):
             "bumpCount" : self.ESDU_b.filter(bumped=True).count(),
             "reopenAllowed" : self.reopenAllowed(u),
             "paypalAPI":self.paypal_api,
+            "paypal_response":self.paypal_response,
+            "paypal_realized_totals":self.get_paypal_realized_totals(),
             "is_during_session" : is_during_session,
             "user_who_paypal_api" :  self.user_who_paypal_api.get_full_name() if self.user_who_paypal_api else "---",
             "users_who_paypal_paysheet" : self.convertToCommaString(self.users_who_paypal_paysheet.all()) if len(self.users_who_paypal_paysheet.all()) != 0 else "---",

@@ -176,6 +176,7 @@ class experiment_session_day_users(models.Model):
                 "waiting":False,
                 "show":True,
                 "profile_consent_form":profile_consent_form.json() if profile_consent_form else None,
+                "paypal_response":self.paypal_response,
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),
