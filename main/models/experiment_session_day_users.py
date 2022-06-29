@@ -6,6 +6,7 @@ import pytz
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import experiment_session_days
 
@@ -20,11 +21,13 @@ class experiment_session_day_users(models.Model):
     attended = models.BooleanField(default=False)                                    #true once a subject has been marked as attended
     bumped = models.BooleanField(default=False)                                      #true if user has been bumped from session 
     confirmed = models.BooleanField(default=False)                                   #true once user has confirmed desire to attend
-    confirmationHash = models.UUIDField(default=uuid.uuid4, editable=False)           #code used for direct confirmation (not in use)   
-    show_up_fee = models.DecimalField(max_digits=10, decimal_places=6, default = 0)   #amount subject earned for just for coming
-    earnings = models.DecimalField(max_digits=10, decimal_places=6, default = 0)      #amount subject earned in experiment  
-    multi_day_legacy = models.BooleanField(default=False, null=True)                #needed to transition from old to new multiday model
+    confirmationHash = models.UUIDField(default=uuid.uuid4, editable=False)          #code used for direct confirmation (not in use)   
+    show_up_fee = models.DecimalField(max_digits=10, decimal_places=6, default = 0)  #amount subject earned for just for coming
+    earnings = models.DecimalField(max_digits=10, decimal_places=6, default = 0)     #amount subject earned in experiment  
+    multi_day_legacy = models.BooleanField(default=False, null=True)                 #needed to transition from old to new multiday model
     manuallyAdded = models.BooleanField(default=False)                               #true if subject was manually added to a session
+
+    paypal_response = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)   #response from paypal after payment
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
@@ -173,6 +176,7 @@ class experiment_session_day_users(models.Model):
                 "waiting":False,
                 "show":True,
                 "profile_consent_form":profile_consent_form.json() if profile_consent_form else None,
+                "paypal_response":self.paypal_response,
                 "user":{"id" : self.user.id,
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),
