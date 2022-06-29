@@ -358,6 +358,12 @@ class experiment_session_days(models.Model):
 
             req_json = req.json()
 
+            if not req_json.get("batch_header", False):
+                logger.error(f'pullPayPalResult: ESD ID:{self.id}, status not found: Not Found')
+                self.paypal_response=None
+                self.save()
+                return
+
             #store header in esd
             self.paypal_response = req_json["batch_header"]
             self.save()
