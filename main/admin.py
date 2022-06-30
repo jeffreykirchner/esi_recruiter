@@ -375,7 +375,8 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
 
-      readonly_fields=('experiment_session',)
+      readonly_fields=('experiment_session','user_who_paypal_api','users_who_paypal_paysheet','users_who_printed_paysheet','users_who_printed_bumps')
+      
 
 class ExperimentSessionDayInline(admin.TabularInline):
       '''
