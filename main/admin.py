@@ -410,6 +410,8 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       readonly_fields=('experiment_session','user_who_paypal_api','users_who_paypal_paysheet','users_who_printed_paysheet','users_who_printed_bumps')
       
       inlines = [ExperimentSessionDayUserInline]
+      search_fields = ['id','experiment_session__experiment__title',]
+      #list_display = [']
 
 class ExperimentSessionDayInline(admin.TabularInline):
       '''
