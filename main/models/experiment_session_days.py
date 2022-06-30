@@ -375,11 +375,21 @@ class experiment_session_days(models.Model):
             self.save()
 
             #store items in esdu
+            #self.ESDU_b.all().update(paypal_response=None)
+            self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)).update(paypal_response= {'transaction_status':'NOT_FOUND', 
+                                                       'transaction_id':'none', 
+                                                       'errors':{'message':'Transaction not found on PayPal server', 'name':'Not Found'},
+                                                       'payout_item': {'recipient_type': 'EMAIL', 'amount': {'currency': 'USD', 'value': '0'}},
+                                                       'payout_item_fee': {'currency': 'USD', 'value': '0.0'}})
+
             esdu_list = []
             for i in req_json.get("items", []):
                 esdu  = self.ESDU_b.filter(user__email = i['payout_item']['receiver']).first()
-                esdu.paypal_response = i
-                esdu_list.append(esdu)
+                if not esdu:
+                    logger.error(f'pullPayPalResult: ESD ID:{self.id}, subject not found: {i}')
+                else:
+                    esdu.paypal_response = i
+                    esdu_list.append(esdu)
             
             if len(esdu_list)>0:
                 main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])

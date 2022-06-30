@@ -366,7 +366,39 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
       ordering = ['-date']
 admin.site.register(DailyEmailReport, DailyEmailReportAdmin)
 
-#Experiment session admin
+#Experiment session day admin
+@admin.register(experiment_session_day_users)
+class ExperimentSessionDaysAdmin(admin.ModelAdmin):
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      readonly_fields=('experiment_session_day', 'addedByUser', 'user')
+
+class ExperimentSessionDayUserInline(admin.TabularInline):
+      '''
+      experiment session day user inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+      
+      def get_queryset(self, request):
+        qs = super().get_queryset(request)
+       
+        return qs.filter(confirmed=True)
+
+      extra = 0  
+      model = experiment_session_day_users
+      can_delete = False
+      show_change_link = True
+      fields=('user','attended', 'bumped','show_up_fee','earnings')
+
+#Experiment session day admin
 @admin.register(experiment_session_days)
 class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
@@ -375,11 +407,13 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
 
-      readonly_fields=('experiment_session',)
+      readonly_fields=('experiment_session','user_who_paypal_api','users_who_paypal_paysheet','users_who_printed_paysheet','users_who_printed_bumps')
+      
+      inlines = [ExperimentSessionDayUserInline]
 
 class ExperimentSessionDayInline(admin.TabularInline):
       '''
-      experiment session inline
+      experiment session day inline
       '''
       def has_add_permission(self, request, obj=None):
         return False
