@@ -18,8 +18,9 @@ from django.conf import settings
 
 from main.decorators import user_is_staff
 
-from main.models import parameters, help_docs
-from main.globals import make_tz_aware_utc
+from main.models import parameters
+from main.models import help_docs
+from main.models import experiment_session_days
 
 @login_required
 @user_is_staff
@@ -35,6 +36,8 @@ def PayPalHistory(request):
 
         if data["action"] == "getHistory":
             return get_history(request, data)
+        elif data["action"] == "getHistoryRecruiter":
+            return get_paypal_history_recruiter(request, data)
 
         return JsonResponse({"error" : "error"}, safe=False)
 
@@ -117,6 +120,63 @@ def get_paypal_history_list(start_date, end_date):
             error_message = "Unable to retrieve history."
     
     return {'history' : history, 'error_message' : error_message}
+
+def get_paypal_history_recruiter(request, data):
+    '''
+    return a formated list of paypal payments over the specficed date range from recruiter
+    date format YYYY-MM-DD
+    '''
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"PayPal History recruiter {data}")
+
+    history = []
+    error_message = ""
+
+    param = parameters.objects.first()
+    tz = pytz.timezone(param.subjectTimeZone)
+
+    # try:
+    s_date = datetime.now(tz)
+    e_date = datetime.now(tz)
+
+    s_date_start = datetime.strptime(data["startDate"], "%Y-%m-%d").date() 
+    e_date_start = datetime.strptime(data["endDate"], "%Y-%m-%d").date() 
+
+    s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
+    e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
+
+    s_date = s_date.replace(hour=0,minute=0, second=0)
+    e_date = e_date.replace(hour=23,minute=59, second=59)
+
+    logger.info(s_date)
+    logger.info(e_date) 
+
+    esd_list=[]
+    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+                                                .filter(date__lte=e_date) \
+                                                .filter(paypal_api=True) \
+                                                .filter(complete=True)
+
+    for i in esd_qs:
+        i.pullPayPalResult(False)   
+
+    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+                                            .filter(date__lte=e_date) \
+                                            .filter(paypal_api=True) \
+                                            .filter(complete=True) \
+                                            .order_by('date')
+
+    history = []
+    for i in esd_qs:
+        history.append(i.json_paypal_history_info())
+
+    # except Exception  as exce:
+    #         logger.warning(f'PayPalHistory Error: {exce}')
+    #         error_message = "Unable to retrieve history."
+    
+    return JsonResponse({"history" : history, 
+                         "errorMessage":error_message}, safe=False)
 
 
 
