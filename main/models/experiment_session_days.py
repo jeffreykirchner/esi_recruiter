@@ -383,8 +383,12 @@ class experiment_session_days(models.Model):
                                                        'payout_item_fee': {'currency': 'USD', 'value': '0.0'}})
 
             esdu_list = []
-            for i in req_json.get("items", []):
-                esdu  = self.ESDU_b.filter(user__email = i['payout_item']['receiver']).first()
+            for i in req_json.get("items", []):   
+                sender_item_id = i['payout_item']['sender_item_id'] 
+                sender_item_id=sender_item_id.split('_')[-1]
+                esdu  = self.ESDU_b.filter(Q(user__email = i['payout_item']['receiver']) | 
+                                           Q(id=sender_item_id)).first()
+
                 if not esdu:
                     logger.error(f'pullPayPalResult: ESD ID:{self.id}, subject not found: {i}')
                 else:

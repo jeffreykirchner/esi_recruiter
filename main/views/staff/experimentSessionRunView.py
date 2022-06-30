@@ -943,6 +943,7 @@ def payPalAPI(data, id_, request_user):
         payments.append({"email": esdu.user.email, #, 'sb-8lqqw5080618@business.example.com'
                          "amount" : str(esdu.get_total_payout()),
                          "note" : f'{esdu.user.first_name}, {parm.paypal_email_body}',
+                         "sender_item_id" : f'{esdu.id}',
                          "memo" : f"SD_ID: {esdu.experiment_session_day.id}, U_ID: {esdu.user.id}"})
 
     data = {}
