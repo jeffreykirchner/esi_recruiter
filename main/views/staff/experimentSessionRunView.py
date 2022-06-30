@@ -934,7 +934,8 @@ def payPalAPI(data, id_, request_user):
     parm = parameters.objects.first()
 
     esd = experiment_session_days.objects.get(id=id_)
-    esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0))
+    esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0)) \
+                          .filter(Q(attended=True) | Q(bumped=True))
 
     payments = []
 
