@@ -119,7 +119,7 @@
                                       v-bind:title="esdu.paypal_response && esdu.paypal_response.hasOwnProperty('errors') ? 
                                                     esdu.paypal_response.errors.name + ': ' + esdu.paypal_response.errors.message : ''"  
                                     >
-                                     (PayPal: [[esdu.paypal_response.transaction_status]])
+                                     (PayPal: <a v-bind:href="'https://www.paypal.com/activity/payment/' + esdu.paypal_response.transaction_id" target="_blank">[[esdu.paypal_response.transaction_status]]</a>)
                                 </span>
                             </td>
                             <td class="align-middle m-1 p-1 text-center text-nowrap">
