@@ -111,7 +111,7 @@ def getSession(data, id, request_user):
     esd = experiment_session_days.objects.get(id=id)
 
     if esd.complete and esd.paypal_api:
-        esd.pullPayPalResult()
+        esd.pullPayPalResult(False)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user)}, safe=False)
 

@@ -5,158 +5,32 @@
 
     <script type="text/javascript">
         $(document).ready(function(){                         
-            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-            axios.defaults.xsrfCookieName = "csrftoken";
-
-            var app = new Vue({
-                delimiters: ['[[', ']]'],
-                el: '#root',        
-                data:{
-                    baseURL:'{{request.get_full_path}}',                                                                                                                 
-                    history:[],      
-                    searchButtonText:'Search <i class="fas fa-search"></i>',
-                    errorMessage:"",
-                    startDate:"{{d_one_year}}",
-                    endDate:"{{d_today}}",
-                },
-
-                methods:{
-                    //get list of users based on search
-                    getHistory: function(){
-
-                        axios.post('{{request.get_full_path}}', {                            
-                            action: "getHistory",
-                            startDate: app.$data.startDate,
-                            endDate: app.$data.endDate,
-                                        
-                        })
-                        .then(function (response) {                         
-                            app.$data.history = response.data.history;
-                            app.$data.errorMessage = response.data.errorMessage;
-                            app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
-                        })
-                        .catch(function (error) {
-                            console.log(error);                               
-                        }); 
-                    }, 
-
-                    getHistoryButton : function(){
-                        app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-                        this.getHistory();
-                    },
-                  
-                },
-                
-                mounted: function(){
-                    //this.getHistory();
-                },
-            });
+            {%include "staff/paypal_history/paypal_history.js"%}
         });
     </script>
 
     <style>
         [v-cloak] {
-        display: none;
+            display: none;
+        }
+
+        .cards {
+            max-height: 600px;
+            overflow-y: auto;
         }
     </style>
 {%endblock head%}
 
 {%block content%}
-<div class="row justify-content-lg-center">
+<div class="row justify-content-lg-center mb-4">
     <div class="col">
-        <div class="card" v-cloak>                  
-            <div class="card-header">
-                PayPal API History                                                 
-            </div>
-            <div class="card-body">
+        {%include "staff/paypal_history/recruiter_history_card.html"%}                    
+    </div>
+</div>
 
-                <div class="row justify-content-center">
-                    <div class="col-md-3">
-                    </div> 
-                    <div class="col-md-3" >
-                        <div class="form-group">
-                            <label for="startDate_id">From</label>
-                            <input type="date" id="startDate_id" class="form-control" v-model="startDate">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="endDate_id">To</label>
-                            <input type="date" id="endDate_id" class="form-control" v-model="endDate">
-                        </div>                        
-                    </div>    
-                    <div class="col-md-3">
-                    </div>               
-                </div>
-
-                <div class = "row justify-content-center">
-                    <div class="col-md" style="text-align: center;">
-                        <button type="button" v-on:click="getHistoryButton()" class="btn btn-outline-primary">
-                            <span v-html="searchButtonText"></span>
-                         </button>
-                    </div>
-                </div>
-
-                
-                <div class="row justify-content-center mt-4">
-                    <div class="col-md" style="text-align: center;color: red;">
-                        <span v-show = "errorMessage != ''" >[[errorMessage]]</span>
-                    </div>
-                </div>
-
-                <!-- search results table -->
-                <div class="row justify-content-center mt-4">
-                    <div class="col-md">
-                        <table class="table table-hover table-condensed table-responsive-md">                            
-
-                            <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
-        
-                            <thead>
-                                <th scope="col">
-                                    Email Address
-                                </th> 
-                                <th scope="col" style="text-align: center;">
-                                    Amount
-                                </th> 
-                                <th scope="col" style="text-align: center;">
-                                    Date
-                                </th>
-                                <th scope="col" style="text-align: center;">
-                                    Memo
-                                </th>
-                                <th scope="col" style="text-align: center;">
-                                    App
-                                </th>                                                     
-                                
-                            </thead>
-        
-                            <tbody id="userList">                                                  
-                                <tr v-for="(h,index) in history" v-bind:key="h.id">                                                                          
-                                    <td> 
-                                       [[h.email]]                                        
-                                    </td>
-                                    <td style="text-align: center;">                                        
-                                       [[h.amount]]                                        
-                                    </td>  
-                                    <td style="text-align: center;">  
-                                       [[h.timestamp]]
-                                    </td>
-                                    <td style="text-align: center;">  
-                                       [[h.memo]]
-                                    </td>
-                                    <td style="text-align: center;">  
-                                       [[h.app]]
-                                     </td>                                                         
-                                </tr>                                                    
-                            </tbody>
-                            
-                        </table>  
-                    </div>
-
-                </div>         
-
-            </div>                    
-        </div>                
+<div class="row justify-content-lg-center mb-4">
+    <div class="col">
+        {%include "staff/paypal_history/api_history_card.html"%}                    
     </div>
 </div>    
 

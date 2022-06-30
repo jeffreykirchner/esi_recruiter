@@ -15,9 +15,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Sum
-from django.db.models.functions import Cast
-from django.db.models import FloatField
+from django.db.models import Q
 
 import main
 
@@ -335,18 +333,26 @@ class experiment_session_days(models.Model):
             logger.warning(f'updatePayPalBatchIDFromMemo: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
 
     #pull paypal batch payment status from PayPal API
-    def pullPayPalResult(self):
+    def pullPayPalResult(self, force_pull):
         logger = logging.getLogger(__name__)
 
-        if not self.complete:
-            return
-        
-        if not self.paypal_api:
+        if not self.complete or not self.paypal_api:
             return
 
         if self.paypal_api_batch_id == "":
             logger.error(f'pullPayPalResult: ESD ID:{self.id}, payout_batch_id_paypal: Not Found')
             return
+        
+        if not force_pull and self.paypal_response:
+            if self.paypal_response.get("batch_status","not found") == "SUCCESS":
+                if not self.ESDU_b.filter(Q(paypal_response__transaction_status = "PENDING") | 
+                                          Q(paypal_response__transaction_status = "UNCLAIMED") |
+                                          #Q(paypal_response__transaction_status = "RETURNED") |
+                                          Q(paypal_response__transaction_status = "ONHOLD")).exists():
+                    logger.error(f'pullPayPalResult: ESD ID:{self.id}, no pull needed.')
+                    return
+                                        
+
 
         headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
@@ -554,4 +560,21 @@ class experiment_session_days(models.Model):
             "allowDelete":self.allowDelete(),
             "complete":self.complete,
             "paypalAPI":self.paypal_api,
+        }
+
+    def json_paypal_history_info(self):
+        hold_list = self.ESDU_b.exclude(paypal_response__transaction_status="SUCCESS") \
+                               .exclude(paypal_response=None) \
+                               .values('user__id', 
+                                       'user__last_name', 
+                                       'user__first_name', 
+                                       'paypal_response')
+
+        return{
+            "id":self.id,
+            "date":self.getDateString(),
+            "title":self.experiment_session.experiment.title,
+            "paypal_response":self.paypal_response,
+            "hold_list" : list(hold_list),
+            "realized_totals":self.get_paypal_realized_totals(),
         }
