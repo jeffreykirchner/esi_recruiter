@@ -165,7 +165,7 @@ def get_paypal_history_recruiter(request, data):
                                             .filter(date__lte=e_date) \
                                             .filter(paypal_api=True) \
                                             .filter(complete=True) \
-                                            .order_by('date')
+                                            .order_by('-date')
 
     history = []
     for i in esd_qs:
