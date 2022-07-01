@@ -12,8 +12,10 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG',False)
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = 'main/static/'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'ESIRecruiter.custom_azure.AzureStaticStorage'
+STATIC_ROOT = os.environ['STATIC_ROOT']
+STATIC_URL = os.environ['STATIC_URL']
 
 MEDIA_ROOT = os.environ['MEDIA_ROOT']
 DEFAULT_FILE_STORAGE = 'ESIRecruiter.custom_azure.AzureMediaStorage'
