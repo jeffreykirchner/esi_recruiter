@@ -4,12 +4,15 @@ URLs for main app
 
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
-
 from django.views.decorators.csrf import csrf_exempt
-from main import views
 from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
+from django.conf import settings
+from django.templatetags.static import static
+
 from .sitemaps import StaticViewSitemap
+
+from main import views
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -72,13 +75,13 @@ urlpatterns = [
     path('humans.txt', views.HumansTxt, name='humansTxt'),
 
     #icons
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico'), name='favicon'),
-    path('apple-touch-icon-precomposed.png', RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'), name='favicon'),
-    path('apple-touch-icon.png', RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'), name='favicon'),
-    path('apple-touch-icon-120x120-precomposed.png', RedirectView.as_view(url='/static/apple-touch-icon-precomposed.png'), name='favicon'),
+    path('favicon.ico', RedirectView.as_view(url=static('favicon.ico')), name='favicon1'),
+    path('apple-touch-icon-precomposed.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon2'),
+    path('apple-touch-icon.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon3'),
+    path('apple-touch-icon-120x120-precomposed.png', RedirectView.as_view(url=static('settings.STATIC_URL}apple-touch-icon-precomposed.png')), name='favicon4'),
 
     #google verification
-    path('googleefdaedc1ef1e492e.html', RedirectView.as_view(url='/static/googleefdaedc1ef1e492e.html'), name='google_verification'),
+    path('googleefdaedc1ef1e492e.html', RedirectView.as_view(url=static('googleefdaedc1ef1e492e.html')), name='google_verification'),
 
     #sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),

@@ -53,6 +53,8 @@ jobs:
           DBUSER: postgres
           LOG_LOCATION: abc
           MEDIA_ROOT : abc
+          STATIC_ROOT : abc
+          STATIC_URL : abc/
           AZURE_CONTAINER : abc
           AZURE_ACCOUNT_NAME : abc
           AZURE_ACCOUNT_KEY : abc
