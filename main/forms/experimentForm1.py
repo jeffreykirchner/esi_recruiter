@@ -1,6 +1,8 @@
 from tinymce.widgets import TinyMCE
 
 from django import forms
+from django.contrib.auth.models import User
+
 from main.models import schools
 from main.models import accounts
 from main.models import institutions
@@ -11,12 +13,23 @@ class experimentForm1(forms.ModelForm):
     '''
     edit experiment parmeters
     '''
+    def __init__(self, *args, **kwargs):
+        super(experimentForm1, self).__init__(*args, **kwargs)
+
+        self.fields['budget_default'].label_from_instance = self.budget_label_from_instance
+
     title = forms.CharField(label='Title',
                             widget=forms.TextInput(attrs={"v-model":"experiment.title",
                                                           "v-on:keyup":"mainFormChange1"}))
     experiment_manager = forms.CharField(label='Manager(s)',
                                          widget=forms.TextInput(attrs={"v-model":"experiment.experiment_manager",
                                                                        "v-on:keyup":"mainFormChange1"}))
+    
+    budget_default = forms.ModelChoiceField(label='Budget (default)',
+                                                  queryset=User.objects.filter(profile__type__id=1, is_active=True),
+                                                  required=False,
+                                                  widget=forms.Select(attrs={"v-model":"experiment.budget_default",
+                                                                             "v-on:change":"mainFormChange1"}))
 
     length_default = forms.CharField(label='Length in Minutes (default)',
                                                   widget=forms.NumberInput(attrs={"v-model":"experiment.length_default",
@@ -73,6 +86,10 @@ class experimentForm1(forms.ModelForm):
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
         exclude=['recruitment_params_default']
+
+    @staticmethod
+    def budget_label_from_instance(obj):
+        return f"{obj.last_name}, {obj.first_name}"
 
     def clean_length_default(self):
         length_default = self.data['length_default']

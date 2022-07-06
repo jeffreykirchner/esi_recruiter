@@ -13,7 +13,7 @@ from .experimentSearchView import *
 from .reportsView import *
 from .traitsView import *
 from .sessionsOpen import *
-from .payPalHistory import *
+from .paymentHistory import *
 from .subject_auto_login import *
 from .experimentSessionParametersView import *
 from .experimentParametersView import *

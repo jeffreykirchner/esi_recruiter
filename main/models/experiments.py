@@ -10,6 +10,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.contrib.auth.models import User
 
 from main.models import schools
 from main.models import accounts
@@ -30,10 +31,11 @@ class experiments(models.Model):
     recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
     consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                   #default consent form used for new sessions
     institution = models.ManyToManyField(institutions, through="experiments_institutions")                       #institutions to which this experiment belongs  
+    budget_default = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiments_a', blank=True, null=True)             #default faculty budget for experiment
 
     title = models.CharField(max_length=300, default="***New Experiment***")                    #name of experimet 
     experiment_manager = models.CharField(max_length=300, default="***Manager Here***")         #faculty running experiment
-
+    
     length_default = models.IntegerField(default=60)                                #default length of experiment
     notes = models.TextField(default="")                                            #notes about the experiment
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)     #amount subjects earn for attending by default
@@ -152,7 +154,9 @@ class experiments(models.Model):
             "showUpFee":self.showUpFee,
             "school_full":self.school.json(),
             "account_default":self.account_default.id,
-            "account_default_full":self.account_default.json(),            
+            "account_default_full":self.account_default.json(),   
+            "budget_default":self.budget_default.id if self.budget_default else None,
+            "budget_default_full":self.budget_default.profile.json_min() if self.budget_default else None,           
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),

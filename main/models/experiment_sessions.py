@@ -26,9 +26,10 @@ import main
 #session for an experiment (could last multiple days)
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator',blank=True, null=True,)   #user that created the session
-    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                           #consent form used for new sessions
-    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creator', blank=True, null=True,)   #user that created the session
+    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                            #consent form used for new sessions
+    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)           #recruitment parameters
+    budget = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_b', blank=True, null=True)                               #faculty budget for session
 
     canceled = models.BooleanField(default=False)
     invitation_text = HTMLField(default="")                                 #text of email invitation subjects receive
@@ -1202,7 +1203,7 @@ class experiment_sessions(models.Model):
             "id":self.id,
             "complete":self.getComplete(),   
             "canceled":self.canceled, 
-            "creator": f"{self.creator.last_name}, {self.creator.first_name}" if self.creator else "---",                    
+            "creator": self.creator.profile.json_min() if self.creator else None,                    
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),            
@@ -1218,6 +1219,8 @@ class experiment_sessions(models.Model):
             "canceled":self.canceled,
             "consent_form":self.consent_form.id if self.consent_form else None,
             "consent_form_full":self.consent_form.json() if self.consent_form else None,
+            "budget":self.budget.id if self.budget else None,
+            "budget_full":self.budget.profile.json_min() if self.budget else None,
             "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "invitationRawText" : self.invitation_text,
@@ -1228,6 +1231,7 @@ class experiment_sessions(models.Model):
             "allowDelete":self.allowDelete(),
             "allowEdit":self.allowEdit(),
             "confirmedCount":self.getConfirmedCount(),
+            "creator":self.creator.profile.json_min() if self.creator else None,
         }
 
 #delete recruitment parameters when deleted

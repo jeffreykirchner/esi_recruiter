@@ -21,6 +21,20 @@
             <div class="col-md-8 text-right text-md-left">
                 <span v-if="session.consent_form_full"><a v-bind:href="session.consent_form_full.pdf_file_url">[[session.consent_form_full.name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
+            </div>
+            <div class="col-md-4 text-md-right">
+                {{form1.budget.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="session.budget_full"><a v-bind:href="'/userInfo/' + session.budget_full.id">[[session.budget_full.last_name]], [[session.budget_full.first_name]]</a></span>
+                <span v-else style="color: red;font-weight:bold">---</span>
+            </div> 
+            <div class="col-md-4 text-md-right">
+                Creator:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="session.creator"><a v-bind:href="'/userInfo/' + session.creator.id">[[session.creator.last_name]], [[session.creator.first_name]]</a></span>
+                <span v-else>---</span>
             </div>               
         </div>
         <div class = "row mb-2">

@@ -25,7 +25,7 @@ from main.models import experiment_session_days
 @login_required
 @user_is_staff
 @staff_member_required
-def PayPalHistory(request):
+def PaymentHistory(request):
     '''
     Handle incoming requestst
     '''
@@ -54,7 +54,7 @@ def PayPalHistory(request):
     d_today = datetime.now(tmz)
     d_one_year = d_today - timedelta(days=1)
 
-    return render(request, 'staff/payPalHistory.html', {"helpText" : help_text,
+    return render(request, 'staff/paymentHistory.html', {"helpText" : help_text,
                                                         "d_today" : d_today.date().strftime("%Y-%m-%d"),
                                                         "d_one_year" : d_one_year.date().strftime("%Y-%m-%d")})     
 
@@ -116,7 +116,7 @@ def get_paypal_history_list(start_date, end_date):
                 hst["timestamp"] = hst["timestamp"].astimezone(tmz).strftime("%#m/%#d/%Y %#I:%M %p")
 
     except Exception  as exce:
-            logger.warning(f'PayPalHistory Error: {exce}')
+            logger.warning(f'PaymentHistory Error: {exce}')
             error_message = "Unable to retrieve history."
     
     return {'history' : history, 'error_message' : error_message}
@@ -172,7 +172,7 @@ def get_paypal_history_recruiter(request, data):
         history.append(i.json_paypal_history_info())
 
     # except Exception  as exce:
-    #         logger.warning(f'PayPalHistory Error: {exce}')
+    #         logger.warning(f'PaymentHistory Error: {exce}')
     #         error_message = "Unable to retrieve history."
     
     return JsonResponse({"history" : history, 

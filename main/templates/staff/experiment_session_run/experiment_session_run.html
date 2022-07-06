@@ -167,7 +167,11 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="row" v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI && sessionDay.paypal_response">
+                                <div class="row" v-if="sessionDay && 
+                                                       sessionDay.complete && 
+                                                       sessionDay.paypalAPI && 
+                                                       sessionDay.paypal_response && 
+                                                       sessionDay.paypal_response.hasOwnProperty('batch_status')">
                                     <div class="col">
                                         <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+sessionDay.paypal_response.payout_batch_id" target='_blank'>
                                             PayPal Fees: 
@@ -177,7 +181,8 @@
                                             <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Fees">
                                                 ($[[sessionDay.paypal_realized_totals.realized_fees]])
                                             </span>
-                                            <span v-if="sessionDay.paypal_response.batch_status != 'SUCCESS'">
+                                            <span v-if="sessionDay.paypal_response.hasOwnProperty('batch_status') && 
+                                                        sessionDay.paypal_response.batch_status != 'SUCCESS'">
                                                  ***[[sessionDay.paypal_response.batch_status]]***
                                             </span>
                                         </a>
