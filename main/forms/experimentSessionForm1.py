@@ -21,6 +21,7 @@ class experimentSessionForm1(forms.ModelForm):
                                           queryset=ConsentForm.objects.all(),
                                           required=False,
                                           widget=forms.Select(attrs={"v-model":"session.consent_form",
+                                                                     "v-bind:disabled":"session.allowEdit === false",
                                                                     }))
     
     budget = forms.ModelChoiceField(label='Budget',

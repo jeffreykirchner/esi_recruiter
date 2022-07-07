@@ -20,6 +20,13 @@ var app = new Vue({
         historyRecruiter:[],
         startDateRecruiter:"{{d_one_year}}",
         endDateRecruiter:"{{d_today}}",
+
+        //budget
+        errorMessageBudget:"",
+        historyBudget:[],
+        startDateBudget:"{{d_one_year}}",
+        endDateBudget:"{{d_today}}",
+
     },
 
     methods:{
@@ -60,6 +67,26 @@ var app = new Vue({
             .then(function (response) {                         
                 app.$data.historyRecruiter = response.data.history;
                 app.$data.errorMessageRecruiter = response.data.errorMessage;
+                app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
+            })
+            .catch(function (error) {
+                console.log(error);                               
+            }); 
+        },
+
+         //get list of users based on search
+         getHistoryBudget: function(){
+            app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('{{request.get_full_path}}', {                            
+                action: "getHistoryBudget",
+                startDate: app.$data.startDateBudget,
+                endDate: app.$data.endDateBudget,
+                            
+            })
+            .then(function (response) {                         
+                app.$data.historyBudget = response.data.history;
+                app.$data.errorMessageBudget = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
             })
             .catch(function (error) {

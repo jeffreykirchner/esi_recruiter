@@ -440,6 +440,8 @@ class ExperimentSessionsAdmin(admin.ModelAdmin):
       readonly_fields=('experiment','recruitment_params')
       inlines = [ExperimentSessionDayInline]
 
+      search_fields = ['id','experiment__title',]
+
 class ExperimentSessionInline(admin.TabularInline):
       '''
       experiment session inline
