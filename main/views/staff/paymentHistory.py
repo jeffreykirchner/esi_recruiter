@@ -21,6 +21,7 @@ from main.decorators import user_is_staff
 from main.models import parameters
 from main.models import help_docs
 from main.models import experiment_session_days
+from main.models import profile
 
 @login_required
 @user_is_staff
@@ -38,7 +39,9 @@ def PaymentHistory(request):
             return get_history(request, data)
         elif data["action"] == "getHistoryRecruiter":
             return get_paypal_history_recruiter(request, data)
-
+        elif data["action"] == "getHistoryBudget":
+            return get_budget_history(request, data)
+            
         return JsonResponse({"error" : "error"}, safe=False)
 
     #get
@@ -52,11 +55,21 @@ def PaymentHistory(request):
     param = parameters.objects.first()
     tmz = pytz.timezone(param.subjectTimeZone)
     d_today = datetime.now(tmz)
-    d_one_year = d_today - timedelta(days=1)
+    d_one_day = d_today - timedelta(days=1)
+    d_one_month = d_today - timedelta(days=30)
+
+    #start of fiscal year
+    d_fisical_start = d_today
+    d_fisical_start = d_fisical_start.replace(month=6, day=1)
+
+    if d_today.month<6:
+        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
     return render(request, 'staff/paymentHistory.html', {"helpText" : help_text,
                                                         "d_today" : d_today.date().strftime("%Y-%m-%d"),
-                                                        "d_one_year" : d_one_year.date().strftime("%Y-%m-%d")})     
+                                                        "d_one_day" : d_one_day.date().strftime("%Y-%m-%d"),
+                                                        "d_one_month" : d_one_month.date().strftime("%Y-%m-%d"),
+                                                        "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d")})     
 
 #return list of users based on search criterion
 def get_history(request, data):
@@ -174,6 +187,65 @@ def get_paypal_history_recruiter(request, data):
     # except Exception  as exce:
     #         logger.warning(f'PaymentHistory Error: {exce}')
     #         error_message = "Unable to retrieve history."
+    
+    return JsonResponse({"history" : history, 
+                         "errorMessage":error_message}, safe=False)
+
+def get_budget_history(request, data):
+    '''
+    return expenditures for each budget across the specified date range
+    date format YYYY-MM-DD
+    '''
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Budget History {data}")
+
+    history = []
+    error_message = ""
+
+    param = parameters.objects.first()
+    tz = pytz.timezone(param.subjectTimeZone)
+
+    # try:
+    s_date = datetime.now(tz)
+    e_date = datetime.now(tz)
+
+    s_date_start = datetime.strptime(data["startDate"], "%Y-%m-%d").date() 
+    e_date_start = datetime.strptime(data["endDate"], "%Y-%m-%d").date() 
+
+    s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
+    e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
+
+    s_date = s_date.replace(hour=0,minute=0, second=0)
+    e_date = e_date.replace(hour=23,minute=59, second=59)
+
+    logger.info(s_date)
+    logger.info(e_date) 
+
+    #pull current paypal history
+    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+                                                .filter(date__lte=e_date) \
+                                                .filter(paypal_api=True) \
+                                                .filter(complete=True)
+
+    for i in esd_qs:
+        i.pullPayPalResult(False)   
+
+    
+
+    history = []
+    
+    #paypal
+    budget_list = profile.objects.filter(type=1)
+    for b in budget_list:
+        result={}
+        result['id']=b.id
+        result['total']=0
+        result['paypal']=True
+        session_list = experiment_session_days.objects.filter(experiment_session__budget=b)
+
+        for s in session_list:
+            realized_totals = s.get_paypal_realized_totals()
     
     return JsonResponse({"history" : history, 
                          "errorMessage":error_message}, safe=False)

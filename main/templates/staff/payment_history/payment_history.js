@@ -12,19 +12,19 @@ var app = new Vue({
         //api
         errorMessage:"",
         history:[],
-        startDate:"{{d_one_year}}",
+        startDate:"{{d_one_day}}",
         endDate:"{{d_today}}",
 
         //recruiter
         errorMessageRecruiter:"",
         historyRecruiter:[],
-        startDateRecruiter:"{{d_one_year}}",
+        startDateRecruiter:"{{d_one_month}}",
         endDateRecruiter:"{{d_today}}",
 
         //budget
         errorMessageBudget:"",
         historyBudget:[],
-        startDateBudget:"{{d_one_year}}",
+        startDateBudget:"{{d_fisical_start}}",
         endDateBudget:"{{d_today}}",
 
     },

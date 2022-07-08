@@ -25,7 +25,7 @@ class experimentSessionForm1(forms.ModelForm):
                                                                     }))
     
     budget = forms.ModelChoiceField(label='Budget',
-                                    queryset=User.objects.filter(profile__type__id=1, is_active=True),
+                                    queryset=User.objects.filter(profile__type__id=1, is_active=True).order_by('last_name','first_name'),
                                     required=False,
                                     widget=forms.Select(attrs={"v-model":"session.budget",
                                                                }))
