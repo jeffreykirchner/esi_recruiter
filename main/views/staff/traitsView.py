@@ -1,21 +1,28 @@
+import csv
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.http import HttpResponse
-import logging
 from django.utils.safestring import mark_safe
-from main.forms import traitReportForm
-import csv
-
-from main.models import Traits,profile_trait,profile,help_docs
-from django.db.models import F,Value,CharField
+from django.db.models import F, Value, CharField
 from django.db.models.functions import Lower
+from django.contrib.admin.views.decorators import staff_member_required
+
+from main.forms import traitReportForm
+from main.decorators import user_is_staff
+
+from main.models import Traits
+from main.models import profile_trait
+from main.models import profile
+from main.models import help_docs
 
 @login_required
 @user_is_staff
+@staff_member_required
 def traitsView(request):
     logger = logging.getLogger(__name__) 
     

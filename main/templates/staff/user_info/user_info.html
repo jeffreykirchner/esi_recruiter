@@ -323,6 +323,7 @@
         </table>
 
         <!-- traits table -->
+        {%if user.is_staff%}
         <table class="table table-hover table-condensed table-responsive-md">
             <caption style="caption-side:top;text-align: center;">Traits</caption>
 
@@ -360,7 +361,7 @@
                 </tr>
             </tfoot>
         </table>
-        
+        {%endif%}
         {%endif%}
     </div>                    
 </div>                

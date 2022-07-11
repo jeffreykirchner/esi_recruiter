@@ -84,9 +84,6 @@
                         <li class="nav-item active">
                             <a class="nav-link" href="{% url 'reports'%}"  data-placement="bottom" title="Generate Reports">Reports <i class="fas fa-scroll fa-xs"></i></a>                           
                         </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'traits'%}"  data-placement="bottom" title="Manage Traits">Traits <i class="fas fa-cubes"></i></a>                           
-                        </li>
                         {%else%}
                         <li class="nav-item active">
                             <a class="nav-link" href="{% url 'faqView'%}">FAQ</span></a>
@@ -100,9 +97,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="{% url 'profile'%}"  data-placement="bottom" title="Edit Profile"><i class="fas fa-user fa-fw"></i> Profile</a>
-                            {%if user.is_superuser%}
+                            {%if user.is_staff%}
                                 <a class="dropdown-item" href="{% url 'admin:index' %}"  data-placement="bottom" title="Admin Panel"><i class="fas fa-cogs fa-fw"></i> Admin</a>
                                 <a class="dropdown-item" href="{% url 'paymentHistory' %}"  data-placement="bottom" title="Payment History"><i class="fab fa-paypal"></i> Payment History</a>
+                                <a class="dropdown-item" href="{% url 'traits' %}"  data-placement="bottom" title="Manage Traits"><i class="fas fa-cubes"></i> Traits</a>
                             {%endif%}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a>

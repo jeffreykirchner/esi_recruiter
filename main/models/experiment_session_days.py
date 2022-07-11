@@ -294,7 +294,7 @@ class experiment_session_days(models.Model):
     #return true if re-opening is allowed
     def reopenAllowed(self, u):
 
-        if not self.complete or u.is_superuser:
+        if not self.complete or u.is_staff:
             return True
         else:
             td = datetime.now(pytz.UTC) - self.date

@@ -12,7 +12,7 @@ var app = new Vue({
         auto_refresh:"Off",
         last_refresh:"",
         timeouts:[],
-        isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},
+        isAdmin:{%if user.is_staff%}true{%else%}false{%endif%},
     },
 
     methods:{
