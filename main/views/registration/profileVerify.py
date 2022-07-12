@@ -55,7 +55,7 @@ def verifyEmail(request, data):
     try:
 
         u=request.user                
-        u.is_active=True
+        #u.is_active=True
         u.profile.email_confirmed="yes"
         u.profile.paused=False
         u.profile.save()

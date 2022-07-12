@@ -125,7 +125,7 @@ def profileCreateUser(username, email, password, firstName, lastName, studentID,
                                  first_name=firstName,
                                  last_name=lastName)
 
-    u.is_active = isActive   
+    #u.is_active = isActive   
     u.save()
 
     p = profile(user=u,

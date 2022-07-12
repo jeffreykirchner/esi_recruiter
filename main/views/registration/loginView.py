@@ -75,17 +75,23 @@ def login_function(request,data):
         user = authenticate(request, username=username.lower(), password=password)
 
         if user is not None:
-            login(request, user) 
+            if not user.is_active:
 
-            rp = request.session.get('redirect_path','/')        
+                logger.error(f"Login user {username} inactive account.")                
+                return JsonResponse({"status":"error", "message":"Your account is not active. Contact us for more information."}, safe=False)
+            else:
+                
+                login(request, user) 
 
-            logger.info(f"Login user {username} success , redirect {rp}")
+                rp = request.session.get('redirect_path','/')        
 
-            return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
+                logger.info(f"Login user {username} success , redirect {rp}")
+
+                return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
             logger.warning(f"Login user {username} fail user / pass")
             
-            return JsonResponse({"status":"error"}, safe=False)
+            return JsonResponse({"status":"error", "message":"Username or Password is incorrect."}, safe=False)
     else:
         logger.info(f"Login user form validation error")
         return JsonResponse({"status":"validation","errors":dict(f.errors.items())}, safe=False)
