@@ -77,7 +77,7 @@ def deleteNote(request, data, id):
     note_id = data["id"]
     n = profile_note.objects.get(id=note_id)
 
-    if request.user.is_superuser:
+    if request.user.is_staff:
         n.delete()
 
     return getSessions(data, id)

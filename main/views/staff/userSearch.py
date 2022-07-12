@@ -54,7 +54,7 @@ def sendEmail(request, data):
     logger = logging.getLogger(__name__)
     logger.info(f"Send message to all active users {data}")
 
-    if request.user.is_superuser:
+    if request.user.is_staff:
 
         params = parameters.objects.first()
 

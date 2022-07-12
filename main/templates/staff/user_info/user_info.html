@@ -8,7 +8,7 @@
 
         <span class="float-md-right">
             <div class="row">
-                {%if user.is_superuser%}
+                {%if user.is_staff%}
                     <div class="col-md-auto pl-3 mr-0">
                         <a href="{%url 'subject_auto_login' u.id %}">
                             Login as user <i class="fas fa-sign-in-alt fa-xs"></i>

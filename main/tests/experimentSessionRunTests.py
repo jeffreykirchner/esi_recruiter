@@ -85,7 +85,8 @@ class sessionRunTestCase(TestCase):
         self.staff_u = profileCreateUser(user_name, user_name, "zxcvb1234asdf", "first", "last", "123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st, False, True, account_types.objects.get(id=1))
-        self.staff_u.is_superuser = True
+        self.staff_u.is_staff = True
+        self.staff_u.is_staff = True
         self.staff_u.save()
         
         self.p.labManager=self.staff_u
@@ -370,7 +371,7 @@ class sessionRunTestCase(TestCase):
         self.assertEquals("success",r['status'])
 
         #none super user user manaul check in 
-        self.staff_u.is_superuser=False
+        self.staff_u.is_staff=False
         self.staff_u.save()
 
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
@@ -611,7 +612,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        self.staff_u.is_superuser=False
+        self.staff_u.is_staff=False
         self.staff_u.save()
 
         #check no super user reopen past session
@@ -625,7 +626,7 @@ class sessionRunTestCase(TestCase):
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEquals("fail",r['status'])
 
-        self.staff_u.is_superuser=True
+        self.staff_u.is_staff=True
         self.staff_u.save()
 
         esd1 = es1.ESD.first()
