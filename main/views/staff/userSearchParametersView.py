@@ -43,7 +43,7 @@ def userSearchParametersView(request, id=None):
         data = json.loads(request.body.decode('utf-8'))              
 
         if data["status"] == "search":
-            return search(data, id)                     
+            return search(request, data, id)                     
 
     else: #GET             
 
@@ -96,7 +96,7 @@ def userSearchParametersView(request, id=None):
                        'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),
                        },)
 
-def search(data, id):
+def search(request, data, id):
     '''
     search for valid subjects based on recruiment parameters
     '''
@@ -108,6 +108,9 @@ def search(data, id):
         form_data_dict = data["formData"]  
         trait_data_list = data["trait_parameters"]
         trait_constraints_require_all = data["trait_constraints_require_all"]
+
+        if not request.user.is_staff:
+            trait_data_list = []
 
         logger.info(f'trait_data_dict: {trait_data_list}')
 
