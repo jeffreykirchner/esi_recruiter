@@ -5,7 +5,7 @@
 
     <script type="text/javascript">
         $(document).ready(function(){                         
-            {%include "staff/paypal_history/paypal_history.js"%}
+            {%include "staff/payment_history/payment_history.js"%}
         });
     </script>
 
@@ -24,13 +24,19 @@
 {%block content%}
 <div class="row justify-content-lg-center mb-4">
     <div class="col">
-        {%include "staff/paypal_history/recruiter_history_card.html"%}                    
+        {%include "staff/payment_history/budget_history_card.html"%}                    
     </div>
 </div>
 
 <div class="row justify-content-lg-center mb-4">
     <div class="col">
-        {%include "staff/paypal_history/api_history_card.html"%}                    
+        {%include "staff/payment_history/recruiter_history_card.html"%}                    
+    </div>
+</div>
+
+<div class="row justify-content-lg-center mb-4">
+    <div class="col">
+        {%include "staff/payment_history/api_history_card.html"%}                    
     </div>
 </div>    
 

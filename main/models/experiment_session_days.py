@@ -294,7 +294,7 @@ class experiment_session_days(models.Model):
     #return true if re-opening is allowed
     def reopenAllowed(self, u):
 
-        if not self.complete or u.is_superuser:
+        if not self.complete or u.is_staff:
             return True
         else:
             td = datetime.now(pytz.UTC) - self.date
@@ -349,16 +349,24 @@ class experiment_session_days(models.Model):
                                           Q(paypal_response__transaction_status = "UNCLAIMED") |
                                           #Q(paypal_response__transaction_status = "RETURNED") |
                                           Q(paypal_response__transaction_status = "ONHOLD")).exists():
-                    logger.error(f'pullPayPalResult: ESD ID:{self.id}, no pull needed.')
+                    #logger.info(f'pullPayPalResult: ESD ID:{self.id}, no pull needed.')
                     return
                                         
 
 
         headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
 
-        req = requests.get(f'{settings.PPMS_HOST}/payments/get_batch_status/{self.paypal_api_batch_id}/',
-                           auth=(str(settings.PPMS_USER_NAME), 
-                                 str(settings.PPMS_PASSWORD)))
+        try:
+            req = requests.get(f'{settings.PPMS_HOST}/payments/get_batch_status/{self.paypal_api_batch_id}/',
+                            auth=(str(settings.PPMS_USER_NAME), 
+                                    str(settings.PPMS_PASSWORD)),
+                            timeout=10)
+        except requests.Timeout:
+            logger.error(f'pullPayPalResult error: service timed out, ESD ID:{self.id}')
+            return
+        except requests.ConnectionError:
+            logger.error(f'pullPayPalResult error: Could not connect, ESD ID:{self.id}')
+            return
 
         if len(req.json())>0:
 

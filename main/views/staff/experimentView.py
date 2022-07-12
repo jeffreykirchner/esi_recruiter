@@ -157,6 +157,7 @@ def addSessionBlank(e):
     es.experiment=e    
     es.invitation_text = e.invitationText    
     es.consent_form = e.consent_form_default
+    es.budget = e.budget_default
     es.save()
 
     es.setupRecruitment()

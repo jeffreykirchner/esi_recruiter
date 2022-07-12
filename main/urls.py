@@ -55,7 +55,7 @@ urlpatterns = [
     path('calendar/', views.calendarView, name='calendarView'),
     path('traits/', views.traitsView, name='traits'),
     path('sessionsOpen/', views.SessionsOpen, name='sessionsOpen'),
-    path('payPalHistory/', views.PayPalHistory, name='payPalHistory'),
+    path('paymentHistory/', views.PaymentHistory, name='paymentHistory'),
     path('subject-auto-login/<int:id>/', views.SubjectAutoLogin, name='subject_auto_login'),
 
     #subject

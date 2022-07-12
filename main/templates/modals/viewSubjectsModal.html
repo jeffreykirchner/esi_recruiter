@@ -6,7 +6,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Subjects</h5>
 
-                {%if user.is_superuser%}
+                {%if user.is_staff%}
                 <span style="float: right;">
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="currentSessionDayActionAllCheck" v-model = "currentSessionDayActionAll">
@@ -39,7 +39,7 @@
                                         </a>                                    
                                     </td>                                                                   
                                     <td style="text-align: center;">   
-                                        {%if user.is_superuser%}                                     
+                                        {%if user.is_staff%}                                     
                                             <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
                                                 Remove <i class="fas fa-user-minus fa-xs"></i>  
                                             </button>
@@ -84,7 +84,7 @@
                                         <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
-                                        {%if user.is_superuser%}
+                                        {%if user.is_staff%}
                                         <button v-bind:id="'confirmSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "confirmSubject(esdu.user.id,esdu.id,'confirm')"v-bind:disabled="esdu.valid == 0">
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>

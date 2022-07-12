@@ -29,7 +29,7 @@ var app = new Vue({
         updatingPayoutsInProgress : false,         //currently sending a payouts update
         payoutTotal:"",                            //total paid to subjects
         fillEarningsWithValue:"",                   //amount to fill all earnings with
-        isAdmin:{%if user.is_superuser%}true{%else%}false{%endif%},  
+        isAdmin:{%if user.is_staff%}true{%else%}false{%endif%},  
         stripeReaderSpinner : "",
         stripeReaderValue : "",
         stripeReaderStatus : "",

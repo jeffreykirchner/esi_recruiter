@@ -6,6 +6,7 @@ from django.shortcuts import render
 from main.decorators import user_is_staff
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.contrib.admin.views.decorators import staff_member_required
 
 from django.db.models import CharField,F,Value as V
 
@@ -31,7 +32,7 @@ def userInfo(request, id=None):
         elif data["status"] == "deleteNote":
             return deleteNote(request, data, id)       
         elif data["status"] == "getTraits":
-            return getTraits(data, id)  
+            return getTraits(request, data, id)  
                    
     else:     
         try:
@@ -76,7 +77,7 @@ def deleteNote(request, data, id):
     note_id = data["id"]
     n = profile_note.objects.get(id=note_id)
 
-    if request.user.is_superuser:
+    if request.user.is_staff:
         n.delete()
 
     return getSessions(data, id)
@@ -108,13 +109,16 @@ def getSessions(data, id):
                         )
 
 #get the traits for this subject
-def getTraits(data, id):
+def getTraits(request, data, id):
     logger = logging.getLogger(__name__) 
     logger.info("User Info: Get Traits")
     logger.info(data)
 
     u=User.objects.get(id=id)
 
+    if not request.user.is_staff:
+        return JsonResponse({"subject_traits" :[],},safe=False, )
+                            
     return JsonResponse({"subject_traits" : u.profile.sorted_trait_list(),
                             },safe=False,
                         )

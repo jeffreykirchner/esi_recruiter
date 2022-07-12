@@ -84,7 +84,7 @@ class subjectHomeTestCase(TestCase):
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st,False,True,account_types.objects.get(id=1))
-        self.staff_u.is_superuser=True
+        self.staff_u.is_staff=True
         self.staff_u.save()
         
         self.p.labManager=self.staff_u

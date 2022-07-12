@@ -169,11 +169,11 @@ def getStripeReaderCheckin(data, id, request_user):
             
             logger.info("Stripe Reader Error, multiple users found")
         else:
-            if autoAddUser and request_user.is_superuser and len(esdu)==0:
+            if autoAddUser and request_user.is_staff and len(esdu)==0:
                 #user not in session, add them
                 status = autoAddSubject(studentID, id, request_user, ignoreConstraints)
                 #status = r['status']
-            elif autoAddUser and request_user.is_superuser and len(esdu)==1:
+            elif autoAddUser and request_user.is_staff and len(esdu)==1:
                 #user is in session confirm them
                 esdu_first = esdu.first()
                 esdu_first.confirmed = True
@@ -651,7 +651,7 @@ def attendSubject(data, id, request_user):
 
     status=""
 
-    if request_user.is_superuser:
+    if request_user.is_staff:
         status = attendSubjectAction(esdu,id,request_user)
     else:
         logger.info("Attend Subject Error, non super user")
@@ -850,7 +850,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                 m = f'Error: More than one user found for ID {i[0]}<br>'
             elif esdu.count() == 0:
                 #try to manually add user
-                if request_user.is_superuser and auto_add_subjects:
+                if request_user.is_staff and auto_add_subjects:
                     value = autoAddSubject(i[0], id, request_user, False)
 
                     #if error add to return message
@@ -869,7 +869,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                 esdu = esdu.first()
 
                 #confirm user if auto add
-                if request_user.is_superuser and auto_add_subjects:
+                if request_user.is_staff and auto_add_subjects:
                     esdu.confirmed = True
                     esdu.save()
 

@@ -102,6 +102,7 @@
         </form> <!-- recruitment parameters form -->        
 
         <!-- traits -->
+        {%if user.is_staff%}
         <div class="row mb-2">
             <div class = "col-md"> 
                 Traits:
@@ -130,7 +131,8 @@
                         Edit Traits <i class="fas fa-edit"></i>
                     </button>
             </div>
-        </div>        
+        </div>
+        {%endif%}        
     </div>
 
     <div class="card-footer text-right" v-cloak>

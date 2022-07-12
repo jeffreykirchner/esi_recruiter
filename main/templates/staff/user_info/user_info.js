@@ -18,7 +18,7 @@ var app = new Vue({
         noInvitationsFoundText:'',
         noTraitsFoundText:'',
         noteText:'',
-        su:{%if user.is_superuser%}true{%else%}false{%endif%},
+        su:{%if user.is_staff%}true{%else%}false{%endif%},
     },
 
     methods:{

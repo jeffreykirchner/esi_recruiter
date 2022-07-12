@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-8 text-right text-md-left">
                 <span v-if="experiment.consent_form_default_full"><a v-bind:href="experiment.consent_form_default_full.pdf_file_url">[[experiment.consent_form_default_full.name]]</a></span>
-                <span v-else>---</span>
+                <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>
         <div class = "row">
@@ -67,10 +67,19 @@
         </div>
         <div class = "row">
             <div class="col-md-4 text-md-right">
+                {{form1.budget_default.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="experiment.budget_default_full"><a v-bind:href="'/userInfo/' + experiment.budget_default_full.id">[[experiment.budget_default_full.last_name]], [[experiment.budget_default_full.first_name]]</a></span>
+                <span v-else style="color: red;font-weight:bold">---</span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col-md-4 text-md-right">
                 {{form1.showUpFee.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">
-                $<span v-html="experiment.showUpFee"></span>
+                $[[experiment.showUpFee]]
             </div>               
         </div>
         <div class = "row">
@@ -169,7 +178,8 @@
                                 </span>
                             </td>
                             <td class="text-center text-nowrap">
-                                <span v-html="s.creator"></span>
+                                <span v-if="s.creator"><a v-bind:href="'/userInfo/' + s.creator.id">[[s.creator.last_name]], [[s.creator.first_name]]</a></span>
+                                <span v-else>---</span>
                             </td>
                             <td class="text-center text-nowrap">
                                 <div v-if="s.complete">

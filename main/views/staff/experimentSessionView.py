@@ -883,6 +883,9 @@ def updateSession(data, id):
 
     for field in data["formData"]:            
         form_data_dict[field["name"]] = field["value"]
+    
+    if not s.allowEdit():
+        form_data_dict["consent_form"] = s.consent_form
 
     form = experimentSessionForm1(form_data_dict, instance=s)
 

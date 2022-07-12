@@ -39,7 +39,7 @@
         </div>
 
         <!-- search results table -->
-        <div class="row justify-content-center mt-4">
+        <div class="row justify-content-center mt-4" v-show="historyRecruiter.length>0">
             <div class="col-md">
                 <table class="table table-hover table-condensed table-responsive-md">                            
 
@@ -74,8 +74,14 @@
                             <td class="w-auto"> 
                                <a v-bind:href="'/experimentSessionRun/'+h.id">[[h.title]]</a>                                      
                             </td>
-                            <td class="w-auto">                                       
-                               [[h.paypal_response.batch_status]]                                    
+                            <td class="w-auto">
+                               <span v-if="h.paypal_response">
+                                    [[h.paypal_response.batch_status]] 
+                               </span>               
+                               <span v-else style="color: red;font-weight:bold">
+                                    Status update failed
+                               </span>                         
+                                                                  
                             </td>
                             <td class="w-auto">                                       
                                 $[[h.realized_totals.realized_payouts]]                                    
@@ -84,25 +90,36 @@
                                 $[[h.realized_totals.realized_fees]]                                    
                              </td>
                             <td class="w-auto"> 
-                                <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+h.paypal_response.payout_batch_id">[[h.paypal_response.payout_batch_id]]</a>                                       
+                                <span v-if="h.paypal_response">
+                                    <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+h.paypal_response.payout_batch_id">[[h.paypal_response.payout_batch_id]]</a> 
+                                </span>
+                                <span v-else style="color: red;font-weight:bold">
+                                    Status update failed
+                               </span>                                     
                              </td>  
                             <td class="w-auto">  
                                [[h.date]]
                             </td>
                             <td class="w-auto">  
-                                <div v-for="(i, index2) in h.hold_list" v-bind:key="i.user__id">
-                                    <div class="row">
-                                        <div class="col w-auto text-right">
-                                            <a v-bind:href="'/userInfo/'+i.user__id">[[i.user__last_name]], [[i.user__first_name]]</a>
-                                        </div>
-                                        <div class="col w-auto text-left">
-                                            <a v-bind:href="'https://www.paypal.com/activity/payment/'+i.paypal_response.transaction_id" 
-                                               v-bind:title="i.paypal_response.errors.message">
-                                               [[i.paypal_response.transaction_status]]
-                                            </a>
+                                <span v-if="h.paypal_response">
+                                    <div v-for="(i, index2) in h.hold_list" v-bind:key="i.user__id">
+                                        <div class="row">
+                                            <div class="col w-auto text-right">
+                                                <a v-bind:href="'/userInfo/'+i.user__id">[[i.user__last_name]], [[i.user__first_name]]</a>
+                                            </div>
+                                            <div class="col w-auto text-left">
+                                                <a v-bind:href="'https://www.paypal.com/activity/payment/'+i.paypal_response.transaction_id" 
+                                                v-bind:title="i.paypal_response.errors.message">
+                                                [[i.paypal_response.transaction_status]]
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </span>
+                                <span v-else style="color: red;font-weight:bold">
+                                    Status update failed
+                               </span>
+
                             </td>                                                                                    
                         </tr>                                                    
                     </tbody>

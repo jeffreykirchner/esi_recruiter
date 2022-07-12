@@ -123,9 +123,6 @@ TINYMCE_DEFAULT_CONFIG = {
 #CSRF_COOKIE_SECURE = True
 #SESSION_COOKIE_SECURE = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
 #site framework
 SITE_ID = 1
 

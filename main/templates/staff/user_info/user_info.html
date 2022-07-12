@@ -8,7 +8,7 @@
 
         <span class="float-md-right">
             <div class="row">
-                {%if user.is_superuser%}
+                {%if user.is_staff%}
                     <div class="col-md-auto pl-3 mr-0">
                         <a href="{%url 'subject_auto_login' u.id %}">
                             Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
@@ -323,6 +323,7 @@
         </table>
 
         <!-- traits table -->
+        {%if user.is_staff%}
         <table class="table table-hover table-condensed table-responsive-md">
             <caption style="caption-side:top;text-align: center;">Traits</caption>
 
@@ -360,7 +361,7 @@
                 </tr>
             </tfoot>
         </table>
-        
+        {%endif%}
         {%endif%}
     </div>                    
 </div>                
