@@ -84,7 +84,7 @@ def changePassword(request,data,token):
             return JsonResponse({"status":"error","message":"Valid code not found."}, safe=False)
         else:
             p.user.password = make_password(f.cleaned_data['password1'])
-            p.user.is_active = True
+            #p.user.is_active = True
 
             p.password_reset_key = uuid.uuid4()
             p.email_confirmed = 'yes'

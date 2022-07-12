@@ -119,6 +119,8 @@ TINYMCE_DEFAULT_CONFIG = {
     "custom_undo_redo_levels": 10,
 }
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
+
 #cookies
 #CSRF_COOKIE_SECURE = True
 #SESSION_COOKIE_SECURE = True

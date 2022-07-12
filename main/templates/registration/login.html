@@ -44,7 +44,7 @@
                         }
                         else if(status == "error")
                         {
-                          app.$data.loginErrorText = "Username or Password is incorrect."
+                          app.$data.loginErrorText = response.data.message;
                         }
                         else
                         {

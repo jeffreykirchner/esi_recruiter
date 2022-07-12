@@ -119,7 +119,7 @@ def getNoShows(request, data):
     #logger.info(users.query)
 
     if activeOnly:
-        users = users.filter(is_active = True)
+        users = users.filter(is_active = True, profile__paused = False)
 
     u_list = list(users)
 
@@ -140,7 +140,7 @@ def getBlackBalls(request,data):
                 .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
     
     if activeOnly:
-        users = users.filter(is_active = True)
+        users = users.filter(is_active = True, profile__paused = False)
 
     u_list = list(users)
 
@@ -214,7 +214,7 @@ def lookup(value, returnJSON, activeOnly):
                         .order_by('-similarity_total')
 
     if activeOnly:
-        users = users.filter(is_active=True, profile__email_confirmed='yes')
+        users = users.filter(is_active=True, profile__paused = False, profile__email_confirmed='yes')
 
     u_list = list(users[:100])
 
