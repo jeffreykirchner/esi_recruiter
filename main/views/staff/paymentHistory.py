@@ -64,7 +64,7 @@ def PaymentHistory(request):
     d_fisical_start = d_fisical_start.replace(month=6, day=1)
 
     if d_today.month<6:
-        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-2)
+        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
     return render(request, 'staff/paymentHistory.html', {"helpText" : help_text,
                                                         "d_today" : d_today.date().strftime("%Y-%m-%d"),
