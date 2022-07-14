@@ -66,6 +66,7 @@ class experiment_session_days(models.Model):
     class Meta:
         verbose_name = 'Experiment Session Days'
         verbose_name_plural = 'Experiment Session Days'
+        ordering = ['date']
 
     #get list of user and confirmed status
     def getListOfUserIDs(self):
@@ -436,9 +437,10 @@ class experiment_session_days(models.Model):
         logger = logging.getLogger(__name__)
         
         payouts =  self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
-                              .aggregate(Sum('show_up_fee'), Sum('earnings'))
+                              .aggregate(show_up_fee=Sum('show_up_fee'), earnings=Sum('earnings'))
 
         logger.info(f'get_cash_payout_total: {payouts}')
+
         return payouts
 
     #get small json object

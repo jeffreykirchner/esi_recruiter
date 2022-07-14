@@ -248,9 +248,9 @@ def get_budget_history(request, data):
                                                                   account=a)
 
             result={}
-            result['id']=b.id
+            result['id']=b.user.id
             result['total']=0
-            result['paypal']=True            
+            result['sessions']=[]            
 
             for s in session_list:
                 if s.paypal_api:
@@ -262,12 +262,14 @@ def get_budget_history(request, data):
                     
                     result['total'] += total['show_up_fee']
                     result['total'] += total['earnings']
+                result['sessions'].append({'id':s.id, 'title':s.experiment_session.experiment.title,})
             
             if result['total'] > 0 :
                 result['name']=f'{b.user.last_name}, {b.user.first_name}'
                 result['account_name']=a.name
                 result['account_number']=a.number
                 result['department']=a.department.name
+                result['total'] = f'{result["total"]:0.2f}'
                 history.append(result)
     
     return JsonResponse({"history" : history, 

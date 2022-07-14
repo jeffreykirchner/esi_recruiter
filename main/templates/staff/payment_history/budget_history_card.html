@@ -59,6 +59,9 @@
                         </th>
                         <th scope="col w-auto">
                             Amount
+                        </th>
+                        <th scope="col w-auto">
+                            Sessions
                         </th> 
                                                                                                                           
                     </thead>
@@ -78,10 +81,12 @@
                                 [[h.department]]                                
                             </td>
                             <td class="w-auto">                                       
-                                <span v-if="h.paypal"></span>                              
+                                $[[h.total]]                              
                             </td>
                             <td class="w-auto">                                       
-                                $[[h.total]]                       
+                               <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
+                                   <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                               </div>                       
                             </td>                          
                                                                                                                
                         </tr>                                                    
