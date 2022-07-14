@@ -16,6 +16,7 @@ from django.utils.timezone import now
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
+from django.db.models import Sum
 
 import main
 
@@ -429,6 +430,16 @@ class experiment_session_days(models.Model):
         result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
 
         return result
+    
+    #return the sum of payments paid to the subjects
+    def get_cash_payout_total(self):
+        logger = logging.getLogger(__name__)
+        
+        payouts =  self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
+                              .aggregate(Sum('show_up_fee'), Sum('earnings'))
+
+        logger.info(f'get_cash_payout_total: {payouts}')
+        return payouts
 
     #get small json object
     def json_min(self):

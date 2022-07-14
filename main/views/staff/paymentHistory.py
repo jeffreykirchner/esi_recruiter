@@ -22,6 +22,7 @@ from main.models import parameters
 from main.models import help_docs
 from main.models import experiment_session_days
 from main.models import profile
+from main.models import accounts
 
 @login_required
 @user_is_staff
@@ -63,7 +64,7 @@ def PaymentHistory(request):
     d_fisical_start = d_fisical_start.replace(month=6, day=1)
 
     if d_today.month<6:
-        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
+        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-2)
 
     return render(request, 'staff/paymentHistory.html', {"helpText" : help_text,
                                                         "d_today" : d_today.date().strftime("%Y-%m-%d"),
@@ -237,15 +238,37 @@ def get_budget_history(request, data):
     
     #paypal
     budget_list = profile.objects.filter(type=1)
-    for b in budget_list:
-        result={}
-        result['id']=b.id
-        result['total']=0
-        result['paypal']=True
-        session_list = experiment_session_days.objects.filter(experiment_session__budget=b)
+    account_list = accounts.objects.all()
 
-        for s in session_list:
-            realized_totals = s.get_paypal_realized_totals()
+    for b in budget_list:        
+
+        for a in account_list:
+            session_list = experiment_session_days.objects.filter(experiment_session__budget=b.user,
+                                                                  complete=True,
+                                                                  account=a)
+
+            result={}
+            result['id']=b.id
+            result['total']=0
+            result['paypal']=True            
+
+            for s in session_list:
+                if s.paypal_api:
+                    realized_totals = s.get_paypal_realized_totals()
+                    result['total'] += realized_totals['realized_fees']
+                    result['total'] += realized_totals['realized_payouts']
+                else:
+                    total = s.get_cash_payout_total()
+                    
+                    result['total'] += total['show_up_fee']
+                    result['total'] += total['earnings']
+            
+            if result['total'] > 0 :
+                result['name']=f'{b.user.last_name}, {b.user.first_name}'
+                result['account_name']=a.name
+                result['account_number']=a.number
+                result['department']=a.department.name
+                history.append(result)
     
     return JsonResponse({"history" : history, 
                          "errorMessage":error_message}, safe=False)
