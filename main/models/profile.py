@@ -59,6 +59,8 @@ class profile(models.Model):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
+        ordering = ['user__last_name', 'user__first_name']
+
     
     @admin.display(ordering='user__last_login')
     def last_login(self):

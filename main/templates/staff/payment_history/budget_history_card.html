@@ -1,4 +1,4 @@
-<div class="card" v-cloak v-show="false">                  
+<div class="card" v-cloak>                 
     <div class="card-header">
         Expenditures                                                 
     </div>
@@ -38,7 +38,7 @@
         </div>
 
         <!-- search results table -->
-        <div class="row justify-content-center mt-4" v-show="historyRecruiter.length>0">
+        <div class="row justify-content-center mt-4" v-show="historyBudget.length>0">
             <div class="col-md">
                 <table class="table table-hover table-condensed table-responsive-md">                            
 
@@ -49,13 +49,19 @@
                             Budget
                         </th> 
                         <th scope="col w-auto">
-                            Account
+                            Account Name
                         </th>
                         <th scope="col w-auto">
-                            PayPal
+                            Account Number
+                        </th>
+                        <th scope="col w-auto">
+                            Department
                         </th>
                         <th scope="col w-auto">
                             Amount
+                        </th>
+                        <th scope="col w-auto">
+                            Sessions
                         </th> 
                                                                                                                           
                     </thead>
@@ -63,16 +69,24 @@
                     <tbody id="userListBudget">                                                  
                         <tr v-for="(h,index) in historyBudget" v-bind:key="h.id">                                                                          
                             <td class="w-auto"> 
-                               <a v-bind:href="'/userInfo/'+h.budget.id">[[h.title]]</a>                                      
+                               <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>                                      
                             </td>
                             <td class="w-auto">                                                    
-                                                                  
+                                [[h.account_name]]                                 
                             </td>
                             <td class="w-auto">                                       
-                                                         
+                                [[h.account_number]]                          
                             </td>
                             <td class="w-auto">                                       
-                                                              
+                                [[h.department]]                                
+                            </td>
+                            <td class="w-auto">                                       
+                                $[[h.total]]                              
+                            </td>
+                            <td class="w-auto">                                       
+                               <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
+                                   <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                               </div>                       
                             </td>                          
                                                                                                                
                         </tr>                                                    
