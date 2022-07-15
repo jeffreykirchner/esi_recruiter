@@ -13,16 +13,16 @@ class pettyCashForm(forms.Form):
                                      widget=forms.Select(attrs={"v-model":"pettyCash.department"}))
 
     startDate = forms.DateTimeField(label="Start Date",
-                               localize=True,
                                input_formats=['%m/%d/%Y'],
                                error_messages={'invalid': 'Format: M/D/YYYY'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.startDate"})) 
+                               widget = forms.DateTimeInput(attrs={"type":"date",
+                                                                   "v-model":"pettyCash.startDate"})) 
                                
     endDate = forms.DateTimeField(label="End Date",
-                               localize=True,
                                input_formats=['%m/%d/%Y'],
                                error_messages={'invalid': 'Format: M/D/YYYY'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"pettyCash.endDate"}))               
+                               widget = forms.DateTimeInput(attrs={"type":"date",
+                                                                   "v-model":"pettyCash.endDate"}))               
 
 
     def clean_endDate(self):

@@ -37,6 +37,9 @@
                     Creator                            
                 </th>
                 <th scope="col" style="text-align: center;">
+                    Budget                            
+                </th>
+                <th scope="col" style="text-align: center;">
                     Subjects Confirmed                            
                 </th>
                 <th scope="col" style="text-align: center;">
@@ -59,11 +62,28 @@
                         [[s.experiment_session__experiment__title]]                                        
                     </td>
                     <td class="text-nowrap text-center"> 
-                        [[s.date_str]]                                   
+                        <span v-if="s.experiment_session__canceled" title="This session has been canceled.">
+                            <del>[[s.date_str]]</del>
+                        </span>
+                        <span v-else>
+                            [[s.date_str]]  
+                        </span>                                                         
                     </td>
                     <td class="text-nowrap text-center"> 
-                        <span v-if="s.experiment_session__creator__first_name">
-                            [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]] 
+                        <span v-if="s.experiment_session__creator__id">
+                           <a v-bind:href="'/userInfo/'+s.experiment_session__creator__id">
+                              [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]]
+                           </a> 
+                        </span >      
+                        <span v-else>
+                            ---
+                        </span>                            
+                    </td>
+                    <td class="text-nowrap text-center"> 
+                        <span v-if="s.experiment_session__budget__id">
+                            <a v-bind:href="'/userInfo/'+s.experiment_session__budget__id">
+                                [[s.experiment_session__budget__last_name]], [[s.experiment_session__budget__first_name]] 
+                            </a>
                         </span >      
                         <span v-else>
                             ---

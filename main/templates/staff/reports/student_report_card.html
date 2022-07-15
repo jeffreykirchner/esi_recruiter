@@ -1,0 +1,30 @@
+{% load crispy_forms_tags %}
+
+<div class="card">                  
+    <div class="card-header">
+        Student Report 
+        {%if user.is_staff%}
+        <span class="float-right">
+            <!-- buttons here -->
+        </span>
+        {%endif%}                                                 
+    </div>
+    <div class="card-body">
+        <form id="studentReportForm">   
+            {% for i in studentReportForm %}
+                <div class="row">
+                    <div class = "col col-md-10 offset-md-1">  
+                        {{ i|as_crispy_field }}         
+                    </div>            
+                </div> 
+            {% endfor %}
+        </form>                              
+    </div>
+    <div class="card-footer">       
+        <span class="float-right">            
+            <button class="btn btn-outline-primary" type="button" v-on:click = "getStudentReport()">
+                <span v-html ="studentReportButtonText"></span>
+            </button>   
+        <span>      
+     </div>                    
+</div>
