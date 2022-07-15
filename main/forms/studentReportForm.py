@@ -22,12 +22,14 @@ class studentReportForm(forms.Form):
     studentReport_startDate = forms.DateTimeField(label="Start Date",                               
                                input_formats=['%m/%d/%Y'],
                                error_messages={'invalid': 'Format: MM/DD/YYYY'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"studentReport.studentReport_startDate"})) 
+                               widget = forms.DateTimeInput(attrs={"type":"date",
+                                                                   "v-model":"studentReport.studentReport_startDate"})) 
                                
     studentReport_endDate = forms.DateTimeField(label="End Date",                               
                                input_formats=['%m/%d/%Y'],
                                error_messages={'invalid': 'Format: MM/DD/YYYY'},                                                                                                           
-                               widget = forms.DateTimeInput(attrs={"v-model":"studentReport.studentReport_endDate"}))               
+                               widget = forms.DateTimeInput(attrs={"type":"date",
+                                                                   "v-model":"studentReport.studentReport_endDate"}))               
 
 
     def clean_studentReport_endDate(self):
