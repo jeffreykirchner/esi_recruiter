@@ -7,8 +7,8 @@ import logging
 #form
 class traitReportForm(forms.Form):
     traits = forms.ModelMultipleChoiceField(label="",
-                                                queryset=Traits.objects.all().order_by(Lower("name")),
-                                                widget = forms.CheckboxSelectMultiple(attrs={}))
+                                            queryset=Traits.objects.filter(archived=False),
+                                            widget = forms.CheckboxSelectMultiple(attrs={}))
 
 
     

@@ -176,7 +176,7 @@ class profile(models.Model):
     def sorted_trait_list(self):
         logger = logging.getLogger(__name__) 
 
-        pt_list = self.profile_traits.order_by('trait__name')
+        pt_list = self.profile_traits.filter(trait__archived=False)
 
         return [pt.json() for pt in pt_list]
 
