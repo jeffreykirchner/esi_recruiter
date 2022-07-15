@@ -55,8 +55,13 @@ def getOpenSessions(data):
                                                                              'experiment_session__recruitment_params__registration_cutoff',
                                                                              'experiment_session__experiment__title',
                                                                              'experiment_session__id',
+                                                                             'experiment_session__creator__id',
                                                                              'experiment_session__creator__last_name',
                                                                              'experiment_session__creator__first_name',
+                                                                             'experiment_session__canceled',
+                                                                             'experiment_session__budget__id',
+                                                                             'experiment_session__budget__last_name',
+                                                                             'experiment_session__budget__first_name',
                                                                              'experiment_session__experiment__id')\
                                                                      .annotate(invitation_count = Count('ESDU_b'))\
                                                                      .annotate(accepted_count = Count('ESDU_b',filter = Q(ESDU_b__confirmed=True)))\
