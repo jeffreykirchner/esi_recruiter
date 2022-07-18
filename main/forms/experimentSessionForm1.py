@@ -12,6 +12,8 @@ class experimentSessionForm1(forms.ModelForm):
     '''
     Experiment session parameters form
     '''
+
+    #change budget form label
     def __init__(self, *args, **kwargs):
         super(experimentSessionForm1, self).__init__(*args, **kwargs)
 

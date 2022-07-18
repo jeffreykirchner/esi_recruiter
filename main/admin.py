@@ -429,16 +429,55 @@ class ExperimentSessionDayInline(admin.TabularInline):
       show_change_link = True
       fields=('date','length', 'complete')
 
+#Experiment session day admin
+@admin.register(experiment_session_invitations)
+class ExperimentSessionInvitationsAdmin(admin.ModelAdmin):
+      def has_delete_permission(self, request, obj=None):
+            return False
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+      
+      def has_change_permission(self, request, obj=None):
+            return False
+
+      #readonly_fields=('experiment_session','recruitment_params', 'users', 'subjectText', 'messageText', '')
+      
+      search_fields = ['id','experiment_session__experiment__title',]
+      #list_display = [']
+
+class ExperimentSessionInvitationsInline(admin.TabularInline):
+      '''
+      experiment session day inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiment_session_invitations
+      can_delete = False
+      show_change_link = True
+      fields=('mailResultSentCount','mailResultErrorText')
+
 @admin.register(experiment_sessions)
 class ExperimentSessionsAdmin(admin.ModelAdmin):
+      
+      def render_change_form(self, request, context, *args, **kwargs):
+         context['adminform'].form.fields['budget'].queryset = User.objects.filter(profile__type__id=1).order_by('last_name','first_name')
+
+         return super(ExperimentSessionsAdmin, self).render_change_form(request, context, *args, **kwargs)
+         
       def has_delete_permission(self, request, obj=None):
             return False
       
       def has_add_permission(self, request, obj=None):
             return False
 
-      readonly_fields=('experiment','recruitment_params')
-      inlines = [ExperimentSessionDayInline]
+      readonly_fields=('experiment', 'recruitment_params', 'creator')
+      inlines = [ExperimentSessionDayInline, ExperimentSessionInvitationsInline]
 
       search_fields = ['id','experiment__title',]
 
