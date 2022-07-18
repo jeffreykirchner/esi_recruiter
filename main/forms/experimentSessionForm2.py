@@ -34,7 +34,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                              "v-bind:disabled":"session.confirmedCount > 0"}))
 
     account = forms.ModelChoiceField(label="Account",
-                                     queryset=accounts.objects.all(),
+                                     queryset=accounts.objects.filter(archived=False),
                                      widget=forms.Select(attrs={"v-model":"currentSessionDay.account",
                                                                 "v-on:change":"mainFormChange2"}))
 

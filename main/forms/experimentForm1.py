@@ -53,7 +53,7 @@ class experimentForm1(forms.ModelForm):
                                                                "v-on:change":"mainFormChange1"}))
     
     account_default = forms.ModelChoiceField(label="Account (default)",
-                                            queryset=accounts.objects.all(),
+                                            queryset=accounts.objects.filter(archived=False),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
                                                                        "v-on:change":"mainFormChange1"}))
 
