@@ -18,22 +18,28 @@ var app = new Vue({
                     no_experiments:true,
                     sessionLocations:[],
                     },
-        forwardButtonText:">>",
-        backButtonText:"<<",
+        // forwardButtonText:">>",
+        // backButtonText:"<<",
         jump_to_month : "",
         working : true,
         load_url_month : true,
-                    
     },
 
     methods:{
         //get current, last or next month
 
         getMonth:function(){
+
             if( typeof app == 'undefined')
+            {
                 load_url_month = true;
+            }
             else
+            {
                 load_url_month = app.$data.load_url_month;
+                app.$data.working = true;
+            }
+               
             axios.post('{{request.path}}', {
                     action :"getMonth" , 
                     load_url_month : load_url_month,                            
@@ -60,14 +66,14 @@ var app = new Vue({
         changeMonth:function(direction){
             app.$data.working = true;
 
-            if(direction == "next")
-            {
-                app.$data.forwardButtonText='<i class="fas fa-spinner fa-spin"></i>';
-            }
-            else
-            {
-                app.$data.backButtonText='<i class="fas fa-spinner fa-spin"></i>';
-            }
+            // if(direction == "next")
+            // {
+            //     app.$data.forwardButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            // }
+            // else
+            // {
+            //     app.$data.backButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            // }
 
             axios.post('/calendar/', {
                     action :"changeMonth" , 
@@ -80,8 +86,8 @@ var app = new Vue({
                     
                     app.$data.working = false;
 
-                    app.$data.backButtonText="<<";
-                    app.$data.forwardButtonText=">>";
+                    // app.$data.backButtonText="<<";
+                    // app.$data.forwardButtonText=">>";
                 })
                 .catch(function (error) {
                     console.log(error);                            
