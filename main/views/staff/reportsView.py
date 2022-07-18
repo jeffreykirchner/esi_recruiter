@@ -101,8 +101,12 @@ def studentReport(data):
                                                            experiment_session_day__date__lte=e_date,)\
                                                    .filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
                                                            (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
-                                                   .order_by('user__last_name')\
-                                                   .select_related('experiment_session_day','user','user__profile','experiment_session_day__account')
+                                                   .filter(experiment_session_day__account__outside_funding=False) \
+                                                   .order_by('user__last_name', 'user__first_name')\
+                                                   .select_related('experiment_session_day',
+                                                                   'user',
+                                                                   'user__profile',
+                                                                   'experiment_session_day__account')
 
         #filter for nonresident aliens
         if studentReport_nra == "1":
@@ -240,7 +244,7 @@ def pettyCash(data):
                                                                                then = 'ESDU_b__show_up_fee'),
                                                                              default=Decimal("0")),
                                                                         output_field=DecimalField()))\
-                                             .filter(account__in = dpt.accounts_set.all(),
+                                             .filter(account__in = dpt.accounts_set.filter(outside_funding=False),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                              .filter(Q(totalEarnings__gt = 0) | 
@@ -248,12 +252,14 @@ def pettyCash(data):
                                              .select_related('experiment_session__experiment','account')\
                                              .order_by('date')
         
-        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = dpt.accounts_set.all(),
+        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = dpt.accounts_set.filter(outside_funding=False),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                               .values_list('account_id',flat=True).distinct()                                            
 
-        ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)
+        ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)\
+                                       .filter(outside_funding=False)
+
         logger.info(ESD_accounts) 
 
         #title
@@ -294,7 +300,7 @@ def pettyCash(data):
             writer.writerow(temp)        
 
         #totals
-        totalsRow = ["Grand Totals",""]
+        totalsRow = ["Grand Totals","",""]
         for i in columnSums:
             totalsRow.append("$" + f'{i:.2f}')
 
