@@ -96,21 +96,27 @@
 
         <!-- content -->
         <div class="row" v-for="(s,index) in d.sessions" v-bind:key="s.id">
-            <div class = "col cell_content" style="font-size: 13px;">
-                <div v-if = "s.name===''">
+            <div class = "col" style="font-size: 13px;">
+
+                <div class="pl-1 pr-1">
+                    <div v-if = "s.name===''">
                     <!-- spacer -->
-                    <span>&nbsp</span>
+                        <span>&nbsp</span>
+                    </div>
+                    <div v-else>
+                        <span v-if="s.enable_time">
+                            [[s.startTime]]-[[s.endTime]]                            
+                        </span>
+                        <span v-else>
+                            Anytime
+                        </span>  
+                        <a v-bind:href="'/experimentSessionRun/' + s.id +'/'"
+                           v-bind:class="{is_canceled:s.canceled }">
+                            [[s.name]]
+                        </a>      
+                    </div>
                 </div>
-                <div v-else>
-                    <span v-if="s.enable_time">
-                        <span v-html="s.startTime + '-' + s.endTime"></span>
-                    </span>
-                    <span v-else>
-                        <span v-html = "'Anytime'"></span>
-                    </span>        
-                    <span v-html ="' <a href=\'/experimentSessionRun/' + s.id + '/\'' + '>' + s.name + '</a>'" v-bind:class="{is_canceled:s.canceled }">
-                    </span>
-                </div>
+                
             </div>
             
         <div class="row">      
