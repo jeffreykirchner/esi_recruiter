@@ -29,7 +29,7 @@ class experiments(models.Model):
     school = models.ForeignKey(schools, on_delete=models.CASCADE)
     account_default = models.ForeignKey(accounts, on_delete=models.CASCADE)
     recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
-    consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True)                   #default consent form used for new sessions
+    consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True)                   #default consent form used for new sessions
     institution = models.ManyToManyField(institutions, through="experiments_institutions")                       #institutions to which this experiment belongs  
     budget_default = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiments_a', blank=True, null=True)             #default faculty budget for experiment
 
@@ -39,6 +39,8 @@ class experiments(models.Model):
     length_default = models.IntegerField(default=60)                                #default length of experiment
     notes = models.TextField(default="")                                            #notes about the experiment
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)     #amount subjects earn for attending by default
+
+    survey = models.BooleanField(default=False, verbose_name="Survey")              #experiment is a online survey
 
     invitationText = HTMLField(default="")                 #text of email invitation subjects receive
     reminderText = HTMLField(default="")                   #text of email reminder subjects receive
@@ -160,6 +162,7 @@ class experiments(models.Model):
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),
+            "survey":self.survey,
         }
 
 #delete recruitment parameters when deleted
