@@ -536,7 +536,7 @@ class ExperimentsAdmin(admin.ModelAdmin):
       
       ordering = ['-timestamp']
       inlines = [ExperimentSessionInline,ExperimentInstitutionsInline]
-      search_fields = ['title','experiment_manager',]
+      search_fields = ['id', 'title', 'experiment_manager',]
       readonly_fields = ('recruitment_params_default',)
       list_display = ['title','experiment_manager','timestamp']
 

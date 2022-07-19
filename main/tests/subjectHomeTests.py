@@ -378,6 +378,53 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+    
+    #test accept when the session is full
+    def testExperimentIsSurvey(self):
+        """Test accept when the session is full""" 
+        logger = logging.getLogger(__name__)
+
+        self.es1.experiment.survey = True
+        self.es1.experiment.save()
+
+        esd1 = self.es1.ESD.first()
+
+        temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
+                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+        
+        logger.info(temp_u)
+
+        temp_u.is_active = True
+        temp_u.profile.email_confirmed = 'yes'
+
+        temp_u.profile.save()
+        temp_u.save()
+
+        temp_u.profile.setup_email_filter()
+
+        #add consent form
+        profile_consent_form = ProfileConsentForm(my_profile=temp_u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        self.es1.addUser(temp_u.id,self.staff_u,True)
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
+        #changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id)
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed experiment is survey.", r['message'])
+
+        #set survey to fase
+        self.es1.experiment.survey = False
+        self.es1.experiment.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
 
     def test_update_profile(self):
         '''

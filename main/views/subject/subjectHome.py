@@ -148,6 +148,13 @@ def acceptInvitation(data, u):
         qs = qs.filter(id = es_id).first()                               #session being accepted
 
         if qs:
+
+            #check that session has not started
+            if not failed:
+                if qs.experiment.survey:
+                    message=f"Invitation failed experiment is survey."
+                    logger.warning(message)            
+                    failed=True
            
             #check that session has not started
             if not failed:

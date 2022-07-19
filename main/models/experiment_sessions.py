@@ -1184,6 +1184,7 @@ class experiment_sessions(models.Model):
             "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
             "full": self.getFull(),
+            "survey":self.experiment.survey,
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
         }
     

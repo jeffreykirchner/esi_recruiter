@@ -1,3 +1,5 @@
+import logging
+
 from tinymce.widgets import TinyMCE
 
 from django import forms
@@ -80,7 +82,13 @@ class experimentForm1(forms.ModelForm):
                                    widget=TinyMCE(attrs={"v-model":"experiment.reminderText",
                                                          "v-on:keyup":"mainFormChange1",
                                                          "plugins": "link image code",
-                                                         "rows":"12"}))                                                                                                                                                                                                                                                                   
+                                                         "rows":"12"}))               
+
+    survey = forms.ChoiceField(label="Online Survey",
+                                    choices=(('true', "Yes"), ('false', "No")),
+                                    widget=forms.Select(attrs={"v-model":"experiment.survey",
+                                                                    "v-on:change":"mainFormChange1",
+                                                                    "v-bind:disabled":"experiment.confirmationFound === true"}))                                                                                                                                                                                                                                                    
 
     class Meta:
         model=experiments
@@ -101,3 +109,20 @@ class experimentForm1(forms.ModelForm):
             raise forms.ValidationError('Invalid Entry')
 
         return length_default
+    
+    def clean_survey(self):
+        '''
+        clean survey boolean
+        '''
+        logger = logging.getLogger(__name__)
+        logger.info("Clean survey")
+
+        val = self.data['survey']
+
+        if val == 'true':
+            return True
+
+        if val == 'false':
+            return False
+
+        raise forms.ValidationError('Invalid Entry')

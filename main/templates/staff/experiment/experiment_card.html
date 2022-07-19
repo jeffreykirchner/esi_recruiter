@@ -59,6 +59,15 @@
         </div>
         <div class = "row">
             <div class="col-md-4 text-md-right">
+                {{form1.survey.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="experiment.survey">Yes</span>
+                <span v-else>No</span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col-md-4 text-md-right">
                 {{form1.account_default.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">

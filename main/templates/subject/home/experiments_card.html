@@ -56,6 +56,12 @@
                             <div v-if="s.canceled">
                                 <span v-html="'*** Canceled ***'" style="color: red;"></span>
                             </div>
+                            <div v-else-if="s.survey">
+                                <div class="mb-2">
+                                   <u>At Home Survey</u><br>
+                                   Follow the instructions in the invitation.<br>
+                                </div>
+                            </div>
                             <div v-else-if="s.confirmed">
                                 <div class="mb-2">
                                     You are attending.
