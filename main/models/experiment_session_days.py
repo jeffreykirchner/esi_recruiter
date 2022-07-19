@@ -320,7 +320,8 @@ class experiment_session_days(models.Model):
 
         req = requests.get(f'{settings.PPMS_HOST}/payments/memo_search/{self.id}/',
                            auth=(str(settings.PPMS_USER_NAME), 
-                                 str(settings.PPMS_PASSWORD)))
+                                 str(settings.PPMS_PASSWORD)),
+                           timeout=10)
         
         if len(req.json())>0:
 
@@ -360,9 +361,9 @@ class experiment_session_days(models.Model):
 
         try:
             req = requests.get(f'{settings.PPMS_HOST}/payments/get_batch_status/{self.paypal_api_batch_id}/',
-                            auth=(str(settings.PPMS_USER_NAME), 
-                                    str(settings.PPMS_PASSWORD)),
-                            timeout=10)
+                                auth=(str(settings.PPMS_USER_NAME), 
+                                      str(settings.PPMS_PASSWORD)),
+                                timeout=10)
         except requests.Timeout:
             logger.error(f'pullPayPalResult error: service timed out, ESD ID:{self.id}')
             return
