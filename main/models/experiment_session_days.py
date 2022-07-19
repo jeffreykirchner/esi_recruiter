@@ -214,7 +214,8 @@ class experiment_session_days(models.Model):
     #get user readable string of session lengths in mintues
     def getLengthString(self):
 
-        return str(self.length) + " minutes"
+        #return str(self.length) + " minutes"
+        return main.globals.format_minutes(self.length)
 
     #build an reminder email given the experiment session
     def getReminderEmail(self):
