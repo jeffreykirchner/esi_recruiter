@@ -214,7 +214,8 @@ class experiment_session_days(models.Model):
     #get user readable string of session lengths in mintues
     def getLengthString(self):
 
-        return str(self.length) + " minutes"
+        #return str(self.length) + " minutes"
+        return main.globals.format_minutes(self.length)
 
     #build an reminder email given the experiment session
     def getReminderEmail(self):
@@ -320,7 +321,8 @@ class experiment_session_days(models.Model):
 
         req = requests.get(f'{settings.PPMS_HOST}/payments/memo_search/{self.id}/',
                            auth=(str(settings.PPMS_USER_NAME), 
-                                 str(settings.PPMS_PASSWORD)))
+                                 str(settings.PPMS_PASSWORD)),
+                           timeout=10)
         
         if len(req.json())>0:
 
@@ -360,9 +362,9 @@ class experiment_session_days(models.Model):
 
         try:
             req = requests.get(f'{settings.PPMS_HOST}/payments/get_batch_status/{self.paypal_api_batch_id}/',
-                            auth=(str(settings.PPMS_USER_NAME), 
-                                    str(settings.PPMS_PASSWORD)),
-                            timeout=10)
+                                auth=(str(settings.PPMS_USER_NAME), 
+                                      str(settings.PPMS_PASSWORD)),
+                                timeout=10)
         except requests.Timeout:
             logger.error(f'pullPayPalResult error: service timed out, ESD ID:{self.id}')
             return
