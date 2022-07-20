@@ -1,14 +1,11 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from main.decorators import user_is_staff
 import json
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import Http404
 import logging
-from main.models import faq,parameters
+
+from django.shortcuts import render
+from django.http import JsonResponse
+
+from main.models import faq
+from main.models import parameters
 
 def faqView(request):
     logger = logging.getLogger(__name__) 
@@ -36,10 +33,7 @@ def faqView(request):
 #get the session and notes subject has participated in
 def getFaqs(data):
     logger = logging.getLogger(__name__) 
-    logger.info("Get faqs")
-    logger.info(data)
-
-    
+    logger.info(f"Get faqs: {data}")
 
     return JsonResponse({"faq" : [i.json() for i in faq.objects.filter(active = True)]
                                  },safe=False,

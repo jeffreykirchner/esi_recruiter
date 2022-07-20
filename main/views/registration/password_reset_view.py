@@ -1,34 +1,30 @@
-from django.shortcuts import redirect
-
-from main.models import parameters
-from django.shortcuts import render
 import json
-from main.forms import passwordResetForm
-from django.http import JsonResponse
-import logging
-from django.contrib.auth.models import User
 import uuid
-from main.globals import send_mass_email_service
-from django.db.models.functions import Lower
+import logging
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.contrib.auth import logout
+from django.views import View
 
-def passwordResetView(request):
+from main.models import parameters
+from main.globals import send_mass_email_service
+from main.forms import passwordResetForm
 
-    logger = logging.getLogger(__name__) 
-    
-    #logger.info(request)
-    
-    if request.method == 'POST':
+class PasswordResetView(View):
+    '''
+    password reset view
+    '''
 
-        data = json.loads(request.body.decode('utf-8'))
+    template_name = "registration/passwordReset.html"
 
-        if data["action"] == "send_reset":
-            return send_reset(request,data)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        return JsonResponse({"response" :  "error"},safe=False)
-
-    else:
         logout(request)
 
         p = parameters.objects.first()
@@ -40,10 +36,23 @@ def passwordResetView(request):
         for i in form:
             form_ids.append(i.html_name)
 
-        return render(request,'registration/passwordReset.html',{"labManager":labManager,
-                                                         "form":form,
-                                                         "form_ids":form_ids})
+        return render(request,self.template_name,{"labManager":labManager,
+                                                  "form":form,
+                                                  "form_ids":form_ids})
     
+
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "send_reset":
+            return send_reset(request,data)
+
+        return JsonResponse({"response" :  "error"},safe=False)
+
 def send_reset(request, data):
     logger = logging.getLogger(__name__) 
    

@@ -2,48 +2,47 @@ import logging
 import json
 
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
-from django.contrib.auth import authenticate, login
-from django import forms
-from main.forms import verifyFormResend
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views import View
+from django.utils.decorators import method_decorator
 
-import main
-
-from main.models import profile
 from main.globals import profile_create_send_email
 from main.models import parameters
 
+class ProfileVerifyResend(View):
+    '''
+    resend verification email
+    '''
 
-#user account info
-@login_required
-def profileVerifyResend(request):    
+    template_name = "registration/profileVerifyResend.html"
 
-    if request.method == 'POST':
-        # logger = logging.getLogger(__name__)
-        # logger.info("Verify Email Resend POST")
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+        return render(request,self.template_name,{ }) 
+    
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
 
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "getUser":
-            return getUser(request,data)
+            return getUser(request, data)
         elif data["action"] == "sendVerificationEmail":
-            return sendVerificationEmail(request,data)
+            return sendVerificationEmail(request, data)
 
         return JsonResponse({"status":"fail"}, safe=False)
-    else:
-
-        return render(request,'registration/profileVerifyResend.html',{ })   
 
 #get user status
 def getUser(request,data):
     logger = logging.getLogger(__name__)
-    logger.info("Get user")
-    logger.info(data)
+    logger.info(f"Get user: {data}")
 
     u=request.user
     logger.info(u)
@@ -57,9 +56,8 @@ def getUser(request,data):
 #resend verifiction email link to user
 def sendVerificationEmail(request, data):
     logger = logging.getLogger(__name__)
-    logger.info("Send verification email")
-    logger.info(data)
-
+    logger.info(f"Send verification email: {data}")
+    
     user = request.user
     logger.info(user)
 

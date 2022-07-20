@@ -1,32 +1,34 @@
-from django.shortcuts import redirect
-
-from main.models import parameters,profile
-from django.shortcuts import render
-import json
-from main.forms import passwordResetChangeForm
-from django.http import JsonResponse
-import logging
-from django.contrib.auth.models import User
 import uuid
-from  django.contrib.auth.hashers import make_password
+import json
+import logging
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth import logout
+from django.views import View
 
-def passwordResetChangeView(request, token):
+from main.models import parameters
+from main.models import profile
 
-    logger = logging.getLogger(__name__) 
-    
-    #logger.info(request)
-    
-    if request.method == 'POST':
+from main.forms import passwordResetChangeForm
 
-        data = json.loads(request.body.decode('utf-8'))
+class PasswordResetChangeView(View):
+    '''
+    Password reset change view
+    '''
 
-        if data["action"] == "change_password":
-            return changePassword(request, data, token)
+    template_name = "registration/passwordResetChange.html"
 
-        return JsonResponse({"response" :  "error"}, safe=False)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-    else:
+        logger = logging.getLogger(__name__) 
+
+        token = kwargs['token']
+
         logout(request)
 
         p = parameters.objects.first()
@@ -41,12 +43,29 @@ def passwordResetChangeView(request, token):
         #check that code is valid
         valid_code_profile = checkValidCode(token)
 
-        return render(request,'registration/passwordResetChange.html',{"labManager":labManager,
-                                                         "form":form,
-                                                         "token":token,
-                                                         "valid_code":False if not valid_code_profile else True,
-                                                         "form_ids":form_ids})
+        return render(request,self.template_name,{"labManager":labManager,
+                                                  "form":form,
+                                                  "token":token,
+                                                  "valid_code":False if not valid_code_profile else True,
+                                                  "form_ids":form_ids})
+    
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
 
+        logger = logging.getLogger(__name__) 
+
+        data = json.loads(request.body.decode('utf-8'))
+        token = kwargs['token']
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "change_password":
+            return changePassword(request, data, token)
+
+        return JsonResponse({"response" :  "error"}, safe=False)
+        
 def checkValidCode(token):
     logger = logging.getLogger(__name__) 
 

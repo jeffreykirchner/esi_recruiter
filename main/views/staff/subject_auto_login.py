@@ -41,4 +41,4 @@ def SubjectAutoLogin(request, id=None):
         logout(request)
         login(request, user)
 
-        return redirect('mainHome')
+        return redirect('MainHome')

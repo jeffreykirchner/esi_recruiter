@@ -20,23 +20,20 @@ sitemaps = {
 
 urlpatterns = [
     #admin site
-    # re_path(r'^admin/login/$',\
-    #         RedirectView.as_view(url=settings.LOGIN_URL,permanent=True,query_string=True)),    
-
-    re_path(r'^admin/login/$', views.loginView),
+    re_path(r'^admin/login/$', views.LoginView.as_view()),
 
     #account control
-    path('', views.mainHome, name='mainHome'),                           #direct user by subject type
-    path('profile/', views.updateProfile, name='profile'),              #custom profile
-    path('accounts/profile/', views.updateProfile, name='profile'),     #custom profile
-    path('profileCreate/', views.profileCreate, name='profileCreate'),
-    path('profileVerify/<token>/', views.profileVerify, name='profileVerify'),
-    path('profileVerifyResend/', views.profileVerifyResend, name='profileVerifyResend'),
+    path('', views.MainHome.as_view(), name='MainHome'),                           #direct user by subject type
+    path('profile/', views.UpdateProfile.as_view(), name='profile'),               #view profile
+    path('accounts/profile/', views.UpdateProfile.as_view(), name='profile2'),     #view profile
+    path('profileCreate/', views.ProfileCreate.as_view(), name='profileCreate'),                      #create new profile 
+    path('profileVerify/<str:token>/', views.ProfileVerify.as_view(), name='profileVerify'),          #verify email
+    path('profileVerifyResend/', views.ProfileVerifyResend.as_view(), name='profileVerifyResend'),    #resend email verification
     
-    path('accounts/login/', views.loginView, name="login"),
-    path('accounts/passwordReset/', views.passwordResetView, name="passwordReset"),
-    path('accounts/passwordResetChange/<token>', views.passwordResetChangeView, name="passwordResetChange"),
-    path('accounts/logout/', views.logoutView, name="logout"),
+    path('accounts/login/', views.LoginView.as_view(), name="login"),
+    path('accounts/passwordReset/', views.PasswordResetView.as_view(), name="passwordReset"),
+    path('accounts/passwordResetChange/<str:token>', views.PasswordResetChangeView.as_view(), name="passwordResetChange"),
+    path('accounts/logout/', views.LogoutView.as_view(), name="logout"),
 
     #staff
     path('userSearch/', views.userSearch, name='userSearch'),
