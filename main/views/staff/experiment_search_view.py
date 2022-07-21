@@ -7,24 +7,56 @@ from django.shortcuts import render
 from django.db.models.functions import Lower
 from django.db.models import Q, F, Value, CharField
 from django.db.models import Count
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.contrib.postgres.search import SearchQuery, SearchVector, TrigramSimilarity
+from django.contrib.postgres.search import TrigramSimilarity
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
-from main.models import experiments, experiment_session_days, schools, accounts,\
-                        recruitment_parameters, parameters, genders, subject_types, help_docs,\
-                        Invitation_email_templates    
+from main.models import experiments
+from main.models import experiment_session_days
+from main.models import schools
+from main.models import accounts
+from main.models import recruitment_parameters
+from main.models import parameters
+from main.models import genders
+from main.models import subject_types
+from main.models import help_docs
+from main.models import Invitation_email_templates    
 
-@login_required
-@user_is_staff
-def experimentSearch(request):
-    logger = logging.getLogger(__name__) 
-    
-    
-    # logger.info("some info")
+class ExperimentSearch(View):
+    '''
+    experiment search view
+    '''
 
-    if request.method == 'POST':       
+    template_name = "staff/experimentSearch.html"
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
+        return render(request, self.template_name, {"helpText":helpText, "id":""})
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
 
@@ -41,16 +73,7 @@ def experimentSearch(request):
         elif data["action"] == "getRecentExperiments":
             return getRecentExperiments(data)
            
-        return JsonResponse({"status" :  "error"},safe=False)       
-    else:
-        try:
-            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
-                                        .filter(rp__icontains=F('path')).first().text
-
-        except Exception  as e:   
-             helpText = "No help doc was found."
-
-        return render(request, 'staff/experimentSearch.html', {"helpText":helpText, "id":""})      
+        return JsonResponse({"status" :  "error"},safe=False)
 
 #create experiment
 def createExperiment(data):

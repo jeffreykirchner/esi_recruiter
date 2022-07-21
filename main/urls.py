@@ -36,12 +36,12 @@ urlpatterns = [
     path('accounts/logout/', views.LogoutView.as_view(), name="logout"),
 
     #staff
-    path('userSearch/', views.userSearch, name='userSearch'),
-    path('userSearchParameters/<int:id>/', views.userSearchParametersView, name='userSearchParameters_id'),
-    path('userSearchParameters/', views.userSearchParametersView, name='userSearchParameters'),
-    path('reports/', views.reportsView, name='reports'),
-    path('userInfo/<int:id>/', views.userInfo, name='userInfo'),
-    path('experimentSearch/', views.experimentSearch, name='experimentSearch'),
+    path('userSearch/', views.UserSearch.as_view(), name='userSearch'),
+    path('userSearchParameters/<int:id>/', views.UserSearchParametersView.as_view(), name='userSearchParameters_id'),
+    path('userSearchParameters/', views.UserSearchParametersView.as_view(), name='userSearchParameters'),
+    path('reports/', views.ReportsView.as_view(), name='reports'),
+    path('userInfo/<int:pk>/', views.UserInfo.as_view(), name='userInfo'),
+    path('experimentSearch/', views.ExperimentSearch.as_view(), name='experimentSearch'),
     path('experiment/<int:id>/', views.experimentView, name='experimentView'),
     path('experimentParameters/<int:id>/', views.experimentParametersView, name='experimentParametersView'),
     path('experimentSession/<int:id>/', views.experimentSessionView, name='experimentSessionView'),

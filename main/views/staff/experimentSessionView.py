@@ -27,7 +27,7 @@ from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 
-from main.views.staff.userSearch import lookup
+from main.views.staff.user_search import lookup
 
 from main.forms import recruitmentParametersForm
 from main.forms import experimentSessionForm1

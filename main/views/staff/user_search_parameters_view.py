@@ -12,40 +12,40 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
 from main.models import experiments
-from main.models import experiment_sessions
 from main.models import parameters
 from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 
 from main.views.staff.experimentView import addSessionBlank
-from main.views.staff.experimentSearchView import createExperimentBlank
+from main.views.staff.experiment_search_view import createExperimentBlank
 
 from main.forms import recruitmentParametersForm
 from main.forms import TraitConstraintForm
 
 import main
 
-@login_required
-@user_is_staff
-def userSearchParametersView(request, id=None):
+class UserSearchParametersView(View):
     '''
-    search for users using recruiment parameters
+    search for users that match recruitment paramters
     '''
-    status = ""      
 
-    if request.method == 'POST':
-        
-        data = json.loads(request.body.decode('utf-8'))              
+    template_name = "staff/userSearchParameters.html"
 
-        if data["status"] == "search":
-            return search(request, data, id)                     
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-    else: #GET             
+        logger = logging.getLogger(__name__)
 
         p = parameters.objects.first()
 
@@ -58,10 +58,13 @@ def userSearchParametersView(request, id=None):
         
         recruitment_parameters_form = recruitmentParametersForm()
         recruitment_parameters_form_ids=[]
+
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
 
         recruitment_params = {}
+
+        id = kwargs.get('id', None)
 
         if not id:
             #no experiment id provided, create dummy experiment
@@ -86,7 +89,7 @@ def userSearchParametersView(request, id=None):
             recruitment_params = e.recruitment_params_default.json() 
 
         return render(request,
-                      'staff/userSearchParameters.html',
+                      self.template_name,
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
                        'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
@@ -95,6 +98,21 @@ def userSearchParametersView(request, id=None):
                        'experiment_title':e.title if id else None,
                        'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),
                        },)
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        data = json.loads(request.body.decode('utf-8'))           
+        id = kwargs.get('id', None)   
+
+        if data["status"] == "search":
+            return search(request, data, id)
 
 def search(request, data, id):
     '''

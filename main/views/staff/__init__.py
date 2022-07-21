@@ -1,16 +1,16 @@
 '''
 build main.views
 '''
-from .userSearch import *
-from .userSearchParametersView import *
-from .userInfo import *
+from .user_search import *
+from .user_search_parameters_view import *
+from .user_info import *
 from .experimentView import *
 from .experimentSessionView import *
 from .experimentSessionRunView import *
 from .experimentSessionPayoutsView import *
 from .calendarView import *
-from .experimentSearchView import *
-from .reportsView import *
+from .experiment_search_view import *
+from .reports_view import *
 from .traitsView import *
 from .sessionsOpen import *
 from .paymentHistory import *

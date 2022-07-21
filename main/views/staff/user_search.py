@@ -12,29 +12,30 @@ from django.db.models import CharField, Q, F, Value as V
 from django.db.models.functions import Lower
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Count
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 from main.models import parameters, help_docs
 from main.globals import send_mass_email_service
 from main.globals import get_now_show_blocks
 
-@login_required
-@user_is_staff
-def userSearch(request):
-    if request.method == 'POST':
+class UserSearch(View):
+    '''
+    user search view
+    '''
 
-        data = json.loads(request.body.decode('utf-8'))
+    template_name = "staff/userSearch.html"
 
-        if data["action"] == "getUsers":
-            return getUsers(request, data)
-        elif data["action"] == "getBlackBalls":
-            return getBlackBalls(request, data)
-        elif data["action"] == "getNoShows":
-            return getNoShows(request, data)
-        elif data["action"] == "sendEmail":
-            return sendEmail(request, data)
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-    else:
+        logger = logging.getLogger(__name__)
+        
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
@@ -47,7 +48,27 @@ def userSearch(request):
                                           profile__email_confirmed = 'yes',
                                           profile__paused = False).count()
 
-        return render(request,'staff/userSearch.html',{"activeCount":activeCount,"helpText":helpText})     
+        return render(request, self.template_name, {"activeCount":activeCount,"helpText":helpText})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "getUsers":
+            return getUsers(request, data)
+        elif data["action"] == "getBlackBalls":
+            return getBlackBalls(request, data)
+        elif data["action"] == "getNoShows":
+            return getNoShows(request, data)
+        elif data["action"] == "sendEmail":
+            return sendEmail(request, data)
 
 #send an email to active users
 def sendEmail(request, data):
@@ -173,15 +194,6 @@ def lookup(value, returnJSON, activeOnly):
     logger.info(value)
 
     value = value.strip()
-
-    # users = User.objects.order_by(Lower('last_name'),Lower('first_name')) \
-    #                   .filter(Q(last_name__search = value) |
-    #                           Q(first_name__search = value) |
-    #                           Q(email__search = value) |
-    #                           Q(profile__studentID__search = value) |
-    #                           Q(profile__type__name__search = value))\
-    #                   .select_related('profile')\
-    #                   .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
 
     users = User.objects.annotate(first_name_similarity=TrigramSimilarity('first_name', value)) \
                         .annotate(last_name_similarity=TrigramSimilarity('last_name', value)) \
