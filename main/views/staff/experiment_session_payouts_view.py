@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from django.db.models.functions import Lower
 
@@ -13,30 +16,50 @@ from main.decorators import user_is_staff
 
 from main.models import experiment_session_days
 
-@login_required
-@user_is_staff
-def experimentSessionPayoutsView(request, id=None, payGroup=None):
-    logger = logging.getLogger(__name__) 
-        
-    # logger.info("some info")
+class ExperimentSessionPayoutsView(SingleObjectMixin, View):
+    '''
+    Experiment session day paysheet view
+    '''
 
-    if request.method == 'POST':       
+    template_name = "staff/experimentSessionPayoutsView.html"
+    model = experiment_session_days
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        esd = self.get_object()
+        payGroup = kwargs['payGroup']
+
+        return render(request,
+                      self.template_name,
+                      {"sessionDay":esd,                      
+                       "id":esd.id,
+                       "consent_form" : json.dumps(esd.experiment_session.consent_form.json(), cls=DjangoJSONEncoder) if esd.experiment_session.consent_form else json.dumps(None,cls=DjangoJSONEncoder),
+                       "payGroup":payGroup})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
+
+        id = esd = self.get_object().id
 
         if data["action"] == "getSession":
             return getSession(data, id, request.user)
            
-        return JsonResponse({"response" :  "error"},safe=False)       
-    else:      
-        esd = experiment_session_days.objects.get(id=id)
-
-        return render(request,
-                     'staff/experimentSessionPayoutsView.html',
-                      {"sessionDay":esd,                      
-                       "id":id,
-                       "consent_form" : json.dumps(esd.experiment_session.consent_form.json(), cls=DjangoJSONEncoder) if esd.experiment_session.consent_form else json.dumps(None,cls=DjangoJSONEncoder),
-                       "payGroup":payGroup})  
+        return JsonResponse({"response" :  "error"},safe=False)
 
 #return the session info to the client
 def getSession(data, id, request_user):    

@@ -14,6 +14,9 @@ from django.db.models import prefetch_related_objects
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 from main.models import experiment_session_days
@@ -36,22 +39,58 @@ from main.forms import TraitConstraintForm
 
 from main.globals import send_mass_email_service
 
-@login_required
-@user_is_staff
-def experimentSessionView(request, id):
+class ExperimentSessionView(SingleObjectMixin, View):
     '''
     experiment session view
-    ''' 
-    status = ""      
+    '''
 
-    try:
-        es = experiment_sessions.objects.get(id=id)  
-    except ObjectDoesNotExist:
-        raise Http404('Experiment Session Not Found')
+    template_name = "staff/experimentSession.html"
+    model = experiment_sessions
 
-    if request.method == 'POST':
-        
-        data = json.loads(request.body.decode('utf-8'))                        
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        p = parameters.objects.first()
+
+        try:
+            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+                                        .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
+        es = self.get_object()
+
+        return render(request,
+                      self.template_name,
+                      {'form2':experimentSessionForm2(), 
+                       'form1':experimentSessionForm1(),      
+                       'traitConstraintForm':TraitConstraintForm(),                                                         
+                       'id': es.id,
+                       'max_invitation_block_size':p.max_invitation_block_size,
+                       'helpText':helpText,
+                       'session':es,
+                       'current_session_day_json':json.dumps(es.ESD.first().json(False), cls=DjangoJSONEncoder)
+                      })
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        data = json.loads(request.body.decode('utf-8'))      
+
+        id = self.get_object().id                  
 
         if data["status"] == "get":            
             return getSesssion(data,id)
@@ -101,29 +140,6 @@ def experimentSessionView(request, id):
            return updateRequireAllTraitContraints(data, id)
         elif data["status"] == "updateSession":
            return updateSession(data, id)
-
-    else: #GET             
-
-        p = parameters.objects.first()
-
-        try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
-                                        .filter(rp__icontains = F('path')).first().text
-
-        except Exception  as e:   
-             helpText = "No help doc was found."
-
-        return render(request,
-                      'staff/experimentSession.html',
-                      {'form2':experimentSessionForm2(), 
-                       'form1':experimentSessionForm1(),      
-                       'traitConstraintForm':TraitConstraintForm(),                                                         
-                       'id': id,
-                       'max_invitation_block_size':p.max_invitation_block_size,
-                       'helpText':helpText,
-                       'session':es,
-                       'current_session_day_json':json.dumps(es.ESD.first().json(False), cls=DjangoJSONEncoder)
-                      })
 
 #get session info the show screen at load
 def getSesssion(data,id):

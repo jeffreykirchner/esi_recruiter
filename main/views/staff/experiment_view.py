@@ -169,7 +169,6 @@ def addSession(data, id, creator):
             esd.save()
 
     return JsonResponse({ "sessions" : e.json_sessions(),"status":status},safe=False)
-    #return JsonResponse({'url':reverse('experimentSessionView',args=(es.id,))},safe=False) 
 
 #create empty experiment
 def addSessionBlank(e):

@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import CharField,F,Value as V
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
@@ -20,26 +23,21 @@ from main.models import help_docs
 
 from main.globals import todays_date
 
-@login_required
-@user_is_staff
-def calendarView(request, month=None, year=None):
-    logger = logging.getLogger(__name__) 
-    
-    # logger.info("some info")
+class CalendarView(View):
+    '''
+    Calendar View
+    '''
 
-    if request.method == 'POST':       
+    template_name = "staff/calendar.html"
 
-        data = json.loads(request.body.decode('utf-8'))
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        if data["action"] == "getMonth":
-            return get_month(request, data, month, year)
-        elif data["action"] == "changeMonth":
-            return change_month(request, data)
-        elif data["action"] == "jump_to_month":
-            return jump_to_month(request, data)
-           
-        return JsonResponse({"response" :  "error"},safe=False)       
-    else:   
+        logger = logging.getLogger(__name__)
 
         try:
             helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
@@ -48,6 +46,9 @@ def calendarView(request, month=None, year=None):
         except Exception  as e:   
             helpText = "No help doc was found."
 
+
+        month = kwargs.get('month', None)
+        year = kwargs.get('year', None)
 
         #build month list
         current_date = todays_date()
@@ -65,9 +66,34 @@ def calendarView(request, month=None, year=None):
         logger.info(f"Get calendar: url month:{month}, url year:{year}")
             
 
-        return render(request,'staff/calendar.html',{"helpText":helpText ,
-                                                     "month_list":month_list,
-                                                     "id":""})      
+        return render(request,
+                      self.template_name,
+                      {"helpText":helpText ,
+                       "month_list":month_list,
+                       "id":""})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        month = kwargs.get('month', None)
+        year = kwargs.get('year', None)
+
+        if data["action"] == "getMonth":
+            return get_month(request, data, month, year)
+        elif data["action"] == "changeMonth":
+            return change_month(request, data)
+        elif data["action"] == "jump_to_month":
+            return jump_to_month(request, data)
+           
+        return JsonResponse({"response" :  "error"},safe=False)
 
 def get_month_jump_display_json(date):
     '''

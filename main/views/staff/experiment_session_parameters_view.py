@@ -1,42 +1,39 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from main.decorators import user_is_staff
-from main.models import experiment_sessions
-from main.models import parameters,\
-                        help_docs
-from main.forms import recruitmentParametersForm, experimentSessionForm2, TraitConstraintForm
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
-import json
-from django.conf import settings
 import logging
-from django.db.models import CharField, Q, F, Value as V, Subquery
+import json
 
-#induvidual experiment view
-@login_required
-@user_is_staff
-def experimentSessionParametersView(request, id):
-       
-    status = ""      
+from django.shortcuts import render
+from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.db.models import CharField, F, Value as V
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
-    if request.method == 'POST':
-        
-        data = json.loads(request.body.decode('utf-8'))         
+from main.models import experiment_sessions
+from main.models import parameters
+from main.models import help_docs
 
-        try:
-            es = experiment_sessions.objects.get(id=id)  
-        except es.DoesNotExist:
-            raise Http404('Experiment Not Found')               
+from main.forms import recruitmentParametersForm
 
-        if data["status"] == "get":            
-            return getSesssion(data,id)
-        elif data["status"] == "updateRecruitmentParameters":
-            return updateRecruitmentParameters(data,id)                     
+from main.decorators import user_is_staff
 
-    else: #GET             
+class ExperimentSessionParametersView(SingleObjectMixin, View):
+    '''
+    edit experiment session recruitment parameters
+    '''
+
+    template_name = "staff/experimentSessionParameters.html"
+    model = experiment_sessions
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
 
         p = parameters.objects.first()
 
@@ -53,11 +50,29 @@ def experimentSessionParametersView(request, id):
             recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
-                      'staff/experimentSessionParameters.html',
+                      self.template_name,
                       {'updateRecruitmentParametersForm':recruitment_parameters_form,    
-                      'recruitment_parameters_form_ids':recruitment_parameters_form_ids,
+                       'recruitment_parameters_form_ids':recruitment_parameters_form_ids,
                        'helpText':helpText,
-                       'session':experiment_sessions.objects.get(id=id)})
+                       'session':self.get_object()})
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        data = json.loads(request.body.decode('utf-8'))         
+
+        id = self.get_object().id  
+
+        if data["status"] == "get":            
+            return getSesssion(data, id)
+        elif data["status"] == "updateRecruitmentParameters":
+            return updateRecruitmentParameters(data, id)
 
 #get session info the show screen at load
 def getSesssion(data,id):

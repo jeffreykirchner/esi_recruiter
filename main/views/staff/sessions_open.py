@@ -1,29 +1,54 @@
+import pytz
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from main.models import experiment_session_days,help_docs,parameters
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models.functions import Lower
-from django.db.models import Q,F, Value,CharField
+from django.db.models import Q, F, Value, CharField
 from django.db.models import Count
-from django.shortcuts import redirect
-import main
-from datetime import datetime,timedelta
-import pytz
+from django.views import View
+from django.utils.decorators import method_decorator
 
-@login_required
-@user_is_staff
-def SessionsOpen(request):
-    logger = logging.getLogger(__name__) 
-    
-    
-    # logger.info("some info")
+from main.models import experiment_session_days
+from main.models import help_docs
+from main.models import parameters
 
-    if request.method == 'POST':       
+from main.decorators import user_is_staff
+
+class SessionsOpen(View):
+    '''
+    Open sessions view
+    '''
+
+    template_name = "staff/sessionsOpen.html"
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                        .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
+        return render(request, self.template_name, {"helpText":helpText,"id":""})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
 
@@ -32,17 +57,7 @@ def SessionsOpen(request):
         elif data["action"] == "closeAllSessions":
             return closeAllSessions(data)
         
-           
-        return JsonResponse({"status" :  "error"},safe=False)       
-    else:
-        try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
-                                        .filter(rp__icontains = F('path')).first().text
-
-        except Exception  as e:   
-             helpText = "No help doc was found."
-
-        return render(request,'staff/sessionsOpen.html',{"helpText":helpText,"id":""})      
+        return JsonResponse({"status" :  "error"},safe=False)    
 
 #get a list of all open sessions
 def getOpenSessions(data):

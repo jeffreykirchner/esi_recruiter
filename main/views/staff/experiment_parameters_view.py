@@ -5,8 +5,11 @@ from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.db.models import CharField, Q, F, Value as V, Subquery
+from django.db.models import CharField, Q, F, Value as V
 from django.core.exceptions import ObjectDoesNotExist
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
@@ -16,29 +19,22 @@ from main.models import help_docs
 
 from main.forms import recruitmentParametersForm
 
-@login_required
-@user_is_staff
-def experimentParametersView(request, id):
+class ExperimentParametersView(SingleObjectMixin, View):
     '''
-    view experiment default recruitment paramters
+    Experiment default recruitment parameters setup
     '''
-    status = ""      
 
-    if request.method == 'POST':
-        
-        data = json.loads(request.body.decode('utf-8'))         
+    template_name = "staff/experimentParameters.html"
+    model = experiments
 
-        try:
-            e = experiments.objects.get(id=id)     
-        except ObjectDoesNotExist :
-            raise Http404('Experiment Not Found')             
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        if data["status"] == "get":            
-            return getExperiment(data,id)
-        elif data["status"] == "updateRecruitmentParameters":
-            return updateRecruitmentParameters(data,id)                     
-
-    else: #GET             
+        logger = logging.getLogger(__name__)
 
         p = parameters.objects.first()
 
@@ -55,11 +51,29 @@ def experimentParametersView(request, id):
             recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
-                      'staff/experimentParameters.html',
+                      self.template_name,
                       {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
                       'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
-                       'experiment':experiments.objects.get(id=id)})
+                       'experiment':self.get_object()})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        data = json.loads(request.body.decode('utf-8'))         
+
+        id =  self.get_object().id            
+
+        if data["status"] == "get":            
+            return getExperiment(data,id)
+        elif data["status"] == "updateRecruitmentParameters":
+            return updateRecruitmentParameters(data,id)
 
 #get session info the show screen at load
 def getExperiment(data,id):
