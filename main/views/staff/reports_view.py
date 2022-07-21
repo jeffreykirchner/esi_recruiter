@@ -1,39 +1,45 @@
+import json
+import logging
+import csv
+import pytz
+
 from decimal import Decimal
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from main.decorators import user_is_staff
-import json
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-import logging
-from main.forms import pettyCashForm, studentReportForm
-from main.models import departments,experiment_session_days,accounts,parameters,experiment_session_day_users,help_docs
-import csv
-import pytz
-from django.utils.timezone import make_aware
 from django.http import HttpResponse
-from django.db.models import Avg, Count, Min, Sum, Q,F,CharField,Value as V
+from django.db.models import Avg, Count, Min, Sum, Q, F, CharField, Value as V
 from django.db.models import Case, Value, When, DecimalField
+from django.views import View
+from django.utils.decorators import method_decorator
 
+from main.decorators import user_is_staff
 
-@login_required
-@user_is_staff
-def reportsView(request):
-    logger = logging.getLogger(__name__)     
+from main.forms import pettyCashForm
+from main.forms import studentReportForm
+from main.models import departments
+from main.models import experiment_session_days
+from main.models import accounts
+from main.models import parameters 
+from main.models import experiment_session_day_users
+from main.models import help_docs
 
-    if request.method == 'POST':       
+class ReportsView(View):
+    '''
+    reports view
+    '''
 
-        data = json.loads(request.body.decode('utf-8'))
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        if data["action"] == "getPettyCash":
-            return pettyCash(data)
-        elif data["action"] == "getStudentReport":
-            return studentReport(data)
-           
-        return JsonResponse({"response" :  "fail"},safe=False)       
-    else:      
+        logger = logging.getLogger(__name__)
+
         p = parameters.objects.first()
 
         try:
@@ -46,13 +52,30 @@ def reportsView(request):
         return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
                                                     "studentReportForm" : studentReportForm(),
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
-                                                    "helpText":helpText})      
+                                                    "helpText":helpText})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "getPettyCash":
+            return pettyCash(data)
+        elif data["action"] == "getStudentReport":
+            return studentReport(data)
+           
+        return JsonResponse({"response" :  "fail"},safe=False)
 
 #generate the student csv report
 def studentReport(data):
     logger = logging.getLogger(__name__)
-    logger.info("Get Student Report CSV")
-    logger.info(data)
+    logger.info(f"Get Student Report CSV: {data}")
 
     form_data_dict = {}
 
@@ -193,8 +216,7 @@ def studentReport(data):
 #generate the petty cash csv report
 def pettyCash(data):
     logger = logging.getLogger(__name__)
-    logger.info("Get Petty Cash CSV")
-    logger.info(data)
+    logger.info(f"Get Petty Cash CSV: {data}")
 
     form_data_dict = {}
 

@@ -6,22 +6,61 @@ from django.shortcuts import render
 from main.decorators import user_is_staff
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.contrib.admin.views.decorators import staff_member_required
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
-from django.db.models import CharField,F,Value as V
+from django.db.models import CharField, F, Value as V
 
 from main.models import profile_note
 from main.models import help_docs
 
 from main.globals import get_now_show_blocks
 
-@login_required
-@user_is_staff
-def userInfo(request, id=None):
+class UserInfo(SingleObjectMixin, View):
+    '''
+    user information view
+    '''
 
-    if request.method == 'POST':       
+    template_name = "staff/userInfo.html"
+    model = User
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            helpText = help_docs.objects.annotate(rp=V(request.path,output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
+
+        except Exception  as e:   
+             helpText = "No help doc was found."
+
+        u = self.get_object() 
+
+        return render(request, self.template_name, {"u":u,
+                                                    "id":u.id,
+                                                    "now_show_block" :  True if u in get_now_show_blocks() else False,
+                                                    "helpText":helpText,
+                                                    "experiments":u.ESDU.all() })
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
+
+        id = self.get_object().id
 
         if data["status"] == "getInvitations":
             return getInvitations(data, id)
@@ -33,22 +72,6 @@ def userInfo(request, id=None):
             return deleteNote(request, data, id)       
         elif data["status"] == "getTraits":
             return getTraits(request, data, id)  
-                   
-    else:     
-        try:
-            helpText = help_docs.objects.annotate(rp=V(request.path,output_field=CharField()))\
-                                        .filter(rp__icontains=F('path')).first().text
-
-        except Exception  as e:   
-             helpText = "No help doc was found."
-
-        u = User.objects.get(id=id) 
-
-        return render(request, 'staff/userInfo.html', {"u":u,
-                                                       "id":id,
-                                                       "now_show_block" :  True if u in get_now_show_blocks() else False,
-                                                       "helpText":helpText,
-                                                       "experiments":u.ESDU.all() })  
 
 #store a note about the user
 def makeNote(request, data, id):

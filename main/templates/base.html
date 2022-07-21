@@ -56,11 +56,11 @@
     <body style="font-size:16px"> 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             {%if user.profile.type.name == 'staff'%}
-                <a class="navbar-brand" href="{% url 'mainHome' %}"  data-placement="bottom" title="Calendar">
+                <a class="navbar-brand" href="{% url 'MainHome' %}"  data-placement="bottom" title="Calendar">
                     ESI <i class="far fa-calendar-alt fa-xs"></i>
                 </a>
             {%else%}
-                <a class="navbar-brand" href="{% url 'mainHome' %}"  data-placement="bottom" title="Invitations">
+                <a class="navbar-brand" href="{% url 'MainHome' %}"  data-placement="bottom" title="Invitations">
                     ESI
                 </a>
             {%endif%}

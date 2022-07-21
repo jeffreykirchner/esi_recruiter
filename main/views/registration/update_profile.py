@@ -9,35 +9,27 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models import CharField, F, Value as V
 from django.http import JsonResponse
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 
 from main.models import help_docs
 from main.forms import profileFormUpdate
 from main.globals import profile_create_send_email
 
-#user account info
-@login_required
-def updateProfile(request):
+class UpdateProfile(View):
     '''
     update profile view
     '''
 
-    logger = logging.getLogger(__name__)
+    template_name = "registration/profile.html"
+    
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-    if request.method == 'POST':
-
-        data = json.loads(request.body.decode('utf-8'))
-
-        #check for correct action
-        action = data.get("action", "fail")
-
-        if action == "update":
-            return update_profile(request.user, data)
-
-        #valid action not found
-        logger.warning(f"Profile update post error: {request.user}")
-        return JsonResponse({"status" :  "error"}, safe=False)
-
-    else:
+        logger = logging.getLogger(__name__)
         logger.info("show profile")
 
         form = profileFormUpdate(
@@ -64,11 +56,28 @@ def updateProfile(request):
         for i in form:
             form_ids.append(i.html_name)
 
-        return render(request, 'registration/profile.html', {'form': form,
-                                                             'form_ids': form_ids,
-                                                             'helpText': helpText})
+        return render(request, self.template_name, {'form': form,
+                                                    'form_ids': form_ids,
+                                                    'helpText': helpText})
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+        logger = logging.getLogger(__name__)
 
+        data = json.loads(request.body.decode('utf-8'))
 
+        #check for correct action
+        action = data.get("action", "fail")
+
+        if action == "update":
+            return update_profile(request.user, data)
+
+        #valid action not found
+        logger.warning(f"Profile update post error: {request.user}")
+        return JsonResponse({"status" :  "error"}, safe=False)
+        
 def update_profile(u, data):
     '''
     update user's profile

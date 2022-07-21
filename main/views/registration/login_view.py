@@ -1,20 +1,53 @@
-from django.contrib.auth import authenticate, login,logout
-from django.shortcuts import redirect
-
-from main.models import Front_page_notice,parameters
-from django.shortcuts import render
-import json
-from main.forms import loginForm
-from django.http import JsonResponse
 import logging
+import json
 
-def loginView(request):
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views import View
 
-    logger = logging.getLogger(__name__) 
+from main.forms import loginForm
+
+from main.models import Front_page_notice
+from main.models import parameters
+
+class LoginView(View):
+    '''
+    login view
+    '''
+
+    template_name = "registration/login.html"
+
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logout(request)
+
+        request.session['redirect_path'] = request.GET.get('next','/')
+
+        p = parameters.objects.first()
+        labManager = p.labManager 
+
+        form = loginForm()
+
+        form_ids=[]
+        for i in form:
+            form_ids.append(i.html_name)
+
+        fpn_list = Front_page_notice.objects.filter(enabled = True)
+
+        return render(request,self.template_name,{"labManager":labManager,
+                                                  "form":form,
+                                                  "fpn_list":fpn_list,
+                                                  "form_ids":form_ids})
     
-    #logger.info(request)
-    
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+        logger = logging.getLogger(__name__) 
 
         request_body = ""
         data = ""
@@ -31,28 +64,7 @@ def loginView(request):
         except ValueError as err:
             logger.warning(f"loginView: JSON format error, {str(err)}, request_body {request_body}, data {data}")
             return JsonResponse({"response" :  "error"},safe=False)
-
-    else:
-        logout(request)
-
-        request.session['redirect_path'] = request.GET.get('next','/')
-
-        p = parameters.objects.first()
-        labManager = p.labManager 
-
-        form = loginForm()
-
-        form_ids=[]
-        for i in form:
-            form_ids.append(i.html_name)
-
-        fpn_list = Front_page_notice.objects.filter(enabled = True)
-
-        return render(request,'registration/login.html',{"labManager":labManager,
-                                                         "form":form,
-                                                         "fpn_list":fpn_list,
-                                                         "form_ids":form_ids})
-    
+   
 def login_function(request,data):
     logger = logging.getLogger(__name__) 
     #logger.info(data)

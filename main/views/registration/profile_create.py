@@ -1,31 +1,64 @@
+import logging
+import json
+
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
-from django.contrib.auth import authenticate, login,logout
-from main.forms import profileForm
+from django.contrib.auth import login
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.utils.crypto import get_random_string
-from django.template.loader import render_to_string
-from django.conf import settings
-from main.models import account_types,profile,help_docs
-from main.globals import profile_create_send_email
-from datetime import timedelta
 from django.db.models import CharField, Q, F, Value as V
 from django.urls import reverse
 from django.http import JsonResponse
-import json
 
-import logging
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 
-from main.models.db_migrations import *
+from main.models import account_types
+from main.models import profile
+from main.models import help_docs
 
-#user account info
+from main.globals import profile_create_send_email
+from main.forms import profileForm
 
-def profileCreate(request):
-    logger = logging.getLogger(__name__) 
+class ProfileCreate(View):
+    '''
+    create new profile
+    '''
 
-    if request.method == 'POST':
+    template_name = "registration/profileCreate.html"
+
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        logout(request)
         
+        form = profileForm()
+
+        #logger.info(reverse('profile'))
+        try:
+            helpText = help_docs.objects.annotate(rp = V(reverse('profile'),output_field=CharField()))\
+                                        .filter(rp__icontains = F('path')).first().text
+
+        except Exception  as e:   
+            helpText = "No help doc was found."
+
+        form_ids=[]
+        for i in form:
+            form_ids.append(i.html_name)
+
+        return render(request, self.template_name,{'form': form,
+                                                   'helpText':helpText,
+                                                   'form_ids':form_ids})
+
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+        logger = logging.getLogger(__name__)
+
         #check that request id json formatted
         try:
             request_body = None
@@ -43,28 +76,7 @@ def profileCreate(request):
 
         #valid action not found
         logger.warning(f"Profile create post error: {data}")
-        return JsonResponse({"status" : "error"}, safe=False)           
-
-    else:
-        logout(request)
-        
-        form = profileForm()
-
-        #logger.info(reverse('profile'))
-        try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile'),output_field=CharField()))\
-                                        .filter(rp__icontains = F('path')).first().text
-
-        except Exception  as e:   
-            helpText = "No help doc was found."
-
-        form_ids=[]
-        for i in form:
-            form_ids.append(i.html_name)
-
-        return render(request, 'registration/profileCreate.html',{'form': form,
-                                                                  'helpText':helpText,
-                                                                  'form_ids':form_ids})    
+        return JsonResponse({"status" : "error"}, safe=False)
 
 def createUser(request, data):
     logger = logging.getLogger(__name__) 
