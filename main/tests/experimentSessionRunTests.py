@@ -26,8 +26,8 @@ from main.views.registration import profileCreateUser
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_session_view import changeConfirmationStatus, updateSessionDay, cancelSession, removeSubject
-from main.views.staff.experimentSessionRunView import getStripeReaderCheckin, noShowSubject, attendSubject, bumpSubject, noShowSubject,fillDefaultShowUpFee
-from main.views.staff.experimentSessionRunView import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload
+from main.views.staff.experiment_session_run_view import getStripeReaderCheckin, noShowSubject, attendSubject, bumpSubject, noShowSubject,fillDefaultShowUpFee
+from main.views.staff.experiment_session_run_view import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload
 from main.views.subject.subjectHome import cancelAcceptInvitation, acceptInvitation
 
 class sessionRunTestCase(TestCase):
