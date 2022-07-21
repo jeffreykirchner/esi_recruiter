@@ -56,13 +56,13 @@ urlpatterns = [
     path('subject-auto-login/<int:pk>/', views.SubjectAutoLogin.as_view(), name='subject_auto_login'),
 
     #subject
-    path('subjectHome/', views.subjectHome, name='subjectHome'),
-    path('subjectConsent/<int:id>/', views.subjectConsent, name='subjectConsent'),
-    path('subjectInvitation/<int:id>/', views.subjectInvitation, name='subjectInvitation'),
-    path('faq/', views.faqView, name='faqView'),
+    path('subjectHome/', views.SubjectHome.as_view(), name='subjectHome'),
+    path('subjectConsent/<int:id>/', views.SubjectConsent.as_view(), name='subjectConsent'),
+    path('subjectInvitation/<int:id>/', views.SubjectInvitation.as_view(), name='subjectInvitation'),
+    path('faq/', views.FaqView.as_view(), name='faqView'),
 
     #cron
-    path('runCrons/', csrf_exempt(views.runCronsView), name='runCronsView'),
+    path('runCrons/', csrf_exempt(views.RunCronsView.as_view()), name='runCronsView'),
 
     #txt
     path('robots.txt', views.RobotsTxt, name='robotsTxt'),

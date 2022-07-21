@@ -7,49 +7,38 @@ import pytz
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db.models import CharField, Q, F, Value as V
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import experiment_session_day_users
 from main.models import parameters
 from main.models import help_docs
-from main.models import ConsentForm
-from main.models import ProfileConsentForm
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
 
-@login_required
-@user_is_subject
-@email_confirmed
-def subjectHome(request):
-    logger = logging.getLogger(__name__) 
-   
-    
-    # logger.info("some info")
-    u=request.user  
+from django.views import View
+from django.utils.decorators import method_decorator
 
-    if request.method == 'POST':     
+class SubjectHome(View):
+    '''
+    Subject home view
+    '''
 
-       
-        #u=User.objects.get(id=11330)  #tester
+    template_name = "subject/home.html"
 
-        data = json.loads(request.body.decode('utf-8'))
+    @method_decorator(login_required)
+    @method_decorator(user_is_subject)
+    @method_decorator(email_confirmed)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        if data["action"] == "getCurrentInvitations":
-            return getCurrentInvitations(data,u)
-        elif data["action"] == "acceptInvitation":
-            return acceptInvitation(data,u)
-        elif data["action"] == "cancelAcceptInvitation":
-            return cancelAcceptInvitation(data,u)
-        elif data["action"] == "showAllInvitations":
-            return showAllInvitations(data,u)
-        # elif data["action"] == "acceptConsentForm":
-        #     return acceptConsentForm(data,u)
-           
-        return JsonResponse({"response" :  "fail"},safe=False)       
-    else:      
+        logger = logging.getLogger(__name__)
+
+        u = request.user 
+
         p = parameters.objects.first()
 
         labManager = p.labManager
@@ -61,9 +50,34 @@ def subjectHome(request):
         except Exception  as e:   
             helpText = "No help doc was found."
         
-        return render(request,'subject/home.html',{"labManager":labManager,
-                                                   "account_paused": json.dumps(u.profile.paused, cls=DjangoJSONEncoder),
-                                                   "helpText":helpText})      
+        return render(request,self.template_name,{"labManager":labManager,
+                                                  "account_paused": json.dumps(u.profile.paused, cls=DjangoJSONEncoder),
+                                                  "helpText":helpText})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_subject)
+    @method_decorator(email_confirmed)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        u = request.user
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "getCurrentInvitations":
+            return getCurrentInvitations(data,u)
+        elif data["action"] == "acceptInvitation":
+            return acceptInvitation(data,u)
+        elif data["action"] == "cancelAcceptInvitation":
+            return cancelAcceptInvitation(data,u)
+        elif data["action"] == "showAllInvitations":
+            return showAllInvitations(data,u)
+           
+        return JsonResponse({"response" :  "fail"},safe=False)    
 
 #return invitations for subject
 def getCurrentInvitations(data,u):    

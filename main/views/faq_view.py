@@ -7,10 +7,33 @@ from django.http import JsonResponse
 from main.models import faq
 from main.models import parameters
 
-def faqView(request):
-    logger = logging.getLogger(__name__) 
+from django.views import View
 
-    if request.method == 'POST':       
+class FaqView(View):
+    '''
+    FAQ view
+    '''
+
+    template_name = "subject/faq.html"
+
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        p = parameters.objects.first()
+        labManager = p.labManager      
+        
+        return render(request, self.template_name, {"labManager":labManager}) 
+    
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
 
@@ -22,13 +45,6 @@ def faqView(request):
         #no valid action found
         logger.info(f"FAQ Post error: {data}")
         return JsonResponse({"status" :  "error"},safe=False)
-                   
-    else:     
-
-        p = parameters.objects.first()
-        labManager = p.labManager      
-        
-        return render(request,'subject/faq.html',{"labManager":labManager})  
 
 #get the session and notes subject has participated in
 def getFaqs(data):
