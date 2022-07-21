@@ -1,7 +1,6 @@
 '''
 Run Session View
 '''
-from datetime import datetime, timedelta, timezone
 from decimal import *
 
 import random
@@ -10,41 +9,82 @@ import math
 from decimal import Decimal
 import json
 import logging
-import pytz
 import requests
 import re
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Q, F, CharField, Value
 from django.http import HttpResponse
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.serializers.json import DjangoJSONEncoder
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
-from main.models import experiment_session_days, experiment_session_day_users, profile, help_docs, parameters
-from main.views.staff.experimentSessionView import getManuallyAddSubject, changeConfirmationStatus
+from main.models import experiment_session_days
+from main.models import experiment_session_day_users
+from main.models import profile
+from main.models import help_docs
+from main.models import parameters
 
-@login_required
-@user_is_staff
-def experimentSessionRunView(request, id_=None):
-    '''
-    Session Run View
-    '''
-    logger = logging.getLogger(__name__)
+from main.views.staff.experiment_session_view import getManuallyAddSubject, changeConfirmationStatus
 
-    if request.method == 'POST':
+class ExperimentSessionRunView(SingleObjectMixin, View):
+    '''
+    Experiment Session Run View
+    '''
+
+    template_name = "staff/experimentSessionRun.html"
+    model = experiment_session_days
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        esd = self.get_object()
+        id_ = esd.id
 
         try:
-            #check for incoming file
-            file_ = request.FILES['file']
-            return takeEarningsUpload(file_, id_, request.user, request.POST['auto_add'])
+            help_text = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
+
         except Exception  as exc:
-            logger.info(f'experimentSessionRunView no file upload: {exc}')
-            # return JsonResponse({"response" :  "error"},safe=False)
+            help_text = "No help doc was found."
+
+        esd = experiment_session_days.objects.get(id=id_)
+        return render(request,
+                      self.template_name,
+                      {"sessionDay":esd, 
+                       "sessionDay_json":json.dumps(esd.json_runInfo(request.user), cls=DjangoJSONEncoder),
+                       "id":id_, 
+                       "helpText":help_text})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        id_ = self.get_object().id
+
+        # try:
+        #     #check for incoming file
+        #     file_ = request.FILES['file']
+        #     return takeEarningsUpload(file_, id_, request.user, request.POST['auto_add'])
+        # except Exception  as exc:
+        #     logger.info(f'experimentSessionRunView no file upload: {exc}')
+        #     # return JsonResponse({"response" :  "error"},safe=False)
 
         #no incoming file
         data = json.loads(request.body.decode('utf-8'))
@@ -85,22 +125,6 @@ def experimentSessionRunView(request, id_=None):
             return takeEarningsUpload2(id_, data["text"], request.user, data["autoAddUsers"])
 
         return JsonResponse({"response" :  "error"}, safe=False)
-    
-    #Get
-    try:
-        help_text = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
-                                     .filter(rp__icontains=F('path')).first().text
-
-    except Exception  as exc:
-        help_text = "No help doc was found."
-
-    esd = experiment_session_days.objects.get(id=id_)
-    return render(request,
-                 'staff/experimentSessionRun.html',
-                 {"sessionDay":esd, 
-                  "sessionDay_json":json.dumps(esd.json_runInfo(request.user), cls=DjangoJSONEncoder),
-                  "id":id_, 
-                  "helpText":help_text})
 
 #return the session info to the client
 def getSession(data, id, request_user):

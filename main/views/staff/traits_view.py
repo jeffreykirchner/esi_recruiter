@@ -4,13 +4,13 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.http import HttpResponse
-from django.utils.safestring import mark_safe
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Lower
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.forms import traitReportForm
 from main.decorators import user_is_staff
@@ -20,18 +20,46 @@ from main.models import profile_trait
 from main.models import profile
 from main.models import help_docs
 
-@login_required
-@user_is_staff
-@staff_member_required
-def traitsView(request):
-    logger = logging.getLogger(__name__) 
-    
-    # logger.info("some info")
+class TraitsView(View):
+    '''
+    Traits upload and reporting
+    '''
 
-    if request.method == 'POST':      
+    template_name = "staff/traits.html"
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    @method_decorator(staff_member_required)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            logger.info(request.path)
+            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+                                .filter(rp__icontains = F('path')).first().text
+        except Exception  as e:   
+            logger.info(f'{e}')
+            helpText = "No help doc was found."
+
+        return render(request, self.template_name,{"traitReportForm":traitReportForm(),
+                                                   "helpText":helpText})
+
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    @method_decorator(staff_member_required)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         u = request.user
-
 
         #check for file upload
         try:
@@ -44,24 +72,11 @@ def traitsView(request):
         data = json.loads(request.body.decode('utf-8'))
         
         if data["action"] == "getReport":
-            return getReport(data,u)
+            return getReport(data, u)
         elif data["action"] == "action2":
             pass
            
-        return JsonResponse({"response" :  "fail"},safe=False)     
-
-    else:      
-
-        try:
-            logger.info(request.path)
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
-                                .filter(rp__icontains = F('path')).first().text
-        except Exception  as e:   
-            logger.info(f'{e}')
-            helpText = "No help doc was found."
-
-        return render(request,'staff/traits.html',{"traitReportForm":traitReportForm(),
-                                                   "helpText":helpText}) 
+        return JsonResponse({"response" :  "fail"}, safe=False)    
 
 #get CSV file users with specified traits
 def getReport(data,u):

@@ -3,12 +3,13 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.db.models import CharField, Q, F, Value as V
-from django.contrib.auth.models import User
+from django.db.models import CharField, F, Value as V
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.models import parameters
 from main.models import help_docs
@@ -21,34 +22,25 @@ from main.decorators import email_confirmed
 
 import  main
 
-@login_required
-@user_is_subject
-@email_confirmed
-def subjectConsent(request, id):
-    logger = logging.getLogger(__name__) 
-       
-    # logger.info("some info")
-    u=request.user  
+class SubjectConsent(View):
+    '''
+    subject consent form
+    '''
 
-    if request.method == 'POST':     
+    template_name = "subject/consent_form.html"
 
-        try:
-            subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
-            session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
+    @method_decorator(login_required)
+    @method_decorator(user_is_subject)
+    @method_decorator(email_confirmed)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-            if not session:
-                 return JsonResponse({"response" :  "fail"},safe=False)  
+        logger = logging.getLogger(__name__)
 
-        except ObjectDoesNotExist :
-            return JsonResponse({"response" :  "fail"},safe=False)  
-
-        data = json.loads(request.body.decode('utf-8'))
-
-        if data["action"] == "acceptConsentForm":
-            return acceptConsentForm(data, u, session)
-           
-        return JsonResponse({"response" :  "fail"},safe=False)       
-    else:      
+        u = request.user
+        id = kwargs['id']
         p = parameters.objects.first()
 
         labManager = p.labManager
@@ -78,10 +70,42 @@ def subjectConsent(request, id):
             raise Http404('Consent Form Not Found')
     
 
-        return render(request,'subject/consent_form.html',{"labManager":labManager,
-                                                           "consent_form_json": json.dumps(consent_form.json(),cls=DjangoJSONEncoder) if consent_form else json.dumps(None,cls=DjangoJSONEncoder),
-                                                           "consent_form_subject_json": json.dumps(consent_form_subject.json(),cls=DjangoJSONEncoder) if consent_form_subject else json.dumps(None,cls=DjangoJSONEncoder),
-                                                           "helpText":helpText})      
+        return render(request, 
+                      self.template_name, 
+                      {"labManager":labManager,
+                       "consent_form_json": json.dumps(consent_form.json(),cls=DjangoJSONEncoder) if consent_form else json.dumps(None,cls=DjangoJSONEncoder),
+                       "consent_form_subject_json": json.dumps(consent_form_subject.json(),cls=DjangoJSONEncoder) if consent_form_subject else json.dumps(None,cls=DjangoJSONEncoder),
+                       "helpText":helpText})
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_subject)
+    @method_decorator(email_confirmed)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        u = request.user
+        id = kwargs['id']
+
+        try:
+            subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
+            session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
+
+            if not session:
+                 return JsonResponse({"response" :  "fail"},safe=False)  
+
+        except ObjectDoesNotExist :
+            return JsonResponse({"response" :  "fail"},safe=False)  
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        if data["action"] == "acceptConsentForm":
+            return acceptConsentForm(data, u, session)
+           
+        return JsonResponse({"response" :  "fail"},safe=False)
 
 #subject accepts consent form
 def acceptConsentForm(data, u, session):

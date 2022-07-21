@@ -7,9 +7,9 @@ from main.models import genders,experiments,subject_types,account_types,majors,\
                         experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
-from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
-from main.views.subject.subjectHome import acceptInvitation,cancelAcceptInvitation
-from main.views.staff.experimentSessionRunView import attendSubject,bumpSubject,noShowSubject,completeSession
+from main.views.staff.experiment_session_view import changeConfirmationStatus,updateSessionDay,cancelSession
+from main.views.subject.subject_home import acceptInvitation,cancelAcceptInvitation
+from main.views.staff.experiment_session_run_view import attendSubject,bumpSubject,noShowSubject,completeSession
 
 from datetime import datetime, timedelta
 import pytz

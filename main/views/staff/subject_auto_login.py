@@ -3,42 +3,34 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
-@login_required
-@user_is_staff
-@staff_member_required
+class SubjectAutoLogin(SingleObjectMixin, View):
+    '''
+    login as subject if elevated staff users
+    '''
 
-def SubjectAutoLogin(request, id=None):
-    logger = logging.getLogger(__name__) 
-    
-    
-    # logger.info("some info")
+    model = User
 
-    if request.method == 'POST':       
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    @method_decorator(staff_member_required)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
 
-        data = json.loads(request.body.decode('utf-8'))
-
-        if data["action"] == "action1":
-            pass
-        elif data["action"] == "action2":
-            pass
-           
-        return JsonResponse({"response" :  "error"}, safe=False)       
-    else:   
-        try:
-            user = User.objects.get(id=id)
-        except Exception  as e:             
-           return HttpResponse('User not found', content_type="text/plain")
+        logger = logging.getLogger(__name__)
 
         logout(request)
-        login(request, user)
+        login(request, self.get_object())
 
         return redirect('MainHome')
+        

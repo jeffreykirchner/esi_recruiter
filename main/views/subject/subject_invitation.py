@@ -1,19 +1,16 @@
-from datetime import datetime, timedelta
-
 import json
 import logging
-import pytz
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.db.models import CharField, Q, F, Value as V
-from django.contrib.auth.models import User
+from django.db.models import CharField, F, Value as V
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
+from django.views import View
+from django.utils.decorators import method_decorator
 
-from main.models import experiment_session_day_users
 from main.models import parameters
 from main.models import help_docs
 from main.models import ConsentForm
@@ -23,21 +20,26 @@ from main.models import experiment_sessions
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
 
-@login_required
-@user_is_subject
-@email_confirmed
-def subjectInvitation(request, id):
-    logger = logging.getLogger(__name__) 
-       
-    # logger.info("some info")
-    u=request.user  
+class SubjectInvitation(View):
+    '''
+    subject invitation view
+    '''
 
-    if request.method == 'POST':     
+    template_name = "subject/invitation.html"
 
-        data = json.loads(request.body.decode('utf-8'))
-           
-        return JsonResponse({"response" :  "fail"},safe=False)       
-    else:      
+    @method_decorator(login_required)
+    @method_decorator(user_is_subject)
+    @method_decorator(email_confirmed)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        u = request.user
+        id = kwargs['id']
+
         p = parameters.objects.first()
 
         labManager = p.labManager
@@ -57,10 +59,10 @@ def subjectInvitation(request, id):
             # logger.info(session)
 
             if not session:
-                raise Http404('Consent Form Not Found')
+                raise Http404('Invitation Not Found')
 
         except ObjectDoesNotExist :
-            raise Http404('Consent Form Not Found')
+            raise Http404('Invitation Not Found')
 
         
         if (session_invitation := u.experiment_session_invitation_users.filter(experiment_session=session.first()).first()):
@@ -68,9 +70,9 @@ def subjectInvitation(request, id):
         else:
             invitation_text = "Invitation text not found."
     
-        return render(request,'subject/invitation.html',{"labManager":labManager,
-                                                           "invitation_html": invitation_text,
-                                                           "helpText":helpText})      
+        return render(request,self.template_name,{"labManager":labManager,
+                                                  "invitation_html": invitation_text,
+                                                  "helpText":helpText})
 
 #subject accepts consent form
 def acceptConsentForm(data, u):

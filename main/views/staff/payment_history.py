@@ -15,6 +15,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import CharField, F, Value as V
 from django.conf import settings
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
@@ -24,15 +26,58 @@ from main.models import experiment_session_days
 from main.models import profile
 from main.models import accounts
 
-@login_required
-@user_is_staff
-@staff_member_required
-def PaymentHistory(request):
+class PaymentHistory(View):
     '''
-    Handle incoming requestst
+    show history of payments overs specified time range
     '''
 
-    if request.method == 'POST':
+    template_name = "staff/paymentHistory.html"
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    @method_decorator(staff_member_required)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            help_text = help_docs.objects.annotate(rp=V(request.path, output_field=CharField()))\
+                                        .filter(rp__icontains=F('path')).first().text
+
+        except Exception as exce:
+            help_text = "No help doc was found."
+
+        param = parameters.objects.first()
+        tmz = pytz.timezone(param.subjectTimeZone)
+        d_today = datetime.now(tmz)
+        d_one_day = d_today - timedelta(days=1)
+        d_one_month = d_today - timedelta(days=30)
+
+        #start of fiscal year
+        d_fisical_start = d_today
+        d_fisical_start = d_fisical_start.replace(month=6, day=1)
+
+        if d_today.month<6:
+            d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
+
+        return render(request, self.template_name, {"helpText" : help_text,
+                                                    "d_today" : d_today.date().strftime("%Y-%m-%d"),
+                                                    "d_one_day" : d_one_day.date().strftime("%Y-%m-%d"),
+                                                    "d_one_month" : d_one_month.date().strftime("%Y-%m-%d"),
+                                                    "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d")}) 
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    @method_decorator(staff_member_required)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
 
         data = json.loads(request.body.decode('utf-8'))
 
@@ -44,33 +89,6 @@ def PaymentHistory(request):
             return get_budget_history(request, data)
             
         return JsonResponse({"error" : "error"}, safe=False)
-
-    #get
-    try:
-        help_text = help_docs.objects.annotate(rp=V(request.path, output_field=CharField()))\
-                                     .filter(rp__icontains=F('path')).first().text
-
-    except Exception as exce:
-        help_text = "No help doc was found."
-
-    param = parameters.objects.first()
-    tmz = pytz.timezone(param.subjectTimeZone)
-    d_today = datetime.now(tmz)
-    d_one_day = d_today - timedelta(days=1)
-    d_one_month = d_today - timedelta(days=30)
-
-    #start of fiscal year
-    d_fisical_start = d_today
-    d_fisical_start = d_fisical_start.replace(month=6, day=1)
-
-    if d_today.month<6:
-        d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
-
-    return render(request, 'staff/paymentHistory.html', {"helpText" : help_text,
-                                                        "d_today" : d_today.date().strftime("%Y-%m-%d"),
-                                                        "d_one_day" : d_one_day.date().strftime("%Y-%m-%d"),
-                                                        "d_one_month" : d_one_month.date().strftime("%Y-%m-%d"),
-                                                        "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d")})     
 
 #return list of users based on search criterion
 def get_history(request, data):
