@@ -23,7 +23,7 @@ from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 
-from main.views.staff.experimentView import addSessionBlank
+from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_search_view import createExperimentBlank
 
 from main.forms import recruitmentParametersForm

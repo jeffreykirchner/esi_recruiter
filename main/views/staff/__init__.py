@@ -4,7 +4,7 @@ build main.views
 from .user_search import *
 from .user_search_parameters_view import *
 from .user_info import *
-from .experimentView import *
+from .experiment_view import *
 from .experimentSessionView import *
 from .experimentSessionRunView import *
 from .experimentSessionPayoutsView import *

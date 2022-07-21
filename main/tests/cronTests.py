@@ -9,7 +9,7 @@ from main.models import genders,experiments,subject_types,account_types,majors,\
                         experiment_session_day_users,experiment_session_days
 
 from main.views.staff.experiment_search_view import createExperimentBlank
-from main.views.staff.experimentView import addSessionBlank
+from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experimentSessionView import changeConfirmationStatus,updateSessionDay,cancelSession
 from main.cron import checkForReminderEmails
 

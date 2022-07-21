@@ -9,28 +9,73 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, F, Value, CharField
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
-from main.models import experiments, \
-                        experiment_session_days, \
-                        experiment_sessions, \
-                        parameters,\
-                        help_docs, \
-                        Recruitment_parameters_trait_constraint,\
-                        Traits,\
-                        Invitation_email_templates
 
-from main.forms import experimentForm1, recruitmentParametersForm, TraitConstraintForm, invitationEmailTemplateSelectForm
+from main.models import experiments
+from main.models import experiment_session_days
+from main.models import experiment_sessions
+from main.models import parameters
+from main.models import help_docs
+from main.models import Recruitment_parameters_trait_constraint
+from main.models import Traits
+from main.models import Invitation_email_templates
 
-@login_required
-@user_is_staff
-def experimentView(request, id):
-    logger = logging.getLogger(__name__) 
-       
-    status = "" 
+from main.forms import experimentForm1
+from main.forms import recruitmentParametersForm
+from main.forms import TraitConstraintForm
+from main.forms import invitationEmailTemplateSelectForm
 
-    if request.method == 'POST':
-        
+class ExperimentView(SingleObjectMixin, View):
+    '''
+    experiment view
+    '''
+
+    template_name = "staff/experimentView.html"
+    model = experiments
+
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def get(self, request, *args, **kwargs):
+        '''
+        handle get requests
+        '''
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+                                .filter(rp__icontains=F('path')).first().text
+        except Exception  as e:   
+            helpText = "No help doc was found."
+
+        id = self.get_object().id
+
+        return render(request,
+                      self.template_name,
+                      {'form1':experimentForm1(),
+                       'traitConstraintForm':TraitConstraintForm(),       
+                       'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
+                       'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
+                       'id': id,
+                       'helpText':helpText})
+    
+    @method_decorator(login_required)
+    @method_decorator(user_is_staff)
+    def post(self, request, *args, **kwargs):
+        '''
+        handle post requests
+        '''
+
+        logger = logging.getLogger(__name__) 
+
+        data = json.loads(request.body.decode('utf-8'))
+
+        id = self.get_object().id
+
         data = json.loads(request.body.decode('utf-8'))         
         
         if data["status"] == "get":
@@ -56,26 +101,6 @@ def experimentView(request, id):
         elif  data["status"] == "fillDefaultReminderText":
             return fillDefaultReminderText(data, id)
             
-
-    else: #GET       
-
-        try:
-            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
-                                .filter(rp__icontains=F('path')).first().text
-        except Exception  as e:   
-            helpText = "No help doc was found."
-
-        logger.info(request.path)
-
-        return render(request,
-                      'staff/experimentView.html',
-                      {'form1':experimentForm1(),
-                       'traitConstraintForm':TraitConstraintForm(),       
-                       'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
-                       'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
-                       'id': id,
-                       'helpText':helpText})
-
 #get the eperiment info
 def getExperiment(data, id):
     logger = logging.getLogger(__name__)
@@ -192,7 +217,10 @@ def updateForm1(data,id):
            
         institutionList=[]
         for i in e.institution.all():
-            institutionList.append(str(i.id))      
+            institutionList.append(str(i.id))  
+
+        form_data_dict["survey"] = 'true' if e.survey else 'false'
+            
 
     form_data_dict["institution"] = institutionList                 
 
