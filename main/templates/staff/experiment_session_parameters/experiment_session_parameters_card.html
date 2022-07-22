@@ -1,13 +1,13 @@
 {% load crispy_forms_tags %}
 
-<div class="card" >                  
+<div class="card">                  
     <div class="card-header" >
       Parameters Session Day : <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a> | 
                                <a href="{% url 'experimentSessionView' session.id %}">Session</a>
 
         <span class="float-right" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
     </div>
-    <div class="card-body" v-cloak>  
+    <div class="card-body">  
         <form id="updateRecruitmentParametersForm" v-show="loading==false">
             <!-- recruitment parameters -->
             <div class="row">
@@ -99,7 +99,7 @@
     </div>
     <div class="card-footer text-right" v-cloak>
         <button type="button" class="btn btn-outline-primary" v-on:click = "updateRecruitmentParameters()">
-           [[buttonText1]] <i class="fas fa-sign-in-alt"></i>
+            <span v-html="buttonText1"></span>
         </button>
     </div>
 </div>
