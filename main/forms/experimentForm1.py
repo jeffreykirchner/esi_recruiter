@@ -39,7 +39,7 @@ class experimentForm1(forms.ModelForm):
                                                                                   "v-on:change":"mainFormChange1"}))
 
     consent_form_default = forms.ModelChoiceField(label='Consent Form (default)',
-                                                  queryset=ConsentForm.objects.all(),
+                                                  queryset=ConsentForm.objects.filter(archived=False),
                                                   required=False,
                                                   widget=forms.Select(attrs={"v-model":"experiment.consent_form_default",
                                                                              "v-on:change":"mainFormChange1"}))

@@ -20,7 +20,7 @@ class experimentSessionForm1(forms.ModelForm):
         self.fields['budget'].label_from_instance = self.budget_label_from_instance
 
     consent_form = forms.ModelChoiceField(label='Consent Form',
-                                          queryset=ConsentForm.objects.all(),
+                                          queryset=ConsentForm.objects.filter(archived=False),
                                           required=False,
                                           widget=forms.Select(attrs={"v-model":"session.consent_form",
                                                                      "v-bind:disabled":"session.allowEdit === false",

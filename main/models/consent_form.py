@@ -11,6 +11,7 @@ class ConsentForm(models.Model):
     pdf_file = models.FileField(unique=True)                                   #pdf file from the IRB
     signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
     agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
+    archived = models.BooleanField(verbose_name="Archived", default=False)     #if true, new sessions cannot use this consent form
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)
@@ -30,4 +31,5 @@ class ConsentForm(models.Model):
             "pdf_file_url" : self.pdf_file.url,
             "signature_required" : self.signature_required,
             "agreement_required" : self.agreement_required,
+            "archived" : self.archived,
         }
