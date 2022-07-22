@@ -1,6 +1,4 @@
 from django.db import models
-import logging
-import traceback
 
 from . import departments
 
@@ -10,8 +8,8 @@ class accounts(models.Model):
     number = models.CharField(max_length = 100)
     department = models.ForeignKey(departments, on_delete=models.CASCADE)
 
-    archived = models.BooleanField(verbose_name="Archived", default=False)              #if archived hide from useage
-    outside_funding = models.BooleanField(verbose_name="Outside Funding", default=False)       #payments are coming from outside the oganization
+    archived = models.BooleanField(verbose_name="Archived", default=False)                    #if archived hide from useage
+    outside_funding = models.BooleanField(verbose_name="Outside Funding", default=False)      #payments are coming from outside the oganization
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated= models.DateTimeField(auto_now=True)

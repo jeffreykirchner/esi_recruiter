@@ -7,7 +7,7 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     el: '#root',        
     data:{        
-        experiment : {},
+        experiment : null,
         recruitment_params:{                          //recruiment parameters
                 gender:[],
                 actual_participants:0,
@@ -30,7 +30,7 @@ var app = new Vue({
         confirmedCount:0,
         session:{confirmedCount:0},             //recruitment form parameter
         loading:true,
-        buttonText1:"Update",                 //recruitment parameters update button text                   
+        buttonText1:'Update <i class="fas fa-sign-in-alt"></i>',                 //recruitment parameters update button text                   
     },
 
     methods:{     
@@ -66,7 +66,7 @@ var app = new Vue({
                         app.displayErrors(response.data.errors);
                     }          
 
-                    app.$data.buttonText1="Update"                      
+                    app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i>';                      
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -94,7 +94,7 @@ var app = new Vue({
 
         //if form is changed add * to button
         recruitmentFormChange:function(){
-            app.$data.buttonText1="Update *";
+            app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
         },
 
         //displays to the form errors
