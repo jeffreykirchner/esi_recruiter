@@ -1,10 +1,12 @@
 
+import pytz
+
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import profile
 from main.models import ConsentForm
+from main.models import parameters
 
 class ProfileConsentForm(models.Model):
     '''
@@ -30,11 +32,20 @@ class ProfileConsentForm(models.Model):
             models.UniqueConstraint(fields=['my_profile', 'consent_form'], name='unique_profile_consent_form')
         ]  
     
+    def get_date_string_tz_offset(self):
+        '''
+        return a date string converted to the lab's time zone
+        '''
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.updated.astimezone(tz).strftime("%-m/%-d/%Y")
+    
     def json(self):
         return {
             "id" : self.id,
             "signature_points" : self.signature_points,
             "singnature_resolution" : self.singnature_resolution,
+            "date_string" : self.get_date_string_tz_offset(),
         }
         
 
