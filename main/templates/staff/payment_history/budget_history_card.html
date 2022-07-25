@@ -68,8 +68,13 @@
 
                     <tbody id="userListBudget">                                                  
                         <tr v-for="(h,index) in historyBudget" v-bind:key="h.id">                                                                          
-                            <td class="w-auto"> 
-                               <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>                                      
+                            <td class="w-auto">
+                                <span v-if="h.id != -1">
+                                    <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>
+                                </span> 
+                                <span v-else>
+                                    [[h.name]]
+                                </span>                                     
                             </td>
                             <td class="w-auto">                                                    
                                 [[h.account_name]]                                 

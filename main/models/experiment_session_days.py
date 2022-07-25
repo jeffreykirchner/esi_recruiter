@@ -438,7 +438,7 @@ class experiment_session_days(models.Model):
     def get_cash_payout_total(self):
         logger = logging.getLogger(__name__)
         
-        payouts =  self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
+        payouts = self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
                               .aggregate(show_up_fee=Sum('show_up_fee'), earnings=Sum('earnings'))
 
         logger.info(f'get_cash_payout_total: {payouts}')

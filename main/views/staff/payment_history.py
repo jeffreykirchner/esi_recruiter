@@ -251,8 +251,6 @@ def get_budget_history(request, data):
     for i in esd_qs:
         i.pullPayPalResult(False)   
 
-    
-
     history = []
     
     #paypal
@@ -262,9 +260,12 @@ def get_budget_history(request, data):
     for b in budget_list:        
 
         for a in account_list:
-            session_list = experiment_session_days.objects.filter(experiment_session__budget=b.user,
-                                                                  complete=True,
-                                                                  account=a)
+            session_list = experiment_session_days.objects.filter(experiment_session__budget=b.user) \
+                                                          .filter(complete=True) \
+                                                          .filter(account=a) \
+                                                          .filter(date__gte=s_date) \
+                                                          .filter(date__lte=e_date) \
+                                                          .order_by('experiment_session__experiment__title')
 
             result={}
             result['id']=b.user.id
@@ -279,8 +280,10 @@ def get_budget_history(request, data):
                 else:
                     total = s.get_cash_payout_total()
                     
-                    result['total'] += total['show_up_fee']
-                    result['total'] += total['earnings']
+                    if total.get('show_up_fee', None):
+                        result['total'] += total['show_up_fee']
+                        result['total'] += total['earnings']
+
                 result['sessions'].append({'id':s.id, 'title':s.experiment_session.experiment.title,})
             
             if result['total'] > 0 :
@@ -290,6 +293,41 @@ def get_budget_history(request, data):
                 result['department']=a.department.name
                 result['total'] = f'{result["total"]:0.2f}'
                 history.append(result)
+    
+    #no budget defined
+    session_list = experiment_session_days.objects.filter(experiment_session__budget=None) \
+                                                  .filter(complete=True) \
+                                                  .filter(date__gte=s_date) \
+                                                  .filter(date__lte=e_date) \
+                                                  .order_by('experiment_session__experiment__title')  
+
+    result={}
+    result['id']=-1
+    result['total']=0
+    result['sessions']=[] 
+
+    for s in session_list:        
+
+        if s.paypal_api:
+            realized_totals = s.get_paypal_realized_totals()
+            result['total'] += realized_totals['realized_fees']
+            result['total'] += realized_totals['realized_payouts']
+        else:
+            total = s.get_cash_payout_total()
+            
+            if total.get('show_up_fee', None):
+                result['total'] += total['show_up_fee']
+                result['total'] += total['earnings']
+
+        result['sessions'].append({'id':s.id, 'title':s.experiment_session.experiment.title,})
+            
+    if result['total'] > 0 :
+        result['name']='No Budget'
+        result['account_name'] = ''
+        result['account_number'] = ''
+        result['department'] =  ''
+        result['total'] = f'{result["total"]:0.2f}'
+        history.append(result)                                                              
     
     return JsonResponse({"history" : history, 
                          "errorMessage":error_message}, safe=False)
