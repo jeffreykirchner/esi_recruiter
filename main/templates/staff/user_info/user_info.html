@@ -172,7 +172,10 @@
                 <tr v-for="(n,index) in notes" v-bind:key="n.id">
                     <td class="text-nowrap"> 
                         <span v-if="su">
-                            <button type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteNote(n.id)">
+                            <button type="button" 
+                                    class="btn btn-outline-danger btn-sm" 
+                                    v-bind:disabled="working"
+                                    v-on:click = "deleteNote(n.id)">                                    
                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </span>                                
@@ -286,7 +289,11 @@
                 <th width="35%" class="text-nowrap">
                     Experiment
 
-                    <button id="showInvitations" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showInvitations()">
+                    <button id="showInvitations" 
+                            type="button" 
+                            class="btn btn-outline-primary btn-sm" 
+                            v-bind:disabled="working"
+                            v-on:click ="showInvitations()">
                         <span v-html="showInvitationsText"></span>
                     </button> 
                 </th> 
@@ -331,7 +338,11 @@
                 <th width="35%" class="text-nowrap">
                     Name
 
-                    <button id="showTraits" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showTraits()">
+                    <button id="showTraits" 
+                            type="button" 
+                            class="btn btn-outline-primary btn-sm" 
+                            v-bind:disabled="working"
+                            v-on:click ="showTraits()">
                         <span v-html="showTraitsButtonText"></span>
                     </button> 
                 </th> 
