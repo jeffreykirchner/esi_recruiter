@@ -19,7 +19,10 @@
                 </div>                              
             </div>
             <div class="modal-footer">                            
-                <button type="button" class="btn btn-outline-success" v-on:click = "sendMakeNote()">
+                <button type="button" 
+                        class="btn btn-outline-success" 
+                        v-on:click = "sendMakeNote()"
+                        v-bind:disabled = "working">
                     Save Note <i class="fas fa-sticky-note fa-xs"></i>
                 </button>
             </div>

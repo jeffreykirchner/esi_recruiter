@@ -18,6 +18,7 @@ var app = new Vue({
         noInvitationsFoundText:'',
         noTraitsFoundText:'',
         noteText:'',
+        working:'false',
         su:{%if user.is_staff%}true{%else%}false{%endif%},
     },
 
@@ -77,12 +78,15 @@ var app = new Vue({
 
                 app.$data.institutionsList += app.$data.institutions[i].name;
             }
+
+            app.$data.working = false;
         },
 
         // show the full invitation list
         showInvitations: function(value){
             app.$data.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-
+            app.$data.working = true;
+            
             axios.post('/userInfo/{{id}}/', {
                     status :"getInvitations",                                                                                                                        
                 })
@@ -99,6 +103,7 @@ var app = new Vue({
                     }
 
                     app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
+                    app.$data.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -108,6 +113,7 @@ var app = new Vue({
         //show traits
         showTraits:function(){
             app.$data.showTraitsButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.$data.working = true;
 
             axios.post('/userInfo/{{id}}/', {
                     status :"getTraits",                                                                                                                        
@@ -117,6 +123,7 @@ var app = new Vue({
                     app.$data.noTraitsFoundText = "No traits found"
                                                 
                     app.$data.showTraitsButtonText='Show <i class="fa fa-eye fa-xs"></i>';
+                    app.$data.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -125,12 +132,15 @@ var app = new Vue({
 
         //delete the selected note
         deleteNote:function(id){
+            app.$data.working = true;
+
             axios.post('/userInfo/{{id}}/', {
                     status : "deleteNote",
                     id : id,                                                                                                                
                 })
                 .then(function (response) {     
-                    app.takeGetSessions(response);                            
+                    app.takeGetSessions(response);
+                    app.$data.working = false;                            
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -141,6 +151,7 @@ var app = new Vue({
         sendMakeNote:function(){
             
             if(app.$data.noteText == '') return;
+            app.$data.working = true;
 
             axios.post('/userInfo/{{id}}/', {
                     status : "makeNote",
@@ -150,6 +161,7 @@ var app = new Vue({
                     app.takeGetSessions(response);
                     $('#noteModalCenter').modal('toggle');
                     app.$data.noteText = "";
+                    app.$data.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
