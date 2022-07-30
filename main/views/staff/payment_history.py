@@ -130,7 +130,7 @@ def get_paypal_history_list(start_date, end_date):
 
         req = requests.get(f'{settings.PPMS_HOST}/payments/{start_date}/{end_date}/{subject_time_zone_safe}',
                            auth=(str(settings.PPMS_USER_NAME), str(settings.PPMS_PASSWORD)),
-                           timeout=10)
+                           timeout=30)
 
         #logger.info(r.status_code)
 

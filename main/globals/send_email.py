@@ -121,7 +121,7 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     '''
     #min time out
-    timeout = max(10, timeout)
+    timeout = max(30, timeout)
 
     logger = logging.getLogger(__name__)
 
