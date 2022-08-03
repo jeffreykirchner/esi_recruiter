@@ -142,7 +142,7 @@ var app = new Vue({
         },
 
         showInvitationText:function(index){
-            $('#subject_consent_form_modal').modal('hide');
+            
             app.$data.current_invitation = index;
             $('#subject_invitation_text_modal').modal('show');
         },

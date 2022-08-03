@@ -3,82 +3,18 @@
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="helpModalTitle">Informed Consent to Participate in Research</h5>
+                <h5 class="modal-title" id="helpModalTitle">Please complete the following items</h5>
                 <button type="button" class="close" v-on:click="closeConsentForm()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col text-center">
-                        <div v-show="current_invitation && current_invitation.consent_form">
-    
-                            <a v-bind:href="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url : ''"
-                               target="_blank" 
-                               >
-                                    <h4>View Consent Form</h4>
-                            </a>
-
-                                <!-- <object class="conset_form" 
-                                    id="consent_pdf_id" 
-                                    v-bind:data="(current_invitation && current_invitation.consent_form) ? current_invitation.consent_form.pdf_file_url : null" 
-                                    type="text/html" 
-                                    target="_parent">
-                                </object> -->
-      
-                                                                                        
-                        </div>
-
-                        <div v-show="!current_invitation || !current_invitation.consent_form" class="text-center mt-4">
-                            <h4>No consent form found.</h4>
-                            For more information contact us at: {{labManager}}
-                        </div>
-                    </div>
-                </div>                 
-
-                <div class="row mt-4" v-show="current_invitation && current_invitation.consent_form">
-                    <div class="col text-center">
-                        <b>I have read the above information, understand it fully and have had any questions regarding the study answered to my satisfaction. I consent to participate in the research.  I agree to participate in the study.</b>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col text-center">
-                        <canvas class="signature" key="signature_canvas" id="signature_canvas_id" style="border-style: solid;border-width: 1px;"></canvas>
-                    </div>
-                </div>
-
-                <div class="row" v-show="current_invitation && !current_invitation.consented && current_invitation.consent_form.signature_required">
-                    <div class="col text-center ">                        
-                        <button type="button" class="btn btn-outline-primary" v-on:click = "clearSignature()" v-bind:disabled="waiting">
-                            Clear <i class="fas fa-eraser"></i>
-                        </button>                        
-                    </div>
-                </div>
+                
 
             </div>  
             <div class="modal-footer" v-show="current_invitation && current_invitation.consent_form">            
                 <div class="row">
-                    <div class="col text-center">
-                        <div v-show="current_invitation && current_invitation.consented" class="text-success">
-                            <i class="fas fa-check fa-2x"></i>
-                        </div>
-                        
-                        <div v-show="current_invitation && !current_invitation.consented">
-                            <span class="mr-2 text-danger">
-                                [[consent_form_error]]
-                            </span>
-                            
-                            <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()" v-bind:disabled="waiting">
-                                <span v-show="waiting">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                                <span v-show="!waiting">
-                                    Submit <i class="fas fa-sign-in-alt"></i>
-                                </span>                                
-                            </button>
-                        </div>
-                    </div>
+                    
                 </div>      
                 
                                 

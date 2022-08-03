@@ -51,7 +51,7 @@ class profile(models.Model):
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 
     timestamp = models.DateTimeField(verbose_name="Created On", auto_now_add=True)
-    updated= models.DateTimeField(verbose_name="Updated On", auto_now=True)
+    updated = models.DateTimeField(verbose_name="Updated On", auto_now=True)
 
     def __str__(self):
         return "%s, %s | Student ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)
@@ -339,6 +339,9 @@ class profile(models.Model):
             return None
 
         return consent_form.first().json() 
+    
+    #return list of missing umbrella consents
+   
 
 
     #json version of model, small

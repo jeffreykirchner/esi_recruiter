@@ -8,7 +8,7 @@ class genders(models.Model):
     initialValue = models.BooleanField(verbose_name = 'Default to On',default=True)    #if true add on initial experiment creation
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return self.name

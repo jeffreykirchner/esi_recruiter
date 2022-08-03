@@ -10,7 +10,7 @@ class experiments_institutions(models.Model):
     institution = models.ForeignKey(institutions,on_delete=models.CASCADE)
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
 def __str__(self):
     return "ID: " + self.id

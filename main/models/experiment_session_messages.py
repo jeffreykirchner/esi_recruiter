@@ -11,11 +11,11 @@ class experiment_session_messages(models.Model):
     subjectText = models.CharField(max_length = 1000,default = "")  
     messageText = models.CharField(max_length = 10000,default = "")  
 
-    mailResultSentCount =  models.IntegerField(default=0)
+    mailResultSentCount = models.IntegerField(default=0)
     mailResultErrorText = models.CharField(max_length = 10000,default = "")
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return "ID: " + str(self.id)

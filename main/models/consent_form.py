@@ -14,7 +14,7 @@ class ConsentForm(models.Model):
     archived = models.BooleanField(verbose_name="Archived", default=False)     #if true, new sessions cannot use this consent form
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Consent Form'

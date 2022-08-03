@@ -16,10 +16,10 @@ class ProfileConsentForm(models.Model):
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, related_name="profile_consent_forms_b")         #consent form
 
     signature_points = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)                #points used to draw signature
-    singnature_resolution = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)                #points used to draw signature
+    singnature_resolution = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)           #points used to draw signature
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'User: {self.my_profile}, Form: {self.consent_form}'
