@@ -26,12 +26,22 @@ class UmbrellaConsentForm(models.Model):
     class Meta:
         verbose_name = 'Umbrella Consent Form'
         verbose_name_plural = 'Umbrella Consent Forms'
+
+    
+    def get_date_string_tz_offset(self):
+        '''
+        return a date string converted to the lab's time zone
+        '''
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.updated.astimezone(tz).strftime("%-m/%-d/%Y")
     
     def json(self):
         return {
             "id" : self.id,
-            "display_name" : self.signature_points,
-            "active" : self.singnature_resolution,            
+            "display_name" : self.display_name,
+            "active" : self.active,           
+            "consent_form" : self.consent_form.id,
         }
         
 

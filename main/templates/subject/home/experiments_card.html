@@ -1,6 +1,6 @@
 <div class="card">                  
     <div class="card-header">
-        Experiments 
+        Upcoming Experiments 
 
         <div class="float-right" v-show="waiting">
             <i class="fas fa-spinner fa-spin"></i>
@@ -19,8 +19,6 @@
         </div>           
         <!-- upcoming table -->
         <table class="table table-hover table-condensed" v-show="!account_paused">
-            <caption  class="text-center" style="caption-side:top;">Upcoming Experiments</caption>
-
             <thead>                         
                 <th width="50%" class="text-center">
                     Date
@@ -139,90 +137,6 @@
                 </tr>
             </tfoot>                                    
         </table>
-        <br>
-        <hr v-show="!account_paused">
-        <br>
-        <!-- attended table -->
-        <table class="table table-hover table-condensed">
-            <caption class="text-center" style="caption-side:top;">Experiments Attended</caption>
 
-            <thead>                        
-                <th width="50%" class="text-center">
-                    Date
-                </th>                                                      
-                <th width="50%" class="text-center">
-                    Earnings
-                </th>
-            </thead>
-            <tbody>                        
-                <tr v-for="(s,index) in pastAcceptedInvitations" v-bind:key="s.id">                            
-                    <td  class="text-center">                                                                
-                        <div v-html="s.date"></div>
-                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
-                    </td>
-                    <td  class="text-center">     
-                        <div v-if="s.bumped">
-                            <div v-html="'$'+s.total_earnings"></div>
-                            <div v-html="'(Bumped)'"></div>
-                        </div>
-                        <div v-else>
-                            <span v-html="'$' + s.total_earnings"></span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <!-- <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
-                                <i class="fas fa-scroll"></i>
-                            </button>                      -->
-                            <a v-bind:href="'/subjectConsent/'+s.session_id" title="View Consent Form" class="border p-2 rounded border-primary">
-                                <i class="fas fa-scroll"></i>
-                            </a>
-                        </div>    
-                    </td>
-                </tr>                        
-            </tbody>
-            <tfoot v-if="pastAcceptedInvitations.length === 0">
-                <tr>
-                    <td>No experiments attended.</td>
-                </tr>
-            </tfoot>                                    
-        </table> 
-        <br>
-        <hr>
-        <br>              
-        <!-- invitation table -->
-        <table class="table table-hover table-condensed">
-            <caption class="text-center" style="caption-side:top;">Full Invitation List</caption>
-
-            <thead>
-                <th width="30%" style="text-align: center;">
-                    Date
-                    <button id="showInvitations" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showAllInvitations()">
-                        <span v-html="showInvitationsText"></span>
-                    </button>
-                </th>                                                      
-                <th width="35%" style="text-align: center;">
-                    Status
-                </th>
-            </thead>
-            <tbody>                        
-                <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
-                    <td  style="text-align: center;">                                                                
-                        <span v-html="s.date"></span>
-                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
-                    </td>
-                    <td  style="text-align: center;">  
-                        <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
-                        <div v-else-if="s.canceled" style="color: red;"><span v-html="'Canceled'"></span></div>  
-                        <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
-                        <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
-                        <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               
-                    </td>
-                </tr>                        
-            </tbody>
-            <tfoot v-if="allInvitations.length === 0">
-                <tr>
-                    <td><span v-html="noInvitationsFoundText"></span></td>
-                </tr>
-            </tfoot>                                    
-        </table>
     </div>                    
 </div>

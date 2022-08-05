@@ -8,6 +8,8 @@ var app = new Vue({
     data:{
         upcomingInvitations:[],
         pastAcceptedInvitations:[],
+        umbrellaConsents:[],
+        requiredUmbrellaConsents:[],
         allInvitations:[],
         showInvitationsText:'Show <i class="fa fa-eye fa-xs"></i>',
         noInvitationsFoundText:'',
@@ -29,9 +31,17 @@ var app = new Vue({
                             
                             app.takeUpcomingInvitations(response);
                             app.takePastAcceptedInvitations(response);
+
+                            app.$data.umbrellaConsents = response.data.umbrellaConsents;
+                            app.$data.requiredUmbrellaConsents = response.data.requiredUmbrellaConsents;
                             
                             app.$data.waiting=false;
                             
+                            if(app.$data.requiredUmbrellaConsents.length>0)
+                            {
+                              $('#subject_consent_form_modal').modal('toggle');
+                            }
+
                             //test code
                             //app.viewConsentForm(app.$data.upcomingInvitations[0])
                         })

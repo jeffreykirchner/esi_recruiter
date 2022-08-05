@@ -341,7 +341,21 @@ class profile(models.Model):
         return consent_form.first().json() 
     
     #return list of missing umbrella consents
-   
+    def get_required_umbrella_consents(self):
+
+        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+        missing_umbrella_consents = main.models.UmbrellaConsentForm.objects.filter(active=True) \
+                                                                   .exclude(consent_form__id__in=consent_forms) 
+
+        return [i.json() for i in missing_umbrella_consents]
+
+    #return list of umbrella consents
+    def get_umbrella_consents(self):
+
+        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+        umbrella_consents = main.models.UmbrellaConsentForm.objects.filter(consent_form__id__in=consent_forms) 
+                                                                   
+        return [i.json() for i in umbrella_consents]
 
 
     #json version of model, small

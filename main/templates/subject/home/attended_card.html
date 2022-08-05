@@ -1,0 +1,53 @@
+<div class="card">                  
+    <div class="card-header">
+        Experiments Attended 
+
+        <div class="float-right" v-show="waiting">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>                                                  
+    </div>
+    <div class="card-body">    
+        <!-- attended table -->
+        <table class="table table-hover table-condensed">
+            
+            <thead>                        
+                <th width="50%" class="text-center">
+                    Date
+                </th>                                                      
+                <th width="50%" class="text-center">
+                    Earnings
+                </th>
+            </thead>
+            <tbody>                        
+                <tr v-for="(s,index) in pastAcceptedInvitations" v-bind:key="s.id">                            
+                    <td  class="text-center">                                                                
+                        <div v-html="s.date"></div>
+                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
+                    </td>
+                    <td  class="text-center">     
+                        <div v-if="s.bumped">
+                            <div v-html="'$'+s.total_earnings"></div>
+                            <div v-html="'(Bumped)'"></div>
+                        </div>
+                        <div v-else>
+                            <span v-html="'$' + s.total_earnings"></span>
+                        </div>
+                        <div class="text-center mt-2">
+                            <!-- <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
+                                <i class="fas fa-scroll"></i>
+                            </button>                      -->
+                            <a v-bind:href="'/subjectConsent/'+s.session_id" title="View Consent Form" class="border p-2 rounded border-primary">
+                                <i class="fas fa-scroll"></i>
+                            </a>
+                        </div>    
+                    </td>
+                </tr>                        
+            </tbody>
+            <tfoot v-if="pastAcceptedInvitations.length === 0">
+                <tr>
+                    <td>No experiments attended.</td>
+                </tr>
+            </tfoot>                                    
+        </table> 
+    </div>                    
+</div>
