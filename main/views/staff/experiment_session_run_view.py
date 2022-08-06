@@ -702,6 +702,15 @@ def attendSubjectAction(esdu, id, request_user):
             status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the consent form.</span>'
             logger.info("Conset required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
 
+        #check that subject has agreed to umbrella consent forms
+        elif len(c:=esdu.user.profile.get_required_umbrella_consents()) > 0:
+            esdu.bumped = False
+            esdu.attended = False
+
+            status = f'<span style="color:red;font-weight: bold;">{esdu.user.last_name }, {esdu.user.first_name} must agree to the umbrella form "{c[0]["display_name"]}".</span>'
+            logger.info("Umbrella consent required:user" + str(esdu.user.id) + ", " + " ESDU: " + str(esdu.id))
+
+
         #check if user has confirmed for session
         elif not esdu.confirmed:
             esdu.attended = False

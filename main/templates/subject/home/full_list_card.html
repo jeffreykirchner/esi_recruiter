@@ -2,12 +2,12 @@
     <div class="card-header">
         Full Invitation List 
 
-        <div class="float-right" v-show="waiting">
-            <i class="fas fa-spinner fa-spin ml-2"></i>
-            <button id="showInvitations" type="button" class="btn btn-outline-primary btn-sm" v-on:click ="showAllInvitations()">
-                <span v-html="showInvitationsText"></span>
-            </button>
-        </div>                                                  
+        <button id="showInvitations" 
+                type="button" 
+                class="btn btn-outline-primary btn-sm float-right" 
+                v-on:click ="showAllInvitations()">
+            <span v-html="showInvitationsText"></span>
+        </button>                                                  
     </div>
     <div class="card-body">                 
         <!-- invitation table -->

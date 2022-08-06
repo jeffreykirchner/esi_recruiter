@@ -92,7 +92,7 @@
                                     <div v-else>
                                         <div v-show="waiting===false">
                                             <div v-if="!s.consented && s.consent_form">
-                                                <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s.id)">
+                                                <button v-bind:id="'acceptInvitationConsent' + s.id" type="button" class="btn btn-success" v-on:click ="viewConsentForm(s.id,'session')">
                                                     <span v-html="'I want to attend.<br>Consent Required'"></span>
                                                 </button>
                                             </div>
@@ -110,7 +110,7 @@
                             </div> 
                             <div class="text-center mt-3">
 
-                                <a v-bind:href="'/subjectConsent/'+s.id" title="View Consent Form" class="border p-2 rounded border-primary">
+                                <a v-bind:href="'/subjectConsent/'+s.id+'/session/'" title="View Consent Form" class="border p-2 rounded border-primary">
                                     <i class="fas fa-scroll"></i>
                                 </a>
 
@@ -131,7 +131,7 @@
                     </td>
                 </tr>                        
             </tbody>
-            <tfoot v-if="upcomingInvitations.length === 0">
+            <tfoot v-if="upcomingInvitations.length === 0 && !waiting">
                 <tr>
                     <td><span v-html="'No upcoming experiments.'"></span></td>
                 </tr>

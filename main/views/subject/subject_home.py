@@ -126,7 +126,7 @@ def acceptInvitation(data, u):
 
         if qs:
 
-            #check that session has not started
+            #check that session is not a survey
             if not failed:
                 if qs.experiment.survey:
                     message=f"Invitation failed experiment is survey."
@@ -151,6 +151,13 @@ def acceptInvitation(data, u):
             if not failed:                
                 if not u.profile.check_for_consent(qs.consent_form):
                     message=f"Invitation failed no consent."
+                    logger.warning(message)             
+                    failed=True
+            
+            #check that user has all umbrella consents
+            if not failed:                
+                if len(u.profile.get_required_umbrella_consents()) > 0:
+                    message=f"Invitation failed no policy consent."
                     logger.warning(message)             
                     failed=True
             

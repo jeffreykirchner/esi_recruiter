@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F, Q, When, Case
 from django.contrib import admin
+from django.db.models import Subquery, OuterRef
 
 from main.models import institutions
 from main.models import parameters
@@ -352,10 +353,14 @@ class profile(models.Model):
     #return list of umbrella consents
     def get_umbrella_consents(self):
 
-        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
-        umbrella_consents = main.models.UmbrellaConsentForm.objects.filter(consent_form__id__in=consent_forms) 
+        umbrella_consent_forms = main.models.UmbrellaConsentForm.objects.all().values_list('consent_form__id', flat=True)
+        
+        consent_forms = self.profile_consent_forms_a.filter(consent_form__id__in=umbrella_consent_forms)
                                                                    
-        return [i.json() for i in umbrella_consents]
+        return [{"id":i.id,
+                "umbrella_consent_form":  main.models.UmbrellaConsentForm.objects.filter(consent_form__id=i.consent_form.id).values('id','display_name').first(),
+                "date_string" : i.get_date_string_tz_offset(),
+                } for i in consent_forms]
 
 
     #json version of model, small

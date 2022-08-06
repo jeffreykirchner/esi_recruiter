@@ -57,7 +57,7 @@ urlpatterns = [
 
     #subject
     path('subjectHome/', views.SubjectHome.as_view(), name='subjectHome'),
-    path('subjectConsent/<int:id>/', views.SubjectConsent.as_view(), name='subjectConsent'),
+    path('subjectConsent/<int:id>/<str:type>/', views.SubjectConsent.as_view(), name='subjectConsent'),
     path('subjectInvitation/<int:id>/', views.SubjectInvitation.as_view(), name='subjectInvitation'),
     path('faq/', views.FaqView.as_view(), name='faqView'),
 

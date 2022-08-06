@@ -33,17 +33,14 @@
                             <span v-html="'$' + s.total_earnings"></span>
                         </div>
                         <div class="text-center mt-2">
-                            <!-- <button type="button" class="btn btn-secondary" v-on:click ="viewConsentForm(s)" title="View Consent Form">
-                                <i class="fas fa-scroll"></i>
-                            </button>                      -->
-                            <a v-bind:href="'/subjectConsent/'+s.session_id" title="View Consent Form" class="border p-2 rounded border-primary">
+                            <a v-bind:href="'/subjectConsent/'+s.session_id+'/session/'" title="View Consent Form" class="border p-2 rounded border-primary">
                                 <i class="fas fa-scroll"></i>
                             </a>
                         </div>    
                     </td>
                 </tr>                        
             </tbody>
-            <tfoot v-if="pastAcceptedInvitations.length === 0">
+            <tfoot v-if="pastAcceptedInvitations.length === 0 && !waiting">
                 <tr>
                     <td>No experiments attended.</td>
                 </tr>

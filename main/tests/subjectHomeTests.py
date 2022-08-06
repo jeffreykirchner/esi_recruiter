@@ -20,6 +20,7 @@ from main.models import schools
 from main.models import email_filters
 from main.models import ConsentForm         
 from main.models import ProfileConsentForm           
+from main.models import UmbrellaConsentForm
 
 from main.views import profileCreateUser
 from main.views import update_profile
@@ -31,7 +32,7 @@ from main.views import cancelAcceptInvitation
 
 class subjectHomeTestCase(TestCase):
 
-    fixtures = ['subject_types.json', 'ConsentForm.json']
+    fixtures = ['subject_types.json', 'ConsentForm.json', 'UmbrellaConsentForm.json']
 
     e1 = None         #experiments
     e2 = None
@@ -226,8 +227,38 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
 
+    #subject must have agreed to umbrella consent form before accepting
+    def testConfirmAttendenceUmbreallaConsent_required(self):
+        """Test subject umbrella consent required acceptence""" 
+        logger = logging.getLogger(__name__)
 
+        #add consent form
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
 
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
+
+        #enable umbrella consent
+        umbrella_consent = UmbrellaConsentForm.objects.first()
+        umbrella_consent.active=True
+        umbrella_consent.save()
+
+        # subject does not have required consent form
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
+        self.assertEqual("Invitation failed no policy consent.", r['message'])
+
+        #subject has required consent form
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=umbrella_consent.consent_form)
+        profile_consent_form.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+        self.assertEqual("", r['message'])
+
+    
     #subject cancels attendence within 24 hours
     def testCancelAttendenceWithin24Hours(self):
         """Test subject cancel within 24 hours""" 
