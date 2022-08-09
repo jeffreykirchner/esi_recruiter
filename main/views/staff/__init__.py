@@ -17,3 +17,4 @@ from .payment_history import *
 from .subject_auto_login import *
 from .experiment_session_parameters_view import *
 from .experiment_parameters_view import *
+from .consent_form_report import *

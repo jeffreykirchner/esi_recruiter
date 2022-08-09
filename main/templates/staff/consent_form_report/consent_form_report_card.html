@@ -1,0 +1,80 @@
+{% load crispy_forms_tags %}
+
+<div class="card mb-4 d-print-none">                  
+    <div class="card-header">
+        <span class="align-middle">Consent Form Report</span>     
+        
+        <span class="float-right d-none d-md-block">
+            <span v-show="working"><i class="fas fa-spinner fa-spin"></i></span>                                
+        <span>
+    </div>
+    
+    <div class="card-body">              
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <form id="consentFormReportForm">   
+                    
+                    {% for i in consent_form_report_form %}
+                        <div class="row">
+                            <div class = "col col-md-10 offset-md-1">  
+                                {{ i|as_crispy_field }}         
+                            </div>            
+                        </div> 
+                    {% endfor %}
+                    
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-2 justify-content-center">
+            <div class="col-auto">
+                <button class="btn btn-outline-primary" 
+                        type="button" 
+                        v-on:click = "getConsentForm()"
+                        v-bind:disabled = "working">
+                    Submit <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>   
+</div>  
+
+
+<!-- consent form report -->
+<table class="table table-condensed table-responsive-xl" v-show="consent_form">                            
+
+    <thead>
+        <th scope="col">
+            Name
+        </th> 
+        <th scope="col text-center">
+            Agreement                            
+        </th>
+        <th scope="col text-center">
+            Date                            
+        </th>
+    </thead>
+
+    <tbody id="sessionList">                                                  
+        <tr v-for="(s,index) in subject_list" v-bind:key="s.id">                                                                          
+            <td class="text-nowrap w-auto"> 
+                [[s.name]]                                        
+            </td>
+            <td class="text-nowrap text-center w-auto"> 
+                <span v-if="consent_form && consent_form.signature_required">
+                    <canvas class="signature m-0 mt-1 p-0" 
+                            key="signature_canvas" 
+                            v-bind:id="'signature_canvas_id_'+s.id"></canvas>
+                </span>
+                <span v-if="consent_form && !consent_form.signature_required">
+                    <i class="fas fa-check fa-2x"></i>
+                </span>                                                           
+            </td>
+            <td class="text-nowrap text-center w-auto"> 
+               [[s.date_string]]                             
+            </td>                                    
+        </tr>                                                    
+    </tbody>
+    
+</table>  
