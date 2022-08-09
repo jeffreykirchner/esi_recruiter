@@ -1,6 +1,6 @@
 <div class="card">                  
     <div class="card-header">
-        <h5 class="modal-title" id="helpModalTitle">Informed Consent to Participate in Research</h5>                                                 
+        <h5 class="modal-title" id="helpModalTitle">[[consent_form ? consent_form.title_text : '']]</h5>                                                 
     </div>
 
     <div class="card-body">    
@@ -10,7 +10,7 @@
 
                     <a v-bind:href="(consent_form) ? consent_form.pdf_file_url : ''"
                        target="_blank">                       
-                        <h4>View Consent Form</h4>
+                        <h4>[[consent_form ? consent_form.link_text : '']]</h4>
                     </a>
 
                     <!-- <object class="conset_form" 
@@ -32,7 +32,7 @@
 
         <div class="row mt-4" v-show="consent_form && consent_form.agreement_required">
             <div class="col text-center">
-                <b>I have read the above information, understand it fully and have had any questions regarding the study answered to my satisfaction. I consent to participate in the research and agree to participate in the study.</b>
+                <b>[[consent_form ? consent_form.agreement_text : '']]</b>
             </div>
         </div>
 
