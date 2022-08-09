@@ -10,7 +10,7 @@ class help_docs(models.Model):
     text =  HTMLField(verbose_name="Help Doc Text", default="")
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     class Meta:
         verbose_name = 'Help Doc'

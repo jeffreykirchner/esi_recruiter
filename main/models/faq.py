@@ -11,7 +11,7 @@ class faq(models.Model):
     order = models.IntegerField(verbose_name="Display Order",default=1)                #order in which the questions will be shown 
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return self.question

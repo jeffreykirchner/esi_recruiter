@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F, Q, When, Case
 from django.contrib import admin
+from django.db.models import Subquery, OuterRef
 
 from main.models import institutions
 from main.models import parameters
@@ -51,7 +52,7 @@ class profile(models.Model):
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 
     timestamp = models.DateTimeField(verbose_name="Created On", auto_now_add=True)
-    updated= models.DateTimeField(verbose_name="Updated On", auto_now=True)
+    updated = models.DateTimeField(verbose_name="Updated On", auto_now=True)
 
     def __str__(self):
         return "%s, %s | Student ID: %s" % (self.user.last_name,self.user.first_name,self.studentID)
@@ -339,6 +340,27 @@ class profile(models.Model):
             return None
 
         return consent_form.first().json() 
+    
+    #return list of missing umbrella consents
+    def get_required_umbrella_consents(self):
+
+        consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+        missing_umbrella_consents = main.models.UmbrellaConsentForm.objects.filter(active=True) \
+                                                                   .exclude(consent_form__id__in=consent_forms) 
+
+        return [i.json() for i in missing_umbrella_consents]
+
+    #return list of umbrella consents
+    def get_umbrella_consents(self):
+
+        umbrella_consent_forms = main.models.UmbrellaConsentForm.objects.all().values_list('consent_form__id', flat=True)
+        
+        consent_forms = self.profile_consent_forms_a.filter(consent_form__id__in=umbrella_consent_forms)
+                                                                   
+        return [{"id":i.id,
+                "umbrella_consent_form":  main.models.UmbrellaConsentForm.objects.filter(consent_form__id=i.consent_form.id).values('id','display_name').first(),
+                "date_string" : i.get_date_string_tz_offset(),
+                } for i in consent_forms]
 
 
     #json version of model, small

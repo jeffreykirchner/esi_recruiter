@@ -43,7 +43,7 @@ class parameters(models.Model):
     emailVerificationResetText = HTMLField(default = "")                                    #email text sent to user to verify their email address
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return "Site Parameters"

@@ -16,6 +16,7 @@ from main.models import help_docs
 from main.models import ConsentForm
 from main.models import ProfileConsentForm
 from main.models import experiment_sessions
+from main.models import UmbrellaConsentForm
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
@@ -41,6 +42,7 @@ class SubjectConsent(View):
 
         u = request.user
         id = kwargs['id']
+        consent_type = kwargs['type']
         p = parameters.objects.first()
 
         labManager = p.labManager
@@ -53,21 +55,31 @@ class SubjectConsent(View):
             helpText = "No help doc was found."
 
         try:
-            subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
-            session = experiment_sessions.objects.filter(id__in=subject_session_list).filter(id=id)
+            if consent_type == 'session':
+                subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
+                session = experiment_sessions.objects.filter(id__in=subject_session_list).filter(id=id)
 
-            # logger.info(subject_session_list)
-            # logger.info(session)
+                # logger.info(subject_session_list)
+                # logger.info(session)
 
-            if not session:
-                raise Http404('Consent Form Not Found')
+                if not session:
+                    raise Http404('Form Not Found')
 
-            consent_form = session.first().consent_form 
+                consent_form = session.first().consent_form 
+                
+            elif consent_type == 'policy':
+                umbrella_consent_form = UmbrellaConsentForm.objects.filter(id=id)
+
+                if not umbrella_consent_form:
+                    raise Http404('Form Not Found')
+                
+                consent_form = umbrella_consent_form.first().consent_form 
+            else:
+                raise Http404('Form Not Found')
 
             consent_form_subject = ProfileConsentForm.objects.filter(consent_form=consent_form, my_profile=u.profile).first()
-
         except ObjectDoesNotExist :
-            raise Http404('Consent Form Not Found')
+            raise Http404('Form Not Found')
     
 
         return render(request, 
@@ -89,13 +101,24 @@ class SubjectConsent(View):
 
         u = request.user
         id = kwargs['id']
-
+        consent_type = kwargs['type']
+        session = None
+        
         try:
-            subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
-            session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
+            if consent_type == 'session':
+                subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
+                session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
 
-            if not session:
-                 return JsonResponse({"response" :  "fail"},safe=False)  
+                if not session:
+                    return JsonResponse({"response" :  "fail"},safe=False)  
+
+            elif consent_type == 'policy':
+                umbrella_consent_form = UmbrellaConsentForm.objects.filter(id=id)
+
+                if not umbrella_consent_form:
+                    return JsonResponse({"response" :  "fail"},safe=False)  
+            else:
+                return JsonResponse({"response" :  "fail"},safe=False)
 
         except ObjectDoesNotExist :
             return JsonResponse({"response" :  "fail"},safe=False)  
@@ -103,12 +126,12 @@ class SubjectConsent(View):
         data = json.loads(request.body.decode('utf-8'))
 
         if data["action"] == "acceptConsentForm":
-            return acceptConsentForm(data, u, session)
-           
+            return acceptConsentForm(data, u, session, consent_type)
+            
         return JsonResponse({"response" :  "fail"},safe=False)
 
 #subject accepts consent form
-def acceptConsentForm(data, u, session):
+def acceptConsentForm(data, u, session, consent_type):
     '''
     Subject accepts consent form
     
@@ -133,7 +156,7 @@ def acceptConsentForm(data, u, session):
         signature_points = data["consent_form_signature"]
         singnature_resolution = data["consent_form_signature_resolution"]
 
-        if session.consent_form != consent_form:
+        if consent_type=="session" and  session.consent_form != consent_form:
             logger.warning("consent form does not match")
             failed = True
 

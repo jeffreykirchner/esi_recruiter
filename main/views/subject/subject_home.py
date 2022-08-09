@@ -89,53 +89,16 @@ def getCurrentInvitations(data,u):
 
     failed=False
 
-    upcomingInvitations = u.profile.sorted_session_list_upcoming()
-    pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
+    upcoming_invitations = u.profile.sorted_session_list_upcoming()
+    past_accepted_invitations = u.profile.sorted_session_day_list_earningsOnly()
+    umbrella_consents = u.profile.get_umbrella_consents()
+    required_umbrella_consents = u.profile.get_required_umbrella_consents()
 
-    return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-                         "pastAcceptedInvitations":pastAcceptedInvitations,
+    return JsonResponse({"upcomingInvitations" : upcoming_invitations,
+                         "pastAcceptedInvitations":past_accepted_invitations,
+                         "umbrellaConsents":umbrella_consents,
+                         "requiredUmbrellaConsents":required_umbrella_consents,
                          "failed":failed}, safe=False)
-
-#subject accepts consent form
-# def acceptConsentForm(data, u):
-#     '''
-#     Subject accepts consent form
-    
-#     :param data: Form data{} empty
-#     :type data: dict
-
-#     :param u: Subject User
-#     :type u: django.contrib.auth.models.User
-#     '''
-
-#     logger = logging.getLogger(__name__)
-#     logger.info("Accept consent form")    
-#     logger.info(data)
-
-#     try:
-
-#         consent_form = ConsentForm.objects.get(id=data["consent_form_id"])
-#         signature_points = data["consent_form_signature"]
-#         singnature_resolution = data["consent_form_signature_resolution"]
-
-#         profile_consent_form = ProfileConsentForm(my_profile=u.profile, 
-#                                                  consent_form=consent_form, 
-#                                                  signature_points=signature_points,
-#                                                  singnature_resolution=singnature_resolution)
-#         profile_consent_form.save()
-
-#     except Exception  as e:
-#         logger.warning("accept consent form error")             
-#         logger.warning("User: " + str(u.id))    
-#         logger.warning(e)
-#         failed = True
-
-#     upcomingInvitations = u.profile.sorted_session_list_upcoming()
-#     pastAcceptedInvitations = u.profile.sorted_session_day_list_earningsOnly()
-
-#     return JsonResponse({"upcomingInvitations" : upcomingInvitations,
-#                          "pastAcceptedInvitations":pastAcceptedInvitations,
-#                          "failed":False}, safe=False)
 
 #subject has accepted an invitation
 def acceptInvitation(data, u):    
@@ -163,7 +126,7 @@ def acceptInvitation(data, u):
 
         if qs:
 
-            #check that session has not started
+            #check that session is not a survey
             if not failed:
                 if qs.experiment.survey:
                     message=f"Invitation failed experiment is survey."
@@ -188,6 +151,13 @@ def acceptInvitation(data, u):
             if not failed:                
                 if not u.profile.check_for_consent(qs.consent_form):
                     message=f"Invitation failed no consent."
+                    logger.warning(message)             
+                    failed=True
+            
+            #check that user has all umbrella consents
+            if not failed:                
+                if len(u.profile.get_required_umbrella_consents()) > 0:
+                    message=f"Invitation failed no policy consent."
                     logger.warning(message)             
                     failed=True
             

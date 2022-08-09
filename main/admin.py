@@ -20,7 +20,6 @@ from django.utils.translation import gettext_lazy as _
 
 from main.models import *
 
-from main.globals import send_mass_email_verify
 from main.globals import todays_date
 
 from main.forms import parametersForm
@@ -38,11 +37,26 @@ admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
-admin.site.register(ConsentForm)
-
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
+@admin.register(ConsentForm)
+class ConsentFormAdmin(admin.ModelAdmin):
+
+      ordering = [Lower('name')]
+
+      actions = []
+      list_display = ['name','pdf_file','signature_required','agreement_required','archived','updated','timestamp']
+
+@admin.register(UmbrellaConsentForm)
+class UmbrellaConsentFormAdmin(admin.ModelAdmin):
+
+      ordering = [Lower('display_name')]
+
+      actions = []
+      list_display = ['display_name','active','updated','timestamp']
+
+@admin.register(help_docs)
 class helpDocAdmin(admin.ModelAdmin):
             
       form = helpDocForm
@@ -52,8 +66,7 @@ class helpDocAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['title','path']
 
-admin.site.register(help_docs,helpDocAdmin)
-
+@admin.register(Front_page_notice)
 class frontPageNoticeAdmin(admin.ModelAdmin):
             
       form = frontPageNoticeForm
@@ -63,8 +76,7 @@ class frontPageNoticeAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['subject_text','enabled']
 
-admin.site.register(Front_page_notice,frontPageNoticeAdmin)
-
+@admin.register(Invitation_email_templates)
 class invitationEmailTemplateAdmin(admin.ModelAdmin):
             
       form = InvitationEmailTemplateForm
@@ -74,8 +86,7 @@ class invitationEmailTemplateAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['name','enabled']
 
-admin.site.register(Invitation_email_templates,invitationEmailTemplateAdmin)
-
+@admin.register(faq)
 class faqAdmin(admin.ModelAdmin):
             
       form = faqForm
@@ -83,8 +94,7 @@ class faqAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['__str__','active']
 
-admin.site.register(faq,faqAdmin)
-
+@admin.register(parameters)
 class parametersadmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
@@ -95,8 +105,6 @@ class parametersadmin(admin.ModelAdmin):
       form = parametersForm
 
       actions = []
-
-admin.site.register(parameters, parametersadmin)
 
 @admin.register(Traits)
 class traitsAdmin(admin.ModelAdmin):
@@ -357,6 +365,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
         return form
 
+@admin.register(DailyEmailReport)
 class DailyEmailReportAdmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
@@ -364,7 +373,6 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
       readonly_fields=('text',)
 
       ordering = ['-date']
-admin.site.register(DailyEmailReport, DailyEmailReportAdmin)
 
 #Experiment session day admin
 @admin.register(experiment_session_day_users)

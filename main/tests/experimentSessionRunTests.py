@@ -21,6 +21,7 @@ from main.models import email_filters
 from main.models import experiment_session_day_users
 from main.models import ProfileConsentForm
 from main.models import ConsentForm
+from main.models import UmbrellaConsentForm
 
 from main.views.registration import profileCreateUser
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -31,7 +32,7 @@ from main.views.staff.experiment_session_run_view import fillEarningsWithFixed, 
 from main.views.subject.subject_home import cancelAcceptInvitation, acceptInvitation
 
 class sessionRunTestCase(TestCase):
-    fixtures = ['subject_types.json', 'ConsentForm.json']
+    fixtures = ['subject_types.json', 'ConsentForm.json', 'UmbrellaConsentForm.json']
 
     e1 = None         #experiments
     e2 = None
@@ -212,6 +213,24 @@ class sessionRunTestCase(TestCase):
         """Test subject confirm and cancel no conflicts""" 
         logger = logging.getLogger(__name__)
 
+        logger.info(f"Session consent form: {self.es1.consent_form}")
+
+        esd1 = self.es1.ESD.first()
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        self.assertIsInstance(esdu, experiment_session_day_users)
+
+        #check no consent from
+        r = json.loads(getStripeReaderCheckin({"value":";00123456=1234",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},
+                                               esd1.id,
+                                               self.staff_u).content.decode("UTF-8"))
+        self.assertIn("must agree to the consent form",r['status']['message'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
@@ -221,10 +240,27 @@ class sessionRunTestCase(TestCase):
         profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
-        esd1 = self.es1.ESD.first()
+        #umbrella consent
+        umbrella_consent = UmbrellaConsentForm.objects.first()
+        umbrella_consent.active=True
+        umbrella_consent.save()
 
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
-        self.assertIsInstance(esdu,experiment_session_day_users)
+        r = json.loads(getStripeReaderCheckin({"value":";00123456=1234",
+                                                   "autoAddUsers":False,
+                                                   "ignoreConstraints":False},
+                                               esd1.id,
+                                               self.staff_u).content.decode("UTF-8"))
+        self.assertIn("must agree to the umbrella form",r['status']['message'])
+
+        r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEquals("success",r['status'])
+
+        profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=umbrella_consent.consent_form)
+        profile_consent_form.save()
+        profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=umbrella_consent.consent_form)
+        profile_consent_form.save()
+        profile_consent_form = ProfileConsentForm(my_profile=self.u3.profile, consent_form=umbrella_consent.consent_form)
+        profile_consent_form.save()
 
         #check leading zeros
         r = json.loads(getStripeReaderCheckin({"value":";00123456=1234",

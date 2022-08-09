@@ -31,6 +31,7 @@ from .recruitment_parameters_trait_constraint import Recruitment_parameters_trai
 from .front_page_notice import Front_page_notice
 from .invitation_email_templates import Invitation_email_templates
 from .daily_email_report import DailyEmailReport
+from .umbrella_consent_form import UmbrellaConsentForm
 
 #should be last
 from .db_migrations import *   

@@ -20,3 +20,4 @@ from .frontPageNoticeForm import *
 from .registration import *
 from .invitationEmailTemplateForm import * 
 from .invitationEmailTemplateSelectForm import *
+from .consent_form_report_form import *

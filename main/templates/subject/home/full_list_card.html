@@ -1,0 +1,46 @@
+<div class="card">                  
+    <div class="card-header">
+        Full Invitation List 
+
+        <button id="showInvitations" 
+                type="button" 
+                class="btn btn-outline-primary btn-sm float-right" 
+                v-on:click ="showAllInvitations()">
+            <span v-html="showInvitationsText"></span>
+        </button>                                                  
+    </div>
+    <div class="card-body">                 
+        <!-- invitation table -->
+        <table class="table table-hover table-condensed">
+            <thead>
+                <th width="30%" style="text-align: center;">
+                    Date
+                    
+                </th>                                                      
+                <th width="35%" style="text-align: center;">
+                    Status
+                </th>
+            </thead>
+            <tbody>                        
+                <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
+                    <td  style="text-align: center;">                                                                
+                        <span v-html="s.date"></span>
+                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
+                    </td>
+                    <td  style="text-align: center;">  
+                        <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
+                        <div v-else-if="s.canceled" style="color: red;"><span v-html="'Canceled'"></span></div>  
+                        <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
+                        <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
+                        <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               
+                    </td>
+                </tr>                        
+            </tbody>
+            <tfoot v-if="allInvitations.length === 0">
+                <tr>
+                    <td><span v-html="noInvitationsFoundText"></span></td>
+                </tr>
+            </tfoot>                                    
+        </table>
+    </div>                    
+</div>

@@ -9,7 +9,7 @@ class DailyEmailReport(models.Model):
     date = models.DateField(verbose_name="Date of report")
 
     timestamp = models.DateTimeField(auto_now_add= True)
-    updated= models.DateTimeField(auto_now= True)
+    updated = models.DateTimeField(auto_now= True)
 
     def __str__(self):
         return str(self.date.strftime("%#m/%#d/%Y"))

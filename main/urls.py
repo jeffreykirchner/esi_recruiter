@@ -53,11 +53,12 @@ urlpatterns = [
     path('traits/', views.TraitsView.as_view(), name='traits'),
     path('sessionsOpen/', views.SessionsOpen.as_view(), name='sessionsOpen'),
     path('paymentHistory/', views.PaymentHistory.as_view(), name='paymentHistory'),
+    path('consentFormReport/', views.ConsentFormReport.as_view(), name='consentFormReport'),
     path('subject-auto-login/<int:pk>/', views.SubjectAutoLogin.as_view(), name='subject_auto_login'),
 
     #subject
     path('subjectHome/', views.SubjectHome.as_view(), name='subjectHome'),
-    path('subjectConsent/<int:id>/', views.SubjectConsent.as_view(), name='subjectConsent'),
+    path('subjectConsent/<int:id>/<str:type>/', views.SubjectConsent.as_view(), name='subjectConsent'),
     path('subjectInvitation/<int:id>/', views.SubjectInvitation.as_view(), name='subjectInvitation'),
     path('faq/', views.FaqView.as_view(), name='faqView'),
 

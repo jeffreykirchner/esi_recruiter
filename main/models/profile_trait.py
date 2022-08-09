@@ -14,7 +14,7 @@ class profile_trait(models.Model):
     value = models.DecimalField(decimal_places=2, max_digits=10, default = 0)                           #score user received on trait
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.my_profile.user.last_name}, {self.my_profile.user.first_name} : {self.trait.name} | {self.value}'

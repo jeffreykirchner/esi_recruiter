@@ -20,7 +20,7 @@ class profile_note(models.Model):
     text = models.CharField(max_length = 1000)                                      #text of the note
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.note

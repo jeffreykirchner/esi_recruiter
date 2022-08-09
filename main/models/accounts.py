@@ -12,7 +12,7 @@ class accounts(models.Model):
     outside_funding = models.BooleanField(verbose_name="Outside Funding", default=False)      #payments are coming from outside the oganization
 
     timestamp = models.DateTimeField(auto_now_add=True)
-    updated= models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Account'
