@@ -9,6 +9,7 @@ var app = new Vue({
     el: '#root',        
     data:{                
         subject_list:[],
+        experiment_list : [],
         working:false,
         consent_form_choice:null,
         consent_form:null,
@@ -24,6 +25,7 @@ var app = new Vue({
 
             app.$data.working=true;
             app.$data.subject_list=[];
+            app.$data.experiment_list=[];
             app.$data.consent_form=null;
 
             axios.post('{{ request.path }}', {
@@ -34,6 +36,7 @@ var app = new Vue({
                             
                             app.$data.subject_list=response.data.subject_list;                           
                             app.$data.consent_form=response.data.consent_form;
+                            app.$data.experiment_list=response.data.experiment_list;
 
                             app.$data.working=false;
 

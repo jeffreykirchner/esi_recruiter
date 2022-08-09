@@ -24,8 +24,7 @@ setupPixi(){
             height:app.$data.c_height,
 
             antialias: true,
-            
-
+        
             view: app.$data.offScreenCanvas });
     }
 

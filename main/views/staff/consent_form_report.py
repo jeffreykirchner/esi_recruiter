@@ -11,6 +11,8 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.models import help_docs
+from main.models import experiments
+from main.models import experiment_sessions
 
 from main.decorators import user_is_staff
 
@@ -73,6 +75,7 @@ def getConsentForm(data):
     form = ConsentFormReportForm(form_data_dict)
 
     subject_list=[]
+    experiment_list=[]
     consent_form=None
 
     if form.is_valid():
@@ -81,7 +84,16 @@ def getConsentForm(data):
         subject_list = [i.json_report() for i in consent_form.profile_consent_forms_b.all()]
 
         consent_form_json = consent_form.json()
+
+        experiment_ids = experiment_sessions.objects.filter(consent_form=consent_form) \
+                                                    .values_list('experiment__id', flat=True)
+
+        experiment_list = experiments.objects.filter(id__in=experiment_ids)
+
+        experiment_list_json = [{"id":e.id, "title":e.title} for e in experiment_list]
+
     
     return JsonResponse({"subject_list" : subject_list,
                          "consent_form" : consent_form_json,
+                         "experiment_list" : experiment_list_json,
                         },safe=False)
