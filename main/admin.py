@@ -46,7 +46,7 @@ class ConsentFormAdmin(admin.ModelAdmin):
       ordering = [Lower('name')]
 
       actions = []
-      list_display = ['name','pdf_file','signature_required','agreement_required','archived','updated','timestamp']
+      list_display = ['name','pdf_file','IRB_ID', 'signature_required','agreement_required','archived','updated','timestamp']
 
 @admin.register(UmbrellaConsentForm)
 class UmbrellaConsentFormAdmin(admin.ModelAdmin):
