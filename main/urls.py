@@ -27,6 +27,7 @@ urlpatterns = [
     path('profile/', views.UpdateProfile.as_view(), name='profile'),               #view profile
     path('accounts/profile/', views.UpdateProfile.as_view(), name='profile2'),     #view profile
     path('profileCreate/', views.ProfileCreate.as_view(), name='profileCreate'),                      #create new profile 
+    path('profilecreate/', views.ProfileCreate.as_view(), name='profileCreate2'),                     #create new profile 
     path('profileVerify/<str:token>/', views.ProfileVerify.as_view(), name='profileVerify'),          #verify email
     path('profileVerifyResend/', views.ProfileVerifyResend.as_view(), name='profileVerifyResend'),    #resend email verification
     
