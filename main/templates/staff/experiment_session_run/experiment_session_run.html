@@ -76,7 +76,7 @@
                         <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">
                                                        
                             <td class="align-middle m-1 p-1 text-nowrap">
-                                <span v-html="index+1"></span>) 
+                                ([[esdu.user.id]]) 
                                 <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                     <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                 </a>                                    
