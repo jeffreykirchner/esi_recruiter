@@ -316,14 +316,14 @@ def getEarningsExport(data, id, request_user):
     logger.info(data)
 
     esd = experiment_session_days.objects.get(id=id)
-    esdu = esd.ESDU_b.filter(attended=True)
+    esdu = esd.ESDU_b.filter(attended=True).order_by('user__last_name', 'user__first_name')
 
     csv_response = HttpResponse(content_type='text/csv')
     csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
     writer = csv.writer(csv_response)
 
-    s=["Last Name", "First Name", "Email", "Student ID", "Experiment Earnings", "On-Time Bonus", "Session Day ID"]
+    s=["Last Name", "First Name", "Email", "Student ID", "Recruiter ID", "Experiment Earnings", "On-Time Bonus", "Session Day ID"]
     writer.writerow(s)
 
     for u in esdu:
