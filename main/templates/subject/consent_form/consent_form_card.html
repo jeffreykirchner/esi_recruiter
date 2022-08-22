@@ -73,7 +73,7 @@
                             <i class="fas fa-spinner fa-spin"></i>
                         </span>
                         <span v-show="!waiting">
-                            Submit <i class="fas fa-sign-in-alt"></i>
+                           [[consent_form ? consent_form.submit_button_text : '']]
                         </span>                                
                     </button>
                 </div>
