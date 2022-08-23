@@ -80,7 +80,7 @@ class experiment_session_invitations(models.Model):
         t = t.replace("[last name]", u.last_name)
         t = t.replace("[email]", u.email)
         t = t.replace("[recruiter id]", str(u.id))
-        t = t.replace("[student id]", u.profile.studentID)
+        t = t.replace("[student id]", str(u.profile.studentID))
 
         return t
     
