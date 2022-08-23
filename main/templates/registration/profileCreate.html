@@ -163,15 +163,26 @@
                   
           </form>
 
-          <div class="row">
-            <div class="col col-lg-5 offset-lg-1">
-                <button type="button" class="btn btn-outline-primary" v-on:click="create()" title="Create an account"><span v-html="buttonText"></span></button>
-            </div>
-            <div class="col col-lg-5">
-              <span style="float: right;">
+          <!-- footer -->
+          <div class="row justify-content-center">
+            <div class="col-lg-auto">
+
+              <span class="">
                 <button type="button" class="btn btn-outline-primary" v-on:click="humanChecker()" title="Yes to humans, no to bots"><span v-html="humanButtonText"></span></button>
-              </span>
+              </span>                             
+                
             </div>
+
+            <div class="col-lg-auto mt-2 mt-lg-2">
+                <b>I certify that I am 18 years or older.</b>
+            </div>
+
+            <div class="col-lg-auto  mt-2 mt-lg-0">
+              <button type="button" class="btn btn-outline-primary mr-2" v-on:click="create()" title="Create an account">
+                <span v-html="buttonText"></span>
+              </button>
+            </div>
+
           </div>
 
         </div>
