@@ -18,7 +18,7 @@ class ConsentForm(models.Model):
     title_text = models.CharField(max_length = 300, default="Informed Consent to Participate in Research")                #text shown at top of card
     agreement_text = models.CharField(max_length = 300, default="I have read the above information, understand it fully and have had any questions regarding the study answered to my satisfaction. I consent to participate in the research and agree to participate in the study.")            #text shown below link
     submit_button_text = models.CharField(max_length = 100, default="I consent to participate")            #text shown below link
-    consent_form_text = HTMLField(verbose_name="Help Doc Text", default="")
+    consent_form_text = HTMLField(verbose_name="Consent Form Text", default="")
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
