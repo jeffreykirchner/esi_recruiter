@@ -5,12 +5,15 @@
 
     <div class="card-body">    
         <div class="row">
-            <div class="col text-center">
-                <div v-show="consent_form">
+            <div class="col">
+                <div>
+                    <span v-html="consent_form ? consent_form.consent_form_text : ''"></span>
+                </div>
+                <div v-show="consent_form" class="text-center">
 
                     <a v-bind:href="(consent_form) ? consent_form.pdf_file_url : ''"
                        target="_blank">                       
-                        <h4>[[consent_form ? consent_form.link_text : '']]</h4>
+                        <h5>[[consent_form ? consent_form.link_text : '']]</h5>
                     </a>
 
                     <!-- <object class="conset_form" 

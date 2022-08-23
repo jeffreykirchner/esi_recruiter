@@ -23,7 +23,7 @@
 {%else%}
     <table class="table">
         <tr>
-            <th class="table_header">Email</th>
+            <th class="table_header">Info</th>
             <th class="table_header">Payment</th>
         </tr>
 
@@ -33,7 +33,7 @@
 
             {% for p in payments %}
                 <tr>
-                   <td class="table_data">{{p.email}}</td> 
+                   <td class="table_data">{{p.memo}}</td> 
                    <td>{{p.amount}}</td>
                 </tr>
             {% endfor %}
