@@ -16,11 +16,31 @@ var app = new Vue({
         searchCount:0,                        //user found during search
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>",         //send message button text
         sendMessageSubject:"",               //subject of send message     
-        sendMessageText:"[first name],\n\n[contact email]",          //text of send message     
+        sendMessageText:"[first name],<br><br><br>[contact email]",          //text of send message     
         emailMessageList:"",                 //emails for send message
     },
 
     methods:{
+        do_first_load:function(){
+            tinyMCE.init({
+                target: document.getElementById('id_sendMessageText'),
+                height : "400",
+                theme: "silver",
+                convert_urls: false,
+                auto_focus: 'id_sendMessageText',
+                plugins: "directionality,paste,searchreplace,code,link",
+                    toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
+                directionality: "{{ directionality }}",
+            });
+    
+            // Prevent Bootstrap dialog from blocking focusin
+            $(document).on('focusin', function(e) {
+                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+                    e.stopImmediatePropagation();
+                }
+            });
+        },
+
         //get list of users based on search
         getUsers: function(){
             if(app.$data.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
@@ -107,6 +127,7 @@ var app = new Vue({
 
         // fire when invite subjects subjects model is shown
         showSendMessage:function(id){    
+            tinymce.get("id_sendMessageText").setContent(this.sendMessageText);
             $('#sendMessageModalCenter').modal('show');                        
         },
 
@@ -135,6 +156,8 @@ var app = new Vue({
                 confirm("Your message is empty.");
                 return;
             }
+
+            app.$data.sendMessageText = tinymce.get("id_sendMessageText").getContent();
 
             if(app.$data.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
@@ -180,5 +203,8 @@ var app = new Vue({
     
     mounted: function(){
         $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
+
+        setTimeout(this.do_first_load, 500);
+        
     },
 });

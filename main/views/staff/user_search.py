@@ -87,6 +87,8 @@ def sendEmail(request, data):
                                          profile__paused = False,
                                          profile__type__id=2)
 
+
+
         #debug
         #users_list = users_list[:5]
         # emailList = []
