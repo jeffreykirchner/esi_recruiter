@@ -90,14 +90,14 @@ def sendEmail(request, data):
 
 
         #debug
-        #users_list = users_list[:5]
+        users_list = users_list[:20]
         # emailList = []
 
         user_list = []
         for user in users_list:
-            user_list.append({"email" : user.email,
-                              "variables": [{"name" : "first name", "text" : user.first_name},
-                                            {"name" : "contact email", "text" : params.labManager.email}]})
+            user_list.append({"email":user.email,
+                              "variables": [{"name":"first name","text":user.first_name},
+                                            {"name":"contact email","text":params.labManager.email}]})
         
         memo = f'Send message to all active users'
 

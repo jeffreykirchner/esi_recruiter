@@ -121,7 +121,8 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
 
     '''
     #min time out
-    timeout = max(30, timeout)
+    #timeout = max(30, timeout)
+    timeout = 30
 
     logger = logging.getLogger(__name__)
 
@@ -129,40 +130,51 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
         logger.info(f"ESI mass email API: Unit Test")
         return {"mail_count":len(user_list), "error_message":""}
 
-    data = {"user_list" : user_list,
-            "message_subject" : message_subject,
-            "message_text" : strip_tags(message_text).replace("&nbsp;", " "),
-            "message_text_html" : message_text_html,
-            "memo" : memo}
+    chunk_size = 500
+    mail_count = 0
+
+    for i in range(0, len(user_list), chunk_size):
+
+        user_list_chunk = user_list[i:i + chunk_size]
+
+        data = {"user_list" : user_list_chunk,
+                "message_subject" : message_subject,
+                "message_text" : strip_tags(message_text).replace("&nbsp;", " "),
+                "message_text_html" : message_text_html,
+                "memo" : memo}
+        
+        logger.info(f"ESI mass email API: users({len(user_list_chunk)}): {user_list_chunk}, message_subject : {message_subject}, message_text : {message_text}")
+
+        headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
+
+        request_result = {}
+
+        try:
+            
+            request_result = requests.post(f'{settings.EMAIL_MS_HOST}/send-email/',
+                                        json=data,
+                                        auth=(str(settings.EMAIL_MS_USER_NAME), str(settings.EMAIL_MS_PASSWORD)),
+                                        headers=headers,
+                                        timeout=timeout)
+                                        
+        except requests.Timeout:
+            logger.error(f'send_mass_email_service error: Mail service timed out, {data}')
+            return {"mail_count":mail_count, "error_message":"Mail service timed out."}
+        except requests.ConnectionError:
+            logger.error(f'send_mass_email_service error: Could not connect to mail service')
+            return {"mail_count":mail_count, "error_message":"Could not connect to mail service."}
+        
+        if request_result.status_code == 500:        
+            logger.warning(f'send_mass_email_service error: {request_result}')
+            return {"mail_count":mail_count, "error_message":"Mail service error"}
     
-    logger.info(f"ESI mass email API: users: {user_list}, message_subject : {message_subject}, message_text : {message_text}")
+        try:
+            logger.info(f"ESI mass email API response: {request_result.json()}")
+        except json.decoder.JSONDecodeError as exc:
+            logger.error(f'send_mass_email_service error: Invalid response from mail service, Error {exc}, Result {request_result}')
+            return {"mail_count":mail_count, "error_message":"Invalid response from mail service."}
 
-    headers = {'Content-Type' : 'application/json', 'Accept' : 'application/json'}
+        mail_count += request_result.json()['mail_count']
 
-    request_result = {}
 
-    try:
-        request_result = requests.post(f'{settings.EMAIL_MS_HOST}/send-email/',
-                                    json=data,
-                                    auth=(str(settings.EMAIL_MS_USER_NAME), str(settings.EMAIL_MS_PASSWORD)),
-                                    headers=headers,
-                                    timeout=timeout)
-    except requests.Timeout:
-        logger.error(f'send_mass_email_service error: Mail service timed out, {data}')
-        return {"mail_count":0, "error_message":"Mail service timed out."}
-    except requests.ConnectionError:
-        logger.error(f'send_mass_email_service error: Could not connect to mail service')
-        return {"mail_count":0, "error_message":"Could not connect to mail service."}
-    
-    
-    if request_result.status_code == 500:        
-        logger.warning(f'send_mass_email_service error: {request_result}')
-        return {"mail_count":0, "error_message":"Mail service error"}
-   
-    try:
-        logger.info(f"ESI mass email API response: {request_result.json()}")
-    except json.decoder.JSONDecodeError as exc:
-        logger.error(f'send_mass_email_service error: Invalid response from mail service, Error {exc}, Result {request_result}')
-        return {"mail_count":0, "error_message":"Invalid response from mail service."}
-
-    return request_result.json()
+    return {"mail_count":mail_count, "error_message":""}
