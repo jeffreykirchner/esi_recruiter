@@ -14,6 +14,7 @@ from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Count
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.conf import settings
 
 from main.decorators import user_is_staff
 from main.models import parameters, help_docs
@@ -87,22 +88,19 @@ def sendEmail(request, data):
                                          profile__paused = False,
                                          profile__type__id=2)
 
-
-
         #debug
-        #users_list = users_list[:20]
-        # emailList = []
+        if settings.DEBUG:
+            users_list = users_list[:1]
+        
+        messageText = messageText.replace("[contact email]",params.labManager.email)
 
         user_list = []
         for user in users_list:
             user_list.append({"email":user.email,
                               "variables": [{"name":"first name","text":user.first_name},
-                                            {"name":"contact email","text":params.labManager.email}]})
+                                            ]})
         
         memo = f'Send message to all active users'
-
-        #debug code
-        #user_list = user_list[:20]
 
         mail_result = send_mass_email_service(user_list, subjectText, messageText, messageText, memo, len(users_list) *2)
 
