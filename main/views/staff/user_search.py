@@ -90,7 +90,7 @@ def sendEmail(request, data):
 
 
         #debug
-        users_list = users_list[:20]
+        #users_list = users_list[:20]
         # emailList = []
 
         user_list = []
