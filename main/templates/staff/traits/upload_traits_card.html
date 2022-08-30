@@ -1,0 +1,31 @@
+{% load crispy_forms_tags %}
+<div class="card">                  
+    <div class="card-header">
+       Upload New Traits
+       {%if user.is_staff%}
+            <a href="/admin/main/traits/" style="float: right;">Manage Traits</a> 
+        {%endif%}                                                 
+    </div>
+    <div class="card-body">            
+        <div class="row">
+            <div class = "col-md text-center">
+                
+                <div class="custom-file">
+                    <input type="file" ref="file" class="custom-file-input" id="file" v-on:change="handleFileUpload()">
+                    <label class="custom-file-label" for="file">[[file_name]]</label>
+                </div> 
+
+            </div>   
+        </div>
+        <div class="row mt-2">
+            <div class = "col-md text-center">
+                <button class="btn btn-outline-primary" v-on:click="uploadCSV()"><span v-html="upload_button_text"></span></button>
+            </div>   
+        </div>
+        <div class="row mt-4">
+            <div class = "col-md text-center">
+                <span v-html="upload_messaage"></span>
+            </div>
+        </div>                    
+    </div>                    
+</div> 
