@@ -130,7 +130,7 @@ def send_mass_email_service(user_list, message_subject, message_text, message_te
         logger.info(f"ESI mass email API: Unit Test")
         return {"mail_count":len(user_list), "error_message":""}
 
-    chunk_size = 500
+    chunk_size = 5000
     mail_count = 0
 
     for i in range(0, len(user_list), chunk_size):
