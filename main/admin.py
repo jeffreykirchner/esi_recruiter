@@ -112,9 +112,9 @@ class traitsAdmin(admin.ModelAdmin):
 
 @admin.register(profile_trait)
 class profile_traitAdmin(admin.ModelAdmin):
-      ordering = [Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'),Lower('trait__name')]
+      ordering = ['timestamp']
       fields = ['value']
-
+      list_display = ['my_profile', 'trait', 'value', 'timestamp']
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
 #consent form inline
@@ -133,6 +133,23 @@ class ProfileConsentFormInline(admin.TabularInline):
       can_delete = True
       show_view_link = True
       fields=('consent_form',)
+
+#consent form inline
+class ProfileTraitsInline(admin.TabularInline):
+      '''
+      profile traits inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = profile_trait
+      can_delete = True
+      show_view_link = True
+      fields=('trait','value')
 
 class UserAdmin(DjangoUserAdmin):
 
@@ -340,7 +357,7 @@ class ProfileAdmin(admin.ModelAdmin):
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
       list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key']
-      inlines = [ProfileConsentFormInline,]
+      inlines = [ProfileConsentFormInline,ProfileTraitsInline]
 
       def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

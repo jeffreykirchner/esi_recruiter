@@ -1,0 +1,36 @@
+{% load crispy_forms_tags %}
+<div class="card">                  
+    <div class="card-header">
+       Download Report                                                 
+    </div>
+    <div class="card-body">
+        <form id="traitReportForm">               
+            <div class="row">
+                <div class = "col-md border" style="text-align: left;">
+                    <div id="trait_list_area" class = "overflow-auto" style="height: 600px;">
+                        {{ traitReportForm.traits|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row mt-2">
+            <div class = "col-md text-center">
+                <button class="btn btn-outline-primary" v-on:click="selectAll()" title="Select all traits.">Select All <i class="fas fa-check-double"></i></button>
+            </div>
+            <div class = "col-md text-center mt-2 mt-md-0">
+                <button class="btn btn-outline-primary" v-on:click="getReport()" title="Generate report for selected traits."><span v-html="download_button_text"></span></button>
+            </div>
+            <div class = "col-md text-center mt-2 mt-md-0">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="activeOnly" v-model="active_only" >
+                    <label class="form-check-label" for="activeOnly" title = "Limit report to active users only.">Active Only</label>
+                  </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class = "col-md">
+                <span v-html="download_messaage"></span>
+            </div>
+        </div>
+    </div>                    
+</div>

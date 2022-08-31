@@ -61,13 +61,16 @@ class TraitsView(View):
 
         u = request.user
 
+        # debug
+        # f = request.FILES['file']
+        # return takeCSVUpload(f,u)
         #check for file upload
         try:
             f = request.FILES['file']
             return takeCSVUpload(f,u)
         except Exception  as e: 
             logger.info(f'traitsView no file upload: {e}')
-
+            
         #no file to upload
         data = json.loads(request.body.decode('utf-8'))
         
@@ -111,6 +114,7 @@ def getReport(data,u):
                                                       'my_profile__studentID',
                                                       'my_profile__user__is_active',
                                                       'my_profile__id',
+                                                      'my_profile__user__id',
                                                       'trait__name',
                                                       'trait__id') \
                                       .values('trait__name',
@@ -119,6 +123,7 @@ def getReport(data,u):
                                               'my_profile__user__first_name',
                                               'my_profile__user__last_name',
                                               'my_profile__studentID',
+                                              'my_profile__user__id',
                                               'my_profile__id') \
                                       .order_by(Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'))
         
@@ -141,6 +146,7 @@ def getReport(data,u):
                 u_list[i['my_profile__id']] = {"last_name" : i['my_profile__user__last_name'],
                                                "first_name" : i['my_profile__user__first_name'],
                                                "student_id" : i['my_profile__studentID'],
+                                               "recruiter_id" : i['my_profile__user__id'],
                                                "traits":{}}
 
                 v = u_list.get(i['my_profile__id'])
@@ -160,7 +166,7 @@ def getReport(data,u):
 
         writer = csv.writer(csv_response)
 
-        headerText = ['Student ID','Last Name','First Name']
+        headerText = ['Recruiter ID', 'Student ID', 'Last Name', 'First Name']
 
         for i in traits_list:
             headerText.append(i)
@@ -171,6 +177,7 @@ def getReport(data,u):
             u = u_list.get(u_id)
             t=[]
 
+            t.append(u['recruiter_id'])
             t.append(u['student_id'])
             t.append(u['last_name'])
             t.append(u['first_name'])
@@ -209,14 +216,14 @@ def takeCSVUpload(f,u):
     logger.info(v)
 
     #check that data is in correct format
-    if v[0][0] !="num" or v[0][1] !="chapmanid" or v[0][2] != "fullname":
+    if v[0][0] != "student_id" and v[0][0] != "recruiter_id":
         status = "fail"
-        message = "Invalid Format: No num, chapmaid or fullname column."
+        message = "Invalid Format: First column must be either recruiter_id or student_id"
 
     #create any new traits that do not exist
     if status!="fail":
         for i in v[0]:                
-            if i != "num" and i != "chapmanid" and i != "fullname":
+            if i != "student_id" and i != "recruiter_id":
                 t = Traits.objects.filter(name = i).first()
 
                 if not t:
@@ -232,12 +239,15 @@ def takeCSVUpload(f,u):
 
             r = v[i]
 
-            p = profile.objects.filter(studentID__icontains = int(r[1]))
+            if v[0][1] == "student_id":
+                p = profile.objects.filter(studentID__icontains = int(r[0]))
+            else:
+                p = profile.objects.filter(user__id = int(r[0]))
 
             if len(p) == 1:
                 p = p.first()
                 # try:
-                for j in range(3,len(r)):
+                for j in range(1,len(r)):
                     #find trait and profile 
                     t = Traits.objects.filter(name = v[0][j]).first()
                     pt = profile_trait.objects.filter(my_profile = p,trait=t).first()
@@ -254,7 +264,7 @@ def takeCSVUpload(f,u):
                         pt.value = r[j]
                         pt.save()
                     
-                message += f"Traits loaded for: <a href='/userInfo/{p.user.id}/'>{r[2]}</a><br>"
+                message += f"Traits loaded for: <a href='/userInfo/{p.user.id}/'>{p.user.last_name}, {p.user.first_name}</a><br>"
 
                 # except Exception  as e: 
                 #     status = "fail"
