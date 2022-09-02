@@ -20,10 +20,10 @@ from main.forms import ConsentFormReportForm
 
 class ConsentFormReport(View):
     '''
-    Open consent form report view
+    irb report view
     '''
 
-    template_name = "staff/consent_form_report.html"
+    template_name = "staff/irb_report.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -43,7 +43,7 @@ class ConsentFormReport(View):
              helpText = "No help doc was found."
 
         return render(request, self.template_name, {"helpText":helpText,
-                                                    "consent_form_report_form":ConsentFormReportForm()})
+                                                    "irb_report_form":IrbReportForm()})
     
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
