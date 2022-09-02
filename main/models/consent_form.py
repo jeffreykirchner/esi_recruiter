@@ -12,7 +12,7 @@ class ConsentForm(models.Model):
     '''
     consent form for a session
     '''
-    irb_study = models.ForeignKey(IrbStudy, on_delete=models.CASCADE, related_name='consent_forms', null=True, blank=True)
+    irb_study = models.ForeignKey(IrbStudy, on_delete=models.CASCADE, related_name='consent_forms', null=True, blank=True, verbose_name="IRB Study")
 
     name = models.CharField(max_length = 300, default="", unique=True)         #title of the consent form
     pdf_file = models.FileField()                                              #pdf file from the IRB

@@ -1,0 +1,33 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+
+{%block head%}
+   
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        {%include "staff/irb_report/irb_report.js"%}
+    });
+
+    </script>
+    <style>
+        .table_header{
+            font-weight:bold;
+            font-size: 16px;
+        }
+
+        [v-cloak] {
+            display: none;
+            }
+    </style>
+{%endblock head%}
+
+{%block content%}
+<!-- open sessions -->
+<div class="row justify-content-lg-center" v-cloak>
+    <div class="col-10">
+        {%include "staff/irb_report/irb_report_card.html"%}                 
+    </div>
+</div>  
+
+{%endblock content%}

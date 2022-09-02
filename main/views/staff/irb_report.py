@@ -1,5 +1,8 @@
+from datetime import datetime, timedelta
+
 import json
 import logging
+import pytz
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,12 +16,13 @@ from django.utils.decorators import method_decorator
 from main.models import help_docs
 from main.models import experiments
 from main.models import experiment_sessions
+from main.models import parameters
 
 from main.decorators import user_is_staff
 
-from main.forms import ConsentFormReportForm
+from main.forms import IrbReportForm
 
-class ConsentFormReport(View):
+class IrbReport(View):
     '''
     irb report view
     '''
@@ -42,7 +46,22 @@ class ConsentFormReport(View):
         except Exception  as e:   
              helpText = "No help doc was found."
 
+        form_ids=[]
+        for i in IrbReportForm():
+            form_ids.append(i.html_name)
+
+        param = parameters.objects.first()
+        tmz = pytz.timezone(param.subjectTimeZone)
+        d_today = datetime.now(tmz)
+
+        #start of fiscal year
+        d_fisical_start = d_today
+        d_fisical_start = d_fisical_start.replace(month=6, day=1)
+
         return render(request, self.template_name, {"helpText":helpText,
+                                                    "form_ids":form_ids,
+                                                    "d_today" : d_today.date().strftime("%Y-%m-%d"),
+                                                    "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d"),
                                                     "irb_report_form":IrbReportForm()})
     
     @method_decorator(login_required)
@@ -57,43 +76,59 @@ class ConsentFormReport(View):
 
         data = json.loads(request.body.decode('utf-8'))
 
-        if data["action"] == "getConsentForm":
-            return getConsentForm(data)
+        if data["action"] == "getIrbForm":
+            return getIrbForm(data)
         
         return JsonResponse({"status" :  "error"},safe=False)    
 
 #get a list of all open sessions
-def getConsentForm(data):
+def getIrbForm(data):
     logger = logging.getLogger(__name__)
-    logger.info(f"Get Consent Form: {data}")
+    logger.info(f"Get IRB Form: {data}")
 
     form_data_dict = {}
 
     for field in data["formData"]:            
         form_data_dict[field["name"]] = field["value"]
     
-    form = ConsentFormReportForm(form_data_dict)
-
-    subject_list=[]
-    experiment_list=[]
-    consent_form=None
+    form = IrbReportForm(form_data_dict)
 
     if form.is_valid():
-        consent_form = form.cleaned_data['consent_form']
+        irb_study = form.cleaned_data['irb_study']
 
-        subject_list = [i.json_report() for i in consent_form.profile_consent_forms_b.all()]
+        irb_report = {}
+        irb_report['irb_study'] = irb_study.json()
+        irb_report['start_range'] = form.cleaned_data['start_range'].strftime("%-m-%-d-%Y")
+        irb_report['end_range'] = form.cleaned_data['end_range'].strftime("%-m-%-d-%Y")
 
-        consent_form_json = consent_form.json()
+        irb_report['PIs'] = {}
 
-        experiment_ids = experiment_sessions.objects.filter(consent_form=consent_form) \
-                                                    .values_list('experiment__id', flat=True)
+        for consent_form in irb_study.consent_forms.all():
+            for session in consent_form.ES_c.all():
+                subject_count = session.ESD.first().ESDU_b.filter(attended=True).count()
 
-        experiment_list = experiments.objects.filter(id__in=experiment_ids)
+                if session.budget:
+                   
+                    if not session.budget.id in irb_report['PIs']:
+                        irb_report['PIs'][session.budget.id] = {"name":f"{session.budget.last_name}, {session.budget.first_name}",
+                                                                "experiments":{},
+                                                                "subject_count":0}
 
-        experiment_list_json = [{"id":e.id, "title":e.title} for e in experiment_list]
+                    irb_report['PIs'][session.budget.id]["subject_count"] += subject_count
+                    irb_report['PIs'][session.budget.id]["experiments"][session.experiment.id] = {"id":session.experiment.id, "title":session.experiment.title}
+                else:
+                    if not "No Budget" in irb_report['PIs']:
+                        irb_report['PIs']["No Budget"] = {"name":"No Budget",
+                                                          "experiments":{},
+                                                          "subject_count":0}
 
+                    irb_report['PIs']["No Budget"]["subject_count"] += subject_count
+                    irb_report['PIs']["No Budget"]["experiments"][session.experiment.id] = {"id":session.experiment.id, "title":session.experiment.title}
+
+
+        return JsonResponse({"status":"success", "irb_report": irb_report}, safe=False)
     
-    return JsonResponse({"subject_list" : subject_list,
-                         "consent_form" : consent_form_json,
-                         "experiment_list" : experiment_list_json,
-                        },safe=False)
+    else:
+        logger.info("invalid IRB report form")
+        return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False) 
+   

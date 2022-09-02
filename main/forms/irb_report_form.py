@@ -11,5 +11,13 @@ class IrbReportForm(forms.Form):
                                   required=True,
                                   empty_label=None,
                                   queryset=IrbStudy.objects.all(),
-                                  widget=forms.Select(attrs={"v-model":"irb_study"}))
+                                  widget=forms.Select(attrs={}))
+    
+    start_range = forms.DateField(label="Start Range",                                                             
+                                  widget=forms.DateTimeInput(attrs={"type":"date",
+                                                                    "v-model":"start_range"}))
+    
+    end_range = forms.DateField(label="Start Range",                                                             
+                                  widget=forms.DateTimeInput(attrs={"type":"date",
+                                                                    "v-model":"end_range"}))
                
