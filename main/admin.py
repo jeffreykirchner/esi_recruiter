@@ -43,9 +43,24 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 @admin.register(ConsentForm)
 class ConsentFormAdmin(admin.ModelAdmin):
 
+      def duplicate(self, request, queryset):
+
+            for consent_form in queryset.all():
+                  obj, created=ConsentForm.objects.get_or_create(name=f'{consent_form.name} (copy)')
+                 
+                  obj.from_dict(dict(consent_form.json()), consent_form.pdf_file)
+
+            self.message_user(request, ngettext(
+                  '%d consent form was duplicated.',
+                  '%d conent forms were duplicated.',
+                  queryset.count(),
+            ) % queryset.count(), messages.SUCCESS)
+
+      duplicate.short_description = "Duplicate Consent Form"
+
       ordering = [Lower('name')]
 
-      actions = []
+      actions = ['duplicate']
       list_display = ['name','pdf_file','IRB_ID', 'signature_required','agreement_required','archived','updated','timestamp']
 
 @admin.register(UmbrellaConsentForm)

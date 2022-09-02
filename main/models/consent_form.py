@@ -1,15 +1,17 @@
 '''
 consent form model
 '''
-from django.db import models
 from tinymce.models import HTMLField
+
+from django.db import models
+from django.core.files.base import ContentFile
 
 class ConsentForm(models.Model):
     '''
     consent form for a session
     '''
     name = models.CharField(max_length = 300, default="", unique=True)         #title of the consent form
-    pdf_file = models.FileField(unique=True)                                   #pdf file from the IRB
+    pdf_file = models.FileField()                                   #pdf file from the IRB
     signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
     agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
     IRB_ID = models.CharField(max_length = 300, default="")                    #The IRB issued ID number
@@ -30,6 +32,25 @@ class ConsentForm(models.Model):
     
     def __str__(self):
         return self.name
+
+    def from_dict(self, values_dict, source_pdf_file):
+        '''
+        copy values from another consent form 
+        '''
+        
+        self.name = f'{values_dict["name"]} (copy)'
+        self.pdf_file = source_pdf_file
+        self.signature_required = values_dict["signature_required"]
+        self.agreement_required = values_dict["agreement_required"]
+        self.IRB_ID = values_dict["IRB_ID"]
+        self.archived = values_dict["archived"]
+        self.link_text = values_dict["link_text"]
+        self.title_text = values_dict["title_text"]
+        self.agreement_text = values_dict["agreement_text"]
+        self.submit_button_text = values_dict["submit_button_text"]
+        self.consent_form_text = values_dict["consent_form_text"]
+
+        self.save()
     
     def json(self):
         return{            
