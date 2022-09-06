@@ -6,12 +6,16 @@ from tinymce.models import HTMLField
 from django.db import models
 from django.core.files.base import ContentFile
 
+from main.models import IrbStudy
+
 class ConsentForm(models.Model):
     '''
     consent form for a session
     '''
+    irb_study = models.ForeignKey(IrbStudy, on_delete=models.CASCADE, related_name='consent_forms', null=True, blank=True, verbose_name="IRB Study")
+
     name = models.CharField(max_length = 300, default="", unique=True)         #title of the consent form
-    pdf_file = models.FileField()                                   #pdf file from the IRB
+    pdf_file = models.FileField()                                              #pdf file from the IRB
     signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
     agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
     IRB_ID = models.CharField(max_length = 300, default="")                    #The IRB issued ID number
@@ -26,8 +30,8 @@ class ConsentForm(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Consent Form'
-        verbose_name_plural = 'Consent Forms'   
+        verbose_name = 'Consent Screen'
+        verbose_name_plural = 'Consent Screens'   
         ordering = ['name']
     
     def __str__(self):

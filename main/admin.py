@@ -37,6 +37,7 @@ admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(email_filters)
 admin.site.register(subject_types)
+admin.site.register(IrbStudy)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
@@ -58,10 +59,10 @@ class ConsentFormAdmin(admin.ModelAdmin):
 
       duplicate.short_description = "Duplicate Consent Form"
 
-      ordering = [Lower('name')]
+      ordering = ['updated']
 
       actions = ['duplicate']
-      list_display = ['name','pdf_file','IRB_ID', 'signature_required','agreement_required','archived','updated','timestamp']
+      list_display = ['name','pdf_file','irb_study', 'signature_required','agreement_required','archived','updated','timestamp']
 
 @admin.register(UmbrellaConsentForm)
 class UmbrellaConsentFormAdmin(admin.ModelAdmin):

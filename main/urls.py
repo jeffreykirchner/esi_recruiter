@@ -55,6 +55,7 @@ urlpatterns = [
     path('sessionsOpen/', views.SessionsOpen.as_view(), name='sessionsOpen'),
     path('paymentHistory/', views.PaymentHistory.as_view(), name='paymentHistory'),
     path('consentFormReport/', views.ConsentFormReport.as_view(), name='consentFormReport'),
+    path('irbReport/', views.IrbReport.as_view(), name='irbReport'),
     path('subject-auto-login/<int:pk>/', views.SubjectAutoLogin.as_view(), name='subject_auto_login'),
 
     #subject
