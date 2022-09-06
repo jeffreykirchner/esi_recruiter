@@ -61,11 +61,23 @@
     </div>
 </div>
 
+<div class="row" v-show="irb_report">
+    <div class="col-md-2">
+        Total Participants:
+    </div>
+    <div class = "col-md float-left">
+        [[irb_report ? irb_report.total_subject_count : '---']]
+    </div>
+</div>
+
 <table class="table table-condensed table-responsive-md mt-4" v-if="irb_report">                            
 
     <thead>
         <th scope="col">
             PI
+        </th>
+        <th scope="col">
+            Email
         </th>
         <th scope="col">
             Experiment
@@ -81,6 +93,9 @@
                 [[p.name]]                                        
             </td>
             <td class="text-nowrap w-auto"> 
+                [[p.email]]                                        
+            </td>
+            <td class="text-nowrap w-auto"> 
                 <div v-for="(e, index2) in p.experiments" v-bind:key="e.id">
                     <div class="row">
                         <div class="col w-auto text-left">
@@ -92,7 +107,13 @@
                 </div>                                          
             </td>
             <td class="text-nowrap text-center w-auto"> 
-                [[p.subject_count]]                                                           
+                <div v-for="(e, index2) in p.experiments" v-bind:key="e.id">
+                    <div class="row">
+                        <div class="col w-auto text-left">
+                            [[e.subject_count]]
+                        </div>                        
+                    </div>
+                </div>                                                       
             </td>                                                
         </tr>                                                    
     </tbody>

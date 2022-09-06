@@ -57,6 +57,7 @@
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>
+        
         <div class = "row">
             <div class="col-md-4 text-md-right">
                 {{form1.survey.label}}:
@@ -80,6 +81,15 @@
             </div>
             <div class="col-md-8 text-right text-md-left">
                 <span v-if="experiment.budget_default_full"><a v-bind:href="'/userInfo/' + experiment.budget_default_full.id">[[experiment.budget_default_full.last_name]], [[experiment.budget_default_full.first_name]]</a></span>
+                <span v-else style="color: red;font-weight:bold">---</span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col-md-4 text-md-right">
+                {{form1.experiment_pi.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="experiment.experiment_pi_full"><a v-bind:href="'/userInfo/' + experiment.experiment_pi_full.id">[[experiment.experiment_pi_full.last_name]], [[experiment.experiment_pi_full.first_name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>

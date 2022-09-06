@@ -100,30 +100,43 @@ def getIrbForm(data):
         irb_report['irb_study'] = irb_study.json()
         irb_report['start_range'] = form.cleaned_data['start_range'].strftime("%-m-%-d-%Y")
         irb_report['end_range'] = form.cleaned_data['end_range'].strftime("%-m-%-d-%Y")
+        irb_report['total_subject_count'] = 0
 
         irb_report['PIs'] = {}
 
         for consent_form in irb_study.consent_forms.all():
             for session in consent_form.ES_c.all():
                 subject_count = session.ESD.first().ESDU_b.filter(attended=True).count()
+                irb_report['total_subject_count'] += subject_count
 
-                if session.budget:
+                if session.experiment.experiment_pi:
                    
-                    if not session.budget.id in irb_report['PIs']:
-                        irb_report['PIs'][session.budget.id] = {"name":f"{session.budget.last_name}, {session.budget.first_name}",
-                                                                "experiments":{},
-                                                                "subject_count":0}
-
-                    irb_report['PIs'][session.budget.id]["subject_count"] += subject_count
-                    irb_report['PIs'][session.budget.id]["experiments"][session.experiment.id] = {"id":session.experiment.id, "title":session.experiment.title}
+                    if not session.experiment.experiment_pi.id in irb_report['PIs']:
+                        irb_report['PIs'][session.experiment.experiment_pi.id] = {"name":f"{session.experiment.experiment_pi.last_name}, {session.experiment.experiment_pi.first_name}",
+                                                                                  "email":f"{session.experiment.experiment_pi.email}",
+                                                                                  "experiments":{},
+                                                                                  "subject_count":0}
+                    
+                    if not session.experiment.id in irb_report['PIs'][session.experiment.experiment_pi.id]["experiments"]:
+                        irb_report['PIs'][session.experiment.experiment_pi.id]["experiments"][session.experiment.id] = {"id":session.experiment.id,
+                                                                                                                        "title":session.experiment.title, 
+                                                                                                                        "subject_count":0}
+                    
+                    irb_report['PIs'][session.experiment.experiment_pi.id]["experiments"][session.experiment.id]["subject_count"] += subject_count
                 else:
-                    if not "No Budget" in irb_report['PIs']:
-                        irb_report['PIs']["No Budget"] = {"name":"No Budget",
-                                                          "experiments":{},
-                                                          "subject_count":0}
+                    if not "No PI" in irb_report['PIs']:
+                        irb_report['PIs']["No PI"] = {"name":"No PI",
+                                                      "email":"",
+                                                      "experiments":{},
+                                                      "subject_count":0}
 
-                    irb_report['PIs']["No Budget"]["subject_count"] += subject_count
-                    irb_report['PIs']["No Budget"]["experiments"][session.experiment.id] = {"id":session.experiment.id, "title":session.experiment.title}
+                    if not session.experiment.id in irb_report['PIs']["No PI"]["experiments"]:
+                        irb_report['PIs']["No PI"]["experiments"][session.experiment.id] = {"id":session.experiment.id, 
+                                                                                            "title":session.experiment.title,
+                                                                                            "subject_count":0}
+
+                    irb_report['PIs']["No PI"]["experiments"][session.experiment.id]["subject_count"] += subject_count
+                    
 
 
         return JsonResponse({"status":"success", "irb_report": irb_report}, safe=False)
