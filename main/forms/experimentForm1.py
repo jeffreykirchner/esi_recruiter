@@ -33,6 +33,12 @@ class experimentForm1(forms.ModelForm):
                                                   widget=forms.Select(attrs={"v-model":"experiment.budget_default",
                                                                              "v-on:change":"mainFormChange1"}))
 
+    experiment_pi = forms.ModelChoiceField(label='Primary Investigator',
+                                           queryset=User.objects.filter(profile__type__id=1, is_active=True),
+                                           required=False,
+                                           widget=forms.Select(attrs={"v-model":"experiment.experiment_pi",
+                                                                      "v-on:change":"mainFormChange1"}))
+
     length_default = forms.CharField(label='Length in Minutes (default)',
                                                   widget=forms.NumberInput(attrs={"v-model":"experiment.length_default",
                                                                                   "v-on:keyup":"mainFormChange1",
