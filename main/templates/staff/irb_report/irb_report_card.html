@@ -90,13 +90,13 @@
     <tbody id="piList">                                                  
         <tr v-for="(p,index) in irb_report.PIs" v-bind:key="p.id">                                                                          
             <td class="text-nowrap w-auto"> 
-                [[p.name]]                                        
+                [[p[1].name]]                                        
             </td>
             <td class="text-nowrap w-auto"> 
-                [[p.email]]                                        
+                [[p[1].email]]                                        
             </td>
             <td class="text-nowrap w-auto"> 
-                <div v-for="(e, index2) in p.experiments" v-bind:key="e.id">
+                <div v-for="(e, index2) in p[1].experiments" v-bind:key="e.id">
                     <div class="row">
                         <div class="col w-auto text-left">
                             <a v-bind:href="'/experiment/'+e.id">
@@ -107,7 +107,7 @@
                 </div>                                          
             </td>
             <td class="text-nowrap text-center w-auto"> 
-                <div v-for="(e, index2) in p.experiments" v-bind:key="e.id">
+                <div v-for="(e, index2) in p[1].experiments" v-bind:key="e.id">
                     <div class="row">
                         <div class="col w-auto text-left">
                             [[e.subject_count]]

@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from collections import OrderedDict
+from operator import getitem
 
 import json
 import logging
@@ -156,7 +158,7 @@ def getIrbForm(data):
 
                         irb_report['PIs']["No PI"]["experiments"][session.experiment.id]["subject_count"] += subject_count
                     
-
+            irb_report['PIs'] = sorted(irb_report['PIs'].items(), key = lambda x: x[1]['name'])
 
         return JsonResponse({"status":"success", "irb_report": irb_report}, safe=False)
     
