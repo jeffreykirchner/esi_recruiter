@@ -123,7 +123,7 @@ def getIrbForm(data):
         for consent_form in irb_study.consent_forms.all():
             for session in consent_form.ES_c.all(): 
 
-                if session.ESD.first().timestamp >= s_date and session.ESD.first().timestamp <= e_date:
+                if session.ESD.first().date >= s_date and session.ESD.first().date <= e_date:
 
                     subject_count = session.ESD.first().ESDU_b.filter(attended=True).count()
                     irb_report['total_subject_count'] += subject_count

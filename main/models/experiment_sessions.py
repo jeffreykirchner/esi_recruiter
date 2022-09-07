@@ -27,7 +27,7 @@ import main
 class experiment_sessions(models.Model):
     experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_d', blank=True, null=True)    #user that created the session
-    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, related_name='ES_c')    #consent form used for new sessions
+    consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True, related_name='ES_c')    #consent form used for new sessions
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)        #recruitment parameters
     budget = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_b', blank=True, null=True)                               #faculty budget for session
 
