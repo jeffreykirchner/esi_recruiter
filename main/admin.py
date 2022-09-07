@@ -59,7 +59,7 @@ class ConsentFormAdmin(admin.ModelAdmin):
 
       duplicate.short_description = "Duplicate Consent Form"
 
-      ordering = ['updated']
+      ordering = ['-updated']
 
       actions = ['duplicate']
       list_display = ['name','pdf_file','irb_study', 'signature_required','agreement_required','archived','updated','timestamp']
