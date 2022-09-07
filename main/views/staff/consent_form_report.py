@@ -20,7 +20,7 @@ from main.forms import ConsentFormReportForm
 
 class ConsentFormReport(View):
     '''
-    Open sessions view
+    Open consent form report view
     '''
 
     template_name = "staff/consent_form_report.html"

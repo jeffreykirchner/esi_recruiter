@@ -10,6 +10,7 @@ from .institutions import institutions
 from .locations import locations
 from .departments import departments
 from .accounts import accounts
+from .irb_study import IrbStudy
 from .consent_form import ConsentForm
 from .recruitment_parameters import recruitment_parameters
 from .experiments import experiments

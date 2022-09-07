@@ -32,6 +32,7 @@ class experiments(models.Model):
     consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True)                   #default consent form used for new sessions
     institution = models.ManyToManyField(institutions, through="experiments_institutions")                       #institutions to which this experiment belongs  
     budget_default = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiments_a', blank=True, null=True)             #default faculty budget for experiment
+    experiment_pi = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='experiments_b', blank=True, null=True)          #Primary Investigator
 
     title = models.CharField(max_length=300, default="***New Experiment***")                    #name of experimet 
     experiment_manager = models.CharField(max_length=300, default="***Manager Here***")         #faculty running experiment
@@ -158,7 +159,9 @@ class experiments(models.Model):
             "account_default":self.account_default.id,
             "account_default_full":self.account_default.json(),   
             "budget_default":self.budget_default.id if self.budget_default else None,
-            "budget_default_full":self.budget_default.profile.json_min() if self.budget_default else None,           
+            "budget_default_full":self.budget_default.profile.json_min() if self.budget_default else None,
+            "experiment_pi":self.experiment_pi.id if self.experiment_pi else None,
+            "experiment_pi_full":self.experiment_pi.profile.json_min() if self.experiment_pi else None,           
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),
