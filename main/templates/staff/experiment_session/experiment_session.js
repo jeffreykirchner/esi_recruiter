@@ -121,6 +121,18 @@ var app = new Vue({
                     e.stopImmediatePropagation();
                 }
             });
+
+            $('#sessionModal').on("hidden.bs.modal", this.hideSetup);
+            $('#editSessionModal').on("hidden.bs.modal", this.hideEditSession);
+            $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
+            $('#id_date').on("dp.hide",this.mainFormChange2);
+            $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
+            $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
+            $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
+            $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
+            $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
+            $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
+            $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
         },    
 
         //remove all the form errors
@@ -506,15 +518,15 @@ var app = new Vue({
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideEditRecruitment:function(){
-            if(app.$data.cancelModal)
-            {
-                Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
-                Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
-                app.$data.sessionBeforeEdit=null;
-                app.$data.buttonText1="Update";
-            }
-        },
+        // hideEditRecruitment:function(){
+        //     if(app.$data.cancelModal)
+        //     {
+        //         Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
+        //         Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
+        //         app.$data.sessionBeforeEdit=null;
+        //         app.$data.buttonText1="Update";
+        //     }
+        // },
 
         //fire when the run session button is pressed
         runSession:function(id)
@@ -1206,6 +1218,7 @@ var app = new Vue({
 
         //update require all trait constraints
         sendUpdateSession:function(){
+            app.$data.cancelModal=false;
             axios.post('{{request.get_full_path}}', {
                     status : "updateSession", 
                     formData : $("#mainForm1").serializeArray(),                                                                                                                                                             
@@ -1268,20 +1281,12 @@ var app = new Vue({
 
     //run when vue is mounted
     mounted: function(){
-        this.getSession();
+       
         //attach modal close events to vue
-        $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
-        $('#sessionModal').on("hidden.bs.modal", this.hideSetup);
-        $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
-        $('#id_date').on("dp.hide",this.mainFormChange2);
-        $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
-        $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
-        $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
-        $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
-        $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
-        $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
-        $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
-        $('#editSessionModal').on("hidden.bs.modal", this.hideEditSession);
+        //$('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
+        
+        this.getSession();
+        
     },                 
 
 });
