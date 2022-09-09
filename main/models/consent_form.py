@@ -18,7 +18,6 @@ class ConsentForm(models.Model):
     pdf_file = models.FileField()                                              #pdf file from the IRB
     signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
     agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
-    IRB_ID = models.CharField(max_length = 300, default="")                    #The IRB issued ID number
     archived = models.BooleanField(verbose_name="Archived", default=False)     #if true, new sessions cannot use this consent form
     link_text = models.CharField(max_length = 300, default="View Consent Form")                 #text shown to consent form link
     title_text = models.CharField(max_length = 300, default="Informed Consent to Participate in Research")                #text shown at top of card
@@ -37,16 +36,16 @@ class ConsentForm(models.Model):
     def __str__(self):
         return self.name
 
-    def from_dict(self, values_dict, source_pdf_file):
+    def from_dict(self, values_dict, source_pdf_file, irb_study):
         '''
         copy values from another consent form 
         '''
         
+        self.irb_study = irb_study
         self.name = f'{values_dict["name"]} (copy)'
         self.pdf_file = source_pdf_file
         self.signature_required = values_dict["signature_required"]
         self.agreement_required = values_dict["agreement_required"]
-        self.IRB_ID = values_dict["IRB_ID"]
         self.archived = values_dict["archived"]
         self.link_text = values_dict["link_text"]
         self.title_text = values_dict["title_text"]
@@ -64,11 +63,11 @@ class ConsentForm(models.Model):
             "pdf_file_name" : self.pdf_file.name,
             "signature_required" : self.signature_required,
             "agreement_required" : self.agreement_required,
-            "IRB_ID" : self.IRB_ID,
             "archived" : self.archived,
             "link_text" : self.link_text,
             "title_text" : self.title_text,
             "agreement_text" : self.agreement_text,
             "submit_button_text" : self.submit_button_text,
             "consent_form_text" : self.consent_form_text,
+            "irb_study" : self.irb_study.json() if self.irb_study else None,
         }

@@ -57,7 +57,7 @@
         IRB ID:
     </div>
     <div class = "col-md float-left">
-        [[consent_form ? consent_form.IRB_ID : '---']]
+        [[consent_form && consent_form.irb_study ? consent_form.irb_study.number : '---']]
     </div>
 </div>
 

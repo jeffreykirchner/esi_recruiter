@@ -49,7 +49,7 @@ class ConsentFormAdmin(admin.ModelAdmin):
             for consent_form in queryset.all():
                   obj, created=ConsentForm.objects.get_or_create(name=f'{consent_form.name} (copy)')
                  
-                  obj.from_dict(dict(consent_form.json()), consent_form.pdf_file)
+                  obj.from_dict(dict(consent_form.json()), consent_form.pdf_file, consent_form.irb_study)
 
             self.message_user(request, ngettext(
                   '%d consent form was duplicated.',
