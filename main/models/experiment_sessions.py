@@ -30,9 +30,10 @@ class experiment_sessions(models.Model):
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True, related_name='ES_c')    #consent form used for new sessions
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)        #recruitment parameters
     budget = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_b', blank=True, null=True)                               #faculty budget for session
-
+    
     canceled = models.BooleanField(default=False)
     invitation_text = HTMLField(default="")                                 #text of email invitation subjects receive
+    incident_occurred = models.BooleanField(default=False)                  #irb reportable incident occured 
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -1218,6 +1219,7 @@ class experiment_sessions(models.Model):
             "id":self.id,            
             "experiment":self.experiment.id,
             "canceled":self.canceled,
+            "incident_occurred": "True" if self.incident_occurred else "False",
             "consent_form":self.consent_form.id if self.consent_form else None,
             "consent_form_full":self.consent_form.json() if self.consent_form else None,
             "budget":self.budget.id if self.budget else None,

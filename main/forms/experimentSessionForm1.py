@@ -32,9 +32,14 @@ class experimentSessionForm1(forms.ModelForm):
                                     widget=forms.Select(attrs={"v-model":"session.budget",
                                                                }))
 
+    incident_occurred = forms.ChoiceField(label='IRB Incident Occurred',
+                                          required=False,
+                                          choices=((True, 'Yes'), (False,'No' )),
+                                          widget=forms.Select(attrs={"v-model":"session.incident_occurred",}))
+
     class Meta:
         model = experiment_sessions
-        fields = ['consent_form', 'budget']
+        fields = ['consent_form', 'budget', 'incident_occurred']
 
     @staticmethod
     def budget_label_from_instance(obj):

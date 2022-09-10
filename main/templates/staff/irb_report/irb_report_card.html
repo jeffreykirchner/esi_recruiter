@@ -84,7 +84,10 @@
         </th> 
         <th scope="col" class="text-center">
             Number of Participants                            
-        </th>        
+        </th>    
+        <th scope="col" class="text-center">
+            IRB Incidents                             
+        </th>     
     </thead>
 
     <tbody id="piList">                                                  
@@ -114,7 +117,16 @@
                         </div>                        
                     </div>
                 </div>                                                       
-            </td>                                                
+            </td>   
+            <td class="text-nowrap text-center"> 
+                <div v-for="(e, index2) in p[1].experiments" v-bind:key="e.id">
+                    <div class="row">
+                        <div class="col w-auto text-center">
+                            [[e.irb_incident_count]]
+                        </div>                        
+                    </div>
+                </div>                                                       
+            </td>                                             
         </tr>                                                    
     </tbody>
     

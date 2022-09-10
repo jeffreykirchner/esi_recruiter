@@ -163,9 +163,9 @@ class experiment_session_days(models.Model):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         if self.enable_time:
-            return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p") + " " + p.subjectTimeZone
+            return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") + " " + p.subjectTimeZone
         else:
-            return  self.date.astimezone(tz).strftime("%#m/%#d/%Y") + " Anytime " + p.subjectTimeZone
+            return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y") + " Anytime " + p.subjectTimeZone
 
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
