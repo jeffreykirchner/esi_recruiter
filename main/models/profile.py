@@ -329,6 +329,26 @@ class profile(models.Model):
         
         return False
     
+    def check_for_consent_attended(self, consent_form):
+        if not consent_form:
+            return True
+        
+        if not consent_form.agreement_required:
+            return True
+
+        #consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
+
+        #if only bumped from consent form, require resign
+        attended_consents = main.models.experiment_session_day_users.objects.filter(
+                                                user__profile=self, 
+                                                attended=True, 
+                                                experiment_session_day__experiment_session__consent_form__id=consent_form.id)
+
+        if len(attended_consents) > 0:
+            return True
+        
+        return False
+    
     def consent_signature(self, consent_form):
 
         if not consent_form:

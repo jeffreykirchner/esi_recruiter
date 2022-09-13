@@ -11,7 +11,7 @@
                 
                 <div class="row" v-for="(c, index) in requiredUmbrellaConsents" v-bind:key="c.id">
                     <div class="col">
-                        <a v-bind:href="'/subjectConsent/' + c.id + '/policy/'" title="View Policy">
+                        <a v-bind:href="'/subjectConsent/' + c.id + '/policy/sign/'" title="View Policy">
                             [[c.display_name]]
                         </a>
                     </div>

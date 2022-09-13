@@ -1180,7 +1180,7 @@ class experiment_sessions(models.Model):
                                                                      .order_by('-first_date')
                                         ],
             "canceled":self.canceled,
-            "consented" : u.profile.check_for_consent(self.consent_form),
+            "consented" : u.profile.check_for_consent_attended(self.consent_form),
             "confirmed" : esdu.confirmed if esdu else False,
             "consent_form":self.consent_form.json() if self.consent_form else None,
             "hours_until_first_start": self.hoursUntilFirstStart(),
