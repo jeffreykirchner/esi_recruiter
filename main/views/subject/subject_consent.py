@@ -119,17 +119,21 @@ class SubjectConsent(View):
                 session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
 
                 if not session:
+                    logger.error("SubjectConsent: Session not found")
                     return JsonResponse({"response" :  "fail"},safe=False)  
 
             elif consent_type == 'policy':
                 umbrella_consent_form = UmbrellaConsentForm.objects.filter(id=id)
 
                 if not umbrella_consent_form:
+                    logger.error("SubjectConsent: Policy not found")
                     return JsonResponse({"response" :  "fail"},safe=False)  
             else:
+                logger.error("SubjectConsent: Invaid consent type")
                 return JsonResponse({"response" :  "fail"},safe=False)
 
         except ObjectDoesNotExist :
+            logger.error("SubjectConsent: Object not found")
             return JsonResponse({"response" :  "fail"},safe=False)  
 
         data = json.loads(request.body.decode('utf-8'))
