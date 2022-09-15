@@ -41,6 +41,7 @@ var app = new Vue({
         uploadEarningsMessage:'',                                                        //upload earnings response message
         uploadEarningsTextBoxButtonText:'Upload Earnings <i class="fas fa-upload"></i>',     //upload earnings text button
         uploadEarningsText:'',                                                           //upload earnings text 
+        uploadIdType:'student_id',
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
         auto_add_users_on_upload : false,  
@@ -495,7 +496,8 @@ var app = new Vue({
             axios.post('/experimentSessionRun/{{id}}/', {
                         action : "uploadEarningsText",
                         text : app.$data.uploadEarningsText,         
-                        autoAddUsers : app.$data.auto_add_users_on_upload,                                                                                                            
+                        autoAddUsers : app.$data.auto_add_users_on_upload, 
+                        uploadIdType : app.$data.uploadIdType,                                                                                                            
                     })
                     .then(function (response) {     
 

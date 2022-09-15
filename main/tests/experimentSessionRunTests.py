@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 import pytz
 import logging
 import json
@@ -28,7 +29,7 @@ from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_session_view import changeConfirmationStatus, updateSessionDay, cancelSession, removeSubject
 from main.views.staff.experiment_session_run_view import getStripeReaderCheckin, noShowSubject, attendSubject, bumpSubject, noShowSubject,fillDefaultShowUpFee
-from main.views.staff.experiment_session_run_view import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload
+from main.views.staff.experiment_session_run_view import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload2
 from main.views.subject.subject_home import cancelAcceptInvitation, acceptInvitation
 
 class sessionRunTestCase(TestCase):
@@ -936,38 +937,42 @@ class sessionRunTestCase(TestCase):
 
         #check empty upload
         my_str = ''
-        buff = io.BytesIO(str.encode(my_str))
-        #buff.seek(0,2)
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id'}
 
-        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
-
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'false').content.decode("UTF-8"))
+        r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['message'], "Error: Empty list")
 
         #malformed list
         my_str = 'asdfasdf'
-        buff = io.BytesIO(str.encode(my_str))
-        #buff.seek(0,2)
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id'}
 
-        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
-
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'false').content.decode("UTF-8"))
-        self.assertIn("Failed to load earnings: invalid literal", r['message'])
+        r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertIn("Failed to load earnings: Invalid ID format", r['message'])
 
         #add user
         my_str = '00121212,25,3\n00123456,14,2'
-        buff = io.BytesIO(str.encode(my_str))
-        #buff.seek(0,2)
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': True, 'uploadIdType': 'student_id'}
 
-        file_data = InMemoryUploadedFile(buff,'file', 'myfile.txt' , None, buff.tell(), None)
-
-        r = json.loads(takeEarningsUpload(file_data, esd1.id, self.staff_u, 'true').content.decode("UTF-8"))
+        r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertIn("Earnings Imported", r['message'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
         self.assertEquals(esdu.attended, True)
         self.assertEquals(esdu.earnings, 25)
         self.assertEquals(esdu.show_up_fee, 3)
+
+        #upload earning by user id
+
+        my_str = f'{self.u3.id},21.4,4'
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'recruiter_id'}
+
+        r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertIn("Earnings Imported", r['message'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
+        self.assertEquals(esdu.attended, True)
+        self.assertEquals(esdu.earnings, Decimal("21.4"))
+        self.assertEquals(esdu.show_up_fee, 4)
 
 
 

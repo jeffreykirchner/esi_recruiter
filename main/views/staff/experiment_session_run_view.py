@@ -122,7 +122,7 @@ class ExperimentSessionRunView(SingleObjectMixin, View):
         elif data["action"] == "payPalAPI":
             return payPalAPI(data, id_, request.user)
         elif data["action"] == "uploadEarningsText":
-            return takeEarningsUpload2(id_, data["text"], request.user, data["autoAddUsers"])
+            return takeEarningsUpload2(data, id_, request.user)
 
         return JsonResponse({"response" :  "error"}, safe=False)
 
@@ -179,7 +179,7 @@ def getStripeReaderCheckin(data, id, request_user):
     if status["message"] == "":
 
         #if autoAddUser:
-        esdu = getSubjectByID(id, studentID, request_user, False)
+        esdu = getSubjectByID(id, studentID, request_user, False, "student_id")
         # else:
         #     esdu = getSubjectByID(id, studentID, request_user, True)
 
@@ -212,11 +212,17 @@ def getStripeReaderCheckin(data, id, request_user):
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status": status}, safe=False)
 
-#get subjects by student id
-def getSubjectByID(id, studentID, request_user, filter_confirmed):
-    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id,
-                                                        user__profile__studentID__icontains=studentID)\
+#get subjects by student id or user id
+def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
+
+    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id) \
                                                 .select_related('user')
+
+    #search by student id or user id
+    if id_mode == "student_id":
+        esdu = esdu.filter(user__profile__studentID__icontains=studentID)
+    else:
+        esdu = esdu.filter(user__id=studentID)
 
     if filter_confirmed:
         return esdu.filter(confirmed = True) 
@@ -820,29 +826,33 @@ def noShowSubject(data, id, request_user):
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status}, safe=False)
 
 #upload subject earnings from a file
-def takeEarningsUpload(f, id, request_user, auto_add_subjects):
-    logger = logging.getLogger(__name__)
-    logger.info(f"Upload earnings file: auto add: {auto_add_subjects}")
+# def takeEarningsUpload(f, id, request_user, auto_add_subjects):
+#     logger = logging.getLogger(__name__)
+#     logger.info(f"Upload earnings file: auto add: {auto_add_subjects}")
 
-    #logger.info(f)
+#     #logger.info(f)
 
     
-    #request_user = request.user
+#     #request_user = request.user
 
-    #format incoming data
-    text = ""
+#     #format incoming data
+#     text = ""
 
-    for chunk in f.chunks():
-        text += str(chunk.decode("utf-8-sig"))
+#     for chunk in f.chunks():
+#         text += str(chunk.decode("utf-8-sig"))
 
-    logger.info(text)
+#     logger.info(text)
 
-    return takeEarningsUpload2(id, text, request_user, auto_add_subjects)
+#     return takeEarningsUpload2(id, text, request_user, auto_add_subjects)
 
 #process earnings upload
-def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
+def takeEarningsUpload2(data, id, request_user):
     logger = logging.getLogger(__name__)
-    logger.info(f"Upload earnings process text: id {id}, text {text}, {request_user}, auto add: {auto_add_subjects}")
+    logger.info(f"Upload earnings process text: id {id}, text {data}, {request_user}")
+
+    text = data["text"]
+    auto_add_subjects = data["autoAddUsers"]
+    upload_id_type = data["uploadIdType"]
 
     message = ""
 
@@ -874,7 +884,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
             # if auto_add_subjects:
             #     esdu = getSubjectByID(id, i[0], request_user, False)
             # else:
-            esdu = getSubjectByID(id, i[0], request_user, False)
+            esdu = getSubjectByID(id, i[0], request_user, False, upload_id_type)
 
             # logger.info(esdu.count())
 
@@ -891,7 +901,7 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
                     if value["message"] != "":
                         m = value["message"] + "<br>"
 
-                    esdu = getSubjectByID(id, i[0], request_user, True)
+                    esdu = getSubjectByID(id, i[0], request_user, True, upload_id_type)
                 else:
                     m = f'Error: No user found for ID {i[0]}<br>'
 
@@ -926,7 +936,9 @@ def takeEarningsUpload2(id, text, request_user, auto_add_subjects):
 
         logger.info(f'Earnings import list: {esdu_list}')
         experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
-
+    except ValueError as e:
+        message = f"Failed to load earnings: Invalid ID format"
+        logger.info(message)
     except Exception as e:
         message = f"Failed to load earnings: {e}"
         logger.info(message)
