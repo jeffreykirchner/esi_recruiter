@@ -29,7 +29,10 @@
                         <div class="form-group">
                             <label for="earningsUploadText">
                                 Format (tab or comma delimited):<br>
-                                Sudent_ID, Earnings [optional: ,On_Time_Bonus]
+                                <span v-if="uploadIdType=='student_id'">Student_ID</span>
+                                <span v-else-if="uploadIdType=='recruiter_id'">Recruiter_ID</span>
+                                <span v-else>Public_ID</span>,
+                                    Earnings [optional: ,On_Time_Bonus]
                             </label>
                             <textarea class="form-control"
                                       v-model="uploadEarningsText"
@@ -47,7 +50,8 @@
                                     id="IDTypeSelect"
                                     v-model="uploadIdType">
                                 <option value="student_id" selected>Student ID</option>
-                                <option value="recruiter_id">Recruiter ID</option>                                      
+                                <option value="recruiter_id">Recruiter ID</option> 
+                                <option value="public_id">Public ID</option>                                     
                             </select>
                         </div>                               
                     </div>

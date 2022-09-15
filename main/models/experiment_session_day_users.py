@@ -157,6 +157,7 @@ class experiment_session_day_users(models.Model):
         s.append(self.user.email)
         s.append(self.user.profile.studentID)
         s.append(self.user.id)
+        s.append(self.user.profile.public_id)
         s.append(self.earnings)
         s.append(self.show_up_fee)
 

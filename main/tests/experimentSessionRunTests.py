@@ -962,7 +962,6 @@ class sessionRunTestCase(TestCase):
         self.assertEquals(esdu.show_up_fee, 3)
 
         #upload earning by user id
-
         my_str = f'{self.u3.id},21.4,4'
         data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'recruiter_id'}
 
@@ -973,6 +972,18 @@ class sessionRunTestCase(TestCase):
         self.assertEquals(esdu.attended, True)
         self.assertEquals(esdu.earnings, Decimal("21.4"))
         self.assertEquals(esdu.show_up_fee, 4)
+
+        #upload earning by public id
+        my_str = f'{self.u3.profile.public_id},28.01,3'
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'public_id'}
+
+        r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertIn("Earnings Imported", r['message'])
+
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
+        self.assertEquals(esdu.attended, True)
+        self.assertEquals(esdu.earnings, Decimal("28.01"))
+        self.assertEquals(esdu.show_up_fee, 3)
 
 
 

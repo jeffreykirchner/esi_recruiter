@@ -221,8 +221,10 @@ def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
     #search by student id or user id
     if id_mode == "student_id":
         esdu = esdu.filter(user__profile__studentID__icontains=studentID)
-    else:
+    elif id_mode == "recruiter_id":
         esdu = esdu.filter(user__id=studentID)
+    else:
+        esdu = esdu.filter(user__profile__public_id=studentID)
 
     if filter_confirmed:
         return esdu.filter(confirmed = True) 
@@ -329,7 +331,7 @@ def getEarningsExport(data, id, request_user):
 
     writer = csv.writer(csv_response)
 
-    s=["Last Name", "First Name", "Email", "Student ID", "Recruiter ID", "Experiment Earnings", "On-Time Bonus", "Session Day ID"]
+    s=["Last Name", "First Name", "Email", "Student ID", "Recruiter ID", "Public ID", "Experiment Earnings", "On-Time Bonus", "Session Day ID"]
     writer.writerow(s)
 
     for u in esdu:
@@ -866,7 +868,9 @@ def takeEarningsUpload2(data, id, request_user):
         for i in range(len(v)):
             v[i] = re.split(r',|\t',v[i])
 
-            v[i][0] = int(v[i][0])
+            if upload_id_type == "student_id" or upload_id_type == "recruiter_id":            
+                v[i][0] = int(v[i][0])
+
             v[i][1] = Decimal(v[i][1].replace('$',''))
 
             if len(v[i]) > 2:
