@@ -867,10 +867,10 @@ def takeEarningsUpload2(data, id, request_user):
             v[i] = re.split(r',|\t',v[i])
 
             v[i][0] = int(v[i][0])
-            v[i][1] = float(v[i][1].replace('$',''))
+            v[i][1] = Decimal(v[i][1].replace('$',''))
 
             if len(v[i]) > 2:
-                v[i][2] = float(v[i][2].replace('$',''))
+                v[i][2] = Decimal(v[i][2].replace('$',''))
             else:
 
                 v[i].append(-1)
