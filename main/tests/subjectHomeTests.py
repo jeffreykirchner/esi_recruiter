@@ -5,7 +5,11 @@ import pytz
 import logging
 import sys
 
+from django.contrib.sessions.middleware import SessionMiddleware
+
 from django.test import TestCase
+from django.test import RequestFactory
+from django.test import Client
 
 from main.models import genders
 from main.models import subject_types
@@ -21,6 +25,7 @@ from main.models import email_filters
 from main.models import ConsentForm         
 from main.models import ProfileConsentForm           
 from main.models import UmbrellaConsentForm
+from main.models import experiment_session_day_users
 
 from main.views import profileCreateUser
 from main.views import update_profile
@@ -29,6 +34,10 @@ from main.views import addSessionBlank
 from main.views import updateSessionDay
 from main.views import acceptInvitation
 from main.views import cancelAcceptInvitation
+
+from main.views.staff.experiment_session_run_view import attendSubject, noShowSubject, bumpSubject
+
+import main
 
 class subjectHomeTestCase(TestCase):
 
@@ -258,6 +267,67 @@ class subjectHomeTestCase(TestCase):
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
 
+    #Subject must re-consent if bumped from past session
+    def testReConsentIfBumped(self):
+        """Subject must re-consent if bumped from past session""" 
+
+        logger = logging.getLogger(__name__)
+
+        # data = {'action': 'getCurrentInvitations'}
+        # request = RequestFactory().post(f'/subjectHome/', data=data, content_type="application/json")
+        # result = main.views.SubjectHome.post(request)
+
+        c = Client()
+        c.force_login(self.u)
+        response = c.post('/subjectHome/', {'action': 'getCurrentInvitations'}, content_type="application/json", follow=True)
+        r = json.loads(response.content.decode("UTF-8"))
+
+        #check no consent
+        self.assertFalse(r['upcomingInvitations'][0]['consented'])
+        self.assertFalse(r['upcomingInvitations'][1]['consented'])
+
+        #accept and conesent
+        response = c.post(f'/subjectConsent/{self.es1.id}/session/sign/',
+                          {'action': 'acceptConsentForm',
+                           'consent_form_id' : self.es1.consent_form.id, 
+                           'consent_form_signature' : [], 
+                           'consent_form_signature_resolution' : {'width':0, 'height':0}}, 
+                          content_type="application/json", 
+                          follow=True)
+        r = json.loads(response.content.decode("UTF-8"))
+        self.assertFalse(r['failed'])        
+
+        #check no consent after accept
+        response = c.post('/subjectHome/', {'action': 'getCurrentInvitations'}, content_type="application/json", follow=True)
+        r = json.loads(response.content.decode("UTF-8"))
+        
+        self.assertFalse(r['upcomingInvitations'][0]['consented'])
+        self.assertFalse(r['upcomingInvitations'][1]['consented'])
+
+        #attend subject check that consent now exists
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        response = c.post('/subjectHome/', {'action': 'getCurrentInvitations'}, content_type="application/json", follow=True)
+        r = json.loads(response.content.decode("UTF-8"))
+        
+        self.assertTrue(r['upcomingInvitations'][0]['consented'])
+        self.assertTrue(r['upcomingInvitations'][1]['consented'])
+
+        #bump subject, check that consent no longer exists
+        #attend subject check that consent now exists
+        esd1 = self.es1.ESD.first()
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        r = json.loads(bumpSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
+        self.assertIn("success",r['status'])
+
+        response = c.post('/subjectHome/', {'action': 'getCurrentInvitations'}, content_type="application/json", follow=True)
+        r = json.loads(response.content.decode("UTF-8"))
+        
+        self.assertFalse(r['upcomingInvitations'][0]['consented'])
+        self.assertFalse(r['upcomingInvitations'][1]['consented'])
     
     #subject cancels attendence within 24 hours
     def testCancelAttendenceWithin24Hours(self):

@@ -90,7 +90,7 @@ def getOpenSessions(data):
     for i in s_list:
 
         d = i["date"]
-        i["date_str"] = d.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p")
+        i["date_str"] = d.astimezone(tz).strftime("%-m/%-d/%Y %-I:%M %p")
 
         
 

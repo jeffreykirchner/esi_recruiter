@@ -563,11 +563,12 @@ def completeSession(data, id, request_user):
 
             #clear any extra earnings fields entered
             if esd.complete:
-                esdu = esd.ESDU_b.all().filter(attended = False,bumped=False)
+                esdu = esd.ESDU_b.all().filter(attended=False, bumped=False)
                 esdu.update(earnings = 0, show_up_fee=0)
 
                 esdu = esd.ESDU_b.all().filter(bumped=True)
                 esdu.update(earnings = 0)
+
 
         json_info = esd.json_runInfo(request_user)
     except Exception  as exc:

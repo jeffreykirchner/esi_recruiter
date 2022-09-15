@@ -28,11 +28,11 @@ class ProfileConsentForm(models.Model):
         verbose_name = 'Profile Consent Form'
         verbose_name_plural = 'Profile Consent Forms'
 
-        constraints = [
-            models.UniqueConstraint(fields=['my_profile', 'consent_form'], name='unique_profile_consent_form')
-        ]  
+        # constraints = [
+        #     models.UniqueConstraint(fields=['my_profile', 'consent_form'], name='unique_profile_consent_form')
+        # ]  
 
-        ordering = ['my_profile__user__last_name', 'my_profile__user__first_name']
+        ordering = ['my_profile__user__last_name', 'my_profile__user__first_name', 'timestamp']
     
     def get_date_string_tz_offset(self):
         '''

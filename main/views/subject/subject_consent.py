@@ -43,6 +43,7 @@ class SubjectConsent(View):
         u = request.user
         id = kwargs['id']
         consent_type = kwargs['type']
+        view_mode = kwargs['view_mode']
         p = parameters.objects.first()
 
         labManager = p.labManager
@@ -56,6 +57,7 @@ class SubjectConsent(View):
 
         try:
             if consent_type == 'session':
+
                 subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
                 session = experiment_sessions.objects.filter(id__in=subject_session_list).filter(id=id)
 
@@ -77,7 +79,14 @@ class SubjectConsent(View):
             else:
                 raise Http404('Form Not Found')
 
-            consent_form_subject = ProfileConsentForm.objects.filter(consent_form=consent_form, my_profile=u.profile).first()
+            consent_form_subject = None
+            
+            if view_mode == "sign" and consent_type == 'session':
+                if u.profile.check_for_consent_attended(consent_form):
+                    consent_form_subject = ProfileConsentForm.objects.filter(consent_form=consent_form, my_profile=u.profile).last()
+            else:
+                consent_form_subject = ProfileConsentForm.objects.filter(consent_form=consent_form, my_profile=u.profile).last()
+
         except ObjectDoesNotExist :
             raise Http404('Form Not Found')
     
@@ -110,17 +119,21 @@ class SubjectConsent(View):
                 session = experiment_sessions.objects.filter(id__in=subject_session_list).get(id=id)
 
                 if not session:
+                    logger.error("SubjectConsent: Session not found")
                     return JsonResponse({"response" :  "fail"},safe=False)  
 
             elif consent_type == 'policy':
                 umbrella_consent_form = UmbrellaConsentForm.objects.filter(id=id)
 
                 if not umbrella_consent_form:
+                    logger.error("SubjectConsent: Policy not found")
                     return JsonResponse({"response" :  "fail"},safe=False)  
             else:
+                logger.error("SubjectConsent: Invaid consent type")
                 return JsonResponse({"response" :  "fail"},safe=False)
 
         except ObjectDoesNotExist :
+            logger.error("SubjectConsent: Object not found")
             return JsonResponse({"response" :  "fail"},safe=False)  
 
         data = json.loads(request.body.decode('utf-8'))
@@ -167,7 +180,7 @@ def acceptConsentForm(data, u, session, consent_type):
                                                     singnature_resolution=singnature_resolution)
             profile_consent_form.save()
 
-            main.views.acceptInvitation({"id":session.id},u)
+            main.views.acceptInvitation({"id":session.id}, u)
 
     except Exception  as e:
         logger.warning("accept consent form error")             

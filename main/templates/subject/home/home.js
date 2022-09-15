@@ -157,8 +157,8 @@ var app = new Vue({
             $('#subject_invitation_text_modal').modal('show');
         },
 
-        viewConsentForm:function(id, type){
-            window.open("/subjectConsent/" + id + "/" + type, '_self');
+        viewConsentForm:function(id, type, view_mode){
+            window.open("/subjectConsent/" + id + "/" + type + "/" + view_mode +"/", '_self');
         },
 
         formatDate: function(value,value2,enable_time,length){
