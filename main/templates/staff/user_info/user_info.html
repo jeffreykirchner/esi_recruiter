@@ -1,6 +1,6 @@
 <div class="card">                  
     <div class="card-header">
-        User Info: {{u.last_name.capitalize}}, {{u.first_name.capitalize}}     
+        User Info: {{u.last_name.capitalize}}, {{u.first_name.capitalize}} ({{u.id}})
         
         {%if u.profile.type.name == "staff"%}
         (Staff)
@@ -123,7 +123,7 @@
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                                        
+                                           
             </div>
             <div class = "col-md"> 
                 
@@ -137,10 +137,10 @@
         </div>
         <div class = "row mb-4">
             <div class = "col-md"> 
-                                    
+                <span class="float-md-right">Public ID:</span>                        
             </div>
             <div class = "col-md"> 
-               
+                <span class="float-md-right">{{u.profile.public_id}}</span>
             </div> 
             <div class = "col-md"> 
                 <span class="float-md-right">In Institutions:</span>                             
