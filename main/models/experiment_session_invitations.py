@@ -48,6 +48,7 @@ class experiment_session_invitations(models.Model):
                                             {"name" : "last name", "text" : i.last_name},
                                             {"name" : "email", "text" : i.email},
                                             {"name" : "recruiter id", "text" : str(i.id)},
+                                            {"name" : "public id", "text" : str(i.profile.public_id)},
                                             {"name" : "student id", "text" : i.profile.studentID},
                                            ]
                             })

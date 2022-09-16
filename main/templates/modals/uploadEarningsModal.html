@@ -24,12 +24,15 @@
 
                     </div>   
                 </div>
-                <div class="row mt-4">
+                <div class="row mt-4">                    
                     <div class = "col">                        
                         <div class="form-group">
                             <label for="earningsUploadText">
                                 Format (tab or comma delimited):<br>
-                                Sudent_ID, Earnings [optional: ,On_Time_Bonus]
+                                <span v-if="uploadIdType=='student_id'">Student_ID</span>
+                                <span v-else-if="uploadIdType=='recruiter_id'">Recruiter_ID</span>
+                                <span v-else>Public_ID</span>,
+                                    Earnings [optional: ,On_Time_Bonus]
                             </label>
                             <textarea class="form-control"
                                       v-model="uploadEarningsText"
@@ -38,14 +41,30 @@
                         </div>
                     </div>   
                 </div>
-                <div class="row">
-                    <div class = "col text-right">
+                <div class="row align-items-center">
+                    <!-- id type -->
+                    <div class="col text-center">                       
+                        <div class="form-group">
+                            <label for="IDTypeSelect">ID Type</label>
+                            <select class="form-control" 
+                                    id="IDTypeSelect"
+                                    v-model="uploadIdType">
+                                <option value="student_id" selected>Student ID</option>
+                                <option value="recruiter_id">Recruiter ID</option> 
+                                <option value="public_id">Public ID</option>                                     
+                            </select>
+                        </div>                               
+                    </div>
+
+                    <!-- upload button -->
+                    <div class = "col text-center pt-3">
                         <button class="btn btn-outline-primary"
                                 title="Upload the earnings text listed above."
                                 v-on:click="uploadEarningsTextJS()"><span v-html="uploadEarningsTextBoxButtonText"></span>
                         </button>
                     </div>   
                 </div>
+
                 {%if user.is_staff%}
                 <div class="row mt-4">
                     <div class = "col text-right">
@@ -61,7 +80,7 @@
                          </div>
                     </div>
                 </div>
-                {%endif%}
+                {%endif%}                
                 <div class="row mt-4">
                     <div class = "col">
                         <span v-html="uploadEarningsMessage"></span>

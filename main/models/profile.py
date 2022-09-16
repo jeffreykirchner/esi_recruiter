@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import logging
 import pytz
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -46,7 +47,9 @@ class profile(models.Model):
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
     nonresidentAlien = models.BooleanField(verbose_name="Nonresident Alien", default=False)                           #true is subject is a not a US Citizen or US Resident
 
-    #consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                 #true if the subject must agree to the current consent form (used before session by session consent forms)
+    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)                                     #publicly sharable id number for subjects
+
+    #consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                #true if the subject must agree to the current consent form (used before session by session consent forms)
 
     send_daily_email_report = models.BooleanField(verbose_name="Send Daily Email Report", default=False)              #if true, send daily report of the past day's activity
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password

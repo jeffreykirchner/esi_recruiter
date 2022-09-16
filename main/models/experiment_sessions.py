@@ -86,7 +86,7 @@ class experiment_sessions(models.Model):
         message = message.replace("[on time bonus]","$" + self.experiment.getShowUpFeeString())
         message = message.replace("[contact email]", p.labManager.email)
         message = message.replace("[profile link]",p.siteURL + reverse('profile'))
-        message = message.replace("[session id]", str(self.id))
+        message = message.replace("[session id]", str(self.id))       
 
         return message
     

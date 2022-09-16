@@ -372,7 +372,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
       list_display = ['__str__', 'paused', 'email_filter', 'updated', 'last_login']
       list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
-      readonly_fields = ['user', 'password_reset_key']
+      readonly_fields = ['user', 'password_reset_key', 'public_id']
       inlines = [ProfileConsentFormInline,ProfileTraitsInline]
 
       def get_form(self, request, obj=None, **kwargs):
