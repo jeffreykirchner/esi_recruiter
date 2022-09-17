@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import json
 import logging
+import uuid
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -195,6 +196,12 @@ def lookup(value, returnJSON, activeOnly):
 
     value = value.strip()
 
+    is_uuid = True
+    try:
+        uuid.UUID(value)        
+    except ValueError:
+        is_uuid = False
+
     users = User.objects.annotate(first_name_similarity=TrigramSimilarity('first_name', value)) \
                         .annotate(last_name_similarity=TrigramSimilarity('last_name', value)) \
                         .annotate(email_similarity=TrigramSimilarity('email', value)) \
@@ -212,7 +219,9 @@ def lookup(value, returnJSON, activeOnly):
                                 Q(email_similarity__gte=0.3) |
                                 Q(profile_studentID_similarity__gte=0.3) |
                                 Q(profile__subject_type__name_similarity__gte=0.3) |
-                                Q(profile_type__name_similarity__gte=0.3))\
+                                Q(profile_type__name_similarity__gte=0.3) |
+                                Q(id=value if value.isnumeric() else None) |
+                                Q(profile__public_id=value if is_uuid else None))\
                         .select_related('profile')\
                         .values("id",
                                 "first_name",
@@ -220,6 +229,7 @@ def lookup(value, returnJSON, activeOnly):
                                 "email",
                                 "profile__studentID",
                                 "profile__type__name",
+                                "profile__public_id",
                                 "is_active",
                                 "profile__subject_type__name",
                                 "profile__blackballed") \

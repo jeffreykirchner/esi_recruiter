@@ -90,6 +90,9 @@
                             Student ID
                         </th>
                         <th scope="col" style="text-align: center;">
+                            Public ID
+                        </th>
+                        <th scope="col" style="text-align: center;">
                             Year
                         </th>
                         <th scope="col" style="text-align: center;">
@@ -101,19 +104,22 @@
                     <tbody id="userList">                                                  
                         <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
                             <td class="text-nowrap"> 
-                                <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a>                                        
+                                <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a> ([[u.id]])                                      
                             </td>
                             <td class="text-nowrap text-center">                                        
-                                <span v-html="u.email"></span>                                         
+                                [[u.email]]
                             </td>  
                             <td class="text-nowrap text-center">  
-                                <span v-html="u.profile__studentID"></span>
+                                [[u.profile__studentID]]
                             </td>
                             <td class="text-nowrap text-center">  
-                                <span v-html="u.profile__subject_type__name"></span>
+                                [[u.profile__public_id]]
                             </td>
                             <td class="text-nowrap text-center">  
-                                <span v-html="u.profile__type__name.toUpperCase()"></span>
+                                [[u.profile__subject_type__name]]
+                            </td>
+                            <td class="text-nowrap text-center">  
+                                [[u.profile__type__name.toUpperCase()]]
                             </td>                                                         
                         </tr>                                                    
                     </tbody>
