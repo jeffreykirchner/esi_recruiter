@@ -39,14 +39,14 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                         "size":"10"}))
     experiments_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=hrefExperiments.objects.all().order_by(Lower("title")),
+                                                    queryset=hrefExperiments.objects.filter(archived=False).order_by(Lower("title")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.experiments_exclude",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"12"}))
     experiments_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=hrefExperiments.objects.all().order_by(Lower("title")),
+                                                    queryset=hrefExperiments.objects.filter(archived=False).order_by(Lower("title")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.experiments_include",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
