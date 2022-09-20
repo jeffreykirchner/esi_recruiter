@@ -125,9 +125,28 @@ class parametersadmin(admin.ModelAdmin):
 @admin.register(Traits)
 class traitsAdmin(admin.ModelAdmin):
       ordering = [Lower('name')]
+      actions = ['archive']
+      list_display = ['name', 'description', 'archived']
+      search_fields = ['name']
+      list_filter = ['archived']
+
+      def archive(self, request, queryset):
+
+            updated_traits = queryset.update(archived=True)
+
+            self.message_user(request, ngettext(
+                  '%d trait was archived.',
+                  '%d traits were archived.',
+                  updated_traits,
+            ) % updated_traits, messages.SUCCESS)
+      archive.short_description = "Archive selected traits"
 
 @admin.register(profile_trait)
 class profile_traitAdmin(admin.ModelAdmin):
+      def get_queryset(self, request):
+        qs = super(profile_traitAdmin, self).get_queryset(request)
+        return qs.filter(archived=False)
+
       ordering = ['timestamp']
       fields = ['value']
       list_display = ['my_profile', 'trait', 'value', 'timestamp']
