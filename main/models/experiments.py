@@ -43,6 +43,8 @@ class experiments(models.Model):
 
     survey = models.BooleanField(default=False, verbose_name="Survey")              #experiment is a online survey
 
+    archived = models.BooleanField(verbose_name="Archived", default=False)          #if archived hide from useage
+
     invitationText = HTMLField(default="")                 #text of email invitation subjects receive
     reminderText = HTMLField(default="")                   #text of email reminder subjects receive
 
