@@ -170,10 +170,19 @@ def getReport(data,u):
 
         writer = csv.writer(csv_response)
 
+        # trait names
         headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name']
 
         for i in traits_list:
             headerText.append(i)
+
+        writer.writerow(headerText)
+
+        #trait descriptions
+        headerText = ['', '','', '', '']
+
+        for i in traits_list:
+            headerText.append(i.description)
 
         writer.writerow(headerText)
 
