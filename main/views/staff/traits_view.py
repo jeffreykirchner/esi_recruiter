@@ -2,6 +2,8 @@ import csv
 import json
 import logging
 
+from io import StringIO
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -206,15 +208,25 @@ def takeCSVUpload(f,u):
     logger.info(f"File to be uploaded {f}")
 
     #format incoming data
-    v=""
+    # v=""
 
-    for chunk in f.chunks():
-        v+=str(chunk.decode("utf-8-sig"))            
+    # for chunk in f.chunks():
+    #     v += str(chunk.decode("utf-8-sig"))            
     
-    v=v.splitlines()
+    # v=v.splitlines()
 
-    for i in range(len(v)):
-        v[i] = v[i].split(',')
+    # for i in range(len(v)):
+    #     #v[i] = v[i].split(',')
+    #     v[i] = list(csv.reader(v[i]))
+
+    
+    file = f.read().decode('utf-8')
+    csv_data = csv.reader(StringIO(file), delimiter=',')
+    v = list(csv_data)
+
+    #v = list(reader)
+
+    #print(data)
 
     logger.info(v)
 
@@ -225,26 +237,30 @@ def takeCSVUpload(f,u):
 
     #create any new traits that do not exist
     if status!="fail":
-        for i in v[0]:                
-            if i != "student_id" and i != "recruiter_id" and i != "public_id":
-                t = Traits.objects.filter(name = i).first()
+        for i in range(0, len(v[0])):             
+            trait_name = v[0][i]
+            trait_description = v[1][i] 
+
+            if trait_name != "student_id" and trait_name != "recruiter_id" and trait_name != "public_id":
+                t = Traits.objects.filter(name = trait_name).first()
 
                 if not t:
                     t_new = Traits()
-                    t_new.name = i
+                    t_new.name = trait_name
+                    t_new.description = trait_description
                     t_new.save()
 
-                    message += f"New trait created: {i}<br>"
+                    message += f"New trait created: {trait_name}<br>"
     
     #store traits
     if status != "fail":
-        for i in range(1,len(v)):
+        for i in range(2,len(v)):
 
             r = v[i]
 
-            if v[0][1] == "student_id":
+            if v[0][0] == "student_id":
                 p = profile.objects.filter(studentID__icontains = int(r[0]))
-            elif v[0][1] == "recruiter_id":
+            elif v[0][0] == "recruiter_id":
                 p = profile.objects.filter(user__id = int(r[0]))
             else:
                 p = profile.objects.filter(public_id = r[0])

@@ -28,6 +28,8 @@ from main.forms import helpDocForm
 from main.forms import frontPageNoticeForm
 from main.forms import InvitationEmailTemplateForm
 
+import main
+
 
 admin.site.register(accounts)
 admin.site.register(departments)
@@ -594,11 +596,34 @@ class ExperimentsAdmin(admin.ModelAdmin):
 
             return form
       
+      def archive(self, request, queryset):
+
+            updated_traits = queryset.update(archived=True)
+
+            self.message_user(request, ngettext(
+                  '%d experment was archived.',
+                  '%d experiments were archived.',
+                  updated_traits,
+            ) % updated_traits, messages.SUCCESS)
+      archive.short_description = "Archive selected experiments"
+
+      @admin.display(description='Date Range')
+      def date_range(self, obj):
+        return obj.getDateRangeString()
+
+      @admin.display(description='Last Run Date')
+      def last_date_run(self, obj):
+            experiment_session_day = main.models.experiment_session_days.objects.filter(experiment_session__experiment=obj).order_by('-date').first()
+
+            return experiment_session_day.date if experiment_session_day else None
+      
       ordering = ['-timestamp']
-      inlines = [ExperimentSessionInline,ExperimentInstitutionsInline]
+      inlines = [ExperimentSessionInline, ExperimentInstitutionsInline]
       search_fields = ['id', 'title', 'experiment_manager',]
       readonly_fields = ('recruitment_params_default',)
-      list_display = ['title','experiment_manager','timestamp']
+      list_display = ['id', 'title', 'experiment_manager', 'archived', 'timestamp', 'last_date_run', 'date_range']
+      actions = ['archive']
+      list_filter = ['archived']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

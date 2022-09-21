@@ -4,7 +4,7 @@ from django.db.models.functions import Lower
 
 class Traits(models.Model): 
     name = models.CharField(verbose_name='Name', max_length=300, unique=True)      #unique name of trait
-    description = models.CharField(verbose_name='Description', max_length=300)     #description of trait
+    description = models.CharField(verbose_name='Description', max_length=3000)     #description of trait
     archived = models.BooleanField(verbose_name="Archived", default=False)         #if archived hide from useage
 
     timestamp = models.DateTimeField(auto_now_add=True)

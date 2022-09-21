@@ -43,6 +43,8 @@ class experiments(models.Model):
 
     survey = models.BooleanField(default=False, verbose_name="Survey")              #experiment is a online survey
 
+    archived = models.BooleanField(verbose_name="Archived", default=False)          #if archived hide from useage
+
     invitationText = HTMLField(default="")                 #text of email invitation subjects receive
     reminderText = HTMLField(default="")                   #text of email reminder subjects receive
 
@@ -118,6 +120,12 @@ class experiments(models.Model):
     #get last session day
     def getLastSessionDay(self):
         return main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('-date').first()
+
+        #get last session day
+    def getLastSessionDayDate(self):
+        experiment_session_day = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('-date').first()
+
+        return experiment_session_day.date if experiment_session_day else None
 
     #return true if at least one subject in one session has confirmed
     def checkForConfirmation(self):

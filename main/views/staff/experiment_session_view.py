@@ -29,6 +29,7 @@ from main.models import recruitment_parameters
 from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
+from main.models import ConsentForm
 
 from main.views.staff.user_search import lookup
 
@@ -899,11 +900,14 @@ def updateSession(data, id):
 
     for field in data["formData"]:            
         form_data_dict[field["name"]] = field["value"]
-    
+
     if not s.allowEdit():
         form_data_dict["consent_form"] = s.consent_form
 
     form = experimentSessionForm1(form_data_dict, instance=s)
+
+    if not s.allowEdit():
+        form.fields['consent_form'].queryset = ConsentForm.objects.all()
 
     if form.is_valid():           
         session=form.save()               
