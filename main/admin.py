@@ -257,9 +257,21 @@ class NoLoginIn400Days(admin.SimpleListFilter):
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
       
+      def deactivate_all(self, request, queryset):
+
+            user_list = User.objects.filter(profile__in = queryset)
+            updated_users = user_list.update(is_active = False)
+
+            self.message_user(request, ngettext(
+                  '%d user was de-activated.',
+                  '%d users were de-activated.',
+                  updated_users,
+            ) % updated_users, messages.SUCCESS)
+      deactivate_all.short_description = "De-activate selected users"
+
       def activate_all(self, request, queryset):
 
-            user_list = User.objects.filter(profile__in = queryset).exclude(is_staff = True)
+            user_list = User.objects.filter(profile__in = queryset)
             updated_users = user_list.update(is_active = True)
 
             self.message_user(request, ngettext(
@@ -267,7 +279,7 @@ class ProfileAdmin(admin.ModelAdmin):
                   '%d users were activated.',
                   updated_users,
             ) % updated_users, messages.SUCCESS)
-      activate_all.short_description = "Activate selected subjects"
+      activate_all.short_description = "Activate selected users"
 
       def pause_all(self, request, queryset):
 
@@ -339,27 +351,27 @@ class ProfileAdmin(admin.ModelAdmin):
       apply_email_filter.short_description = "Apply email filters to selected profiles" 
 
       #activate users who were attended within last two years
-      def activate_recent_users(self, request, queryset):
-            logger = logging.getLogger(__name__)
-            logger.info("activate_recent_users")
+      # def activate_recent_users(self, request, queryset):
+      #       logger = logging.getLogger(__name__)
+      #       logger.info("activate_recent_users")
 
-            d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
+      #       d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
 
-            qs = experiment_session_day_users.objects.filter(Q(attended = True) | Q(bumped = True))\
-                                             .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
-                                             .values_list("user__id",flat=True)
+      #       qs = experiment_session_day_users.objects.filter(Q(attended = True) | Q(bumped = True))\
+      #                                        .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
+      #                                        .values_list("user__id",flat=True)
 
-            logger.info("Number of users found: " + str(len(qs)))
+      #       logger.info("Number of users found: " + str(len(qs)))
 
-            q_list = queryset.filter(user__id__in = qs)
-            updated = User.objects.filter(profile__in = q_list).update(is_active = True)
+      #       q_list = queryset.filter(user__id__in = qs)
+      #       updated = User.objects.filter(profile__in = q_list).update(is_active = True)
 
-            self.message_user(request, ngettext(
-                  '%d user was updated.',
-                  '%d users were updated.',
-                  updated,
-            ) % updated, messages.SUCCESS)
-      activate_recent_users.short_description = "Activate users who attended in past two years"   
+      #       self.message_user(request, ngettext(
+      #             '%d user was updated.',
+      #             '%d users were updated.',
+      #             updated,
+      #       ) % updated, messages.SUCCESS)
+      # activate_recent_users.short_description = "Activate users who attended in past two years"   
 
       #set selected users up to be test subejects
       def setup_test_users(self, request, queryset):
@@ -393,7 +405,7 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls, confirm_active_email, un_confirm_emails, apply_email_filter,
-                 pause_all, activate_all, activate_recent_users]
+                 pause_all, deactivate_all, activate_all]
 
       if settings.DEBUG:
             actions.append(setup_test_users)
