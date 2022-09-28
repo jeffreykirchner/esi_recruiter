@@ -11,8 +11,11 @@
             Your account is paused.<br>
             To participate in experiments, update your <a href="{%url 'profile'%}">profile</a>. 
         </div>
-        <div class="text-center mb-4" style="color: red;" v-show="!account_paused">
-            You cannot leave an experiment if it starts within 24 hours. 
+        <div class="text-center mb-4" style="color: dimgray" v-show="!account_paused">
+            <!-- You cannot leave an experiment if it starts within 24 hours.  -->
+            You cannot cancel appointments online within 24 hours of the scheduled time. 
+            We will not invite you to participate in future studies if you repeatedly fail to attend appointments for which you have confirmed.
+            Please contact the esiresearchteam@chapman.edu for questions.
         </div>
         <div class="text-center mb-4" v-if="lastActionFailed"  style="color:red">
             <span v-html ="'***There was error processing your last request***'"></span>
