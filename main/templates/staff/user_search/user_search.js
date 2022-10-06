@@ -18,6 +18,9 @@ var app = new Vue({
         sendMessageSubject:"",               //subject of send message     
         sendMessageText:"[first name],<br><br><br>[contact email]",          //text of send message     
         emailMessageList:"",                 //emails for send message
+        uploadInternationalText : "",
+        uploadInternationalButtonText : 'Upload <i class="fa fa-upload" aria-hidden="true"></i>',
+        uploadInternationalMessage : "",
     },
 
     methods:{
@@ -123,7 +126,40 @@ var app = new Vue({
 
                 app.$data.searchCount = app.$data.users.length;
             }                           
-        },                                   
+        },      
+        
+        //show international upload
+        showInternational:function()
+        {
+            $('#uploadInternationalModal').modal('show'); 
+        },
+
+        //send international upload
+        sendInternational:function()
+        {
+            if(app.$data.uploadInternationalButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
+
+            app.$data.uploadInternationalButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('{{request.get_full_path}}', {
+                action:"sendInternational", 
+                subject_list:app.$data.uploadInternationalText,
+                                                                                                                                             
+            })
+            .then(function (response) {
+                //status=response.data.status;
+                $('#uploadInternationalModal').modal('hide'); 
+
+                app.functionTakeUserList(response);
+
+                app.$data.uploadInternationalButtonText = 'Upload <i class="fa fa-upload" aria-hidden="true"></i>';   
+                                                                          
+            })
+            .catch(function (error) {
+                console.log(error);
+                //app.$data.searching=false;                                                              
+            });
+        },
 
         // fire when invite subjects subjects model is shown
         showSendMessage:function(id){    

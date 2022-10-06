@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta, timezone
+from functools import reduce
 
 import json
 import logging
 import uuid
+import re
+import operator
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -17,8 +20,13 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.conf import settings
 
+
 from main.decorators import user_is_staff
-from main.models import parameters, help_docs
+
+from main.models import parameters
+from main.models import help_docs
+from main.models import profile
+
 from main.globals import send_mass_email_service
 from main.globals import get_now_show_blocks
 
@@ -71,6 +79,50 @@ class UserSearch(View):
             return getNoShows(request, data)
         elif data["action"] == "sendEmail":
             return sendEmail(request, data)
+        elif data["action"] == "sendInternational":
+            return sendInternational(request, data)
+
+#mark the submitted subjects as international
+def sendInternational(request, data):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Set subjects to International: {data}")
+
+    error_message = ""
+    text = data["subject_list"]
+
+    v=text.splitlines()
+    student_id_list = []
+
+    for i in range(len(v)):
+        try:
+            student_id_list.append(int(v[i]))        
+        except ValueError:
+            error_message += f'Invalid ID: {v[i]}<br>'
+
+    logger.info(student_id_list)
+
+    clauses = (Q(studentID__icontains=p) for p in student_id_list)
+    query = reduce(operator.or_, clauses)
+    profiles = profile.objects.filter(query)
+    profiles.update(international_student=True)
+
+    users = User.objects.filter(id__in=profiles.values_list("user__id", flat=True))
+    users = users.order_by(Lower('last_name'),Lower('first_name'))\
+                 .values("id",
+                        "first_name",
+                        "last_name",
+                        "email",
+                        "profile__studentID",
+                        "profile__type__name",
+                        "profile__public_id",
+                        "is_active",
+                        "profile__subject_type__name",
+                        "profile__blackballed")
+
+    u_list = list(users)
+
+    return JsonResponse({"users" : json.dumps(u_list,cls=DjangoJSONEncoder),
+                         "errorMessage":error_message},safe=False)
 
 #send an email to active users
 def sendEmail(request, data):
@@ -107,7 +159,7 @@ def sendEmail(request, data):
 
         #logger.info(emailList)
     else:
-        logger.info("Send message to all active users error, not super user : user " + str(request.user.id))
+        logger.info("Send message to all active users error, not staff user : user " + str(request.user.id))
         mail_result = {"mail_count":0, "error_message":"You are not an elevated user."}
 
     return JsonResponse({"mailResult":mail_result}, safe=False)
@@ -126,7 +178,16 @@ def getNoShows(request, data):
 
     users = get_now_show_blocks()
     users = users.order_by(Lower('last_name'),Lower('first_name'))\
-                 .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
+                 .values("id",
+                         "first_name",
+                         "last_name",
+                         "email",
+                         "profile__studentID",
+                         "profile__type__name",
+                         "profile__public_id",
+                         "is_active",
+                         "profile__subject_type__name",
+                         "profile__blackballed")
 
     # users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
     #             .filter(Q(ESDU__confirmed = True) &
@@ -159,7 +220,16 @@ def getBlackBalls(request,data):
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                 .filter(profile__blackballed=True) \
                 .select_related('profile') \
-                .values("id","first_name","last_name","email","profile__studentID","profile__type__name","is_active","profile__blackballed")
+                .values("id",
+                        "first_name",
+                        "last_name",
+                        "email",
+                        "profile__studentID",
+                        "profile__type__name",
+                        "profile__public_id",
+                        "is_active",
+                        "profile__subject_type__name",
+                        "profile__blackballed")
     
     if activeOnly:
         users = users.filter(is_active = True, profile__paused = False)
