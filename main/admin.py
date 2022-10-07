@@ -395,6 +395,17 @@ class ProfileAdmin(admin.ModelAdmin):
             ) % updated, messages.SUCCESS)
       setup_test_users.short_description = "Setup users as test subjects, pw = 'esi2008esi'."
 
+      def remove_international_status(self, request, queryset):
+
+            updated = queryset.update(international_student=False)
+            
+            self.message_user(request, ngettext(
+                  '%d user was updated.',
+                  '%d users were updated.',
+                  updated,
+            ) % updated, messages.SUCCESS)
+      remove_international_status.short_description = "Remove international status."
+
       @admin.display(boolean=True, description="Active")
       def get_user_is_active(self, obj):
             '''
@@ -405,13 +416,13 @@ class ProfileAdmin(admin.ModelAdmin):
       ordering = ['user__last_name','user__first_name']
       search_fields = ['user__last_name','user__first_name','studentID','user__email']
       actions = [clear_blackBalls, confirm_active_email, un_confirm_emails, apply_email_filter,
-                 pause_all, deactivate_all, activate_all]
+                 pause_all, deactivate_all, activate_all, remove_international_status]
 
       if settings.DEBUG:
             actions.append(setup_test_users)
 
       list_display = ['__str__', 'paused', 'get_user_is_active', 'email_filter', 'updated', 'last_login']
-      list_filter = ('blackballed', 'email_filter', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
+      list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key', 'public_id']
       inlines = [ProfileConsentFormInline,ProfileTraitsInline]
 

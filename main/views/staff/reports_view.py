@@ -131,11 +131,11 @@ def studentReport(data):
                                                                    'user__profile',
                                                                    'experiment_session_day__account')
 
-        #filter for nonresident aliens
+        #filter for international_student
         if studentReport_nra == "1":
-            ESDU = ESDU.filter(user__profile__nonresidentAlien = True)
+            ESDU = ESDU.filter(user__profile__international_student = True)
 
-        #filter for nonresident aliens
+        #filter for student workers
         if studentReport_studentWorkers == "1":
             ESDU = ESDU.filter(user__profile__studentWorker = True)
 
@@ -148,7 +148,7 @@ def studentReport(data):
         logger.info(ESDU)
         logger.info(ESDU_ids)
 
-        headerText = ['ID','Name','Email','Nonresident Alien','Student Worker','Payments','Total Earnings in Range']
+        headerText = ['ID','Name','Email','International','Student Worker','Payments','Total Earnings in Range']
         for i in depts:
             headerText.append(i.name)
 
@@ -197,7 +197,7 @@ def studentReport(data):
             output_text=[u.profile.studentID,
                              u.last_name + ', ' + u.first_name,
                              u.email,
-                             u.profile.nonresidentAlien,
+                             u.profile.international_student,
                              u.profile.studentWorker,
                              e_list,                            
                             "$" + str(f'{tempTotal:.2f}')]
