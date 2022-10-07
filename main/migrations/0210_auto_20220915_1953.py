@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
         ('main', '0209_rename_survey_id_profile_public_id'),
     ]
 
-    operations = [
-        migrations.RunPython(update_uuids),
-    ]
+    # operations = [
+    #     migrations.RunPython(update_uuids),
+    # ]

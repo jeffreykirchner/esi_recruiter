@@ -10,13 +10,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
+
+         migrations.RenameField(
             model_name='profile',
-            name='nonresidentAlien',
+            old_name='nonresidentAlien',
+            new_name='international_student',
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='profile',
             name='international_student',
-            field=models.BooleanField(default=False, verbose_name='Internationl Student'),
+             field=models.BooleanField(default=False, verbose_name='Internationl Student'),
         ),
     ]
