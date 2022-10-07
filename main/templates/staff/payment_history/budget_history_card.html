@@ -61,6 +61,9 @@
                             Amount
                         </th>
                         <th scope="col w-auto">
+                            International Tax
+                        </th>
+                        <th scope="col w-auto">
                             Sessions
                         </th> 
                                                                                                                           
@@ -87,6 +90,9 @@
                             </td>
                             <td class="w-auto">                                       
                                 $[[h.total]]                              
+                            </td>
+                            <td class="w-auto">                                       
+                                $[[h.total_international]]                              
                             </td>
                             <td class="w-auto">                                       
                                <div v-for="(s, index) in h.sessions" v-bind:key="s.id">

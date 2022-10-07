@@ -270,21 +270,36 @@ def get_budget_history(request, data):
             result={}
             result['id']=b.user.id
             result['total']=0
+            result['total_international']=0
             result['sessions']=[]            
 
             for s in session_list:
+                session_total = 0
+
                 if s.paypal_api:
                     realized_totals = s.get_paypal_realized_totals()
                     result['total'] += realized_totals['realized_fees']
                     result['total'] += realized_totals['realized_payouts']
+                    result['total_international'] += realized_totals['realized_fees_international']
+                    result['total_international'] += realized_totals['realized_payouts_international']
+
+                    session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
+                                    realized_totals['realized_fees_international'] + realized_totals['realized_payouts_international']    
                 else:
                     total = s.get_cash_payout_total()
                     
                     if total.get('show_up_fee', None):
                         result['total'] += total['show_up_fee']
                         result['total'] += total['earnings']
+                        result['total_international'] += total['show_up_fee_international']
+                        result['total_international'] += total['earnings_international']
 
-                result['sessions'].append({'id':s.id, 'title':s.experiment_session.experiment.title,})
+                        session_total = total['show_up_fee'] + total['earnings'] + \
+                                        total['show_up_fee_international'] + total['earnings_international']
+
+                result['sessions'].append({'id':s.id, 
+                                           'title':s.experiment_session.experiment.title,
+                                           'session_total' : session_total})
             
             if result['total'] > 0 :
                 result['name']=f'{b.user.last_name}, {b.user.first_name}'
@@ -292,6 +307,7 @@ def get_budget_history(request, data):
                 result['account_number']=a.number
                 result['department']=a.department.name
                 result['total'] = f'{result["total"]:0.2f}'
+                result['total_international'] = f'{result["total_international"]*param.international_tax_rate:0.2f}'
                 history.append(result)
     
     #no budget defined
@@ -312,14 +328,26 @@ def get_budget_history(request, data):
             realized_totals = s.get_paypal_realized_totals()
             result['total'] += realized_totals['realized_fees']
             result['total'] += realized_totals['realized_payouts']
+            result['total_international'] += realized_totals['realized_fees_international']
+            result['total_international'] += realized_totals['realized_payouts_international']
+
+            session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
+                            realized_totals['realized_fees_international'] + realized_totals['realized_payouts_international']
         else:
             total = s.get_cash_payout_total()
             
             if total.get('show_up_fee', None):
                 result['total'] += total['show_up_fee']
                 result['total'] += total['earnings']
+                result['total_international'] += total['show_up_fee_international']
+                result['total_international'] += total['earnings_international']
 
-        result['sessions'].append({'id':s.id, 'title':s.experiment_session.experiment.title,})
+                session_total = total['show_up_fee'] + total['earnings'] + \
+                                total['show_up_fee_international'] + total['earnings_international']
+
+        result['sessions'].append({'id':s.id, 
+                                   'title':s.experiment_session.experiment.title,
+                                   'session_total' : session_total})
             
     if result['total'] > 0 :
         result['name']='No Budget'
@@ -327,6 +355,7 @@ def get_budget_history(request, data):
         result['account_number'] = ''
         result['department'] =  ''
         result['total'] = f'{result["total"]:0.2f}'
+        result['total_international'] = f'{result["total_international"]*param.international_tax_rate:0.2f}'
         history.append(result)                                                              
     
     return JsonResponse({"history" : history, 

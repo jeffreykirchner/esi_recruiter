@@ -45,7 +45,7 @@ class profile(models.Model):
     studentWorker = models.BooleanField(verbose_name="Student Woker", default=False)                                  #true is subject is a student worker
     paused = models.BooleanField(verbose_name="Paused", default=False)                                                #allows subject to pause getting invitations
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
-    international_student = models.BooleanField(verbose_name="Internationl Student", default=False)                   #true if subject is an international student
+    international_student = models.BooleanField(verbose_name="International Student", default=False)                  #true if subject is an international student
 
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)                                     #publicly sharable id number for subjects
 

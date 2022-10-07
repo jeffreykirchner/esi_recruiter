@@ -16,14 +16,13 @@ class parameters(models.Model):
     maxAnnualEarnings = models.DecimalField(decimal_places=2, max_digits=5, default=600)  #max money that can be paid to a subject per year  
     siteURL = models.CharField(max_length=200, default="https://www.google.com/")         #site URL used for display in emails
     testEmailAccount = models.CharField(max_length=1000, default="")                      #email account used for debug mode emails
+    max_invitation_block_size = models.IntegerField(default=100)                          #max number of subjects that can be invited in one invitation block
+    noShowCutoff = models.IntegerField(default=3)                                         #if subject hits count in window they will not be invited
+    noShowCutoffWindow = models.IntegerField(default=90)                                  #trailing window in days with which no shows are measured
+    international_tax_rate = models.DecimalField(decimal_places=2, max_digits=5, default=0.3)  #tax rate for international students
 
     paypal_email_subject = models.CharField(max_length=200, default="You have a payment from <your_org>.")     #subject of paypal payment emails
     paypal_email_body = models.CharField(max_length=200, default="thanks for your participation!")             #body of paypal payment email
-
-    max_invitation_block_size = models.IntegerField(default=100)                          #max number of subjects that can be invited in one invitation block
-
-    noShowCutoff = models.IntegerField(default=3)                                         #if subject hits count in window they will not be invited
-    noShowCutoffWindow = models.IntegerField(default=90)                                  #trailing window in days with which no shows are measured
 
     invitationTextSubject = models.CharField(max_length=1000, default="")                 #email subject text for the single day invitation
         
