@@ -33,7 +33,7 @@
         
         <div class="row justify-content-center mt-4">
             <div class="col-md" style="text-align: center;color: red;">
-                <span v-show = "errorMessageRecruiter != ''" >[[errorMessage]]</span>
+                <span v-show = "errorMessageBudget != ''" >[[errorMessageBudget]]</span>
             </div>
         </div>
 
@@ -70,7 +70,7 @@
                     </thead>
 
                     <tbody id="userListBudget">                                                  
-                        <tr v-for="(h,index) in historyBudget" v-bind:key="h.id">                                                                          
+                        <tr v-for="(h,index) in historyBudget">                                                                          
                             <td class="w-auto">
                                 <span v-if="h.id != -1">
                                     <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>
@@ -96,7 +96,18 @@
                             </td>
                             <td class="w-auto">                                       
                                <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
-                                   <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                                    <div class="row">
+                                        <div class="col">
+                                            <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                                        </div>
+                                        <div class="col">
+                                            $[[s.session_total]]
+                                        </div>
+                                        <!-- <div class="col">
+                                            <span v-if="s.paypal_api">pp</span>
+                                            <span v-else>c</span>
+                                        </div> -->
+                                    </div>
                                </div>                       
                             </td>                          
                                                                                                                

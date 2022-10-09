@@ -35,7 +35,7 @@ class PaymentHistory(View):
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
-    @method_decorator(staff_member_required)
+    #@method_decorator(staff_member_required)
     def get(self, request, *args, **kwargs):
         '''
         handle get requests
@@ -71,7 +71,7 @@ class PaymentHistory(View):
     
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
-    @method_decorator(staff_member_required)
+    #@method_decorator(staff_member_required)
     def post(self, request, *args, **kwargs):
         '''
         handle post requests
@@ -90,13 +90,20 @@ class PaymentHistory(View):
             
         return JsonResponse({"error" : "error"}, safe=False)
 
-#return list of users based on search criterion
 def get_history(request, data):
     '''
     Get the paypal history in the given range.
     '''
     logger = logging.getLogger(__name__)
     logger.info(f"PayPal History {data}")
+
+    start_date = datetime.strptime(data["startDate"], "%Y-%m-%d").date()
+    end_date = datetime.strptime(data["endDate"], "%Y-%m-%d").date()
+
+    range_delta = end_date - start_date
+    if range_delta.days > 365:
+        return JsonResponse({"history" : [], 
+                            "errorMessage" : "The range cannot exceed one year."}, safe=False)
 
     #request.session['userSearchTerm'] = data["searchInfo"]            
     history = get_paypal_history_list(data["startDate"], data["endDate"])
@@ -122,6 +129,11 @@ def get_paypal_history_list(start_date, end_date):
         #convert dates to UTC
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
         end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        range_delta = end_date - start_date
+        if range_delta.days > 365:
+            return JsonResponse({"history" : [], 
+                                "errorMessage" : "The range cannot exceed one year."}, safe=False)
 
         # start_date = make_tz_aware_utc(start_date, 0, 0, 0).date()
         # end_date = make_tz_aware_utc(end_date, 23, 59, 59).date()
@@ -175,6 +187,11 @@ def get_paypal_history_recruiter(request, data):
 
     s_date_start = datetime.strptime(data["startDate"], "%Y-%m-%d").date() 
     e_date_start = datetime.strptime(data["endDate"], "%Y-%m-%d").date() 
+
+    range_delta = e_date_start - s_date_start
+    if range_delta.days > 365:
+        return JsonResponse({"history" : [], 
+                             "errorMessage" : "The range cannot exceed one year."}, safe=False)
 
     s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
     e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
@@ -233,6 +250,12 @@ def get_budget_history(request, data):
     s_date_start = datetime.strptime(data["startDate"], "%Y-%m-%d").date() 
     e_date_start = datetime.strptime(data["endDate"], "%Y-%m-%d").date() 
 
+    #range should not exceed 365 days
+    range_delta = e_date_start - s_date_start
+    if range_delta.days > 365:
+        return JsonResponse({"history" : [], 
+                             "errorMessage" : "The range cannot exceed one year."}, safe=False)
+
     s_date = s_date.replace(day=s_date_start.day,month=s_date_start.month, year=s_date_start.year)
     e_date = e_date.replace(day=e_date_start.day,month=e_date_start.month, year=e_date_start.year)
 
@@ -265,7 +288,7 @@ def get_budget_history(request, data):
                                                           .filter(account=a) \
                                                           .filter(date__gte=s_date) \
                                                           .filter(date__lte=e_date) \
-                                                          .order_by('experiment_session__experiment__title')
+                                                          .order_by('experiment_session__experiment__title', 'date')
 
             result={}
             result['id']=b.user.id
@@ -284,7 +307,8 @@ def get_budget_history(request, data):
                     result['total_international'] += realized_totals['realized_payouts_international']
 
                     session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                                    realized_totals['realized_fees_international'] + realized_totals['realized_payouts_international']    
+                                    realized_totals['realized_fees_international']  * param.international_tax_rate + \
+                                    realized_totals['realized_payouts_international'] * param.international_tax_rate
                 else:
                     total = s.get_cash_payout_total()
                     
@@ -295,11 +319,13 @@ def get_budget_history(request, data):
                         result['total_international'] += total['earnings_international']
 
                         session_total = total['show_up_fee'] + total['earnings'] + \
-                                        total['show_up_fee_international'] + total['earnings_international']
+                                        total['show_up_fee_international'] * param.international_tax_rate + \
+                                        total['earnings_international'] * param.international_tax_rate
 
                 result['sessions'].append({'id':s.id, 
                                            'title':s.experiment_session.experiment.title,
-                                           'session_total' : session_total})
+                                           'paypal_api': s.paypal_api,
+                                           'session_total' : f'{session_total:0.2f}'})
             
             if result['total'] > 0 :
                 result['name']=f'{b.user.last_name}, {b.user.first_name}'
@@ -332,7 +358,8 @@ def get_budget_history(request, data):
             result['total_international'] += realized_totals['realized_payouts_international']
 
             session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                            realized_totals['realized_fees_international'] + realized_totals['realized_payouts_international']
+                            realized_totals['realized_fees_international'] * param.international_tax_rate + \
+                            realized_totals['realized_payouts_international'] * param.international_tax_rate
         else:
             total = s.get_cash_payout_total()
             
@@ -343,10 +370,12 @@ def get_budget_history(request, data):
                 result['total_international'] += total['earnings_international']
 
                 session_total = total['show_up_fee'] + total['earnings'] + \
-                                total['show_up_fee_international'] + total['earnings_international']
+                                total['show_up_fee_international'] * param.international_tax_rate + \
+                                total['earnings_international'] * param.international_tax_rate
 
         result['sessions'].append({'id':s.id, 
                                    'title':s.experiment_session.experiment.title,
+                                   'paypal_api': s.paypal_api,
                                    'session_total' : session_total})
             
     if result['total'] > 0 :

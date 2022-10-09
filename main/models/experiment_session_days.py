@@ -460,13 +460,13 @@ class experiment_session_days(models.Model):
 
         result = {'show_up_fee' : payouts['show_up_fee'], 'earnings' : payouts['earnings']}
 
-        payouts = self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
+        payouts_2 = self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
                              .filter(user__profile__international_student=True) \
                              .aggregate(show_up_fee=Sum('show_up_fee'), 
                                          earnings=Sum('earnings'))
         
-        result['show_up_fee_international'] = payouts['show_up_fee']
-        result['earnings_international'] = payouts['earnings']
+        result['show_up_fee_international'] = payouts_2['show_up_fee']
+        result['earnings_international'] = payouts_2['earnings']
 
         return result
 
