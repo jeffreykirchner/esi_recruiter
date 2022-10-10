@@ -6,6 +6,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 import logging
+from unittest import result
 import pytz
 import requests
 
@@ -422,15 +423,28 @@ class experiment_session_days(models.Model):
             result
     
         payouts =  self.ESDU_b.filter(paypal_response__isnull=False) \
-                                .filter(paypal_response__transaction_status="SUCCESS")\
-                                .values_list('paypal_response__payout_item__amount__value',flat=True)
+                              .filter(paypal_response__transaction_status="SUCCESS")\
+                              .values_list('paypal_response__payout_item__amount__value',flat=True)
         
         fees =  self.ESDU_b.filter(paypal_response__isnull=False) \
-                                .filter(paypal_response__transaction_status="SUCCESS")\
-                                .values_list('paypal_response__payout_item_fee__value',flat=True)
+                           .filter(paypal_response__transaction_status="SUCCESS")\
+                           .values_list('paypal_response__payout_item_fee__value',flat=True)
 
         result['realized_fees']=sum(map(lambda n:Decimal(n), fees))
         result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
+
+        payouts =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                              .filter(user__profile__international_student=True) \
+                              .filter(paypal_response__transaction_status="SUCCESS")\
+                              .values_list('paypal_response__payout_item__amount__value',flat=True)
+        
+        fees =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                           .filter(user__profile__international_student=True) \
+                           .filter(paypal_response__transaction_status="SUCCESS")\
+                           .values_list('paypal_response__payout_item_fee__value',flat=True)
+
+        result['realized_fees_international']=sum(map(lambda n:Decimal(n), fees))
+        result['realized_payouts_international']=sum(map(lambda n:Decimal(n), payouts))
 
         return result
     
@@ -439,11 +453,22 @@ class experiment_session_days(models.Model):
         logger = logging.getLogger(__name__)
         
         payouts = self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
-                              .aggregate(show_up_fee=Sum('show_up_fee'), earnings=Sum('earnings'))
+                              .aggregate(show_up_fee=Sum('show_up_fee'), 
+                                         earnings=Sum('earnings'))
 
-        logger.info(f'get_cash_payout_total: {payouts}')
+        #logger.info(f'get_cash_payout_total: {payouts}')
 
-        return payouts
+        result = {'show_up_fee' : payouts['show_up_fee'], 'earnings' : payouts['earnings']}
+
+        payouts_2 = self.ESDU_b.filter(Q(attended=True) | Q(bumped=True)) \
+                             .filter(user__profile__international_student=True) \
+                             .aggregate(show_up_fee=Sum('show_up_fee'), 
+                                         earnings=Sum('earnings'))
+        
+        result['show_up_fee_international'] = payouts_2['show_up_fee']
+        result['earnings_international'] = payouts_2['earnings']
+
+        return result
 
     #get small json object
     def json_min(self):
