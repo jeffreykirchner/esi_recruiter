@@ -79,7 +79,8 @@
                                 ([[esdu.user.id]]) 
                                 <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                     <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
-                                </a>                                    
+                                </a>
+                                <span v-if="esdu.user.international_student" title="International Student" class="mr-2"><i class="fas fa-globe-europe"></i></span>                              
                             </td>
                             <td  class="align-middle text-center m-1 p-1 text-nowrap">                                       
                                 <span v-html="esdu.user.studentID"></span>                                    

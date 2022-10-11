@@ -1,6 +1,7 @@
 '''
 History of transanctions send to PayPal API.
 '''
+from decimal import Decimal
 from datetime import datetime, timedelta
 
 import json
@@ -25,6 +26,8 @@ from main.models import help_docs
 from main.models import experiment_session_days
 from main.models import profile
 from main.models import accounts
+
+from main.globals import gross_up
 
 class PaymentHistory(View):
     '''
@@ -292,23 +295,21 @@ def get_budget_history(request, data):
 
             result={}
             result['id']=b.user.id
-            result['total']=0
-            result['total_international']=0
+            result['total']=Decimal("0")
+            result['total_international']=Decimal("0")
             result['sessions']=[]            
 
             for s in session_list:
-                session_total = 0
+                session_total = Decimal("0")
 
                 if s.paypal_api:
                     realized_totals = s.get_paypal_realized_totals()
                     result['total'] += realized_totals['realized_fees']
                     result['total'] += realized_totals['realized_payouts']
-                    result['total_international'] += realized_totals['realized_fees_international']
                     result['total_international'] += realized_totals['realized_payouts_international']
 
                     session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                                    realized_totals['realized_fees_international']  * param.international_tax_rate + \
-                                    realized_totals['realized_payouts_international'] * param.international_tax_rate
+                                    gross_up(realized_totals['realized_payouts_international']) 
                 else:
                     total = s.get_cash_payout_total()
                     
@@ -319,8 +320,8 @@ def get_budget_history(request, data):
                         result['total_international'] += total['earnings_international']
 
                         session_total = total['show_up_fee'] + total['earnings'] + \
-                                        total['show_up_fee_international'] * param.international_tax_rate + \
-                                        total['earnings_international'] * param.international_tax_rate
+                                        gross_up(total['show_up_fee_international']) + \
+                                        gross_up(total['earnings_international'])
 
                 result['sessions'].append({'id':s.id, 
                                            'title':s.experiment_session.experiment.title,
@@ -333,7 +334,7 @@ def get_budget_history(request, data):
                 result['account_number']=a.number
                 result['department']=a.department.name
                 result['total'] = f'{result["total"]:0.2f}'
-                result['total_international'] = f'{result["total_international"]*param.international_tax_rate:0.2f}'
+                result['total_international'] = f'{gross_up(result["total_international"]):0.2f}'
                 history.append(result)
     
     #no budget defined
@@ -345,7 +346,7 @@ def get_budget_history(request, data):
 
     result={}
     result['id']=-1
-    result['total']=0
+    result['total']=Decimal("0")
     result['sessions']=[] 
 
     for s in session_list:        
@@ -354,12 +355,10 @@ def get_budget_history(request, data):
             realized_totals = s.get_paypal_realized_totals()
             result['total'] += realized_totals['realized_fees']
             result['total'] += realized_totals['realized_payouts']
-            result['total_international'] += realized_totals['realized_fees_international']
             result['total_international'] += realized_totals['realized_payouts_international']
 
             session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                            realized_totals['realized_fees_international'] * param.international_tax_rate + \
-                            realized_totals['realized_payouts_international'] * param.international_tax_rate
+                            gross_up(realized_totals['realized_payouts_international'])
         else:
             total = s.get_cash_payout_total()
             
@@ -370,8 +369,8 @@ def get_budget_history(request, data):
                 result['total_international'] += total['earnings_international']
 
                 session_total = total['show_up_fee'] + total['earnings'] + \
-                                total['show_up_fee_international'] * param.international_tax_rate + \
-                                total['earnings_international'] * param.international_tax_rate
+                                gross_up(total['show_up_fee_international']) + \
+                                gross_up(total['earnings_international'])
 
         result['sessions'].append({'id':s.id, 
                                    'title':s.experiment_session.experiment.title,
@@ -384,7 +383,7 @@ def get_budget_history(request, data):
         result['account_number'] = ''
         result['department'] =  ''
         result['total'] = f'{result["total"]:0.2f}'
-        result['total_international'] = f'{result["total_international"]*param.international_tax_rate:0.2f}'
+        result['total_international'] = f'{gross_up(result["total_international"]):0.2f}'
         history.append(result)                                                              
     
     return JsonResponse({"history" : history, 
