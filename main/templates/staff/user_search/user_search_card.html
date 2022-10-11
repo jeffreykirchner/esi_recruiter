@@ -14,14 +14,20 @@
                         </div>
                         {%if user.is_staff%}
                         <div class="col-md-auto mt-2 mt-md-0 pl-3 pl-md-0 pr-0">
-                            <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "showInternational()">
-                                International Subjects <i class="fa fa-globe" aria-hidden="true"></i>
+                            <button class="btn btn-outline-primary btn-sm mr-2" 
+                                    type="button" 
+                                    title="Upload international student list"
+                                    v-on:click = "showInternational()">
+                                International Subjects <i class="fas fa-globe-europe"></i>
                             </button> 
                         </div>
 
                         <div class="col-md-auto mt-2 mt-md-0 pl-3 pl-md-0 pr-0">
-                            <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "showSendMessage()">
-                                Email <i class="fa fa-envelope fa-xs" aria-hidden="true"></i>
+                            <button class="btn btn-outline-primary btn-sm mr-2" 
+                                    type="button" 
+                                    title="Send Email to all active subjects."
+                                    v-on:click = "showSendMessage()">
+                                Email <i class="fa fa-envelope" aria-hidden="true"></i>
                             </button> 
                         </div>
                         {%endif%}

@@ -27,11 +27,14 @@ var app = new Vue({
         startDateBudget:"{{d_fisical_start}}",
         endDateBudget:"{{d_today}}",
 
+        working : false,
     },
 
     methods:{
         //get list of users based on search
         getHistory: function(){
+
+            app.$data.working = true;
 
             axios.post('{{request.get_full_path}}', {                            
                 action: "getHistory",
@@ -43,6 +46,7 @@ var app = new Vue({
                 app.$data.history = response.data.history;
                 app.$data.errorMessage = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.$data.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               
@@ -56,6 +60,7 @@ var app = new Vue({
 
         //get list of users based on search
         getHistoryRecruiter: function(){
+            app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {                            
@@ -68,6 +73,7 @@ var app = new Vue({
                 app.$data.historyRecruiter = response.data.history;
                 app.$data.errorMessageRecruiter = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.$data.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               
@@ -76,6 +82,7 @@ var app = new Vue({
 
          //get list of users based on search
          getHistoryBudget: function(){
+            app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {                            
@@ -88,6 +95,7 @@ var app = new Vue({
                 app.$data.historyBudget = response.data.history;
                 app.$data.errorMessageBudget = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.$data.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               

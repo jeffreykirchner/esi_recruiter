@@ -183,6 +183,7 @@ class experiment_session_day_users(models.Model):
                         "first_name":self.user.first_name.capitalize(),   
                         "last_name":self.user.last_name.capitalize(),
                         "studentID":self.user.profile.studentID,
+                        "international_student":self.user.profile.international_student,
                         "bumpedFromLast":self.user.profile.bumped_from_last_session(self.id)},                 
                 }
 

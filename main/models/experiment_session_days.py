@@ -416,6 +416,7 @@ class experiment_session_days(models.Model):
 
     #return paypal fees and totals for successful payments
     def get_paypal_realized_totals(self):
+        logger = logging.getLogger(__name__)
 
         result = {"realized_fees":0, "realized_payouts":0}
 
@@ -433,6 +434,8 @@ class experiment_session_days(models.Model):
         result['realized_fees']=sum(map(lambda n:Decimal(n), fees))
         result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
 
+        # logger.info(f'get_paypal_realized_totals: {result}')
+
         payouts =  self.ESDU_b.filter(paypal_response__isnull=False) \
                               .filter(user__profile__international_student=True) \
                               .filter(paypal_response__transaction_status="SUCCESS")\
@@ -446,6 +449,8 @@ class experiment_session_days(models.Model):
         result['realized_fees_international']=sum(map(lambda n:Decimal(n), fees))
         result['realized_payouts_international']=sum(map(lambda n:Decimal(n), payouts))
 
+        # logger.info(f'get_paypal_realized_totals: {result}')
+
         return result
     
     #return the sum of payments paid to the subjects
@@ -456,7 +461,7 @@ class experiment_session_days(models.Model):
                               .aggregate(show_up_fee=Sum('show_up_fee'), 
                                          earnings=Sum('earnings'))
 
-        #logger.info(f'get_cash_payout_total: {payouts}')
+        # logger.info(f'get_cash_payout_total: {payouts}')
 
         result = {'show_up_fee' : payouts['show_up_fee'], 'earnings' : payouts['earnings']}
 
@@ -467,6 +472,8 @@ class experiment_session_days(models.Model):
         
         result['show_up_fee_international'] = payouts_2['show_up_fee']
         result['earnings_international'] = payouts_2['earnings']
+
+        # logger.info(f'get_cash_payout_total: {payouts_2}')
 
         return result
 
