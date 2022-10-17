@@ -78,7 +78,8 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url=static('favicon.ico')), name='favicon1'),
     path('apple-touch-icon-precomposed.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon2'),
     path('apple-touch-icon.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon3'),
-    path('apple-touch-icon-120x120-precomposed.png', RedirectView.as_view(url=static('settings.STATIC_URL}apple-touch-icon-precomposed.png')), name='favicon4'),
+    path('apple-touch-icon-120x120-precomposed.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon4'),
+    path('apple-touch-icon-120x120.png', RedirectView.as_view(url=static('apple-touch-icon-precomposed.png')), name='favicon5'),
 
     #google verification
     path('googleefdaedc1ef1e492e.html', RedirectView.as_view(url=static('googleefdaedc1ef1e492e.html')), name='google_verification'),
