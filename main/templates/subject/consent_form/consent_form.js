@@ -61,7 +61,7 @@ var app = new Vue({
                             action :"acceptConsentForm",        
                             consent_form_id : app.$data.consent_form.id, 
                             consent_form_signature : consent_form_signature, 
-                            consent_form_signature_resolution : {'width':0, 'height':0},                                                                                                                                                      
+                            consent_form_signature_resolution : consent_form_signature_resolution, //{'width':0, 'height':0},                                                                                                                                                      
                         })
                         .then(function (response) {     
 
