@@ -154,6 +154,16 @@ class profile_traitAdmin(admin.ModelAdmin):
       list_display = ['my_profile', 'trait', 'value', 'timestamp']
       search_fields = ['my_profile__user__first_name','my_profile__user__last_name','my_profile__studentID']
 
+@admin.register(ProfileConsentForm)
+class ProfileConsentFormAdmin(admin.ModelAdmin):
+      
+
+      ordering = ['-timestamp']
+      fields = ['my_profile', 'consent_form', 'signature_points', 'singnature_resolution', 'timestamp']
+      readonly_fields = ['my_profile', 'consent_form', 'signature_points', 'singnature_resolution', 'timestamp']
+      list_display = ['my_profile', 'consent_form', 'timestamp']
+      
+
 #consent form inline
 class ProfileConsentFormInline(admin.TabularInline):
       '''
@@ -168,7 +178,7 @@ class ProfileConsentFormInline(admin.TabularInline):
       extra = 0  
       model = ProfileConsentForm
       can_delete = True
-      show_view_link = True
+      show_change_link = True
       fields=('consent_form',)
 
 #consent form inline
