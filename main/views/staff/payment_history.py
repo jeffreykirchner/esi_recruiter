@@ -300,33 +300,34 @@ def get_budget_history(request, data):
             result['sessions']=[]            
 
             for s in session_list:
-                session_total = Decimal("0")
+                if s.ESDU_b.filter(confirmed=True).count() > 0:
+                    session_total = Decimal("0")
 
-                if s.paypal_api:
-                    realized_totals = s.get_paypal_realized_totals()
-                    result['total'] += realized_totals['realized_fees']
-                    result['total'] += realized_totals['realized_payouts']
-                    result['total_international'] += realized_totals['realized_payouts_international']
+                    if s.paypal_api:
+                        realized_totals = s.get_paypal_realized_totals()
+                        result['total'] += realized_totals['realized_fees']
+                        result['total'] += realized_totals['realized_payouts']
+                        result['total_international'] += realized_totals['realized_payouts_international']
 
-                    session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                                    gross_up(realized_totals['realized_payouts_international']) 
-                else:
-                    total = s.get_cash_payout_total()
-                    
-                    if total.get('show_up_fee', None):
-                        result['total'] += total['show_up_fee']
-                        result['total'] += total['earnings']
-                        result['total_international'] += total['show_up_fee_international']
-                        result['total_international'] += total['earnings_international']
+                        session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
+                                        gross_up(realized_totals['realized_payouts_international']) 
+                    else:
+                        total = s.get_cash_payout_total()
+                        
+                        if total.get('show_up_fee', None):
+                            result['total'] += total['show_up_fee']
+                            result['total'] += total['earnings']
+                            result['total_international'] += total['show_up_fee_international']
+                            result['total_international'] += total['earnings_international']
 
-                        session_total = total['show_up_fee'] + total['earnings'] + \
-                                        gross_up(total['show_up_fee_international']) + \
-                                        gross_up(total['earnings_international'])
+                            session_total = total['show_up_fee'] + total['earnings'] + \
+                                            gross_up(total['show_up_fee_international']) + \
+                                            gross_up(total['earnings_international'])
 
-                result['sessions'].append({'id':s.id, 
-                                           'title':s.experiment_session.experiment.title,
-                                           'paypal_api': s.paypal_api,
-                                           'session_total' : f'{session_total:0.2f}'})
+                    result['sessions'].append({'id':s.id, 
+                                            'title':s.experiment_session.experiment.title,
+                                            'paypal_api': s.paypal_api,
+                                            'session_total' : f'{session_total:0.2f}'})
             
             if result['total'] > 0 :
                 result['name']=f'{b.user.last_name}, {b.user.first_name}'
@@ -347,35 +348,38 @@ def get_budget_history(request, data):
     result={}
     result['id']=-1
     result['total']=Decimal("0")
+    result['total_international']=Decimal("0")
     result['sessions']=[] 
 
-    for s in session_list:        
-
-        if s.paypal_api:
-            realized_totals = s.get_paypal_realized_totals()
-            result['total'] += realized_totals['realized_fees']
-            result['total'] += realized_totals['realized_payouts']
-            result['total_international'] += realized_totals['realized_payouts_international']
-
-            session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                            gross_up(realized_totals['realized_payouts_international'])
-        else:
-            total = s.get_cash_payout_total()
+    for s in session_list:
+        if s.ESDU_b.filter(confirmed=True).count() > 0:                             
+            session_total = Decimal("0")
             
-            if total.get('show_up_fee', None):
-                result['total'] += total['show_up_fee']
-                result['total'] += total['earnings']
-                result['total_international'] += total['show_up_fee_international']
-                result['total_international'] += total['earnings_international']
+            if s.paypal_api:
+                realized_totals = s.get_paypal_realized_totals()
+                result['total'] += realized_totals['realized_fees']
+                result['total'] += realized_totals['realized_payouts']
+                result['total_international'] += realized_totals['realized_payouts_international']
 
-                session_total = total['show_up_fee'] + total['earnings'] + \
-                                gross_up(total['show_up_fee_international']) + \
-                                gross_up(total['earnings_international'])
+                session_total =  realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
+                                gross_up(realized_totals['realized_payouts_international']) 
+            else:
+                total = s.get_cash_payout_total()
+                
+                if total.get('show_up_fee', None):
+                    result['total'] += total['show_up_fee']
+                    result['total'] += total['earnings']
+                    result['total_international'] += total['show_up_fee_international']
+                    result['total_international'] += total['earnings_international']
 
-        result['sessions'].append({'id':s.id, 
-                                   'title':s.experiment_session.experiment.title,
-                                   'paypal_api': s.paypal_api,
-                                   'session_total' : session_total})
+                    session_total = total['show_up_fee'] + total['earnings'] + \
+                                    gross_up(total['show_up_fee_international']) + \
+                                    gross_up(total['earnings_international'])
+
+            result['sessions'].append({'id':s.id, 
+                                    'title':s.experiment_session.experiment.title,
+                                    'paypal_api': s.paypal_api,
+                                    'session_total' : f'{session_total:0.2f}'})
             
     if result['total'] > 0 :
         result['name']='No Budget'

@@ -449,7 +449,7 @@ class experiment_session_days(models.Model):
         result['realized_fees_international']=sum(map(lambda n:Decimal(n), fees))
         result['realized_payouts_international']=sum(map(lambda n:Decimal(n), payouts))
 
-        # logger.info(f'get_paypal_realized_totals: {result}')
+        logger.info(f'get_paypal_realized_totals: {result}')
 
         return result
     
