@@ -8,7 +8,7 @@
             {%if experiment_title %}
             <span class="mr-2"> <a href='{%url 'experimentView' experiment_id%}'>{{experiment_title}}</a></span>
             {%endif%}
-            <i v-show="loading" class="fas fa-spinner fa-spin"></i>
+            <i v-if="loading" class="fas fa-spinner fa-spin"></i>
         </div>
     </div>
     <div class="card-body" v-cloak>  

@@ -210,7 +210,10 @@ var app = new Vue({
 
     //run when vue is mounted
     mounted: function(){
-        this.loading = false;
+        this.$nextTick(() => {
+            app.$data.loading = false;
+        });
+        
         $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
         $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
     },                 
