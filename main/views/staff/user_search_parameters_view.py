@@ -119,7 +119,7 @@ def search(request, data, id):
     search for valid subjects based on recruiment parameters
     '''
     logger = logging.getLogger(__name__)
-    #logger.info(f"Update default recruitment parameters: {data}")
+    logger.info(f"Update default recruitment parameters: {data}")
 
     with transaction.atomic():    
 
@@ -157,6 +157,8 @@ def search(request, data, id):
 
             #traits
             es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
+            es.recruitment_params.save()
+
             for i in trait_data_list:
                 tc = Recruitment_parameters_trait_constraint()
                 tc.recruitment_parameter = es.recruitment_params
@@ -184,8 +186,8 @@ def search(request, data, id):
                 es = addSessionBlank(e)
 
                 #traits
-                es.recruitment_params.trait_constraints_require_all = True if trait_constraints_require_all=='true' else False
-
+                es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
+                es.recruitment_params.save()
                 for i in trait_data_list:
                     tc = Recruitment_parameters_trait_constraint()
                     tc.recruitment_parameter = es.recruitment_params

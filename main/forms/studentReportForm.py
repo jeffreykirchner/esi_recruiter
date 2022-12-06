@@ -18,6 +18,18 @@ class studentReportForm(forms.Form):
     studentReport_studentWorkers = forms.TypedChoiceField(label="Student workers only?",                                       
                                        choices=[(1,"Yes"),(0,"No, any type.")],                                                 
                                        widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_studentWorkers"}))
+    
+    studentReport_department_or_account = forms.TypedChoiceField(label="Department or Account?",                                       
+                                           choices=[("Department","Department"),("Account","Account")],                                                  
+                                           widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_department_or_account"}))
+
+    studentReport_outside_funding = forms.TypedChoiceField(label="Outside Funding?",                                       
+                                       choices=[(1,"Yes"), (0,"No"), (-1, "Any Source")],                                                  
+                                       widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_outside_funding"}))
+    
+    studentReport_include_archived = forms.TypedChoiceField(label="Include Archived Accounts?",                                       
+                                       choices=[(1,"Yes"), (0,"No")],                                                  
+                                       widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_include_archived"}))
 
     studentReport_startDate = forms.DateTimeField(label="Start Date",                               
                                input_formats=['%m/%d/%Y'],

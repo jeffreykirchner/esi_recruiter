@@ -30,9 +30,65 @@ from main.forms import InvitationEmailTemplateForm
 
 import main
 
+class ExperimentSessionInline(admin.TabularInline):
+      '''
+      experiment session inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
 
-admin.site.register(accounts)
-admin.site.register(departments)
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiment_sessions
+      can_delete = False
+      show_change_link = True
+      fields=('creator','consent_form')
+
+class ExperimentSessionDayInline(admin.TabularInline):
+      '''
+      experiment session day inline
+      '''
+      def has_add_permission(self, request, obj=None):
+        return False
+
+      def has_change_permission(self, request, obj=None):
+        return False
+
+      extra = 0  
+      model = experiment_session_days
+      can_delete = False
+      show_change_link = True
+      fields=('date','length', 'complete')
+
+@admin.register(accounts)
+class AccountsAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'number']
+    list_display = [ 'number', 'name', 'department', 'archived', 'outside_funding']
+    #inlines = [ExperimentSessionDayInline]
+
+class AccountsInline(admin.TabularInline):
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    extra = 0  
+    model = accounts
+    can_delete = True   
+    show_change_link = True
+    readonly_fields = ['number', 'name', 'archived', 'outside_funding']
+    fields = ['number', 'name', 'archived', 'outside_funding']
+
+@admin.register(departments)
+class AccountsAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'charge_account']
+    list_display = [ 'name', 'charge_account', 'petty_cash']
+    inlines = [AccountsInline]
+
 admin.site.register(genders)
 admin.site.register(institutions)
 admin.site.register(majors)
@@ -515,22 +571,6 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       search_fields = ['id','experiment_session__experiment__title',]
       #list_display = [']
 
-class ExperimentSessionDayInline(admin.TabularInline):
-      '''
-      experiment session day inline
-      '''
-      def has_add_permission(self, request, obj=None):
-        return False
-
-      def has_change_permission(self, request, obj=None):
-        return False
-
-      extra = 0  
-      model = experiment_session_days
-      can_delete = False
-      show_change_link = True
-      fields=('date','length', 'complete')
-
 #Experiment session day admin
 @admin.register(experiment_session_invitations)
 class ExperimentSessionInvitationsAdmin(admin.ModelAdmin):
@@ -582,22 +622,6 @@ class ExperimentSessionsAdmin(admin.ModelAdmin):
       inlines = [ExperimentSessionDayInline, ExperimentSessionInvitationsInline]
 
       search_fields = ['id','experiment__title',]
-
-class ExperimentSessionInline(admin.TabularInline):
-      '''
-      experiment session inline
-      '''
-      def has_add_permission(self, request, obj=None):
-        return False
-
-      def has_change_permission(self, request, obj=None):
-        return False
-
-      extra = 0  
-      model = experiment_sessions
-      can_delete = False
-      show_change_link = True
-      fields=('creator','consent_form')
 
 class ExperimentInstitutionsInline(admin.TabularInline):
       '''
