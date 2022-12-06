@@ -49,9 +49,20 @@ class ReportsView(View):
         except Exception  as e:   
             helpText = "No help doc was found."
 
+
+        param = parameters.objects.first()
+        tmz = pytz.timezone(param.subjectTimeZone)
+        d_today = datetime.now(tmz)
+
+        #start of fiscal year
+        d_fisical_start = d_today
+        d_fisical_start = d_fisical_start.replace(month=6, day=1)
+
         return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
                                                     "studentReportForm" : studentReportForm(),
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
+                                                    "d_today" : d_today.date().strftime("%Y-%m-%d"),
+                                                    "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d"),
                                                     "helpText":helpText})
     
     @method_decorator(login_required)
@@ -93,6 +104,9 @@ def studentReport(data):
         studentReport_nra = form.cleaned_data['studentReport_nra'] 
         studentReport_gt600 = form.cleaned_data['studentReport_gt600'] 
         studentReport_studentWorkers = form.cleaned_data['studentReport_studentWorkers']  
+        studentReport_department_or_account = form.cleaned_data['studentReport_department_or_account']  
+        studentReport_include_archived = form.cleaned_data['studentReport_include_archived']
+        studentReport_outside_funding = form.cleaned_data['studentReport_outside_funding']
 
         logger.info(studentReport_studentWorkers)
         
@@ -124,12 +138,25 @@ def studentReport(data):
                                                            experiment_session_day__date__lte=e_date,)\
                                                    .filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
                                                            (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
-                                                   .filter(experiment_session_day__account__outside_funding=False) \
                                                    .order_by('user__last_name', 'user__first_name')\
                                                    .select_related('experiment_session_day',
                                                                    'user',
                                                                    'user__profile',
                                                                    'experiment_session_day__account')
+        acnts = accounts.objects.all()
+        depts = departments.objects.all().prefetch_related('accounts_set')
+
+        #outside funding
+        if studentReport_outside_funding == "1":
+            ESDU = ESDU.filter(experiment_session_day__account__outside_funding=True)
+            acnts = acnts.filter(outside_funding=True)
+        elif studentReport_outside_funding == "0":
+            ESDU = ESDU.filter(experiment_session_day__account__outside_funding=False)
+            acnts = acnts.filter(outside_funding=False)
+
+        if studentReport_include_archived == "0":
+            acnts = acnts.filter(archived=False)
+            ESDU = ESDU.filter(experiment_session_day__account__archived=False)
 
         #filter for international_student
         if studentReport_nra == "1":
@@ -142,24 +169,31 @@ def studentReport(data):
         #list of unique subjects in range
         ESDU_ids = ESDU.values_list('user__id',flat=True).distinct()
 
-        #list of accounts
-        depts = departments.objects.all().prefetch_related('accounts_set') 
-
-        logger.info(ESDU)
-        logger.info(ESDU_ids)
+        # logger.info(ESDU)
+        # logger.info(ESDU_ids)
 
         headerText = ['ID','Name','Email','International','Student Worker','Payments','Total Earnings in Range']
-        for i in depts:
-            headerText.append(i.name)
+
+        if studentReport_department_or_account == "Department":
+            for i in depts:
+                headerText.append(i.name)
+        else:
+            for i in acnts:
+                headerText.append(i.number)
 
         writer.writerow(headerText)
 
         for i in ESDU_ids:
 
             #total by department
-            depts_total=[]
-            for j in depts:
-                depts_total.append(0)
+            if studentReport_department_or_account == "Department":
+                depts_total={}
+                for j in depts:
+                    depts_total[j.id] = 0
+            else:
+                acnts_total={}
+                for j in acnts:
+                    acnts_total[j.id] = 0
 
             tempL = ESDU.filter(user__id = i)
 
@@ -171,39 +205,35 @@ def studentReport(data):
             #list of experiments
             e_list = ""
             for j in tempL:
-                temp_e=j.get_total_payout()
-                # if(j.attended):
-                #     temp_e = j.earnings + j.show_up_fee
-                # elif(j.bumped):
-                #     temp_e = j.show_up_fee
-                
+                temp_e = j.get_total_payout()
+                                
                 #running total
-                tempTotal+=temp_e
+                tempTotal += temp_e
 
-                #department total
-                c=0
-                for k in depts:
-                    if j.experiment_session_day.account in k.accounts_set.all():
-                        depts_total[c] += temp_e
-                        break
-                    c+=1
+                if studentReport_department_or_account == "Department":
+                    depts_total[j.experiment_session_day.account.department.id] += temp_e
+                else:
+                    acnts_total[j.experiment_session_day.account.id] += temp_e
 
                 if e_list != "":
                     e_list +=", "
 
-                e_list +=  "($" + str(f'{temp_e:.2f}') + ") " +\
-                           str(j.experiment_session_day.date.astimezone(tz).strftime("%-m/%#d/%Y")) 
+                e_list +=  f'(${temp_e:.2f}) {j.experiment_session_day.date.astimezone(tz).strftime("%-m/%#d/%Y")}' 
             
             output_text=[u.profile.studentID,
-                             u.last_name + ', ' + u.first_name,
-                             u.email,
-                             u.profile.international_student,
-                             u.profile.studentWorker,
-                             e_list,                            
-                            "$" + str(f'{tempTotal:.2f}')]
+                         u.last_name + ', ' + u.first_name,
+                         u.email,
+                         u.profile.international_student,
+                         u.profile.studentWorker,
+                         e_list,                            
+                         f'${tempTotal:.2f}']
             
-            for j in depts_total:
-                output_text.append(j)
+            if studentReport_department_or_account == "Department":
+                for j in depts_total:
+                    output_text.append(f'${depts_total[j]:2f}')
+            else:
+                 for j in acnts_total:
+                    output_text.append(f'${acnts_total[j]:2f}')
 
             if (studentReport_gt600 == "1" and tempTotal >= p.maxAnnualEarnings) or studentReport_gt600 != "1":
                 writer.writerow(output_text)        
