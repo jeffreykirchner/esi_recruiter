@@ -1,3 +1,5 @@
+{% load crispy_forms_tags %}
+
 <div class="card" v-cloak>                 
     <div class="card-header">
         Expenditures                                                 
@@ -10,14 +12,33 @@
             <div class="col-md-3" >
                 <div class="form-group">
                     <label for="startDate_recruiter_id">From</label>
-                    <input type="date" id="startDate_budget_id" class="form-control" v-model="startDateBudget">
+                    <input type="date" 
+                           id="startDate_budget_id" 
+                           class="form-control" 
+                           v-model="startDateBudget">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="endDate_budget_id">To</label>
-                    <input type="date" id="endDate_budget_id" class="form-control" v-model="endDateBudget">
+                    <input type="date" 
+                           id="endDate_budget_id" 
+                           class="form-control" 
+                           v-model="endDateBudget">
                 </div>                        
+            </div>    
+            <div class="col-md-3">
+            </div>               
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+            </div> 
+            <div class="col-md-3" >
+                {{expenditure_report_form.department|as_crispy_field}}
+            </div>
+            <div class="col-md-3">
+                {{expenditure_report_form.budget|as_crispy_field}}                        
             </div>    
             <div class="col-md-3">
             </div>               

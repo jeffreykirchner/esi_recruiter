@@ -27,6 +27,8 @@ from main.models import experiment_session_days
 from main.models import profile
 from main.models import accounts
 
+from main.forms import ExpenditureReportForm
+
 from main.globals import gross_up
 
 class PaymentHistory(View):
@@ -66,7 +68,14 @@ class PaymentHistory(View):
         if d_today.month<6:
             d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
+        expenditure_report_form = ExpenditureReportForm()
+        expenditure_report_form_ids=[]
+        for i in expenditure_report_form:
+            expenditure_report_form_ids.append(i.html_name)
+
         return render(request, self.template_name, {"helpText" : help_text,
+                                                    "expenditure_report_form" : expenditure_report_form,
+                                                    "expenditure_report_form_ids" : expenditure_report_form_ids,
                                                     "d_today" : d_today.date().strftime("%Y-%m-%d"),
                                                     "d_one_day" : d_one_day.date().strftime("%Y-%m-%d"),
                                                     "d_one_month" : d_one_month.date().strftime("%Y-%m-%d"),
@@ -278,10 +287,18 @@ def get_budget_history(request, data):
         i.pullPayPalResult(False)   
 
     history = []
+
+    expenditure_report = data["expenditure_report"]
     
     #paypal
     budget_list = profile.objects.filter(type=1)
-    account_list = accounts.objects.all()
+    account_list = accounts.objects.filter(archived=False)
+
+    if expenditure_report["budget"] != "":
+        budget_list = budget_list.filter(id=expenditure_report["budget"])
+
+    if expenditure_report["department"] != "":
+        account_list = account_list.filter(department=expenditure_report["department"])
 
     for b in budget_list:        
 
