@@ -4,7 +4,7 @@ azure-storage-blob==12.14.*
 certifi==2022.5.18.1
 cffi==1.15.0
 charset-normalizer==2.0.12
-cryptography==37.0.2
+cryptography==38.0.*
 Django==4.1.*
 django-crispy-forms==1.14.0
 django-storages==1.13.*
