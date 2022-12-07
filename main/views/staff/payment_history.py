@@ -99,6 +99,8 @@ class PaymentHistory(View):
             return get_paypal_history_recruiter(request, data)
         elif data["action"] == "getHistoryBudget":
             return get_budget_history(request, data)
+        elif data["action"] == "downloadHistoryBudget":
+            return get_budget_history(request, data)
             
         return JsonResponse({"error" : "error"}, safe=False)
 
@@ -314,6 +316,7 @@ def get_budget_history(request, data):
             result['id']=b.user.id
             result['total']=Decimal("0")
             result['total_international']=Decimal("0")
+            result['total_unclaimed']=Decimal("0")
             result['sessions']=[]            
 
             for s in session_list:
@@ -325,9 +328,12 @@ def get_budget_history(request, data):
                         result['total'] += realized_totals['realized_fees']
                         result['total'] += realized_totals['realized_payouts']
                         result['total_international'] += realized_totals['realized_payouts_international']
+                        result['total_unclaimed'] += realized_totals['unclaimed']
 
-                        session_total = realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                                        gross_up(realized_totals['realized_payouts_international']) 
+                        session_total = realized_totals['realized_fees'] \
+                                       + realized_totals['realized_payouts'] \
+                                       + realized_totals['unclaimed'] \
+                                       + gross_up(realized_totals['realized_payouts_international']) 
                     else:
                         total = s.get_cash_payout_total()
                         
@@ -342,9 +348,9 @@ def get_budget_history(request, data):
                                             gross_up(total['earnings_international'])
 
                     result['sessions'].append({'id':s.id, 
-                                            'title':s.experiment_session.experiment.title,
-                                            'paypal_api': s.paypal_api,
-                                            'session_total' : f'{session_total:0.2f}'})
+                                               'title':s.experiment_session.experiment.title,
+                                               'paypal_api': s.paypal_api,
+                                               'session_total' : f'{session_total:0.2f}'})
             
             if result['total'] > 0 :
                 result['name']=f'{b.user.last_name}, {b.user.first_name}'
@@ -353,6 +359,7 @@ def get_budget_history(request, data):
                 result['department']=a.department.name
                 result['total'] = f'{result["total"]:0.2f}'
                 result['total_international'] = f'{gross_up(result["total_international"]):0.2f}'
+                result['total_unclaimed'] = f'{result["total_unclaimed"]:0.2f}'
                 history.append(result)
     
     #no budget defined
@@ -366,6 +373,7 @@ def get_budget_history(request, data):
     result['id']=-1
     result['total']=Decimal("0")
     result['total_international']=Decimal("0")
+    result['total_unclaimed']=Decimal("0")
     result['sessions']=[] 
 
     for s in session_list:
@@ -376,10 +384,13 @@ def get_budget_history(request, data):
                 realized_totals = s.get_paypal_realized_totals()
                 result['total'] += realized_totals['realized_fees']
                 result['total'] += realized_totals['realized_payouts']
+                result['total_unclaimed'] += realized_totals['unclaimed']
                 result['total_international'] += realized_totals['realized_payouts_international']
 
-                session_total =  realized_totals['realized_fees'] + realized_totals['realized_payouts'] + \
-                                gross_up(realized_totals['realized_payouts_international']) 
+                session_total =  realized_totals['realized_fees'] \
+                               + realized_totals['realized_payouts'] \
+                               + realized_totals['unclaimed'] \
+                               + gross_up(realized_totals['realized_payouts_international']) 
             else:
                 total = s.get_cash_payout_total()
                 
@@ -404,6 +415,7 @@ def get_budget_history(request, data):
         result['account_number'] = ''
         result['department'] =  ''
         result['total'] = f'{result["total"]:0.2f}'
+        result['total_unclaimed'] = f'{result["total_unclaimed"]:0.2f}'
         result['total_international'] = f'{gross_up(result["total_international"]):0.2f}'
         history.append(result)                                                              
     

@@ -83,8 +83,8 @@ var app = new Vue({
             }); 
         },
 
-         //get budget expenditures
-         getHistoryBudget: function(){
+        //get budget expenditures
+        getHistoryBudget: function(){
             app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -104,6 +104,29 @@ var app = new Vue({
             .catch(function (error) {
                 console.log(error);                               
             }); 
+        },
+
+        //get budget expenditures
+        downloadHistoryBudget: function(){
+            app.$data.working = true;         
+            
+            app.$data.working = false;
+
+            let data = "Budget,Account Name,Account Number,Department,Session,Payments";
+
+            //for(let i=0;)
+
+            var downloadLink = document.createElement("a");
+            var blob = new Blob(["\ufeff", data]);
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "Budget_Report_" + app.$data.startDateBudget + "_to_"+ app.$data.endDateBudget + ".csv";
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+             
         },
       
     },
