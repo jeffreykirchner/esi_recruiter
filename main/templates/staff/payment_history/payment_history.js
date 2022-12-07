@@ -27,11 +27,14 @@ var app = new Vue({
         startDateBudget:"{{d_fisical_start}}",
         endDateBudget:"{{d_today}}",
 
+        expenditure_report:{department : "",
+                            budget : ""},
+
         working : false,
     },
 
     methods:{
-        //get list of users based on search
+        //get history of payments made to paypal api
         getHistory: function(){
 
             app.$data.working = true;
@@ -58,7 +61,7 @@ var app = new Vue({
             this.getHistory();
         },
 
-        //get list of users based on search
+        //get history of payments from recruiter
         getHistoryRecruiter: function(){
             app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -80,7 +83,7 @@ var app = new Vue({
             }); 
         },
 
-         //get list of users based on search
+         //get budget expenditures
          getHistoryBudget: function(){
             app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -89,6 +92,7 @@ var app = new Vue({
                 action: "getHistoryBudget",
                 startDate: app.$data.startDateBudget,
                 endDate: app.$data.endDateBudget,
+                expenditure_report : app.$data.expenditure_report,
                             
             })
             .then(function (response) {                         
