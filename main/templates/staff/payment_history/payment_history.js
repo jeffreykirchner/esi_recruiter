@@ -97,6 +97,7 @@ var app = new Vue({
             })
             .then(function (response) {                         
                 app.$data.historyBudget = response.data.history;
+                app.$data.historyBudgetCSV = response.data.history_csv;
                 app.$data.errorMessageBudget = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
                 app.$data.working = false;
@@ -112,12 +113,8 @@ var app = new Vue({
             
             app.$data.working = false;
 
-            let data = "Budget,Account Name,Account Number,Department,Session,Payments";
-
-            //for(let i=0;)
-
             var downloadLink = document.createElement("a");
-            var blob = new Blob(["\ufeff", data]);
+            var blob = new Blob(["\ufeff", app.$data.historyBudgetCSV]);
             var url = URL.createObjectURL(blob);
             downloadLink.href = url;
             downloadLink.download = "Budget_Report_" + app.$data.startDateBudget + "_to_"+ app.$data.endDateBudget + ".csv";
@@ -125,8 +122,6 @@ var app = new Vue({
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-
-             
         },
       
     },

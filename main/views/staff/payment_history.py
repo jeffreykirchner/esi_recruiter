@@ -8,6 +8,9 @@ import json
 import logging
 import requests
 import pytz
+import csv
+import io
+
 from requests.utils import quote
 
 from django.contrib.auth.decorators import login_required
@@ -405,9 +408,9 @@ def get_budget_history(request, data):
                                     gross_up(total['earnings_international'])
 
             result['sessions'].append({'id':s.id, 
-                                    'title':s.experiment_session.experiment.title,
-                                    'paypal_api': s.paypal_api,
-                                    'session_total' : f'{session_total:0.2f}'})
+                                       'title':s.experiment_session.experiment.title,
+                                        'paypal_api': s.paypal_api,
+                                        'session_total' : f'{session_total:0.2f}'})
             
     if result['total'] > 0 :
         result['name']='No Budget'
@@ -417,9 +420,30 @@ def get_budget_history(request, data):
         result['total'] = f'{result["total"]:0.2f}'
         result['total_unclaimed'] = f'{result["total_unclaimed"]:0.2f}'
         result['total_international'] = f'{gross_up(result["total_international"]):0.2f}'
-        history.append(result)                                                              
-    
+        history.append(result)                  
+
+    #create csv version of data
+
+    output = io.StringIO()
+
+    writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+
+    writer.writerow(["Budget","Account Name","Account Number","Department", "Session", "Payments"])
+
+    for budget in history:
+
+        for session in budget["sessions"]:
+
+            writer.writerow([budget["name"], 
+                             budget["account_name"], 
+                             budget["account_number"],
+                             budget["department"],
+                             session["title"],
+                             session["session_total"],
+                             ])
+
     return JsonResponse({"history" : history, 
+                         "history_csv" : output.getvalue(),
                          "errorMessage":error_message}, safe=False)
 
 
