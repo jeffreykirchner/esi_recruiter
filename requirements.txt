@@ -1,7 +1,7 @@
 asgiref==3.5.2
 azure-core==1.26.*
 azure-storage-blob==12.14.*
-certifi==2022.5.18.1
+certifi==2022.12.7
 cffi==1.15.0
 charset-normalizer==2.0.12
 cryptography==38.0.*
