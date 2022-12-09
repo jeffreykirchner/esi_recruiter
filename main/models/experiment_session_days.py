@@ -431,8 +431,17 @@ class experiment_session_days(models.Model):
                            .filter(paypal_response__transaction_status="SUCCESS")\
                            .values_list('paypal_response__payout_item_fee__value',flat=True)
 
-        result['realized_fees']=sum(map(lambda n:Decimal(n), fees))
-        result['realized_payouts']=sum(map(lambda n:Decimal(n), payouts))
+        payouts_unclaimed =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                                 .filter(paypal_response__transaction_status="UNCLAIMED")\
+                                 .values_list('paypal_response__payout_item__amount__value',flat=True)
+        
+        fees_unclaimed =  self.ESDU_b.filter(paypal_response__isnull=False) \
+                              .filter(paypal_response__transaction_status="UNCLAIMED")\
+                              .values_list('paypal_response__payout_item_fee__value',flat=True)
+
+        result['realized_fees'] = sum(map(lambda n:Decimal(n), fees))
+        result['realized_payouts'] = sum(map(lambda n:Decimal(n), payouts))
+        result['unclaimed'] = sum(map(lambda n:Decimal(n), payouts_unclaimed)) + sum(map(lambda n:Decimal(n), fees_unclaimed))
 
         # logger.info(f'get_paypal_realized_totals: {result}')
 

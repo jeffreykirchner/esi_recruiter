@@ -83,8 +83,8 @@ var app = new Vue({
             }); 
         },
 
-         //get budget expenditures
-         getHistoryBudget: function(){
+        //get budget expenditures
+        getHistoryBudget: function(){
             app.$data.working = true;
             app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -97,6 +97,7 @@ var app = new Vue({
             })
             .then(function (response) {                         
                 app.$data.historyBudget = response.data.history;
+                app.$data.historyBudgetCSV = response.data.history_csv;
                 app.$data.errorMessageBudget = response.data.errorMessage;
                 app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
                 app.$data.working = false;
@@ -104,6 +105,23 @@ var app = new Vue({
             .catch(function (error) {
                 console.log(error);                               
             }); 
+        },
+
+        //get budget expenditures
+        downloadHistoryBudget: function(){
+            app.$data.working = true;         
+            
+            app.$data.working = false;
+
+            var downloadLink = document.createElement("a");
+            var blob = new Blob(["\ufeff", app.$data.historyBudgetCSV]);
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = "Budget_Report_" + app.$data.startDateBudget + "_to_"+ app.$data.endDateBudget + ".csv";
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
         },
       
     },

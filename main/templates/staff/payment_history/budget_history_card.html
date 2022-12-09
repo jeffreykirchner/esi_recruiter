@@ -88,6 +88,9 @@
                             International Tax
                         </th>
                         <th scope="col w-auto">
+                            Unclaimed
+                        </th>
+                        <th scope="col w-auto">
                             Sessions
                         </th> 
                                                                                                                           
@@ -119,6 +122,9 @@
                                 $[[h.total_international]]                              
                             </td>
                             <td class="w-auto">                                       
+                                $[[h.total_unclaimed]]                              
+                            </td>
+                            <td class="w-auto">                                       
                                <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
                                     <div class="row">
                                         <div class="col">
@@ -143,5 +149,16 @@
 
         </div>         
 
+        <div class="row justify-content-center mt-2" v-show="historyBudget.length>0">
+            <div class="col text-center">
+                <button class="btn btn-outline-primary" 
+                        type="button"
+                        v-bind:disabled="working"
+                        v-on:click = "downloadHistoryBudget()">
+                    Download <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+        
     </div>                    
 </div>

@@ -15,6 +15,7 @@ var app = new Vue({
         download_button_text:'Generate <i class="fas fa-scroll fa-xs"></i>',
         active_only:true,
         select_all_value:true,
+        include_sign_up_metrics:false,
     },
 
     methods:{
@@ -60,7 +61,8 @@ var app = new Vue({
             axios.post('/traits/', {
                         action :"getReport",  
                         formData : $("#traitReportForm").serializeArray(),    
-                        active_only:app.$data.active_only,                                                                                                                       
+                        active_only:app.$data.active_only,       
+                        include_sign_up_metrics : app.$data.include_sign_up_metrics,                                                                                                                
                     })
                     .then(function (response) {    
                         
