@@ -110,60 +110,68 @@ def getReport(data,u):
         active_only = data["active_only"]
         traits_list = form.cleaned_data['traits']
 
+        profiles = profile.objects.filter(email_confirmed = 'yes')\
+                                  .filter(type = 2)\
+                                .select_related('user', 'major', 'gender', 'subject_type')\
+                                .values('user__first_name',
+                                        'user__last_name',
+                                        'studentID',
+                                        'paused',
+                                        'user__id',
+                                        'public_id',
+                                        'major__name',
+                                        'gender__name',
+                                        'subject_type__name',
+                                        'id') \
+                                .order_by(Lower('user__last_name'),Lower('user__first_name'))
+
         t_list = profile_trait.objects.filter(trait__in = traits_list) \
-                                      .select_related('my_profile__user__first_name',
-                                                      'my_profile__user__last_name',
-                                                      'my_profile__studentID',
-                                                      'my_profile__user__is_active',
-                                                      'my_profile__id',
-                                                      'my_profile__user__id',
+                                      .select_related('my_profile__id',
+                                                      'my_profile__paused'
                                                       'trait__name',
                                                       'trait__id') \
                                       .values('trait__name',
                                               'trait__id',
                                               'value',
-                                              'my_profile__user__first_name',
-                                              'my_profile__user__last_name',
-                                              'my_profile__studentID',
-                                              'my_profile__user__id',
-                                              'my_profile__public_id',
                                               'my_profile__id') \
-                                      .order_by(Lower('my_profile__user__last_name'),Lower('my_profile__user__first_name'))
+                                      
         
         if active_only:
-            t_list = t_list.filter(my_profile__user__is_active = True) \
-                           .filter(my_profile__email_confirmed = 'yes')
+            t_list = t_list.filter(my_profile__paused = False)
+            profiles = profiles.filter(paused = False)
 
-        logger.info(t_list)
+        #logger.info(t_list)
+
+        traits_list_ids = traits_list.values_list('id',flat=True)
+
+        traits_base = {}
+        
+        for j in traits_list_ids:
+            traits_base[j] = None
 
         u_list = {}
 
-        traits_list_ids = traits_list.values_list('id',flat=True)
-        
-        
-        for i in t_list:
-            #setup empty list
+        for i in profiles:
             v=None
 
-            if u_list.get(i['my_profile__id'],-1) == -1:
-                u_list[i['my_profile__id']] = {"last_name" : i['my_profile__user__last_name'],
-                                               "first_name" : i['my_profile__user__first_name'],
-                                               "student_id" : i['my_profile__studentID'],
-                                               "recruiter_id" : i['my_profile__user__id'],
-                                               "public_id" : i['my_profile__public_id'],
-                                               "traits":{}}
-
-                v = u_list.get(i['my_profile__id'])
+            u_list[i['id']] = {"last_name" : i['user__last_name'],
+                               "first_name" : i['user__first_name'],
+                               "student_id" : i['studentID'],
+                               "recruiter_id" : i['user__id'],
+                               "public_id" : i['public_id'],
+                               "major" : i['major__name'],
+                               "gender" : i['gender__name'],
+                               "subject_type" : i['subject_type__name'],
+                               "traits": traits_base.copy()}            
             
-                for j in traits_list_ids:
-                    v["traits"][j] = None
-            else:
-                v = u_list.get(i['my_profile__id'])
+        for i in t_list:
+            #setup empty list
+            v = u_list.get(i['my_profile__id'])
 
             v["traits"][i['trait__id']] = i['value']
         
 
-        logger.info(u_list)
+        #logger.info(u_list)
 
         csv_response = HttpResponse(content_type='text/csv')
         csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
@@ -171,7 +179,7 @@ def getReport(data,u):
         writer = csv.writer(csv_response)
 
         # trait names
-        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name']
+        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Major', 'Gender Identity', 'Enrollment']
 
         for i in traits_list:
             headerText.append(i)
@@ -179,7 +187,7 @@ def getReport(data,u):
         writer.writerow(headerText)
 
         #trait descriptions
-        headerText = ['', '','', '', '']
+        headerText = ['', '','', '', '', 'Sign-up', 'Sign-up', 'Sign-up']
 
         for i in traits_list:
             headerText.append(i.description)
@@ -195,6 +203,9 @@ def getReport(data,u):
             t.append(u['public_id'])
             t.append(u['last_name'])
             t.append(u['first_name'])
+            t.append(u['major'])
+            t.append(u['gender'])
+            t.append(u['subject_type'])
 
             for i in traits_list:
                 t.append(u['traits'][i.id])

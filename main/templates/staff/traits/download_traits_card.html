@@ -13,18 +13,20 @@
                 </div>
             </div>
         </form>
-        <div class="row mt-2">
-            <div class = "col-md text-center">
+        <div class="row justify-content-center mt-2">
+            <div class = "col-md-auto text-center">
                 <button class="btn btn-outline-primary" v-on:click="selectAll()" title="Select all traits.">Select All <i class="fas fa-check-double"></i></button>
             </div>
-            <div class = "col-md text-center mt-2 mt-md-0">
+            <div class = "col-md-auto text-center mt-2 mt-md-0">
                 <button class="btn btn-outline-primary" v-on:click="getReport()" title="Generate report for selected traits."><span v-html="download_button_text"></span></button>
             </div>
-            <div class = "col-md text-center mt-2 mt-md-0">
+            <div class = "col-md-auto mt-2 mt-md-0">
+                     
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="activeOnly" v-model="active_only" >
                     <label class="form-check-label" for="activeOnly" title = "Limit report to active users only.">Active Only</label>
-                  </div>
+                </div>
+                
             </div>
         </div>
         <div class="row mt-4">
