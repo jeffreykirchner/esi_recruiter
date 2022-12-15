@@ -40,13 +40,27 @@ var app = new Vue({
             {
                 if(app.$data.pixi_signatures_rope_array.length==0)
                 {
-                    app.$data.consent_form_error = "Sign before accepting.";
+                    app.$data.consent_form_error = "Error: Sign before accepting.";
                     return;
                 } 
-
-                for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+                
+                total_length=0;
+                for(let i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
                 {
                     consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
+
+                    for(let j=1;j<app.$data.pixi_signatures_rope_array[i].points.length;j++)
+                    {
+                        let p1 = app.$data.pixi_signatures_rope_array[i].points[j-1];
+                        let p2 = app.$data.pixi_signatures_rope_array[i].points[j];
+                        total_length += app.getDistance(p1.x, p1.y, p2.x, p2.y);
+                    }
+                }
+
+                if(total_length < 700)
+                {
+                    app.$data.consent_form_error = "Error: Make your signature larger.";
+                    return;
                 }
 
                 let canvas = document.getElementById('signature_canvas_id');
@@ -72,6 +86,28 @@ var app = new Vue({
                         .catch(function (error) {
                             console.log(error);                                    
                         });                        
+        },
+
+        /**
+         * clear signature
+         */
+        clearSignature(event){
+            if(app.consent_form_subject) return;
+
+            for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+            {
+                app.$data.pixi_signatures_rope_array[i].rope.destroy();
+            }
+
+            app.$data.pixi_signatures_rope_array = [];
+            app.$data.consent_form_error = "";
+        },
+
+        getDistance:function(x1, y1, x2, y2){
+            let y = x2 - x1;
+            let x = y2 - y1;
+            
+            return Math.sqrt(x * x + y * y);
         },
         
         handleResize:function(){      
