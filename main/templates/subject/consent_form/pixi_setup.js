@@ -164,5 +164,10 @@ handleStagePointerMove(event){
 
     if(i<0)i=0;
 
-    app.$data.pixi_signatures_rope_array[i].points.push(new PIXI.Point(event.data.global.x, event.data.global.y));    
+    let p1 = new PIXI.Point(event.data.global.x, event.data.global.y);
+    let p2 = app.$data.pixi_signatures_rope_array[i].points[app.$data.pixi_signatures_rope_array[i].points.length-1];
+
+    if(app.getDistance(p1.x, p1.y, p2.x, p2.y) < 5) return;
+
+    app.$data.pixi_signatures_rope_array[i].points.push(p1);    
 },
