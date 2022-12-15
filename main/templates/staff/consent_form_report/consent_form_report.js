@@ -122,25 +122,44 @@ var app = new Vue({
         resetPixiApp(canvas_id, signature_points, signature_scale){
             
             app.$data.pixi_app.stage.removeChildren()
+
             
             for (let i in signature_points) {
         
                 let t = signature_points[i];        
         
                 let points = [];
+
+                let min_y = 1000;
+                let max_y = -1;
+
+                let min_x = 1000;
+                let max_x = -1;
         
                 for(let j=0;j<t.length;j++)
                 {
+                    if(t[j].y<min_y) min_y = t[j].y;
+                    if(t[j].y>max_y) max_y = t[j].y;
+
+                    if(t[j].x<min_x) min_x = t[j].x;
+                    if(t[j].x>max_x) max_x = t[j].x;
+
                     points.push(new PIXI.Point(t[j].x,
                                                t[j].y))
                 }
+                
+                if(min_y != max_y && min_x != max_x)
+                {
+                    r = new PIXI.SimpleRope(app.$data.pixi_signature_texture, points);
+                    let container = new PIXI.Container();
+
+                    container.addChild(r);
+            
+                    //r.scale.x = r.scale.y = app.$data.c_height / signature_scale.height;
                     
-                r = new PIXI.SimpleRope(app.$data.pixi_signature_texture, points);
-        
-                //r.scale.x = r.scale.y = app.$data.c_height / signature_scale.height;
-        
-                app.$data.pixi_app.stage.addChild(r);
-            }    
+                    if(container.height>0) app.$data.pixi_app.stage.addChild(container);
+                }
+            }  
         },
         
         //load past signature
