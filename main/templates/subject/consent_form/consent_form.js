@@ -57,7 +57,7 @@ var app = new Vue({
                     }
                 }
 
-                if(total_length < 700)
+                if(total_length < 600)
                 {
                     app.$data.consent_form_error = "Error: Make your signature larger.";
                     return;

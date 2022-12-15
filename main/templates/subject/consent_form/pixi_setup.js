@@ -123,6 +123,7 @@ pixiTicker(delta){
             
             app.$data.pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(app.$data.pixi_signature_texture,
                                                                                app.$data.pixi_signatures_rope_array[i].points,
+                                                                               start=0,
                                                                             );
                                                                             
             app.$data.pixi_app.stage.addChild(app.$data.pixi_signatures_rope_array[i].rope);
