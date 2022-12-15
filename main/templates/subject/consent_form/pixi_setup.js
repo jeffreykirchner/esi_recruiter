@@ -117,12 +117,16 @@ loadSignature(){
 pixiTicker(delta){
     for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
     {
-        app.$data.pixi_signatures_rope_array[i].rope.destroy();
-        app.$data.pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(app.$data.pixi_signature_texture,
-                                                                           app.$data.pixi_signatures_rope_array[i].points,
-                                                                           );
-                                                                           
-        app.$data.pixi_app.stage.addChild(app.$data.pixi_signatures_rope_array[i].rope);
+        if(app.$data.pixi_signatures_rope_array[i].points.length > 0)
+        {
+            if(app.$data.pixi_signatures_rope_array[i].rope) app.$data.pixi_signatures_rope_array[i].rope.destroy();
+            
+            app.$data.pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(app.$data.pixi_signature_texture,
+                                                                               app.$data.pixi_signatures_rope_array[i].points,
+                                                                            );
+                                                                            
+            app.$data.pixi_app.stage.addChild(app.$data.pixi_signatures_rope_array[i].rope);
+        }
     }
 },
 
@@ -135,8 +139,8 @@ handleStagePointerDown(event){
     if(app.waiting) return;
 
     app.$data.pixi_pointer_down=true;
-    v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)],
-         rope:new PIXI.SimpleRope(app.$data.pixi_signature_texture, new PIXI.Point(event.data.global.x, event.data.global.y))};
+    v = {points:[], rope: null};
+        
 
     //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
     app.$data.pixi_signatures_rope_array.push(v);
@@ -156,7 +160,9 @@ handleStagePointerMove(event){
     if(app.waiting) return;
     if(!app.$data.pixi_pointer_down) return;
 
-    i = app.$data.pixi_signatures_rope_array.length-1;
+    let i = app.$data.pixi_signatures_rope_array.length-1;
+
+    if(i<0)i=0;
 
     app.$data.pixi_signatures_rope_array[i].points.push(new PIXI.Point(event.data.global.x, event.data.global.y));    
 },
