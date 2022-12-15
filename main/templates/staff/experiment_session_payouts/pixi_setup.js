@@ -47,7 +47,7 @@ setupPixi(){
                 app.$data.tick_tock=0;
 
                 let canvas = document.getElementById("signature_canvas_id_" + app.$data.sessionDayUsers[app.$data.counter].id);
-                temp_c=app.$data.pixi_app.renderer.plugins.extract.canvas(app.$data.pixi_app.stage)
+                temp_c=app.$data.pixi_app.renderer.extract.canvas(app.$data.pixi_app.stage);
                 canvas.getContext("2d").drawImage(temp_c, 0, 0);
 
                 app.$data.counter++;
