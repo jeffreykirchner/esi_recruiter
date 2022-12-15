@@ -58,27 +58,37 @@
     
     <div class="card-footer">    
         <div class="row">
-            <div class="col text-left">
+            <div class="col-md text-left">
                 <a href="/subjectHome/" class="mr-4"><i class="fas fa-angle-double-left"></i> Return</a>
             </div>
-            <div class="col text-right" v-if="consent_form && consent_form.agreement_required">
-                <div v-show="consent_form_subject" class="text-success">                    
+
+            <div class="col-md-auto text-right" v-if="consent_form && consent_form.agreement_required">
+    
+                <div v-if="consent_form_subject" class="text-success">                    
                     <i class="fas fa-check fa-2x"></i>
                 </div>
                 
-                <div v-show="!consent_form_subject">
-                    <span class="mr-2 text-danger">
-                        [[consent_form_error]]
-                    </span>
-                    
-                    <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()" v-bind:disabled="waiting">
-                        <span v-show="waiting">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                        <span v-show="!waiting">
-                           [[consent_form ? consent_form.submit_button_text : '']]
-                        </span>                                
-                    </button>
+                <div v-if="!consent_form_subject">
+                    <div class="row">
+
+                        <div class="col-md-auto mb-2" v-if="consent_form_error != ''">
+                            <span class="mr-2 text-danger font-weight-bold" >
+                                [[consent_form_error]]
+                            </span>
+                        </div>
+
+                        <div class="col-md-auto">
+                            <button type="button" class="btn btn-outline-primary" v-on:click = "acceptConsentForm()" v-bind:disabled="waiting">
+                                <span v-show="waiting">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span v-show="!waiting">
+                                    [[consent_form ? consent_form.submit_button_text : '']]
+                                </span>                                
+                            </button>
+                        </div>
+
+                    </div>                    
                 </div>
             </div>
         </div>               

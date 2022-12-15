@@ -160,17 +160,3 @@ handleStagePointerMove(event){
 
     app.$data.pixi_signatures_rope_array[i].points.push(new PIXI.Point(event.data.global.x, event.data.global.y));    
 },
-
-/**
- * clear signature
- */
-clearSignature(event){
-    if(app.consent_form_subject) return;
-
-    for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
-    {
-        app.$data.pixi_signatures_rope_array[i].rope.destroy();
-    }
-
-    app.$data.pixi_signatures_rope_array = [];
-},
