@@ -144,21 +144,32 @@ var app = new Vue({
                     if(t[j].x<min_x) min_x = t[j].x;
                     if(t[j].x>max_x) max_x = t[j].x;
 
+                    if(j>0)
+                    {
+                        if(t[j].x == t[j-1].x)
+                        {
+                            t[j].x += 0.1;
+                        }
+
+                        if(t[j].y == t[j-1].y)
+                        {
+                            t[j].y += 0.1;
+                        }
+                    }
+
                     points.push(new PIXI.Point(t[j].x,
                                                t[j].y))
                 }
                 
-                if(min_y != max_y && min_x != max_x)
-                {
-                    r = new PIXI.SimpleRope(app.$data.pixi_signature_texture, points);
-                    let container = new PIXI.Container();
+                r = new PIXI.SimpleRope(app.$data.pixi_signature_texture, points);
+                let container = new PIXI.Container();
 
-                    container.addChild(r);
-            
-                    //r.scale.x = r.scale.y = app.$data.c_height / signature_scale.height;
-                    
-                    if(container.height>0) app.$data.pixi_app.stage.addChild(container);
-                }
+                container.addChild(r);
+        
+                //r.scale.x = r.scale.y = app.$data.c_height / signature_scale.height;
+                
+                if(container.height>0) app.$data.pixi_app.stage.addChild(container);
+               
             }  
         },
         
