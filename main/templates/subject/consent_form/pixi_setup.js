@@ -139,9 +139,8 @@ handleStagePointerDown(event){
     if(app.waiting) return;
 
     app.$data.pixi_pointer_down=true;
-    v = {points:[], rope: null};
+    v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)], rope: null};
         
-
     //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
     app.$data.pixi_signatures_rope_array.push(v);
 },
