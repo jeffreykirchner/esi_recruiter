@@ -96,7 +96,8 @@ var app = new Vue({
 
             for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
             {
-                app.$data.pixi_signatures_rope_array[i].rope.destroy();
+                if(app.$data.pixi_signatures_rope_array[i].rope) app.$data.pixi_signatures_rope_array[i].rope.destroy();
+                
             }
 
             app.$data.pixi_signatures_rope_array = [];
