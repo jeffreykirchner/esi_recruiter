@@ -298,17 +298,21 @@
                                     <span v-html='earningsExportButtonText'></span> 
                                 </button>
                             </td>
-                            <td class="text-nowrap text-center">
-                                <div v-show="sessionDay.complete === false && isAdmin && !sessionDay.is_during_session">
-                                    PayPal window closed
-                                </div>
-                                <div v-show="sessionDay.complete === false && isAdmin && sessionDay.is_during_session">
+                            <td class="text-nowrap text-center">        
+                                {%if user.profile.can_paypal%}                        
+                                <div v-show="sessionDay.complete === false">
                                     <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
                                         title="Pay subjects directly using PayPal's API" 
                                         v-bind:disabled = "sessionDay.paypalAPI">
                                         <span v-html='paypalDirectButtonText'></span> 
                                     </button>
-                                </div>                               
+                                </div>   
+                                <div v-show="sessionDay.complete === false && 
+                                             !sessionDay.is_during_session &&
+                                             !sessionDay.paypalAPI">
+                                    (Warning: session not active)
+                                </div>  
+                                {%endif%}                          
                             </td>
                         </tr>
                     </tfoot>

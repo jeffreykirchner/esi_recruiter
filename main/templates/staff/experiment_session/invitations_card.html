@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-header">
+        Invitations (<span v-html="session.invitationCount"></span>)
+
+        <span class="float-right">
+            <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInvitations()"><span v-html="showInvitationListButtonText"></span></button>
+        </span>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-hover table-condensed table-responsive-xl">
+                    <thead>
+                        <th scope="col" width="50%"  class="text-left text-nowrap">
+                            Messsage 
+                                                                
+                        </th> 
+                        <th scope="col" width="40%" class="text-center text-nowrap">
+                            Subjects
+                        </th>                                                      
+                        <th scope="col" width="15%" class="text-center text-nowrap">
+                            Info
+                        </th>
+                    </thead>
+                    <tbody id="messgeList">                       
+                        <tr v-for="(m, index) in invitationList" v-bind:key="m.id">                                                                          
+                            <td>                                        
+                                <div v-html="'Subject: ' + m.subjectText"></div> 
+                                <div class="mt-4" v-html="m.messageText"></div>  
+                                <div class ="mt-4" v-html="'Parameters:'"></div>
+                                <div v-html="m.recruitment_params"></div>                                                                          
+                            </td>
+                            <td class="text-center">                                        
+                                <div v-html="m.emailMessageList"></div>                                                                                
+                            </td>                               
+                            <td class="text-center">                                       
+                                <div v-html="m.date_raw"></div>
+                                <div class="mt-4" v-html="'Email Count:<br>'+ m.mailResultSentCount"></div>
+                                <div v-if="m.mailResultErrorText != ''">
+                                    
+                                    <div class="mt-4" v-html="'Error: <br>' + m.mailResultErrorText"></div>
+                                    <button type="button" 
+                                            class="btn btn-outline-success mt-4" 
+                                            v-on:click = "reSendInvitation(m.id)">
+                                        <span v-html="reSendMessageButtonText"></span>
+                                    </button>
+                                </div>                                       
+                            </td>                            
+                        </tr>                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>      
+</div>

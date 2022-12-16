@@ -52,6 +52,9 @@ class profile(models.Model):
     #consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                #true if the subject must agree to the current consent form (used before session by session consent forms)
 
     send_daily_email_report = models.BooleanField(verbose_name="Send Daily Email Report", default=False)              #if true, send daily report of the past day's activity
+    can_paypal = models.BooleanField(verbose_name="User can send PayPal payments", default=False)                     #if true, user can send PayPal Payments
+    can_recruit = models.BooleanField(verbose_name="User can recruit subjects to sessions", default=False)            #if true, user can recruit subjects to sessions
+
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 
     timestamp = models.DateTimeField(verbose_name="Created On", auto_now_add=True)
