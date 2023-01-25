@@ -155,6 +155,7 @@ def getSesssion(data,id):
     # logger.info(es.recruitment_params)
 
     return JsonResponse({"session" :  es.json(),
+                         "invite_to_all" : es.experiment.invite_to_all,
                          "experiment_invitation_text" : es.experiment.invitationText,
                          "recruitment_params":es.recruitment_params.json()}, safe=False)
 

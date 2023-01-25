@@ -80,6 +80,7 @@ var app = new Vue({
         updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
         subjectsCaption1:"Confirmed",
         experiment_invitation_text:"",
+        invite_to_all:false,
         options: {                                               //options for date time picker
             // https://momentjs.com/docs/#/displaying/
             format: 'MM/DD/YYYY hh:mm a ZZ',
@@ -197,6 +198,7 @@ var app = new Vue({
                     app.$data.recruitment_params = response.data.recruitment_params;                                
                     app.updateDisplayLists();
                     app.$data.showLoadingSpinner=false;
+                    app.$data.invite_to_all = response.data.invite_to_all;
 
                     if(app.$data.session.canceled)
                     {
