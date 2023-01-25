@@ -95,6 +95,15 @@
         </div>
         <div class = "row">
             <div class="col-md-4 text-md-right">
+                {{form1.invite_to_all.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="experiment.invite_to_all">Yes</span>
+                <span v-else>No</span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col-md-4 text-md-right">
                 {{form1.showUpFee.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">
