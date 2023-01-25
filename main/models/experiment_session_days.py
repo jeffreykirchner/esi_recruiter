@@ -85,6 +85,12 @@ class experiment_session_days(models.Model):
 
     #add user to session day
     def addUser(self, userID, staffUser, manuallyAdded):
+        
+        esdu = self.getNewUser(userID, staffUser, manuallyAdded)
+        esdu.save()
+    
+    #return a new user to add
+    def getNewUser(self, userID, staffUser, manuallyAdded):
         esdu = main.models.experiment_session_day_users()
 
         esdu.experiment_session_day = self
@@ -92,7 +98,7 @@ class experiment_session_days(models.Model):
         esdu.addedByUser = staffUser
         esdu.manuallyAdded = manuallyAdded
 
-        esdu.save()
+        return esdu
 
     #sets up session day with defualt parameters
     def setup(self, es, u_list):

@@ -97,6 +97,12 @@ class experimentForm1(forms.ModelForm):
                                                                     "v-on:change":"mainFormChange1",
                                                                     "v-bind:disabled":"experiment.confirmationFound === true"}))                                                                                                                                                                                                                                                    
 
+    invite_to_all = forms.ChoiceField(label="Invite Subjects to All Future Sessions",
+                                    choices=(('true', "Yes"), ('false', "No")),
+                                    widget=forms.Select(attrs={"v-model":"experiment.invite_to_all",
+                                                                    "v-on:change":"mainFormChange1",
+                                                                    })) 
+
     class Meta:
         model=experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
@@ -125,6 +131,23 @@ class experimentForm1(forms.ModelForm):
         logger.info("Clean survey")
 
         val = self.data['survey']
+
+        if val == 'true':
+            return True
+
+        if val == 'false':
+            return False
+
+        raise forms.ValidationError('Invalid Entry')
+    
+    def clean_invite_to_all(self):
+        '''
+        clean invite_to_all boolean
+        '''
+        logger = logging.getLogger(__name__)
+        logger.info("Clean inite_to_all")
+
+        val = self.data['invite_to_all']
 
         if val == 'true':
             return True

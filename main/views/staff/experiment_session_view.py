@@ -40,6 +40,8 @@ from main.forms import TraitConstraintForm
 
 from main.globals import send_mass_email_service
 
+import main
+
 class ExperimentSessionView(SingleObjectMixin, View):
     '''
     experiment session view
@@ -459,14 +461,40 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
 
     mail_result =  {"mail_count":0, "error_message":""}   
     
-    if not failed:              
-        es.addUser(u["id"], request_user, True)
-        es.save()
+    if not failed:        
+        #invite to all sessions in the future
+        future_es_list=[]
+
+        if es.experiment.invite_to_all:
+            future_es_list = es.experiment.getFutureSessions()
+        
+        esdu_list =  es.getNewUser(u["id"], request_user, True)
+
+        for j in future_es_list:
+            esdu_list = esdu_list + j.getNewUser(u["id"], request_user, True)
+
+        if len(esdu_list) > 0:
+            main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
+
+        # es.addUser(u["id"], request_user, True)
+        # es.save()
 
         if sendInvitation:
             
             subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())            
-            messageText = es.getInvitationEmail()            
+            messageText = es.getInvitationEmail()           
+
+            if len(future_es_list)>0:
+                additional_dates=""
+
+                for index, j in enumerate(future_es_list):
+                    if j != es:
+                        if index > 0:
+                            additional_dates += "<br>"
+                        additional_dates += j.getSessionDayDateString()
+
+                messageText = messageText.replace("[additional dates]", additional_dates)
+
             memo = f'Manual invitation for session: {es.id}'
 
             mail_result = storeInvitation(id, [u["id"]], subjectText, messageText, memo) 
@@ -491,7 +519,7 @@ def inviteSubjects(data, id, request):
 
     es = experiment_sessions.objects.get(id=id)
 
-    logger.info(es.canceled)
+    # logger.info(es.canceled)
 
     if len(subjectInvitations) == 0 or es.canceled:
         return JsonResponse({"status":"fail", "mailResult":{"error_message":"Error: Refresh the page","mail_count":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
@@ -501,24 +529,46 @@ def inviteSubjects(data, id, request):
     userPkList = []             #list of primary keys of added users
 
     p = parameters.objects.first()
-    subjectText = ""
 
-    subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
-    messageText = es.getInvitationEmail()
+    #invite to all sessions in the future
+    future_es_list=[]
+
+    if es.experiment.invite_to_all:
+        future_es_list = es.experiment.getFutureSessions()
 
     # #add users to session
     userPkList = []
-
+    esdu_list = []
     for i in subjectInvitations:
         try:
             userPkList.append(i['id'])
-            es.addUser(i['id'], request.user, False)
+            # es.addUser(i['id'], request.user, False)
+            esdu_list = esdu_list + es.getNewUser(i['id'], request.user, False)
+
+            for j in future_es_list:
+                esdu_list = esdu_list + j.getNewUser(i['id'], request.user, False)
 
         except IntegrityError:
             userFails.append(i)
             status = "fail"
+
+    if len(esdu_list) > 0:
+        main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
             
     memo = f'Send invitations for session: {es.id}'
+    subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
+    messageText = es.getInvitationEmail()
+
+    if len(future_es_list)>0:
+        additional_dates=""
+
+        for index, j in enumerate(future_es_list):
+            if j != es:
+                if index > 0:
+                    additional_dates += "<br>"
+                additional_dates += j.getSessionDayDateString()
+
+        messageText = messageText.replace("[additional dates]", additional_dates)
 
     mail_result = storeInvitation(id, userPkList, subjectText, messageText, memo)
 

@@ -1,6 +1,8 @@
 '''
 experiment model
 '''
+from datetime import datetime
+
 import logging
 import pytz
 
@@ -11,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.contrib.auth.models import User
+from django.db.models import Max
 
 from main.models import schools
 from main.models import accounts
@@ -47,6 +50,7 @@ class experiments(models.Model):
 
     invitationText = HTMLField(default="")                 #text of email invitation subjects receive
     reminderText = HTMLField(default="")                   #text of email reminder subjects receive
+    invite_to_all = models.BooleanField(verbose_name="Invite subjects to all sessions", default=False)          #if archived hide from useage
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -105,6 +109,11 @@ class experiments(models.Model):
 
         return "No Sessions"
     
+    #return any sessions that take place in the future
+    def getFutureSessions(self):
+        esd_list = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).filter(date__gte=datetime.now()).values_list('experiment_session__id', flat=True)
+        return self.ES.filter(id__in=esd_list).annotate(last_date=Max('ESD__date')).order_by('last_date')
+
     #return date of first session
     def getDateString(self):
         p = parameters.objects.first()
@@ -174,6 +183,7 @@ class experiments(models.Model):
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),
             "survey":self.survey,
+            "invite_to_all":self.invite_to_all,
         }
 
 #delete recruitment parameters when deleted

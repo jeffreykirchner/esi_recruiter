@@ -107,6 +107,10 @@ class experiment_sessions(models.Model):
         for esd in self.ESD.all():
             esd.addUser(userID,staffUser,manuallyAdded)  
 
+    #return a new experiment session day user list to add
+    def getNewUser(self, userID, staffUser, manuallyAdded):
+        return [i.getNewUser(userID, staffUser, manuallyAdded) for i in self.ESD.all() ]
+
     #get a string of sessions day dates
     def getSessionDayDateString(self):
         tempS = ""
