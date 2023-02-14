@@ -11,7 +11,7 @@ class UserModelChoiceField(ModelChoiceField):
 
 class ExpenditureReportForm(forms.Form):
     
-    department = forms.ModelChoiceField(label="Deparment",
+    department = forms.ModelChoiceField(label="Department",
                                            required=False,
                                            empty_label="All Departments",
                                            queryset=departments.objects.all(),
