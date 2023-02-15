@@ -4,7 +4,6 @@ from functools import reduce
 import json
 import logging
 import uuid
-import re
 import operator
 
 from django.contrib.auth.decorators import login_required
@@ -15,11 +14,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import CharField, Q, F, Value as V
 from django.db.models.functions import Lower
 from django.contrib.postgres.search import TrigramSimilarity
-from django.db.models import Count
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.conf import settings
-
 
 from main.decorators import user_is_staff
 
@@ -29,6 +26,7 @@ from main.models import profile
 
 from main.globals import send_mass_email_service
 from main.globals import get_now_show_blocks
+from main.globals import todays_date
 
 class UserSearch(View):
     '''
@@ -57,8 +55,15 @@ class UserSearch(View):
                                           profile__type__id = 2,
                                           profile__email_confirmed = 'yes',
                                           profile__paused = False).count()
+        
+        activeCountRecent = User.objects.filter(last_login__lte = todays_date() - timedelta(days=100),
+                                               profile__type__id = 2,
+                                               profile__email_confirmed = 'yes',
+                                               profile__paused = False).count()
 
-        return render(request, self.template_name, {"activeCount":activeCount,"helpText":helpText})
+        return render(request, self.template_name, {"activeCount" : activeCount,
+                                                    "activeCountRecent" : activeCountRecent,
+                                                    "helpText":helpText})
     
     @method_decorator(login_required)
     @method_decorator(user_is_staff)

@@ -135,9 +135,23 @@
                 <span class="float-right float-md-left">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
             </div>
         </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                
+            </div>
+            <div class = "col-md"> 
+
+            </div> 
+            <div class = "col-md"> 
+                <span class="float-md-right">Last Login:</span>                             
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{{u.last_login}}</span>
+            </div>
+        </div>
         <div class = "row mb-4">
             <div class = "col-md"> 
-                <span class="float-md-right">Public ID:</span>                        
+                <span class="float-md-right">Public ID:</span>                            
             </div>
             <div class = "col-md"> 
                 <span class="float-md-right">{{u.profile.public_id}}</span>
