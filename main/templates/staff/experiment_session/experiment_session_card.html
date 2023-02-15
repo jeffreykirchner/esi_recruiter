@@ -110,8 +110,14 @@
                             Reminders Sent
                         </th>
                         <th scope="col" class="text-center text-nowrap">
-                            Confirmed/Invited
-                        </th>                                                      
+                            Invited
+                        </th> 
+                        <th scope="col" class="text-center text-nowrap">
+                            Confirmed
+                        </th>
+                        <th scope="col" class="text-center text-nowrap">
+                            Attended
+                        </th>                                                     
                         <th scope="col" class="text-center text-nowrap">
                             Setup
                         </th>
@@ -156,8 +162,14 @@
                                 </div>
                             </td>
                             <td class="text-center text-nowrap">                                        
-                                [[sd.confirmedCount]] / [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
-                            </td>                               
+                               [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
+                            </td>  
+                            <td class="text-center text-nowrap">                                        
+                                [[sd.confirmedCount]]                                                                              
+                            </td>
+                            <td class="text-center text-nowrap">                                        
+                                [[sd.attendedCount]]                                                                              
+                            </td>                             
                             <td class="text-center text-nowrap">                                      
                                 <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
                             </td>

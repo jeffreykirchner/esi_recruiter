@@ -1100,6 +1100,24 @@ class experiment_sessions(models.Model):
             logger.info("Confirmed count error, no session days found") 
             return 0
     
+        #number of confirmed subjects
+    def getAttendedCount(self):
+        logger = logging.getLogger(__name__)
+        #logger.info("Confirmed count")    
+        
+
+        esd = self.ESD.order_by('date').first()
+
+        if esd:
+            esdu_confirmed_count = main.models.experiment_session_day_users.objects.filter(experiment_session_day__id=esd.id,
+                                                                                           attended = True)\
+                                                                                    .count()
+            #logger.info(esdu_confirmed_count)
+            return esdu_confirmed_count
+        else:
+            logger.info("Confirmed count error, no session days found") 
+            return 0
+
     #return true if session is full
     def getFull(self):
         logger = logging.getLogger(__name__)
@@ -1200,7 +1218,7 @@ class experiment_sessions(models.Model):
                                                                                            .order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
-            "confirmedCount":self.getConfirmedCount(),
+            "confirmedCount":self.getConfirmedCount(),           
         }
 
     #get some of the json object
@@ -1220,25 +1238,25 @@ class experiment_sessions(models.Model):
         #days_list = self.ESD.order_by("-date").prefetch_related('ESDU_b')
 
         return{
-            "id":self.id,            
-            "experiment":self.experiment.id,
-            "canceled":self.canceled,
-            "incident_occurred": "True" if self.incident_occurred else "False",
-            "consent_form":self.consent_form.id if self.consent_form else None,
-            "consent_form_full":self.consent_form.json() if self.consent_form else None,
-            "budget":self.budget.id if self.budget else None,
-            "budget_full":self.budget.profile.json_min() if self.budget else None,
+            "id" : self.id,            
+            "experiment" : self.experiment.id,
+            "canceled" : self.canceled,
+            "incident_occurred" : "True" if self.incident_occurred else "False",
+            "consent_form" : self.consent_form.id if self.consent_form else None,
+            "consent_form_full" : self.consent_form.json() if self.consent_form else None,
+            "budget" : self.budget.id if self.budget else None,
+            "budget_full" : self.budget.profile.json_min() if self.budget else None,
             "experiment_session_days" : [esd.json(False) for esd in self.ESD.all().annotate(first_date=models.Min('date')).order_by('-first_date')],
             "invitationText" : self.getInvitationEmail(),
             "invitationRawText" : self.invitation_text,
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
-            "messageCount": self.experiment_session_messages_set.count(),
-            "invitationCount": self.experiment_session_invitations.count(),
-            "allowDelete":self.allowDelete(),
-            "allowEdit":self.allowEdit(),
-            "confirmedCount":self.getConfirmedCount(),
-            "creator":self.creator.profile.json_min() if self.creator else None,
+            "messageCount" : self.experiment_session_messages_set.count(),
+            "invitationCount" : self.experiment_session_invitations.count(),
+            "allowDelete" : self.allowDelete(),
+            "allowEdit" : self.allowEdit(),
+            "confirmedCount" : self.getConfirmedCount(),
+            "creator" : self.creator.profile.json_min() if self.creator else None,
         }
 
 #delete recruitment parameters when deleted
