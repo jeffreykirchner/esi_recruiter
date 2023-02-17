@@ -115,8 +115,8 @@ def getExperiment(data, id):
     p = parameters.objects.first()
             
     return JsonResponse({"experiment" :  e.json(),
-                            "sessions" : e.json_sessions(),
-                            "recruitment_params":e.recruitment_params_default.json(),
+                         "sessions" : e.json_sessions(),
+                         "recruitment_params":e.recruitment_params_default.json(),
                            }, safe=False)
 
 #delete session from experiment

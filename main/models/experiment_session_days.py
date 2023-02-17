@@ -495,8 +495,8 @@ class experiment_session_days(models.Model):
     #get small json object
     def json_min(self):
         confirmedCount = self.ESDU_b.filter(confirmed=True).count()
+        attendedCount = self.ESDU_b.filter(attended=True).count()
         totalCount = self.ESDU_b.count()
-
 
         return{
             "id":self.id,
@@ -504,6 +504,7 @@ class experiment_session_days(models.Model):
             "name":self.experiment_session.experiment.title,
             "session_id":self.experiment_session.id,
             "confirmedCount": confirmedCount,
+            "attendedCount": attendedCount,
             "totalCount": totalCount,
             "enable_time":self.enable_time,
         }
@@ -581,7 +582,10 @@ class experiment_session_days(models.Model):
                        select_related('user').\
                        order_by(Lower('user__last_name'), Lower('user__first_name'))
 
+        attendedCount = self.ESDU_b.filter(attended=True).count()
+        
         u_list_u_json =[]
+
 
         if getUnconfirmed:
 
@@ -639,6 +643,7 @@ class experiment_session_days(models.Model):
 
             "experiment_session_days_user_unconfirmed" : u_list_u_json,
             "confirmedCount": len(u_list_c),
+            "attendedCount" : attendedCount,
             "unConfirmedCount": len(u_list_u),
             "roomOverlap":self.getRoomOverlap(),
             "allowDelete":self.allowDelete(),

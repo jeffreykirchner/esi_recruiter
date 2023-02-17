@@ -180,8 +180,14 @@
                             Status
                         </th> 
                         <th scope="col" class="text-center text-nowrap">
-                            Confirmed/Invited
-                        </th>                                                      
+                            Invited
+                        </th> 
+                        <th scope="col" class="text-center text-nowrap">
+                           Confirmed
+                        </th>
+                        <th scope="col" class="text-center text-nowrap">
+                            Attended
+                        </th>                                                     
                         <th scope="col" class="text-center text-nowrap">
                             Edit
                         </th>
@@ -222,9 +228,19 @@
                             </td>
                             <td class="text-center text-nowrap">
                                 <span v-for="(d,index) in s.experiment_session_days">
-                                    <div v-html="d.confirmedCount+ '/' + d.totalCount"></div>                                                                        
+                                    [[d.totalCount]]                                                                  
                                 </span>                                        
-                            </td>                               
+                            </td>   
+                            <td class="text-center text-nowrap">
+                                <span v-for="(d,index) in s.experiment_session_days">
+                                    [[d.confirmedCount]]                                                                
+                                </span>                                        
+                            </td>
+                            <td class="text-center text-nowrap">
+                                <span v-for="(d,index) in s.experiment_session_days">
+                                    [[d.attendedCount]]                                                                  
+                                </span>                                        
+                            </td>                            
                             <td class="text-center text-nowrap">                                       
                                 <a  v-bind:href='"/experimentSession/" + s.id'>
                                     Edit <i class="fas fa-edit fa-xs"></i>
