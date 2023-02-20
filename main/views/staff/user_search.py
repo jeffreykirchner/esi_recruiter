@@ -56,7 +56,7 @@ class UserSearch(View):
                                           profile__email_confirmed = 'yes',
                                           profile__paused = False).count()
         
-        activeCountRecent = User.objects.filter(last_login__lte = todays_date() - timedelta(days=90),
+        activeCountRecent = User.objects.filter(last_login__gte = todays_date() - timedelta(days=90),
                                                profile__type__id = 2,
                                                profile__email_confirmed = 'yes',
                                                profile__paused = False).count()
