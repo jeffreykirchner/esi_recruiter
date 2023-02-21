@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+<!-- setup modal -->  
+<div class="modal" id="editAllowListModal" tabindex="-1" role="dialog" aria-labelledby="editAllowListModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+           
+            <div class="modal-body">    
+                                                           
+            </div>
+            <div class="modal-footer">  
+               
+                <button class="btn btn-outline-success" type="button" v-on:click = "clearAllowList()">
+                    Clear
+                </button>
+
+                <button class="btn btn-outline-success" type="button" v-on:click = "addToAllowList()">
+                    Add
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,14 @@
 
-from django.db import models
 import logging
 
-from  main.models import genders,subject_types,institutions,schools
+from django.db import models
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import User
+
+from  main.models import genders
+from  main.models import subject_types
+from  main.models import institutions
+from  main.models import schools
 
 import main
 
@@ -45,8 +51,11 @@ class recruitment_parameters(models.Model):
     #trait constraints
     trait_constraints_require_all = models.BooleanField(default=False)
 
-    timestamp = models.DateTimeField(auto_now_add= True)
-    updated = models.DateTimeField(auto_now= True)   
+    #user ids of subjects that are allowed to participate, blank allow all
+    allowed_list = ArrayField(models.IntegerField(), blank=True, null=True)
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)   
 
     def __str__(self):
         return "ID: " + str(self.id)
@@ -97,6 +106,8 @@ class recruitment_parameters(models.Model):
             
         self.trait_constraints_require_all = es.trait_constraints_require_all
 
+        self.allowed_list = es.allowed_list
+
         self.save()
 
     #clear all of the parameters out
@@ -137,6 +148,8 @@ class recruitment_parameters(models.Model):
         #trait constraints
         self.trait_constraints.all().delete()
         self.trait_constraints_require_all = False
+
+        self.allowed_list = None
 
         self.save()
 
@@ -228,6 +241,10 @@ class recruitment_parameters(models.Model):
         return [i.json() for i in self.trait_constraints.all()]
 
     def json(self):
+        allowed_list_users = None
+        if self.allowed_list:
+            allowed_list_users = User.objects.filter(id__in=self.allowed_list).values_list('last_name', 'first_name', 'id')
+
         return{
             "id":self.id,
             "actual_participants":self.actual_participants,
@@ -260,4 +277,5 @@ class recruitment_parameters(models.Model):
             "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
             "trait_constraints": self.trait_list(),
             "trait_constraints_require_all":self.trait_constraints_require_all,
+            "allowed_list_users" : allowed_list_users if allowed_list_users else None,
         }
