@@ -81,6 +81,7 @@ var app = new Vue({
         subjectsCaption1:"Confirmed",
         experiment_invitation_text:"",
         invite_to_all:false,
+        add_to_allow_list:"",
         options: {                                               //options for date time picker
             // https://momentjs.com/docs/#/displaying/
             format: 'MM/DD/YYYY hh:mm a ZZ',
@@ -1236,6 +1237,38 @@ var app = new Vue({
                     else
                     {
                         app.$data.cancelModal=true;                           
+                        app.displayErrors(response.data.errors);
+                    }
+         
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
+        //fire when edit trait model needs to be shown
+        showEditAllowList:function(){         
+            app.clearMainFormErrors();              
+           
+            $('#editAllowListModal').modal('show');
+        },
+
+        //update require all trait constraints
+        sendAddToAllowList:function(){
+
+            axios.post('{{request.get_full_path}}', {
+                    status : "addToAllowList", 
+                    formData : {allowed_list:app.$data.add_to_allow_list},                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.recruitment_params = response.data.recruitment_params;
+                    }
+                    else
+                    {
+                                              
                         app.displayErrors(response.data.errors);
                     }
          
