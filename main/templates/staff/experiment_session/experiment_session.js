@@ -1277,6 +1277,30 @@ var app = new Vue({
                     console.log(error);
                 });
         },
+
+        sendClearAllowList:function(){
+
+            axios.post('{{request.get_full_path}}', {
+                    status : "clearallowList", 
+                    formData : {},                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.recruitment_params = response.data.recruitment_params;
+                    }
+                    else
+                    {
+                                              
+                        app.displayErrors(response.data.errors);
+                    }
+         
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
         
         formatDate: function(value,date_only,show_timezone){
             if (value) {        

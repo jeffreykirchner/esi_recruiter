@@ -19,6 +19,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
+
 from main.models import experiment_session_days
 from main.models import experiment_session_day_users
 from main.models import experiment_sessions
@@ -143,6 +144,10 @@ class ExperimentSessionView(SingleObjectMixin, View):
            return updateRequireAllTraitContraints(data, id)
         elif data["status"] == "updateSession":
            return updateSession(data, id)
+        elif data["status"] == "addToAllowList":
+           return addToAllowList(data, id)
+        elif data["status"] == "clearAllowList":
+           return clearAllowList(data, id)
 
 #get session info the show screen at load
 def getSesssion(data,id):
@@ -966,3 +971,30 @@ def updateSession(data, id):
     else:
         print("invalid experiment session form1")
         return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
+
+#update experiment parameters
+def addToAllowList(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"addToAllowList session: {data}")
+
+    s = experiment_sessions.objects.get(id=id)
+
+    form_data_dict = data["formData"]
+                   
+    experiment_session = experiment_sessions.objects.get(id=id)
+
+    return JsonResponse({"session" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)
+
+#update experiment parameters
+def clearAllowList(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"clearAllowList session: {data}")
+
+    s = experiment_sessions.objects.get(id=id)
+
+    form_data_dict = data["formData"]
+
+    experiment_session = experiment_sessions.objects.get(id=id)
+                   
+
+    return JsonResponse({"session" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)
