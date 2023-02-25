@@ -82,6 +82,7 @@ var app = new Vue({
         experiment_invitation_text:"",
         invite_to_all:false,
         add_to_allow_list:"",
+        allow_list_error:"",
         options: {                                               //options for date time picker
             // https://momentjs.com/docs/#/displaying/
             format: 'MM/DD/YYYY hh:mm a ZZ',
@@ -1265,11 +1266,11 @@ var app = new Vue({
                     if(response.data.status=="success")
                     {
                         app.$data.recruitment_params = response.data.recruitment_params;
+                        app.$data.allow_list_error = "";
                     }
                     else
-                    {
-                                              
-                        app.displayErrors(response.data.errors);
+                    {                 
+                        app.$data.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
                     }
          
                 })

@@ -277,5 +277,5 @@ class recruitment_parameters(models.Model):
             "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
             "trait_constraints": self.trait_list(),
             "trait_constraints_require_all":self.trait_constraints_require_all,
-            "allowed_list_users" : allowed_list_users if allowed_list_users else None,
+            "allowed_list_users" : list(allowed_list_users) if allowed_list_users else None,
         }
