@@ -241,9 +241,10 @@ class recruitment_parameters(models.Model):
         return [i.json() for i in self.trait_constraints.all()]
 
     def json(self):
-        allowed_list_users = None
+        allowed_list_users = []
         if self.allowed_list:
             allowed_list_users = User.objects.filter(id__in=self.allowed_list).values_list('last_name', 'first_name', 'id')
+            allowed_list_users = list(allowed_list_users)
 
         return{
             "id":self.id,
@@ -277,5 +278,5 @@ class recruitment_parameters(models.Model):
             "schools_exclude_constraint" : 1 if self.schools_exclude_constraint else 0,
             "trait_constraints": self.trait_list(),
             "trait_constraints_require_all":self.trait_constraints_require_all,
-            "allowed_list_users" : list(allowed_list_users) if allowed_list_users else None,
+            "allowed_list_users" : allowed_list_users,
         }

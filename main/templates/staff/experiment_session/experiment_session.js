@@ -43,7 +43,7 @@ var app = new Vue({
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
         reSendMessageButtonText:"Re-send <i class='fas fa-envelope fa-xs'></i>",
         session:null,                   
-        recruitment_params:null,
+        recruitment_params:{allowed_list_users:[]},
         current_trait:{                   //current trait being edited
             id:0,
             trait_id:0,
