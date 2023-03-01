@@ -10,7 +10,7 @@ var app = new Vue({
         loading: true,   
         message: null,              
         experiment: null,
-        recruitment_params: null,
+        recruitment_params:{allowed_list_users:[]},
         current_trait:{
             id:0,
             trait_id:0,
@@ -43,6 +43,9 @@ var app = new Vue({
         addSessionErrorText:"",  
         invitation_email_template:"{{invitationEmailTemplateForm_default}}",           //selected invitation email template 
         first_load : false,              //true after first load done
+        working : false,
+        add_to_allow_list:"",
+        allow_list_error:"",
     },
 
     methods:{       
@@ -510,6 +513,69 @@ var app = new Vue({
                 .catch(function (error) {
                     console.log(error);
                 });
+        },
+
+        //update require all trait constraints
+        sendAddToAllowList:function(){
+
+            app.$data.working = true;
+
+            axios.post('{{request.get_full_path}}', {
+                    status : "addToAllowList", 
+                    formData : {allowed_list:app.$data.add_to_allow_list},                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.recruitment_params = response.data.recruitment_params;
+                        app.$data.allow_list_error = "";
+                    }
+                    else
+                    {                 
+                        app.$data.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
+                    }
+
+                    app.$data.working = false;
+            
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
+        sendClearAllowList:function(){
+
+            app.$data.working = true;
+
+            axios.post('{{request.get_full_path}}', {
+                    status : "clearAllowList", 
+                    formData : {},                                                                                                                                                             
+                })
+                .then(function (response) {                                   
+                    
+                    if(response.data.status=="success")
+                    {
+                        app.$data.recruitment_params = response.data.recruitment_params;
+                    }
+                    else
+                    {                                              
+                        app.displayErrors(response.data.errors);
+                    }
+
+                    app.$data.working = false;
+            
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
+        //fire when edit trait model needs to be shown
+        showEditAllowList:function(){         
+            app.clearMainFormErrors();              
+           
+            $('#editAllowListModal').modal('show');
         },
     },
 

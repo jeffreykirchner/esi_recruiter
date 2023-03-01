@@ -2253,7 +2253,32 @@ class recruiteTestCase(TestCase):
         self.assertEqual(r['status'],"success")
 
         self.assertEqual(es.recruitment_params.gender.count(),0)
+    
+    def testAllowList(self):
+        """Allowed list""" 
+        logger = logging.getLogger(__name__)
 
+        e=self.e1
+        es=self.e1.ES.first()
+        
+        #check only allowed users on list
+        es.recruitment_params.allowed_list = []
+        es.recruitment_params.allowed_list.append(self.user_list[0].id)
+
+        es.recruitment_params.save()
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        self.assertIn(self.user_list[0], u_list)
+        self.assertEqual(1, len(u_list))
+
+        #check all users allowed
+        es.recruitment_params.allowed_list = []
+        es.recruitment_params.save()
+
+        u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
+        self.assertEqual(6, len(u_list))
+        
 #test trait constrints
 class traitConstraintTestCase(TestCase):
     e=None #experiment

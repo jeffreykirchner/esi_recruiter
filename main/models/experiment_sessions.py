@@ -30,10 +30,10 @@ class experiment_sessions(models.Model):
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True, related_name='ES_c')    #consent form used for new sessions
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)        #recruitment parameters
     budget = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_b', blank=True, null=True)                               #faculty budget for session
-    
+   
     canceled = models.BooleanField(default=False)
-    invitation_text = HTMLField(default="")                                 #text of email invitation subjects receive
-    incident_occurred = models.BooleanField(default=False)                  #irb reportable incident occured 
+    invitation_text = HTMLField(default="")                                    #text of email invitation subjects receive
+    incident_occurred = models.BooleanField(default=False)                     #irb reportable incident occured 
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -646,6 +646,7 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         
         #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_allow_list(u_list)
         #check experience count
         u_list = self.getValidUserList_school_exclude(u_list, testExperiment)
         #logger.info(f"{u_list}")
@@ -1066,6 +1067,27 @@ class experiment_sessions(models.Model):
                 valid_list.append(u)
 
         return valid_list
+    
+    #check that users are on allowed list
+    def getValidUserList_check_allow_list(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_allow_list")
+
+        allow_list = self.recruitment_params.allowed_list
+
+        if not allow_list:
+            return u_list
+
+        if len(allow_list) == 0:
+            return u_list
+
+        valid_list=[]
+
+        for u in u_list:
+            if u.id in allow_list:
+                valid_list.append(u)
+
+        return valid_list
         
     #return true if all session days are complete
     def getComplete(self):
@@ -1223,6 +1245,7 @@ class experiment_sessions(models.Model):
 
     #get some of the json object
     def json_min(self):
+       
         return{
             "id":self.id,
             "complete":self.getComplete(),   
@@ -1230,13 +1253,13 @@ class experiment_sessions(models.Model):
             "creator": self.creator.profile.json_min() if self.creator else None,                    
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
-            "allow_delete": self.allowDelete(),            
+            "allow_delete": self.allowDelete(),         
         }
 
     #get full json object
     def json(self):
         #days_list = self.ESD.order_by("-date").prefetch_related('ESDU_b')
-
+        
         return{
             "id" : self.id,            
             "experiment" : self.experiment.id,

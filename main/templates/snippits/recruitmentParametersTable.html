@@ -87,7 +87,7 @@
         Include Experiment Experience (<span v-if="recruitment_params.experiments_include_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col-md-8 text-right text-md-left">
-        <span v-html="include_experiments_list"></span>
+        [[include_experiments_list]]
     </div>               
 </div>
 <div class = "row">
@@ -95,7 +95,7 @@
         Exclude Experiment Experience (<span v-if="recruitment_params.experiments_exclude_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col-md-8 text-right text-md-left">    
-        <span v-html="exclude_experiments_list"></span>
+        [[exclude_experiments_list]]
     </div>               
 </div>
 <div class = "row">
@@ -103,7 +103,7 @@
         Include Only Subjects in Schools (<span v-if="recruitment_params.schools_include_constraint">On</span><span v-else>Off</span>):
     </div>
     <div class="col-md-8 text-right text-md-left">
-        <span v-html="include_schools_list"></span>
+        [[include_schools_list]]
     </div>               
 </div>
 <div class = "row">
@@ -111,7 +111,7 @@
         Exclude Subjects in Schools (<span v-if="recruitment_params.schools_exclude_constraint">On</span><span v-else>Off</span>):
     </div>
     <div class="col-md-8 text-right text-md-left">    
-        <span v-html="exclude_schools_list"></span>
+        [[exclude_schools_list]]
     </div>               
 </div>
 <div class = "row">
@@ -119,7 +119,16 @@
         Trait Constraints (<span v-if="recruitment_params.trait_constraints_require_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col-md-8 text-right text-md-left">    
-        <span v-html="trait_constraint_list"></span>
+        [[trait_constraint_list]]
+    </div>               
+</div>
+<div class = "row">
+    <div class="col-md-4 text-md-right">
+        Allowed List:
+    </div>
+    <div class="col-md-8 text-right text-md-left">    
+        <span v-if="recruitment_params.allowed_list_users.length">On</span>
+        <span v-else>Off</span>
     </div>               
 </div>
 
@@ -130,6 +139,7 @@
     <div class="col-md-8">
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditRecruitment()">Edit <i class="fas fa-pen fa-xs"></i></button> 
         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditTraits()">Traits <i class="fas fa-pen fa-xs"></i></button>
+        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditAllowList()">Allowed List <i class="fas fa-pen fa-xs"></i></button>
     </div>               
 </div>
 <!-- end recruitment parameters -->

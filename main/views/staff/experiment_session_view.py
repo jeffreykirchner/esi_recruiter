@@ -1,8 +1,10 @@
 from datetime import timedelta
+from decimal import Decimal
 
 import json
 import logging
 import pytz
+import re
 
 from django.shortcuts import render
 from django.http import Http404
@@ -19,6 +21,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
+
 from main.models import experiment_session_days
 from main.models import experiment_session_day_users
 from main.models import experiment_sessions
@@ -143,6 +146,10 @@ class ExperimentSessionView(SingleObjectMixin, View):
            return updateRequireAllTraitContraints(data, id)
         elif data["status"] == "updateSession":
            return updateSession(data, id)
+        elif data["status"] == "addToAllowList":
+           return addToAllowList(data, id)
+        elif data["status"] == "clearAllowList":
+           return clearAllowList(data, id)
 
 #get session info the show screen at load
 def getSesssion(data,id):
@@ -966,3 +973,78 @@ def updateSession(data, id):
     else:
         print("invalid experiment session form1")
         return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
+
+#update subjects allowed in session
+def addToAllowList(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"addToAllowList session: {data}")
+
+    form_data_dict = data["formData"]
+
+    message = ""
+
+    user_id_list = User.objects.all().values_list('id', flat=True)
+    not_found_list = []
+
+    try:
+
+        #parse incoming file
+        v=form_data_dict["allowed_list"].splitlines()
+
+        id_list = []
+
+        for i in range(len(v)):
+            v[i] = re.split(r',|\t',v[i])
+
+            for j in v[i]:
+                temp_id = int(j)
+                if temp_id not in id_list:
+
+                    #check that vaid user id
+                    if temp_id not in user_id_list:
+                        not_found_list.append(temp_id)
+                    else:
+                        id_list.append(temp_id)
+
+    except ValueError as e:
+        message = f"Failed to load earnings: Invalid ID format"
+        logger.info(message)
+    except Exception as e:
+        message = f"Failed to load earnings: {e}"
+        logger.info(message)
+
+    logger.info(f"addToAllowList found: {id_list}")
+    logger.info(f"addToAllowList not found: {not_found_list}")
+
+    if len(not_found_list) > 0:
+        return JsonResponse({"not_found_list" : not_found_list,
+                             "status" : "fail"}, safe=False)
+                   
+    experiment_session = experiment_sessions.objects.get(id=id)
+
+    for i in id_list:
+        if not experiment_session.recruitment_params.allowed_list:
+            experiment_session.recruitment_params.allowed_list = []
+
+        if i not in experiment_session.recruitment_params.allowed_list:
+            experiment_session.recruitment_params.allowed_list.append(i)
+    
+    experiment_session.recruitment_params.save()
+
+    return JsonResponse({"recruitment_params" : experiment_session.recruitment_params.json(), "status" : "success"}, safe=False)
+
+#allow all subjects into session
+def clearAllowList(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info(f"clearAllowList session: {data}")
+
+    s = experiment_sessions.objects.get(id=id)
+
+    form_data_dict = data["formData"]
+
+    experiment_session = experiment_sessions.objects.get(id=id)
+
+    experiment_session.recruitment_params.allowed_list = []
+    experiment_session.recruitment_params.save()
+                   
+    return JsonResponse({"recruitment_params" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)
