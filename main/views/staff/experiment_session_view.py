@@ -1025,6 +1025,9 @@ def addToAllowList(data, id):
     experiment_session = experiment_sessions.objects.get(id=id)
 
     for i in id_list:
+        if not experiment_session.recruitment_params.allowed_list:
+            experiment_session.recruitment_params.allowed_list = []
+
         if i not in experiment_session.recruitment_params.allowed_list:
             experiment_session.recruitment_params.allowed_list.append(i)
     
@@ -1042,6 +1045,8 @@ def clearAllowList(data, id):
     form_data_dict = data["formData"]
 
     experiment_session = experiment_sessions.objects.get(id=id)
-                   
 
-    return JsonResponse({"session" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)
+    experiment_session.recruitment_params.allowed_list = []
+    experiment_session.recruitment_params.save()
+                   
+    return JsonResponse({"recruitment_params" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)

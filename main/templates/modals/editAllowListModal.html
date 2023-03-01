@@ -42,11 +42,17 @@
             </div>
             <div class="modal-footer">  
                
-                <button class="btn btn-outline-danger" type="button" v-on:click = "sendClearAllowList()">
+                <button class="btn btn-outline-danger" 
+                        type="button" 
+                        v-on:click = "sendClearAllowList()"
+                        v-bind:disabled = "working">
                     Clear <i class="fas fa-eraser"></i>
                 </button>
 
-                <button class="btn btn-outline-success" type="button" v-on:click = "sendAddToAllowList()">
+                <button class="btn btn-outline-success" 
+                        type="button" 
+                        v-on:click = "sendAddToAllowList()"
+                        v-bind:disabled = "working">
                     Add <i class="fas fa-plus"></i>
                 </button>
             </div>

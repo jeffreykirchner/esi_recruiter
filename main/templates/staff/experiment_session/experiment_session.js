@@ -91,7 +91,8 @@ var app = new Vue({
             showClose: true,
             sideBySide: true,
             },   
-        first_load : false,              //true after first load done                      
+        first_load : false,              //true after first load done   
+        working : false,                   
     },
 
     methods:{ 
@@ -1257,6 +1258,8 @@ var app = new Vue({
         //update require all trait constraints
         sendAddToAllowList:function(){
 
+            app.$data.working = true;
+
             axios.post('{{request.get_full_path}}', {
                     status : "addToAllowList", 
                     formData : {allowed_list:app.$data.add_to_allow_list},                                                                                                                                                             
@@ -1272,6 +1275,8 @@ var app = new Vue({
                     {                 
                         app.$data.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
                     }
+
+                    app.$data.working = false;
          
                 })
                 .catch(function (error) {
@@ -1281,8 +1286,10 @@ var app = new Vue({
 
         sendClearAllowList:function(){
 
+            app.$data.working = true;
+
             axios.post('{{request.get_full_path}}', {
-                    status : "clearallowList", 
+                    status : "clearAllowList", 
                     formData : {},                                                                                                                                                             
                 })
                 .then(function (response) {                                   
@@ -1292,10 +1299,11 @@ var app = new Vue({
                         app.$data.recruitment_params = response.data.recruitment_params;
                     }
                     else
-                    {
-                                              
+                    {                                              
                         app.displayErrors(response.data.errors);
                     }
+
+                    app.$data.working = false;
          
                 })
                 .catch(function (error) {
