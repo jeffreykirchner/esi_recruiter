@@ -646,6 +646,7 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         
         #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_allow_list(u_list)
         #check experience count
         u_list = self.getValidUserList_school_exclude(u_list, testExperiment)
         #logger.info(f"{u_list}")
@@ -1063,6 +1064,27 @@ class experiment_sessions(models.Model):
 
         for u in u_list:
             if u not in no_show_blocks:
+                valid_list.append(u)
+
+        return valid_list
+    
+    #check that users are on allowed list
+    def getValidUserList_check_allow_list(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_allow_list")
+
+        allow_list = self.recruitment_params.allowed_list
+
+        if not allow_list:
+            return u_list
+
+        if len(allow_list) == 0:
+            return u_list
+
+        valid_list=[]
+
+        for u in u_list:
+            if u.id in allow_list:
                 valid_list.append(u)
 
         return valid_list

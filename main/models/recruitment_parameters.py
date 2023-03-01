@@ -243,7 +243,7 @@ class recruitment_parameters(models.Model):
     def json(self):
         allowed_list_users = []
         if self.allowed_list:
-            allowed_list_users = User.objects.filter(id__in=self.allowed_list).values_list('last_name', 'first_name', 'id')
+            allowed_list_users = User.objects.filter(id__in=self.allowed_list).values('last_name', 'first_name', 'id').order_by('last_name','first_name')
             allowed_list_users = list(allowed_list_users)
 
         return{

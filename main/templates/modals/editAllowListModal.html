@@ -34,8 +34,17 @@
                     </div>                    
                 </div>
                 <div class="row">
-                    <div class="col">
-                        [[recruitment_params.allowed_list_users]]
+                    <div class="col" v-if="recruitment_params.allowed_list_users.length>0">
+                        <span v-for="(p, index) in recruitment_params.allowed_list_users" 
+                              v-bind:key="p.id">
+                            <a  v-bind:href='"/userInfo/" + p.id' target="_blank">
+                                [[p.last_name]], [[p.first_name]]
+                            </a>
+                            <span v-if="index<recruitment_params.allowed_list_users.length-1">,&nbsp;</span>
+                        </span>
+                    </div>
+                    <div class="col" v-else>
+                        All users allowed.
                     </div>
                 </div>
                                                            

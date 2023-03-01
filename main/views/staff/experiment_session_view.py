@@ -974,12 +974,10 @@ def updateSession(data, id):
         print("invalid experiment session form1")
         return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
 
-#update experiment parameters
+#update subjects allowed in session
 def addToAllowList(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"addToAllowList session: {data}")
-
-    s = experiment_sessions.objects.get(id=id)
 
     form_data_dict = data["formData"]
 
@@ -1035,7 +1033,7 @@ def addToAllowList(data, id):
 
     return JsonResponse({"recruitment_params" : experiment_session.recruitment_params.json(), "status" : "success"}, safe=False)
 
-#update experiment parameters
+#allow all subjects into session
 def clearAllowList(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"clearAllowList session: {data}")
