@@ -232,33 +232,33 @@ def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
     return esdu
 
 #automatically add subject when during card swipe
-def autoAddSubject(studentID, id, request_user, ignoreConstraints):
+def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_type="student_id"):
     logger = logging.getLogger(__name__)
-    logger.info("Auto add subject")
-    logger.info(studentID)
+    logger.info(f"Auto add subject: {studentID}")
 
     status = ""
     info = []
 
-    p = profile.objects.filter(studentID__icontains = studentID)
+    # p = profile.objects.filter(studentID__icontains = studentID)
+    u_list = getSubjectByID(id, studentID, request_user, False, upload_id_type)
     esd = experiment_session_days.objects.get(id=id)
 
-    if len(p) > 1:
+    if len(u_list) > 1:
         #multiple users found
         status = "Error, Multiple users found: "
 
-        for u in p:
+        for u in u_list:
             status += f'{u.user.last_name}, {u.user.first_name} '
             info.append(u.user.id)
 
         logger.info(status)
 
-    elif len(p) == 0:
+    elif len(u_list) == 0:
         #no subject found
         status = "Error: No subject found with ID: " + str(studentID)
     else:
         #one subject found
-        p = p.first()
+        p = u_list.first().profile
 
         #check for recruitment violations
         r = json.loads(getManuallyAddSubject({"user":{"id":p.user.id},"sendInvitation":False},
@@ -882,6 +882,13 @@ def takeEarningsUpload2(data, id, request_user):
         logger.info(v)
 
         esdu_list = []
+        u_list_valid = []
+
+        #if adding subjects, get valid list
+        if auto_add_subjects:
+            temp_valid_list = [{"id":i[0]} for i in v]
+            for u in esd.experiment_session.getValidUserList_forward_check(temp_valid_list,True,0,0,[],False,len(temp_valid_list)):
+                u_list_valid.append(u.id)
 
         #store earnings
         for i in v:
@@ -899,7 +906,10 @@ def takeEarningsUpload2(data, id, request_user):
             elif esdu.count() == 0:
                 #try to manually add user
                 if request_user.is_staff and auto_add_subjects:
-                    value = autoAddSubject(i[0], id, request_user, False)
+                    if i[0] in u_list_valid:
+                        value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
+                    else:
+                        value= {"message" : f"Error: Recruitment violation ID: {i[0]}"}
 
                     #if error add to return message
                     if value["message"] != "":
@@ -917,7 +927,7 @@ def takeEarningsUpload2(data, id, request_user):
                 esdu = esdu.first()
 
                 #confirm user if auto add
-                if request_user.is_staff and auto_add_subjects:
+                if request_user.is_staff and auto_add_subjects and esdu:
                     esdu.confirmed = True
                     esdu.save()
 
