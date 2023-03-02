@@ -231,6 +231,20 @@ def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
 
     return esdu
 
+def getProfileByID(studentID, request_user, id_mode):
+
+    p = None
+
+    #search by student id or user id
+    if id_mode == "student_id":
+        p = profile.objects.filter(studentID__icontains = studentID)
+    elif id_mode == "recruiter_id":
+        p = profile.objects.filter(user__id=studentID)
+    else:
+        p = profile.objects.filter(public_id=studentID)
+
+    return p
+
 #automatically add subject when during card swipe
 def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_type="student_id"):
     logger = logging.getLogger(__name__)
@@ -239,26 +253,25 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
     status = ""
     info = []
 
-    # p = profile.objects.filter(studentID__icontains = studentID)
-    u_list = getSubjectByID(id, studentID, request_user, False, upload_id_type)
+    p_list = getProfileByID(studentID, request_user, upload_id_type)
     esd = experiment_session_days.objects.get(id=id)
 
-    if len(u_list) > 1:
+    if len(p_list) > 1:
         #multiple users found
         status = "Error, Multiple users found: "
 
-        for u in u_list:
+        for u in p_list:
             status += f'{u.user.last_name}, {u.user.first_name} '
             info.append(u.user.id)
 
         logger.info(status)
 
-    elif len(u_list) == 0:
+    elif len(p_list) == 0:
         #no subject found
         status = "Error: No subject found with ID: " + str(studentID)
     else:
         #one subject found
-        p = u_list.first().profile
+        p = p_list.first()
 
         #check for recruitment violations
         r = json.loads(getManuallyAddSubject({"user":{"id":p.user.id},"sendInvitation":False},
@@ -917,7 +930,7 @@ def takeEarningsUpload2(data, id, request_user):
 
                     esdu = getSubjectByID(id, i[0], request_user, True, upload_id_type)
                 else:
-                    m = f'Error: No user found for ID {i[0]}<br>'
+                    m = f'Error: No valid user found for ID {i[0]}<br>'
 
             if m.find("Error") == -1:
                 if m != "":
