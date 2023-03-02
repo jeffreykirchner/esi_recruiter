@@ -277,7 +277,8 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
         r = json.loads(getManuallyAddSubject({"user":{"id":p.user.id},"sendInvitation":False},
                                              esd.experiment_session.id,
                                              request_user,
-                                             ignoreConstraints).content.decode("UTF-8"))
+                                             ignoreConstraints,
+                                             min_mode=True).content.decode("UTF-8"))
         if not "success" in r['status']:
             status = f"Error: Could not add {p.user.last_name}, {p.user.first_name}: Recruitment Violation"
             info.append(p.user.id)
@@ -294,7 +295,8 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
                                                          "actionAll":False,
                                                          "esduId":temp_esdu.id},
                                                          esd.experiment_session.id,
-                                                         ignoreConstraints).content.decode("UTF-8"))
+                                                         ignoreConstraints,
+                                                         min_mode=True).content.decode("UTF-8"))
 
                 if not "success" in r['status']:
                     status = f"{p.user.last_name}, {p.user.first_name} added but manual confirmation is required."

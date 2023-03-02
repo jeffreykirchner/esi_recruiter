@@ -338,7 +338,7 @@ def storeInvitation(id, userPkList, subjectText, messageText, memo):
     return m.send_email_invitations(memo)
 
 #change subject's confirmation status
-def changeConfirmationStatus(data,id,ignoreConstraints):
+def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
     logger = logging.getLogger(__name__)
     logger.info("Change subject's confirmation status")
     logger.info(data)
@@ -376,6 +376,10 @@ def changeConfirmationStatus(data,id,ignoreConstraints):
         experiment_session_day_users.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
                                             .filter(user = esdu.user)\
                                             .update(confirmed = esdu.confirmed)
+
+    #if minimal mode only retur status
+    if min_mode:
+        return JsonResponse({"status":"success" if not failed else "fail"}, safe=False)
 
     es = experiment_sessions.objects.get(id=id)
     return JsonResponse({"status":"success" if not failed else "fail","es_min":es.json_esd(True)}, safe=False)
@@ -425,7 +429,7 @@ def getSearchForSubject(data,id):
     return JsonResponse({"status":"success","users":json.dumps(list(users_list),cls=DjangoJSONEncoder)}, safe=False)
 
 #manually add a single subject
-def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
+def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False):
     '''
         Manually add a subject to a session
 
@@ -508,6 +512,10 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints):
             mail_result = storeInvitation(id, [u["id"]], subjectText, messageText, memo) 
     else:
         status = "fail"   
+
+    #if minimal mode only return status
+    if min_mode:
+         return JsonResponse({"status":status}, safe=False)
 
     invitationCount=es.experiment_session_invitations.count()
 
