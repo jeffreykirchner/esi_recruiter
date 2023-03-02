@@ -899,9 +899,7 @@ def takeEarningsUpload2(data, id, request_user):
 
         #if adding subjects, get valid list
         if auto_add_subjects:
-            temp_valid_list = [{"id":i[0]} for i in v]
-            for u in esd.experiment_session.getValidUserList_forward_check(temp_valid_list,True,0,0,[],False,len(temp_valid_list)):
-                u_list_valid.append(u.id)
+            u_list_valid = list(esd.experiment_session.getValidUserList_forward_check([],True,0,0,[],False,0))
 
         #store earnings
         for i in v:
@@ -919,10 +917,17 @@ def takeEarningsUpload2(data, id, request_user):
             elif esdu.count() == 0:
                 #try to manually add user
                 if request_user.is_staff and auto_add_subjects:
-                    if i[0] in u_list_valid:
-                        value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
+                    p = getProfileByID(i[0], request_user, upload_id_type)
+
+                    if len(p) == 0:
+                        value = {"message" : f"Error: Valid user not found ID: {i[0]}"}
+                    elif len(p)>1:
+                        value = {"message" : f"Error: More than one user found ID: {i[0]}"}
                     else:
-                        value= {"message" : f"Error: Recruitment violation ID: {i[0]}"}
+                        if p.first().user in u_list_valid:
+                            value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
+                        else:
+                            value= {"message" : f"Error: Recruitment violation ID: {i[0]}"}
 
                     #if error add to return message
                     if value["message"] != "":
