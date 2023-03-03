@@ -231,40 +231,54 @@ def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
 
     return esdu
 
+def getProfileByID(studentID, request_user, id_mode):
+
+    p = None
+
+    #search by student id or user id
+    if id_mode == "student_id":
+        p = profile.objects.filter(studentID__icontains = studentID)
+    elif id_mode == "recruiter_id":
+        p = profile.objects.filter(user__id=studentID)
+    else:
+        p = profile.objects.filter(public_id=studentID)
+
+    return p
+
 #automatically add subject when during card swipe
-def autoAddSubject(studentID, id, request_user, ignoreConstraints):
+def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_type="student_id"):
     logger = logging.getLogger(__name__)
-    logger.info("Auto add subject")
-    logger.info(studentID)
+    logger.info(f"Auto add subject: {studentID}")
 
     status = ""
     info = []
 
-    p = profile.objects.filter(studentID__icontains = studentID)
+    p_list = getProfileByID(studentID, request_user, upload_id_type)
     esd = experiment_session_days.objects.get(id=id)
 
-    if len(p) > 1:
+    if len(p_list) > 1:
         #multiple users found
         status = "Error, Multiple users found: "
 
-        for u in p:
+        for u in p_list:
             status += f'{u.user.last_name}, {u.user.first_name} '
             info.append(u.user.id)
 
         logger.info(status)
 
-    elif len(p) == 0:
+    elif len(p_list) == 0:
         #no subject found
         status = "Error: No subject found with ID: " + str(studentID)
     else:
         #one subject found
-        p = p.first()
+        p = p_list.first()
 
         #check for recruitment violations
         r = json.loads(getManuallyAddSubject({"user":{"id":p.user.id},"sendInvitation":False},
                                              esd.experiment_session.id,
                                              request_user,
-                                             ignoreConstraints).content.decode("UTF-8"))
+                                             ignoreConstraints,
+                                             min_mode=True).content.decode("UTF-8"))
         if not "success" in r['status']:
             status = f"Error: Could not add {p.user.last_name}, {p.user.first_name}: Recruitment Violation"
             info.append(p.user.id)
@@ -281,7 +295,8 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints):
                                                          "actionAll":False,
                                                          "esduId":temp_esdu.id},
                                                          esd.experiment_session.id,
-                                                         ignoreConstraints).content.decode("UTF-8"))
+                                                         ignoreConstraints,
+                                                         min_mode=True).content.decode("UTF-8"))
 
                 if not "success" in r['status']:
                     status = f"{p.user.last_name}, {p.user.first_name} added but manual confirmation is required."
@@ -882,6 +897,11 @@ def takeEarningsUpload2(data, id, request_user):
         logger.info(v)
 
         esdu_list = []
+        u_list_valid = []
+
+        #if adding subjects, get valid list
+        if auto_add_subjects:
+            u_list_valid = list(esd.experiment_session.getValidUserList_forward_check([],True,0,0,[],False,0))
 
         #store earnings
         for i in v:
@@ -899,7 +919,17 @@ def takeEarningsUpload2(data, id, request_user):
             elif esdu.count() == 0:
                 #try to manually add user
                 if request_user.is_staff and auto_add_subjects:
-                    value = autoAddSubject(i[0], id, request_user, False)
+                    p = getProfileByID(i[0], request_user, upload_id_type)
+
+                    if len(p) == 0:
+                        value = {"message" : f"Error: Valid user not found ID: {i[0]}"}
+                    elif len(p)>1:
+                        value = {"message" : f"Error: More than one user found ID: {i[0]}"}
+                    else:
+                        if p.first().user in u_list_valid:
+                            value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
+                        else:
+                            value= {"message" : f"Error: Recruitment violation ID: {i[0]}"}
 
                     #if error add to return message
                     if value["message"] != "":
@@ -907,7 +937,7 @@ def takeEarningsUpload2(data, id, request_user):
 
                     esdu = getSubjectByID(id, i[0], request_user, True, upload_id_type)
                 else:
-                    m = f'Error: No user found for ID {i[0]}<br>'
+                    m = f'Error: No valid user found for ID {i[0]}<br>'
 
             if m.find("Error") == -1:
                 if m != "":
@@ -917,7 +947,7 @@ def takeEarningsUpload2(data, id, request_user):
                 esdu = esdu.first()
 
                 #confirm user if auto add
-                if request_user.is_staff and auto_add_subjects:
+                if request_user.is_staff and auto_add_subjects and esdu:
                     esdu.confirmed = True
                     esdu.save()
 
