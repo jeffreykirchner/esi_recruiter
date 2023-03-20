@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     services:
       postgres:
         image: postgres:13.7
@@ -27,12 +27,12 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python version
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       - name: Create and start virtual environment
         run: |
@@ -42,7 +42,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Run tests
         env:
           ALLOWED_HOSTS: localhost 127.0.0.1
@@ -67,9 +66,9 @@ jobs:
           PPMS_PASSWORD : ${{ secrets.TEST_EMAIL_MS_HOST }}
           SECRET_KEY: super_duper_secret_key
         run: python manage.py test
-
+      
       - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: python-app
           path: |
@@ -81,11 +80,11 @@ jobs:
     needs: build
     environment:
       name: 'dev'
-      #url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: python-app
           path: .
@@ -96,4 +95,4 @@ jobs:
         with:
           app-name: 'chapman-experiments'
           slot-name: 'dev'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D12986E6E9D24FA6B2A6EB0E60BDD20B }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_63AA5C73EB444745ACB2DED683193A07 }}
