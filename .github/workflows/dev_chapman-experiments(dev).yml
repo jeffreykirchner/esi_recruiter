@@ -14,6 +14,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+     services:
+      postgres:
+        image: postgres:13.7
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -30,7 +42,30 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+       - name: Run tests
+        env:
+          ALLOWED_HOSTS: localhost 127.0.0.1
+          CSRF_TRUSTED_ORIGINS : http://localhost
+          DBHOST: localhost
+          DBNAME: github_actions
+          DBPASS: postgres
+          DBUSER: postgres
+          LOG_LOCATION: abc
+          MEDIA_ROOT : abc
+          STATIC_ROOT : abc
+          STATIC_URL : abc/
+          AZURE_CONTAINER : abc
+          AZURE_ACCOUNT_NAME : abc
+          AZURE_ACCOUNT_KEY : abc
+          AZURE_CUSTOM_DOMAIN : abc
+          EMAIL_MS_HOST: ${{ secrets.TEST_EMAIL_MS_HOST }}
+          EMAIL_MS_USER_NAME: ${{ secrets.TEST_EMAIL_MS_USER_NAME }}
+          EMAIL_MS_PASSWORD: ${{ secrets.TEST_EMAIL_MS_PASSWORD }}
+          PPMS_HOST : ${{ secrets.TEST_PPMS_HOST }}
+          PPMS_USER_NAME : ${{ secrets.TEST_PPMS_PASSWORD }}
+          PPMS_PASSWORD : ${{ secrets.TEST_EMAIL_MS_HOST }}
+          SECRET_KEY: super_duper_secret_key
+        run: python manage.py test
       
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
