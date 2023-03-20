@@ -3,7 +3,18 @@
         Invitations (<span v-html="session.invitationCount"></span>)
 
         <span class="float-right">
-            <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInvitations()"><span v-html="showInvitationListButtonText"></span></button>
+
+            <button class="btn btn-outline-primary btn-sm mr-2" 
+                    type="button" 
+                    v-on:click = "downloadInvitations()">
+                <span v-html="showInvitationListButtonText"></span>
+            </button>
+            
+            <button class="btn btn-outline-primary btn-sm" 
+                    type="button" 
+                    v-on:click = "downloadInvitations()">
+                <span v-html="downloadInvitationListButtonText"></span>
+            </button>
         </span>
     </div>
 

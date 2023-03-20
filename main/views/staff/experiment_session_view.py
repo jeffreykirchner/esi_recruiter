@@ -5,6 +5,7 @@ import json
 import logging
 import pytz
 import re
+import csv
 
 from django.shortcuts import render
 from django.http import Http404
@@ -150,6 +151,8 @@ class ExperimentSessionView(SingleObjectMixin, View):
            return addToAllowList(data, id)
         elif data["status"] == "clearAllowList":
            return clearAllowList(data, id)
+        elif data["status"] == "downloadInvitations":
+            return downloadInvitations(data, id)
 
 #get session info the show screen at load
 def getSesssion(data,id):
@@ -165,6 +168,22 @@ def getSesssion(data,id):
                          "invite_to_all" : es.experiment.invite_to_all,
                          "experiment_invitation_text" : es.experiment.invitationText,
                          "recruitment_params":es.recruitment_params.json()}, safe=False)
+
+#show all messages sent to confirmed users
+def downloadInvitations(data,id):
+    logger = logging.getLogger(__name__)
+    logger.info("Download Invitations")
+    logger.info(data)
+
+    csv_response = HttpResponse(content_type='text/csv')
+    csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(csv_response)
+
+    for u in esdu:
+        writer.writerow(u.csv_payPal())
+
+    return csv_response
 
 #show all messages sent to confirmed users
 def showInvitations(data,id):
