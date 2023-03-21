@@ -13,6 +13,7 @@ from django.db.models.functions import Lower
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views import View
 from django.utils.decorators import method_decorator
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.forms import traitReportForm
 from main.decorators import user_is_staff
@@ -22,6 +23,7 @@ from main.models import profile_trait
 from main.models import profile
 from main.models import help_docs
 from main.models import experiment_session_day_users
+from main.models import experiment_session_days
 
 class TraitsView(View):
     '''
@@ -38,6 +40,14 @@ class TraitsView(View):
         handle get requests
         '''
 
+        session_day_id = request.GET.get('SESSION_DAY_ID', None)
+        session_day = None
+
+        if session_day_id:
+            result = experiment_session_days.objects.filter(id=session_day_id).values('id','experiment_session__experiment__title')
+            if result:
+                session_day = result.first()
+
         logger = logging.getLogger(__name__)
 
         try:
@@ -49,6 +59,7 @@ class TraitsView(View):
             helpText = "No help doc was found."
 
         return render(request, self.template_name,{"traitReportForm":traitReportForm(),
+                                                   "session_day" : json.dumps(session_day,cls=DjangoJSONEncoder),
                                                    "helpText":helpText})
 
     
@@ -76,16 +87,18 @@ class TraitsView(View):
             
         #no file to upload
         data = json.loads(request.body.decode('utf-8'))
+
+        session_day = data["session_day"]
         
         if data["action"] == "getReport":
-            return getReport(data, u)
+            return getReport(data, u, session_day.get('id') if session_day else None)
         elif data["action"] == "action2":
             pass
            
         return JsonResponse({"response" :  "fail"}, safe=False)    
 
 #get CSV file users with specified traits
-def getReport(data,u):
+def getReport(data, u, session_day_id):
 
     logger = logging.getLogger(__name__)
     logger.info("Get Trait Report CSV")
@@ -108,6 +121,14 @@ def getReport(data,u):
 
     if form.is_valid():
 
+        #optionally only pull data for subjects from this session day
+        session_day = None
+
+        if session_day_id:
+            result = experiment_session_days.objects.filter(id=session_day_id)
+            if result:
+                session_day = result.first()
+
         active_only = data["active_only"]
         traits_list = form.cleaned_data['traits']
 
@@ -115,22 +136,37 @@ def getReport(data,u):
         profiles = profile.objects.filter(email_confirmed = 'yes')\
                                   .filter(type = 2)\
                                   .select_related('user', 'major', 'gender', 'subject_type')\
-                                  .values('user__first_name',
-                                          'user__last_name',
-                                          'studentID',
-                                          'paused',
-                                          'user__id',
-                                          'public_id',
-                                          'major__name',
-                                          'gender__name',
-                                          'subject_type__name',
-                                          'id') \
                                   .order_by(Lower('user__last_name'),Lower('user__first_name'))
+        
+        #if session day provided only return data from that session day
+        if session_day:
+            esdu_list = session_day.ESDU_b.filter(attended=True) \
+                                        .values_list('user__profile__id', flat=True)
+            profiles = profiles.filter(id__in=esdu_list)
+
+        if active_only:
+            profiles = profiles.filter(paused = False)
+        
+        #id list of needed profiles
+        profiles_ids = profiles.values_list('id', flat=True)
+
+        #dict of profile values
+        profiles = profiles.values('user__first_name',
+                                   'user__last_name',
+                                   'studentID',
+                                   'paused',
+                                   'user__id',
+                                   'public_id',
+                                   'major__name',
+                                   'gender__name',
+                                   'subject_type__name',
+                                   'id') \
         
         #generate list of experiments attended by subject
         attended_list_a = experiment_session_day_users.objects.select_related('user__profile', 
                                                                               'experiment_session_day__experiment_session__experiment')\
                                                               .filter(attended=True)\
+                                                              .filter(user__profile__id__in=profiles_ids)\
                                                               .values('user__profile__id',
                                                                       'experiment_session_day__experiment_session__experiment__id')
 
@@ -144,6 +180,7 @@ def getReport(data,u):
 
         #generate list of traits for each subject
         t_list = profile_trait.objects.filter(trait__in = traits_list) \
+                                      .filter(my_profile__id__in = profiles_ids) \
                                       .select_related('my_profile__id',
                                                       'my_profile__paused'
                                                       'trait__name',
@@ -152,12 +189,7 @@ def getReport(data,u):
                                               'trait__id',
                                               'value',
                                               'my_profile__id') \
-                                      
-        
-        if active_only:
-            t_list = t_list.filter(my_profile__paused = False)
-            profiles = profiles.filter(paused = False)
-
+            
         #logger.info(t_list)
 
         traits_list_ids = traits_list.values_list('id',flat=True)
@@ -206,7 +238,7 @@ def getReport(data,u):
         writer.writerow(headerText)
 
         #trait descriptions
-        headerText = ['', '','', '', '', 'Sign-up', 'Sign-up', 'Sign-up']
+        headerText = ['', '','', '', '', '', 'Sign-up', 'Sign-up', 'Sign-up']
 
         for i in traits_list:
             headerText.append(i.description)

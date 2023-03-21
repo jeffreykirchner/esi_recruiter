@@ -1,7 +1,10 @@
 {% load crispy_forms_tags %}
-<div class="card">                  
+<div class="card" v-cloak>                  
     <div class="card-header">
-       Download Report                                                 
+       Download Report         
+       <span v-if="session_day">
+        for Session: <a v-bind:href="'/experimentSessionRun/'+session_day.id">[[session_day.experiment_session__experiment__title]]</a>
+       </span>                                        
     </div>
     <div class="card-body">
         <form id="traitReportForm">               
