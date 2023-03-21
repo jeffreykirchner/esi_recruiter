@@ -16,6 +16,7 @@ var app = new Vue({
         active_only:true,
         select_all_value:true,
         include_sign_up_metrics:false,
+        session_day:{{session_day|safe}},
     },
 
     methods:{
@@ -62,7 +63,8 @@ var app = new Vue({
                         action :"getReport",  
                         formData : $("#traitReportForm").serializeArray(),    
                         active_only:app.$data.active_only,       
-                        include_sign_up_metrics : app.$data.include_sign_up_metrics,                                                                                                                
+                        include_sign_up_metrics : app.$data.include_sign_up_metrics,   
+                        session_day : app.$data.session_day,                                                                                                             
                     })
                     .then(function (response) {    
                         
@@ -76,7 +78,7 @@ var app = new Vue({
                         }
                         else
                         {                                                                       
-                            console.log(response.data);
+                            // console.log(response.data);
 
                             var downloadLink = document.createElement("a");
                             var blob = new Blob(["\ufeff", response.data]);
