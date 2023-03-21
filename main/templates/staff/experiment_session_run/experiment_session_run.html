@@ -291,6 +291,9 @@
                             <td class="text-nowrap text-center">
                             </td>
                             <td class="text-nowrap text-center">
+                                {%if user.profile.can_paypal%} 
+                                <a v-bind:href="'/traits/?SESSION_DAY_ID='+sessionDay.id">Get Traits <i class="fas fa-cubes"></i></a>
+                                {%endif%} 
                             </td>
                             <td class="text-nowrap text-center">
                                 <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
