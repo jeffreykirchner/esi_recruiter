@@ -21,6 +21,7 @@ from main.models import Traits
 from main.models import profile_trait
 from main.models import profile
 from main.models import help_docs
+from main.models import experiment_session_day_users
 
 class TraitsView(View):
     '''
@@ -110,21 +111,38 @@ def getReport(data,u):
         active_only = data["active_only"]
         traits_list = form.cleaned_data['traits']
 
+        #get list of valid profiles
         profiles = profile.objects.filter(email_confirmed = 'yes')\
                                   .filter(type = 2)\
-                                .select_related('user', 'major', 'gender', 'subject_type')\
-                                .values('user__first_name',
-                                        'user__last_name',
-                                        'studentID',
-                                        'paused',
-                                        'user__id',
-                                        'public_id',
-                                        'major__name',
-                                        'gender__name',
-                                        'subject_type__name',
-                                        'id') \
-                                .order_by(Lower('user__last_name'),Lower('user__first_name'))
+                                  .select_related('user', 'major', 'gender', 'subject_type')\
+                                  .values('user__first_name',
+                                          'user__last_name',
+                                          'studentID',
+                                          'paused',
+                                          'user__id',
+                                          'public_id',
+                                          'major__name',
+                                          'gender__name',
+                                          'subject_type__name',
+                                          'id') \
+                                  .order_by(Lower('user__last_name'),Lower('user__first_name'))
+        
+        #generate list of experiments attended by subject
+        attended_list_a = experiment_session_day_users.objects.select_related('user__profile', 
+                                                                              'experiment_session_day__experiment_session__experiment')\
+                                                              .filter(attended=True)\
+                                                              .values('user__profile__id',
+                                                                      'experiment_session_day__experiment_session__experiment__id')
 
+        attended_list_b = {}
+        for i in attended_list_a:
+            if not attended_list_b.get(i['user__profile__id'], None):
+                attended_list_b[i['user__profile__id']] = {"count":set()}
+            
+            attended_list_b[i['user__profile__id']]["count"].add(i['experiment_session_day__experiment_session__experiment__id'])
+
+
+        #generate list of traits for each subject
         t_list = profile_trait.objects.filter(trait__in = traits_list) \
                                       .select_related('my_profile__id',
                                                       'my_profile__paused'
@@ -162,6 +180,7 @@ def getReport(data,u):
                                "major" : i['major__name'],
                                "gender" : i['gender__name'],
                                "subject_type" : i['subject_type__name'],
+                               "attended_count" : len(attended_list_b[i['id']]["count"]) if attended_list_b.get(i['id'], None) else 0,
                                "traits": traits_base.copy()}            
             
         for i in t_list:
@@ -179,7 +198,7 @@ def getReport(data,u):
         writer = csv.writer(csv_response)
 
         # trait names
-        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Major', 'Gender Identity', 'Enrollment']
+        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
 
         for i in traits_list:
             headerText.append(i)
@@ -203,6 +222,7 @@ def getReport(data,u):
             t.append(u['public_id'])
             t.append(u['last_name'])
             t.append(u['first_name'])
+            t.append(u['attended_count'])
             t.append(u['major'])
             t.append(u['gender'])
             t.append(u['subject_type'])
