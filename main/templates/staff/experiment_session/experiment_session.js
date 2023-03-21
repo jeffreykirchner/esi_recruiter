@@ -61,7 +61,8 @@ var app = new Vue({
         messageList:[],                            //list of email messages sent to users                      
         showMessageListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show message list 
         invitationList:[],                         //list of invitations sent to users     
-        showInvitationListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show invitation list                          
+        showInvitationListButtonText:'Show <i class="fa fa-eye fa-xs"></i>',  //button text for show invitation list     
+        downloadInvitationListButtonText:'Download <i class="fas fa-download"></i>',  //button text for download invitation list                          
         currentSessionDay:{{current_session_day_json|safe}},       
         currentSessionDayActionAll:false,                          //actions taken in current should optionally affect all session days           
         include_institutions_list:"",                              //display lists of parameters
@@ -513,25 +514,8 @@ var app = new Vue({
 
         // fire when edit experiment model is shown, save copy for cancel
         showEditRecruitment:function(){
-            // app.$data.cancelModal=true;
-            // app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
-            // app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
-            // $('#recruitmentModalCenter').modal('show');
-            // app.clearMainFormErrors();
-
             window.open("{%url 'experimentSessionParametersView' session.id %}","_self");
         },
-
-        //fire when edit experiment model hides, cancel action if nessicary
-        // hideEditRecruitment:function(){
-        //     if(app.$data.cancelModal)
-        //     {
-        //         Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
-        //         Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
-        //         app.$data.sessionBeforeEdit=null;
-        //         app.$data.buttonText1="Update";
-        //     }
-        // },
 
         //fire when the run session button is pressed
         runSession:function(id)
@@ -1140,6 +1124,34 @@ var app = new Vue({
             });
         },
         
+        //show invitation list
+        downloadInvitations:function(){
+
+            app.$data.downloadInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+
+            axios.post('{{request.get_full_path}}', {
+                status:"downloadInvitations",                                                                                                    
+            })
+            .then(function (response) {             
+                
+                var downloadLink = document.createElement("a");
+                var blob = new Blob(["\ufeff", response.data]);
+                var url = URL.createObjectURL(blob);
+                downloadLink.href = url;
+                downloadLink.download = "Invited_Export_Session_" + app.$data.session.id + ".csv";
+
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                app.$data.downloadInvitationListButtonText = 'Download <i class="fas fa-download"></i>';
+            })
+            .catch(function (error) {
+                console.log(error);
+                //app.$data.searching=false;                                                              
+            });
+        },
+
         //format inivation messages for display
         formatInvitations:function(){
             for(i=0;i<app.$data.invitationList.length;i++)
