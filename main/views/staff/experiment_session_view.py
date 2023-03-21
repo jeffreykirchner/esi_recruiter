@@ -5,6 +5,7 @@ import json
 import logging
 import pytz
 import re
+import csv
 
 from django.shortcuts import render
 from django.http import Http404
@@ -19,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
+from django.http import HttpResponse
 
 from main.decorators import user_is_staff
 
@@ -150,6 +152,8 @@ class ExperimentSessionView(SingleObjectMixin, View):
            return addToAllowList(data, id)
         elif data["status"] == "clearAllowList":
            return clearAllowList(data, id)
+        elif data["status"] == "downloadInvitations":
+            return downloadInvitations(data, id)
 
 #get session info the show screen at load
 def getSesssion(data,id):
@@ -165,6 +169,41 @@ def getSesssion(data,id):
                          "invite_to_all" : es.experiment.invite_to_all,
                          "experiment_invitation_text" : es.experiment.invitationText,
                          "recruitment_params":es.recruitment_params.json()}, safe=False)
+
+#show all messages sent to confirmed users
+def downloadInvitations(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info("Download Invitations")
+    logger.info(data)
+
+    csv_response = HttpResponse(content_type='text/csv')
+    csv_response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(csv_response)
+
+    writer.writerow(['Session Day', 'Last', 'First', 'Recruiter ID', 'Public ID', 'Confirmed', 'Attended', 'Bumped'])
+
+    es = experiment_sessions.objects.get(id=id)
+
+    for esd in es.ESD.all().order_by('date'):
+        date_string = esd.getDateStringTZOffset()
+        for esdu in esd.ESDU_b.values('user__last_name', 
+                                      'user__first_name', 
+                                      'user__id',
+                                      'user__profile__public_id',
+                                      'confirmed',
+                                      'attended',
+                                      'bumped').all().order_by('user__last_name', 'user__first_name'):
+            writer.writerow([date_string,
+                             esdu['user__last_name'],
+                             esdu['user__first_name'],
+                             esdu['user__id'],
+                             esdu['user__profile__public_id'],
+                             esdu['confirmed'],
+                             esdu['attended'],
+                             esdu['bumped'],])
+
+    return csv_response
 
 #show all messages sent to confirmed users
 def showInvitations(data,id):

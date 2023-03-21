@@ -186,9 +186,9 @@ class recruitment_parameters(models.Model):
 
         s += "Include Institution Experience "
         if self.institutions_include_all:
-            s+= "(All): | "
+            s += "(All): | "
         else:
-            s+= "(1+): | "       
+            s += "(1+): | "       
 
         for st in self.institutions_include.all():
             s +=  st.name + " | "        
@@ -196,9 +196,9 @@ class recruitment_parameters(models.Model):
 
         s += "Exclude Institution Experience "
         if self.institutions_exclude_all:
-            s+= "(All): | "
+            s += "(All): | "
         else:
-            s+= "(1+): | "       
+            s += "(1+): | "       
 
         for st in self.institutions_exclude.all():
             s +=  st.name + " | "        
@@ -206,9 +206,9 @@ class recruitment_parameters(models.Model):
 
         s += "Include Experiment Experience "
         if self.experiments_include_all:
-            s+= "(All): | "
+            s += "(All): | "
         else:
-            s+= "(1+): | "       
+            s += "(1+): | "       
 
         for st in self.experiments_include.all():
             s +=  st.title + " | "        
@@ -216,9 +216,9 @@ class recruitment_parameters(models.Model):
 
         s += "Exclude Experiment Experience "
         if self.experiments_exclude_all:
-            s+= "(All): | "
+            s += "(All): | "
         else:
-            s+= "(1+): | "       
+            s += "(1+): | "       
 
         for st in self.experiments_exclude.all():
             s +=  st.title + " | "        
@@ -226,14 +226,27 @@ class recruitment_parameters(models.Model):
 
         s += "Trait Constraints "
         if self.trait_constraints_require_all:
-           s+= "(All): | "
+           s += "(All): | "
         else:
-            s+= "(1+): | "
+            s += "(1+): | "
 
         for t in self.trait_constraints.all():
             mode = "Inc." if t.include_if_in_range else "Exc."
             s+= f'{t.trait.name} {mode} {t.min_value}-{t.max_value} | '
         s += "<br>"
+
+        s += "Allowed List "
+        if not self.allowed_list or len(self.allowed_list) == 0:
+           s += "(Off): "
+        else:
+            s += "(On): "
+
+            for index, i in enumerate(self.allowed_list):
+                u=User.objects.values('last_name', 'first_name').get(id=i)
+                s += f'{u["first_name"]} {u["last_name"]}'
+
+                if index != len(self.allowed_list)-1:
+                    s +=', '
 
         return s
 
