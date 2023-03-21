@@ -20,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
+from django.http import HttpResponse
 
 from main.decorators import user_is_staff
 
@@ -170,7 +171,7 @@ def getSesssion(data,id):
                          "recruitment_params":es.recruitment_params.json()}, safe=False)
 
 #show all messages sent to confirmed users
-def downloadInvitations(data,id):
+def downloadInvitations(data, id):
     logger = logging.getLogger(__name__)
     logger.info("Download Invitations")
     logger.info(data)
@@ -180,8 +181,27 @@ def downloadInvitations(data,id):
 
     writer = csv.writer(csv_response)
 
-    for u in esdu:
-        writer.writerow(u.csv_payPal())
+    writer.writerow(['Session Day', 'Last', 'First', 'Recruiter ID', 'Public ID', 'Confirmed', 'Attended', 'Bumped'])
+
+    es = experiment_sessions.objects.get(id=id)
+
+    for esd in es.ESD.all().order_by('date'):
+        date_string = esd.getDateStringTZOffset()
+        for esdu in esd.ESDU_b.values('user__last_name', 
+                                      'user__first_name', 
+                                      'user__id',
+                                      'user__profile__public_id',
+                                      'confirmed',
+                                      'attended',
+                                      'bumped').all().order_by('user__last_name', 'user__first_name'):
+            writer.writerow([date_string,
+                             esdu['user__last_name'],
+                             esdu['user__first_name'],
+                             esdu['user__id'],
+                             esdu['user__profile__public_id'],
+                             esdu['confirmed'],
+                             esdu['attended'],
+                             esdu['bumped'],])
 
     return csv_response
 
