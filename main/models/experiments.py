@@ -43,6 +43,7 @@ class experiments(models.Model):
     length_default = models.IntegerField(default=60)                                #default length of experiment
     notes = models.TextField(default="")                                            #notes about the experiment
     showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)     #amount subjects earn for attending by default
+    special_instructions_default = models.CharField(max_length=300, default="")     #special instructions for subject, ie online zoom meeting
 
     survey = models.BooleanField(default=False, verbose_name="Survey")              #experiment is a online survey
 
@@ -172,6 +173,7 @@ class experiments(models.Model):
             "reminderText":self.reminderText,
             "school":self.school.id,
             "showUpFee":self.showUpFee,
+            "special_instructions_default":self.special_instructions_default,
             "school_full":self.school.json(),
             "account_default":self.account_default.id,
             "account_default_full":self.account_default.json(),   

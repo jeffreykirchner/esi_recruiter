@@ -104,6 +104,15 @@
         </div>
         <div class = "row">
             <div class="col-md-4 text-md-right">
+                {{form1.special_instructions_default.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="experiment.special_instructions_default==''">---</span>
+                <span v-else>[[experiment.special_instructions_default]]</span>
+            </div>               
+        </div>
+        <div class = "row">
+            <div class="col-md-4 text-md-right">
                 {{form1.showUpFee.label}}:
             </div>
             <div class="col-md-8 text-right text-md-left">

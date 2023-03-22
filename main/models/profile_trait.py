@@ -37,6 +37,7 @@ class profile_trait(models.Model):
             "id" : self.id,
             "name" : self.trait.name,
             "value" : f'{self.value:0.2f}',
+            "description" : self.trait.description,
             "date" : self.getDateStringTZOffset(),
         }
         

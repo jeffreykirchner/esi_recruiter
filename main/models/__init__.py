@@ -26,6 +26,7 @@ from .experiment_session_invitations import experiment_session_invitations
 from .faq import faq
 from .help_docs import help_docs
 from .traits import Traits
+from .traits import HrefTraits
 from .profile_trait import profile_trait
 from .profile_consent_form import ProfileConsentForm
 from .recruitment_parameters_trait_constraint import Recruitment_parameters_trait_constraint
