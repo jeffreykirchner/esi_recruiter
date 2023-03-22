@@ -91,7 +91,7 @@ class experimentForm1(forms.ModelForm):
                                                          "plugins": "link image code",
                                                          "rows":"12"}))               
 
-    survey = forms.ChoiceField(label="Online Survey",
+    survey = forms.ChoiceField(label="Online Survey (no accept button)",
                                     choices=(('true', "Yes"), ('false', "No")),
                                     widget=forms.Select(attrs={"v-model":"experiment.survey",
                                                                     "v-on:change":"mainFormChange1",
