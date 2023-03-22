@@ -369,7 +369,7 @@
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in subject_traits" v-bind:key="s.id">
-                    <td class="text-nowrap">                                
+                    <td class="text-nowrap" v-bind:title="s.description">                                
                         [[s.name]]
                     </td>
                     <td class="text-nowrap text-center">                                                                
