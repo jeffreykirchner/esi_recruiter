@@ -37,9 +37,14 @@ class experimentSessionForm1(forms.ModelForm):
                                           choices=((True, 'Yes'), (False,'No' )),
                                           widget=forms.Select(attrs={"v-model":"session.incident_occurred",}))
 
+    special_instructions = forms.CharField(label='Special Instructions for Subjects, i.e., Zoom Meeting',
+                                           required=False,
+                                           widget=forms.TextInput(attrs={"v-model":"experiment.special_instructions",
+                                                                         "placeholder":"Leave blank for no instructions"}))
+
     class Meta:
         model = experiment_sessions
-        fields = ['consent_form', 'budget', 'incident_occurred']
+        fields = ['consent_form', 'budget', 'incident_occurred', 'special_instructions']
 
     @staticmethod
     def budget_label_from_instance(obj):

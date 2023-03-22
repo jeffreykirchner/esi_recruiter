@@ -102,6 +102,12 @@ class experimentForm1(forms.ModelForm):
                                     widget=forms.Select(attrs={"v-model":"experiment.invite_to_all",
                                                                     "v-on:change":"mainFormChange1",
                                                                     })) 
+    
+    special_instructions_default = forms.CharField(label='Special Instructions for Subjects, i.e., Zoom Meeting (default)',
+                                                   required=False,
+                                                   widget=forms.TextInput(attrs={"v-model":"experiment.special_instructions_default",
+                                                                                 "v-on:keyup":"mainFormChange1",
+                                                                                 'placeholder':'Leave blank for no instructions'}))
 
     class Meta:
         model=experiments

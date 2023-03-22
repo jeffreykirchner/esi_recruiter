@@ -1,7 +1,7 @@
 {% load crispy_forms_tags %}
 <!-- setup modal -->  
 <div class="modal" id="setupModalCenter" tabindex="-1" role="dialog" aria-labelledby="setupparameters" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLongTitle">Experiment Parameters</h5>
@@ -58,7 +58,7 @@
                            {{form1.invite_to_all | as_crispy_field }}
                         </div>
                         <div class = "col-md">
-                          
+                           {{form1.special_instructions_default | as_crispy_field }}
                         </div>                                       
                     </div>
                     <div class="row">
