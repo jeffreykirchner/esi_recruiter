@@ -34,6 +34,7 @@ class experiment_sessions(models.Model):
     canceled = models.BooleanField(default=False)
     invitation_text = HTMLField(default="")                                    #text of email invitation subjects receive
     incident_occurred = models.BooleanField(default=False)                     #irb reportable incident occured 
+    special_instructions = models.CharField(max_length=300, default="")        #special instructions for subject, ie online zoom meeting
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -1231,6 +1232,7 @@ class experiment_sessions(models.Model):
             "full": self.getFull(),
             "survey":self.experiment.survey,
             "valid" : False if not user_list_valid_check or not user_list_valid2_check else True,
+            "special_instructions":self.special_instructions,
         }
     
     #get session days attached to this session
@@ -1250,7 +1252,8 @@ class experiment_sessions(models.Model):
             "id":self.id,
             "complete":self.getComplete(),   
             "canceled":self.canceled, 
-            "creator": self.creator.profile.json_min() if self.creator else None,                    
+            "creator": self.creator.profile.json_min() if self.creator else None,     
+            "special_instructions":self.special_instructions,               
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),         
@@ -1280,6 +1283,7 @@ class experiment_sessions(models.Model):
             "allowEdit" : self.allowEdit(),
             "confirmedCount" : self.getConfirmedCount(),
             "creator" : self.creator.profile.json_min() if self.creator else None,
+            "special_instructions" : self.special_instructions,
         }
 
 #delete recruitment parameters when deleted

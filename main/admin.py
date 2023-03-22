@@ -120,6 +120,7 @@ class ConsentFormAdmin(admin.ModelAdmin):
       ordering = ['-updated']
 
       actions = ['duplicate']
+      search_fields = ['name','irb_study__name','irb_study__number', 'pdf_file']
       list_display = ['name','pdf_file','irb_study', 'signature_required','agreement_required','archived','updated','timestamp']
 
 @admin.register(UmbrellaConsentForm)
