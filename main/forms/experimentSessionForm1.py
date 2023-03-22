@@ -39,7 +39,7 @@ class experimentSessionForm1(forms.ModelForm):
 
     special_instructions = forms.CharField(label='Special Instructions for Subjects, i.e., Zoom Meeting',
                                            required=False,
-                                           widget=forms.TextInput(attrs={"v-model":"experiment.special_instructions",
+                                           widget=forms.TextInput(attrs={"v-model":"session.special_instructions",
                                                                          "placeholder":"Leave blank for no instructions"}))
 
     class Meta:

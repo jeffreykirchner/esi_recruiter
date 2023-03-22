@@ -1252,7 +1252,8 @@ class experiment_sessions(models.Model):
             "id":self.id,
             "complete":self.getComplete(),   
             "canceled":self.canceled, 
-            "creator": self.creator.profile.json_min() if self.creator else None,                    
+            "creator": self.creator.profile.json_min() if self.creator else None,     
+            "special_instructions":self.special_instructions,               
             "experiment_session_days" : [esd.json_min() for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                                  .order_by('-first_date')],
             "allow_delete": self.allowDelete(),         

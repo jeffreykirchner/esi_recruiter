@@ -50,6 +50,15 @@
                 <span v-else>No</span>
             </div>               
         </div>
+        <div class = "row mb-1">
+            <div class="col-md-4 text-md-right">
+                {{form1.special_instructions.label}}:
+            </div>
+            <div class="col-md-8 text-right text-md-left">
+                <span v-if="session.special_instructions==''">---</span>
+                <span v-else>[[session.special_instructions]]</span>
+            </div>               
+        </div>
         <div class = "row mb-2">
             <div class="col-md-4 text-md-right">
                 
