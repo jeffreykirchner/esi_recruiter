@@ -507,31 +507,10 @@ class experiment_sessions(models.Model):
                     FROM user_current_sesion
                     WHERE user_current_sesion.user_id = auth_user.id) AND 
             '''
-        
-        #check genders
-        gender_with_str=""
-        gender_where_str=""
-        if checkAlreadyIn:
-            #only check genders during invitation phase
-            gender_with_str=f'''
-                --table of genders required in session
-                genders_include AS (SELECT genders_id
-                                FROM main_recruitment_parameters_gender
-                                INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_gender.recruitment_parameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                WHERE main_experiment_sessions.id = {id}),
-            '''
-
-            gender_where_str=f'''
-                --user's gender is on the list
-                EXISTS(SELECT 1                                                   
-                    FROM genders_include	
-                    WHERE main_profile.gender_id = genders_include.genders_id) AND 
-            '''
 
         str1=f'''          	  									
             WITH
-            {gender_with_str}
+            
             
             {user_institutions_str}
             {user_institutions_past_str}
@@ -575,7 +554,7 @@ class experiment_sessions(models.Model):
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
             
-            {gender_where_str}             
+          
 
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
@@ -646,6 +625,8 @@ class experiment_sessions(models.Model):
 
         logger = logging.getLogger(__name__)
         
+        if checkAlreadyIn:
+            u_list = self.getValidUserList_gender(u_list)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
         #check experience count
@@ -1089,7 +1070,24 @@ class experiment_sessions(models.Model):
                 valid_list.append(u)
 
         return valid_list
+
+    #check that users have the correct gender
+    def getValidUserList_gender(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_gender")
+
+        valid_gender_ids = self.recruitment_params.gender.all().values_list("id", flat=True)
+
+        valid_users_gender_users = User.objects.filter(profile__gender__id__in=valid_gender_ids).values_list("id", flat=True)
         
+        valid_list=[]
+
+        for u in u_list:
+            if u.id in valid_users_gender_users:
+                valid_list.append(u)
+
+        return valid_list
+    
     #return true if all session days are complete
     def getComplete(self):
         esd_not_complete = self.ESD.filter(complete = False)
