@@ -423,18 +423,7 @@ class experiment_sessions(models.Model):
                                            v.user_id as user_id
 		                            FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
                                     '''
-        user_experiments_str +='''),'''
-
-        #list of users in current session
-        user_current_sesion_str = f'''
-            ---table of users that have been invited to the current session
-            user_current_sesion AS (SELECT main_experiment_sessions.id as experiment_sessions_id,
-                                        main_experiment_session_day_users.user_id as user_id
-                                FROM main_experiment_sessions
-                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                WHERE main_experiment_sessions.id = {id}),
-        '''                                    
+        user_experiments_str +='''),'''                            
 
         #list of institutions subject has been in in the past
         user_institutions_past_str=""
@@ -498,40 +487,9 @@ class experiment_sessions(models.Model):
                                     '''
             user_institutions_str +='''),'''
 
-        #check that subject is not already invited to session
-        user_not_in_session_already=""
-        if checkAlreadyIn:
-            user_not_in_session_already = '''
-            --user is not already invited to session     
-            NOT EXISTS(SELECT 1
-                    FROM user_current_sesion
-                    WHERE user_current_sesion.user_id = auth_user.id) AND 
-            '''
-        
-        #check genders
-        gender_with_str=""
-        gender_where_str=""
-        if checkAlreadyIn:
-            #only check genders during invitation phase
-            gender_with_str=f'''
-                --table of genders required in session
-                genders_include AS (SELECT genders_id
-                                FROM main_recruitment_parameters_gender
-                                INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_gender.recruitment_parameters_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                WHERE main_experiment_sessions.id = {id}),
-            '''
-
-            gender_where_str=f'''
-                --user's gender is on the list
-                EXISTS(SELECT 1                                                   
-                    FROM genders_include	
-                    WHERE main_profile.gender_id = genders_include.genders_id) AND 
-            '''
-
         str1=f'''          	  									
             WITH
-            {gender_with_str}
+            
             
             {user_institutions_str}
             {user_institutions_past_str}
@@ -542,7 +500,7 @@ class experiment_sessions(models.Model):
             {user_experiments_str}
             {experiments_exclude_with_str}
             {experiments_include_with_str}
-            {user_current_sesion_str}
+            
 
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
@@ -575,14 +533,14 @@ class experiment_sessions(models.Model):
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
             
-            {gender_where_str}             
+          
 
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
                     FROM subject_type_include	
                     WHERE main_profile.subject_type_id = subject_type_include.subject_types_id) AND 
 
-            {user_not_in_session_already}
+           
             {allow_multiple_participations_str}
 
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
@@ -646,6 +604,10 @@ class experiment_sessions(models.Model):
 
         logger = logging.getLogger(__name__)
         
+       
+        if checkAlreadyIn:
+            u_list = self.getValidUserList_not_already_in_session(u_list)
+            u_list = self.getValidUserList_gender(u_list)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
         #check experience count
@@ -1089,7 +1051,42 @@ class experiment_sessions(models.Model):
                 valid_list.append(u)
 
         return valid_list
+
+    #check that users have the correct gender
+    def getValidUserList_gender(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_gender")
+
+        valid_gender_ids = self.recruitment_params.gender.all().values_list("id", flat=True)
+
+        valid_users_gender_users = User.objects.filter(profile__gender__id__in=valid_gender_ids).values_list("id", flat=True)
         
+        valid_list=[]
+
+        for u in u_list:
+            if u.id in valid_users_gender_users:
+                valid_list.append(u)
+
+        return valid_list
+
+    #check that users are not already in session
+    def getValidUserList_not_already_in_session(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_gender")
+
+        user_ids_in_session = []
+
+        for i in self.ESD.all():
+            user_ids_in_session += i.ESDU_b.values_list("user__id", flat=True).all()
+        
+        valid_list=[]
+
+        for u in u_list:
+            if u.id not in user_ids_in_session:
+                valid_list.append(u)
+
+        return valid_list
+    
     #return true if all session days are complete
     def getComplete(self):
         esd_not_complete = self.ESD.filter(complete = False)
