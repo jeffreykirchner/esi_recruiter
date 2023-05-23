@@ -8,7 +8,7 @@ cryptography==39.0.1
 Django==4.2.*
 django-crispy-forms==1.14.0
 django-storages==1.13.*
-django-tinymce==3.4.0
+django-tinymce==3.6.1
 gunicorn==20.1.0
 idna==3.3
 isodate==0.6.1
