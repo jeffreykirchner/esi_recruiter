@@ -450,6 +450,11 @@ var app = new Vue({
             window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/bumps/', '_blank');
         },
 
+        //open traits for attended subjects
+        openTraits:function(id){
+            window.open('/traits/?SESSION_DAY_ID=' + id, '_blank')
+        },
+
         //upload earings file csv
         uploadEarnings:function(){
 
