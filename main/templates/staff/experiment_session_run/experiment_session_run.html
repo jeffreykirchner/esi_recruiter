@@ -292,7 +292,13 @@
                             </td>
                             <td class="text-nowrap text-center">
                                 {%if user.profile.can_paypal%} 
-                                <a v-bind:href="'/traits/?SESSION_DAY_ID='+sessionDay.id">Get Traits <i class="fas fa-cubes"></i></a>
+                                <button type="button" 
+                                        class="btn btn-link btn-sm" 
+                                        v-on:click="openTraits(sessionDay.id)"
+                                        title="Get traits for subjects attending this session."  >
+                                    Get Traits <i class="fas fa-cubes"></i> 
+                                </button>
+                                
                                 {%endif%} 
                             </td>
                             <td class="text-nowrap text-center">
