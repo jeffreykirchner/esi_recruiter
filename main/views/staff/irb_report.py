@@ -56,9 +56,15 @@ class IrbReport(View):
         tmz = pytz.timezone(param.subjectTimeZone)
         d_today = datetime.now(tmz)
 
+        #test code
+        #d_today = d_today.replace(month=5)
+
         #start of fiscal year
         d_fisical_start = d_today
         d_fisical_start = d_fisical_start.replace(month=6, day=1)
+
+        if d_today.month<6:
+            d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
         return render(request, self.template_name, {"helpText":helpText,
                                                     "form_ids":form_ids,
