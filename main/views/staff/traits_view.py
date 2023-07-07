@@ -233,7 +233,7 @@ def getReport(data, u, session_day_id):
         headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
 
         for i in traits_list:
-            headerText.append(i)
+            headerText.append(i.name)
 
         writer.writerow(headerText)
 
