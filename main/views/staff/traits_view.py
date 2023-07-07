@@ -153,6 +153,7 @@ def getReport(data, u, session_day_id):
         #dict of profile values
         profiles = profiles.values('user__first_name',
                                    'user__last_name',
+                                   'user__date_joined',
                                    'studentID',
                                    'paused',
                                    'user__id',
@@ -206,6 +207,7 @@ def getReport(data, u, session_day_id):
 
             u_list[i['id']] = {"last_name" : i['user__last_name'],
                                "first_name" : i['user__first_name'],
+                               "date_joined" : i['user__date_joined'],
                                "student_id" : i['studentID'],
                                "recruiter_id" : i['user__id'],
                                "public_id" : i['public_id'],
@@ -230,7 +232,7 @@ def getReport(data, u, session_day_id):
         writer = csv.writer(csv_response)
 
         # trait names
-        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
+        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Sign-up Date', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
 
         for i in traits_list:
             headerText.append(i.name)
@@ -238,7 +240,7 @@ def getReport(data, u, session_day_id):
         writer.writerow(headerText)
 
         #trait descriptions
-        headerText = ['', '','', '', '', '', 'Sign-up', 'Sign-up', 'Sign-up']
+        headerText = ['', '','', '', '', '','', 'Sign-up', 'Sign-up', 'Sign-up']
 
         for i in traits_list:
             headerText.append(i.description)
@@ -254,6 +256,7 @@ def getReport(data, u, session_day_id):
             t.append(u['public_id'])
             t.append(u['last_name'])
             t.append(u['first_name'])
+            t.append(u['date_joined'].strftime('%Y-%m-%d'))
             t.append(u['attended_count'])
             t.append(u['major'])
             t.append(u['gender'])
