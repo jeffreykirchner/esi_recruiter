@@ -165,11 +165,15 @@ def getReport(data, u, session_day_id):
         
         #generate list of experiments attended by subject
         attended_list_a = experiment_session_day_users.objects.select_related('user__profile', 
-                                                                              'experiment_session_day__experiment_session__experiment')\
+                                                                              'experiment_session_day__experiment_session__experiment',
+                                                                              'experiment_session_day__date')\
                                                               .filter(attended=True)\
                                                               .filter(user__profile__id__in=profiles_ids)\
                                                               .values('user__profile__id',
                                                                       'experiment_session_day__experiment_session__experiment__id')
+
+        if session_day:
+            attended_list_a = attended_list_a.filter(experiment_session_day__date__lte = session_day.date)
 
         attended_list_b = {}
         for i in attended_list_a:
