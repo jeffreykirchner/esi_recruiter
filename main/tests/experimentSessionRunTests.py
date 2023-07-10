@@ -147,7 +147,7 @@ class sessionRunTestCase(TestCase):
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
         self.e1.institution.set(institutions.objects.filter(name="one"))
-        self.e1.consent_form_default = ConsentForm.objects.first()
+        self.e1.consent_form_default = ConsentForm.objects.first()        
         self.e1.save()
 
         self.es1 = addSessionBlank(self.e1)    
@@ -156,6 +156,7 @@ class sessionRunTestCase(TestCase):
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
+        self.es1.invitation_text = "test"
         self.es1.save()
         esd1 = self.es1.ESD.first()
 
@@ -188,6 +189,7 @@ class sessionRunTestCase(TestCase):
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
+        self.es2.invitation_text = "test"
         self.es2.save()
         esd2 = self.es2.ESD.first()
 
