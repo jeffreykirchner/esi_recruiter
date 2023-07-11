@@ -34,7 +34,7 @@ class experiment_sessions(models.Model):
     canceled = models.BooleanField(default=False)
     invitation_text = HTMLField(default="")                                    #text of email invitation subjects receive
     incident_occurred = models.BooleanField(default=False)                     #irb reportable incident occured 
-    special_instructions = models.CharField(max_length=300, default="")        #special instructions for subject, ie online zoom meeting
+    special_instructions = models.CharField(max_length=300, default="", blank=True)        #special instructions for subject, ie online zoom meeting
 
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

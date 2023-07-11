@@ -491,11 +491,17 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
 
     es = experiment_sessions.objects.get(id=id)
     p = parameters.objects.first()
-
-    if es.canceled:
-        return JsonResponse({"status":"fail","mailResult":{"errorMessage":"Error: Refresh the page","mailCount":0},"user":"","es_min":es.json_esd(False)}, safe=False)
-
     u = data["user"]
+
+    #check that session is not canceled
+    if es.canceled:
+        return JsonResponse({"status":"fail","mailResult":{"error_message":"Error: Refresh the page","mailCount":0},"user":u,"es_min":es.json_esd(False)}, safe=False)
+
+    messageText = es.getInvitationEmail()   
+    #check that message is not empty
+    if not messageText or messageText == "":
+        return JsonResponse({"status":"success","mailResult":{"error_message":"Error: Message is empty","mailCount":0},"user":u,"es_min":es.json_esd(False)}, safe=False)
+
     sendInvitation = data["sendInvitation"]
 
     status = "success"
@@ -532,8 +538,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
 
         if sendInvitation:
             
-            subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())            
-            messageText = es.getInvitationEmail()           
+            subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())                            
 
             if len(future_es_list)>0:
                 additional_dates=""
@@ -576,9 +581,16 @@ def inviteSubjects(data, id, request):
 
     # logger.info(es.canceled)
 
+    #check that session is not canceled and number of subjects is not zero
     if len(subjectInvitations) == 0 or es.canceled:
         return JsonResponse({"status":"fail", "mailResult":{"error_message":"Error: Refresh the page","mail_count":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
     
+    messageText = es.getInvitationEmail()
+
+    #check that message is not empty
+    if not messageText or messageText == "":
+        return JsonResponse({"status":"fail", "mailResult":{"error_message":"Error: Message is empty","mail_count":0},"userFails":0,"es_min":es.json_esd(False)}, safe=False)
+
     status = "success" 
     userFails = []              #list of users failed to add
     userPkList = []             #list of primary keys of added users
@@ -612,7 +624,6 @@ def inviteSubjects(data, id, request):
             
     memo = f'Send invitations for session: {es.id}'
     subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
-    messageText = es.getInvitationEmail()
 
     if len(future_es_list)>0:
         additional_dates=""
