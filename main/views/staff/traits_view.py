@@ -182,7 +182,6 @@ def getReport(data, u, session_day_id):
             
             attended_list_b[i['user__profile__id']]["count"].add(i['experiment_session_day__experiment_session__experiment__id'])
 
-
         #generate list of traits for each subject
         t_list = profile_trait.objects.filter(trait__in = traits_list) \
                                       .filter(my_profile__id__in = profiles_ids) \
