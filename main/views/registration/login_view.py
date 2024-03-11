@@ -81,6 +81,7 @@ def login_function(request,data):
 
         username = f.cleaned_data['username']
         password = f.cleaned_data['password']
+        two_factor = data["two_factor_code"]
 
         #logger.info(f"Login user {username}")
 
@@ -93,16 +94,21 @@ def login_function(request,data):
                 return JsonResponse({"status":"error", "message":"Your account is not active. Contact us for more information."}, safe=False)
             else:
                 
-                if user.profile.can_paypal:
-                    logger.info(f"Login user {username} is staff.")
+                #if user can use paypal require two factor code
+                if user.profile.can_paypal and two_factor == "":
+                    return JsonResponse({"status":"two_factor", "message":"Two factor code required."}, safe=False)
+                #if user can use paypal and two factor code is provided verify it
+                elif user.profile.can_paypal and two_factor != "":
+                    pass
+                #standard user, no two factor code required
+                else:
+                    login(request, user) 
 
-                login(request, user) 
+                    rp = request.session.get('redirect_path','/')        
 
-                rp = request.session.get('redirect_path','/')        
+                    logger.info(f"Login user {username} success , redirect {rp}")
 
-                logger.info(f"Login user {username} success , redirect {rp}")
-
-                return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
+                    return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
             logger.warning(f"Login user {username} fail user / pass")
             
