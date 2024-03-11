@@ -93,6 +93,9 @@ def login_function(request,data):
                 return JsonResponse({"status":"error", "message":"Your account is not active. Contact us for more information."}, safe=False)
             else:
                 
+                if user.profile.can_paypal:
+                    logger.info(f"Login user {username} is staff.")
+
                 login(request, user) 
 
                 rp = request.session.get('redirect_path','/')        
