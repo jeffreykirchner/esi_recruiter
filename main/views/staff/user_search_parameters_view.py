@@ -23,6 +23,8 @@ from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 
+from main.globals import todays_date
+
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_search_view import createExperimentBlank
 
@@ -121,44 +123,76 @@ def search(request, data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Update default recruitment parameters: {data}")
 
-    with transaction.atomic():    
 
-        form_data_dict = data["formData"]  
-        trait_data_list = data["trait_parameters"]
-        trait_constraints_require_all = data["trait_constraints_require_all"]
+    form_data_dict = data["formData"]  
+    trait_data_list = data["trait_parameters"]
+    trait_constraints_require_all = data["trait_constraints_require_all"]
+    login_last_90_days = data["login_last_90_days"]
 
-        if not request.user.is_staff:
-            trait_data_list = []
+    if not request.user.is_staff:
+        trait_data_list = []
 
-        logger.info(f'trait_data_dict: {trait_data_list}')
+    logger.info(f'trait_data_dict: {trait_data_list}')
 
-        e = None
-        es = None
-        i1 = None
+    e = None
+    es = None
+    i1 = None
 
-        if not id:
-            #no experiment provided
-            i1=main.models.institutions(name="search")
-            i1.save()
+    if not id:
+        #no experiment provided
+        i1=main.models.institutions(name="search")
+        i1.save()
 
-            e = createExperimentBlank()
-            e.institution.set([i1])
-            e.save()            
+        e = createExperimentBlank()
+        e.institution.set([i1])
+        e.save()            
 
-            form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
-        else:
+        form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+    else:
+        #experiment provided
+        e = experiments.objects.get(id=id)
+        es = addSessionBlank(e)
+        esd = es.ESD.first()
+        esd.date = esd.date + timedelta(days=1000)
+
+        es.recruitment_params.trait_constraints.all().delete()
+
+        #traits
+        es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
+        es.recruitment_params.save()
+
+        for i in trait_data_list:
+            tc = Recruitment_parameters_trait_constraint()
+            tc.recruitment_parameter = es.recruitment_params
+            tc.trait = Traits.objects.get(id=i["trait_id"])
+            tc.min_value = i["min_value"]
+            tc.max_value = i["max_value"]
+            tc.include_if_in_range = i["include_if_in_range"]
+            tc.save()
+
+        form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
+
+    if form.is_valid():
+        #print("valid form")                       
+        form.save()    
+
+        if id:
             #experiment provided
-            e = experiments.objects.get(id=id)
-            es = addSessionBlank(e)
-            esd = es.ESD.first()
-            esd.date = esd.date + timedelta(days=1000)
+            u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+            u_list_json = User.objects.filter(email__in = u_list)
+            if login_last_90_days:
+                u_list_json = u_list_json.filter(last_login__gte = todays_date() - timedelta(days=90))
+            u_list_json = u_list_json.values('email', 'id')
 
-            es.recruitment_params.trait_constraints.all().delete()
+            es.delete()                
+        else:
+            #no experiment provided
+
+            es = addSessionBlank(e)
 
             #traits
             es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
             es.recruitment_params.save()
-
             for i in trait_data_list:
                 tc = Recruitment_parameters_trait_constraint()
                 tc.recruitment_parameter = es.recruitment_params
@@ -168,61 +202,35 @@ def search(request, data, id):
                 tc.include_if_in_range = i["include_if_in_range"]
                 tc.save()
 
-            form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
+            esd = es.ESD.first()
+            esd.date = esd.date + timedelta(days=1000)
+            esd.save()
 
-        if form.is_valid():
-            #print("valid form")                       
-            form.save()    
+            u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
+            u_list_json = User.objects.filter(email__in = u_list)
+            if login_last_90_days:
+                u_list_json = u_list_json.filter(last_login__gte = todays_date() - timedelta(days=90))
+            u_list_json = u_list_json.values('email', 'id')
 
-            if id:
-                #experiment provided
-                u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
-                u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
+            e.delete()
+            i1.delete()
+                                    
+        return JsonResponse({"status":"success",
+                                "result": {"count":len(u_list),
+                                        "u_list_json": list(u_list_json)}}, safe=False)
+    else:
+        print("invalid form2")
 
-                es.delete()                
-            else:
-                #no experiment provided
-
-                es = addSessionBlank(e)
-
-                #traits
-                es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
-                es.recruitment_params.save()
-                for i in trait_data_list:
-                    tc = Recruitment_parameters_trait_constraint()
-                    tc.recruitment_parameter = es.recruitment_params
-                    tc.trait = Traits.objects.get(id=i["trait_id"])
-                    tc.min_value = i["min_value"]
-                    tc.max_value = i["max_value"]
-                    tc.include_if_in_range = i["include_if_in_range"]
-                    tc.save()
-
-                esd = es.ESD.first()
-                esd.date = esd.date + timedelta(days=1000)
-                esd.save()
-
-                u_list = es.getValidUserList_forward_check([], False, 0, 0, [], False, 0)
-                u_list_json = User.objects.filter(email__in = u_list).values('email', 'id')
-
+        if id:
+            #experiment provided
+            if es:
+                es.delete()
+        else:
+            #no experiment provided
+            if e:
                 e.delete()
                 i1.delete()
-                                        
-            return JsonResponse({"status":"success",
-                                 "result": {"count":len(u_list),
-                                            "u_list_json": list(u_list_json)}}, safe=False)
-        else:
-            print("invalid form2")
 
-            if id:
-                #experiment provided
-                if es:
-                    es.delete()
-            else:
-                #no experiment provided
-                if e:
-                    e.delete()
-                    i1.delete()
-
-            return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
+        return JsonResponse({"status":"fail", "errors":dict(form.errors.items())}, safe=False)
    
 
