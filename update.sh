@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Updating ESI Recruiter"
 echo ""
-source ESIRecruiterEnv/bin/activate
+source _esi_recruiter_env/bin/activate
 echo ""
 git pull origin master
 echo ""

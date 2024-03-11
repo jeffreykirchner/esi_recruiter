@@ -3,7 +3,6 @@
 gross up payment to cover tax payment
 '''
 from decimal import Decimal
-import imp
 import logging
 
 from main.models import parameters
