@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import pytz
 import logging
 
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
@@ -17,6 +18,8 @@ from django.contrib.auth.hashers import make_password
 from django.db.models.functions import Lower
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
+from django.db.backends.postgresql.psycopg_any import DateTimeTZRange
+from django.utils import timezone
 
 from main.models import *
 
@@ -255,6 +258,29 @@ class ProfileTraitsInline(admin.TabularInline):
       show_view_link = True
       fields=('trait','value')
 
+#consent form inline
+class ProfileLoginAttemptInline(admin.TabularInline):
+      '''
+      profile login attempt inline
+      '''
+      def get_queryset(self, request):
+            qs = super().get_queryset(request)
+            
+            return qs.filter(timestamp__contained_by=DateTimeTZRange(timezone.now() - datetime.timedelta(days=30), timezone.now()))
+      
+      def has_add_permission(self, request, obj=None):
+            return False
+
+      def has_change_permission(self, request, obj=None):
+            return False
+
+      extra = 0  
+      model = ProfileLoginAttempt
+      can_delete = True
+      fields=('success','note')
+      readonly_fields = ('timestamp',)
+      
+
 class UserAdmin(DjangoUserAdmin):
 
       ordering = ['-date_joined']
@@ -491,7 +517,7 @@ class ProfileAdmin(admin.ModelAdmin):
       list_display = ['__str__', 'paused', 'get_user_is_active', 'email_filter', 'updated', 'last_login']
       list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key', 'public_id']
-      inlines = [ProfileConsentFormInline,ProfileTraitsInline]
+      inlines = [ProfileConsentFormInline, ProfileTraitsInline, ProfileLoginAttemptInline]
 
       def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

@@ -49,7 +49,8 @@ class profile(models.Model):
     
     mfa_hash = models.CharField(verbose_name="Multi-factor Hash", max_length = 50, null=True, blank=True)             #hash for multi-factor authentication
     mfa_required = models.BooleanField(verbose_name="Multi-factor Required", default=False)                           #true if multi-factor authentication is required
-
+    mfa_setup_complete = models.BooleanField(verbose_name="Multi-factor Setup Complete", default=False)               #true if multi-factor authentication is setup
+    
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)                                     #publicly sharable id number for subjects
 
     #consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                #true if the subject must agree to the current consent form (used before session by session consent forms)
