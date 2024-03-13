@@ -9,7 +9,7 @@ from main.models import parameters
 
 #a user trait
 class profile_trait(models.Model):
-    my_profile = models.ForeignKey(profile, on_delete=models.CASCADE, related_name="profile_traits")     #profile that note is attached to
+    my_profile = models.ForeignKey(profile, on_delete=models.CASCADE, related_name="profile_traits")    #profile that note is attached to
     trait = models.ForeignKey(Traits, on_delete=models.CASCADE)                                         #user that made the note
     value = models.DecimalField(decimal_places=2, max_digits=10, default = 0)                           #score user received on trait
 
