@@ -232,16 +232,16 @@ class experiment_sessions(models.Model):
             ei_c = 1        
 
         #allow multiple participations in same experiment
-        allow_multiple_participations_str=""
-        if not es_p.allow_multiple_participations:
-            allow_multiple_participations_str=f'''
-            --check that user has not already done this experiment
-            NOT EXISTS(SELECT 1                                                   
-                       FROM user_experiments
-                       WHERE user_experiments.user_id = auth_user.id AND
-                             experiment_sessions_id != {id} AND
-                             user_experiments.experiments_id = {experiment_id}) AND
-            '''   
+        # allow_multiple_participations_str=""
+        # if not es_p.allow_multiple_participations:
+        #     allow_multiple_participations_str=f'''
+        #     --check that user has not already done this experiment
+        #     NOT EXISTS(SELECT 1                                                   
+        #                FROM user_experiments
+        #                WHERE user_experiments.user_id = auth_user.id AND
+        #                      experiment_sessions_id != {id} AND
+        #                      user_experiments.experiments_id = {experiment_id}) AND
+        #     '''   
 
         #institutions include strings
         institutions_include_user_where_str = ""
@@ -540,9 +540,6 @@ class experiment_sessions(models.Model):
                     FROM subject_type_include	
                     WHERE main_profile.subject_type_id = subject_type_include.subject_types_id) AND 
 
-           
-            {allow_multiple_participations_str}
-
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
             '''
 
@@ -624,6 +621,8 @@ class experiment_sessions(models.Model):
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_now_show_block(u_list)
+        #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_multi_participations(u_list, testExperiment)
 
         return u_list
     
@@ -1087,6 +1086,40 @@ class experiment_sessions(models.Model):
 
         return valid_list
     
+    #check that user has not already particpated
+    def getValidUserList_check_multi_participations(self, u_list, testExperiment):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_multi_participations")
+
+        # WHERE main_experiment_sessions.canceled = FALSE AND
+        #                           (main_experiment_session_day_users.attended = TRUE OR
+        #                             (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
+
+        if not self.recruitment_params.allow_multiple_participations:
+           #list of everyone that has done this experiment.
+            user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
+                                                                       .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                                       .exclude(experiment_session_day__experiment_session__id = self.id)\
+                                                                       .filter(bumped = False)\
+                                                                       .filter(Q(attended = True) |
+                                                                              (Q(confirmed = True) &
+                                                                               Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
+                                                                       .values_list("user__id",flat=True)
+            
+            valid_list=[]
+
+            user_ids = list(user_ids)
+
+            for u in u_list:
+                if u.id not in user_ids:
+                    valid_list.append(u)
+
+            return valid_list
+        else:
+            return u_list
+        
+
     #return true if all session days are complete
     def getComplete(self):
         esd_not_complete = self.ESD.filter(complete = False)

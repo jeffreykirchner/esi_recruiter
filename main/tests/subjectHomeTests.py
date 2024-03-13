@@ -206,6 +206,9 @@ class subjectHomeTestCase(TestCase):
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
 
+        #remove confirmations
+        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+
         #test no consent form required by session
         profile_consent_form.delete()
 
@@ -219,6 +222,9 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+
+        #remove confirmations
+        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #test no agreement required
         self.es1.consent_form=ConsentForm.objects.first()
@@ -245,9 +251,13 @@ class subjectHomeTestCase(TestCase):
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
+        #check confirm without umbrella consent
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
+
+        #remove confirmations
+        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #enable umbrella consent
         umbrella_consent = UmbrellaConsentForm.objects.first()

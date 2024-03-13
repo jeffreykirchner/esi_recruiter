@@ -207,7 +207,7 @@ class sessionRunTestCase(TestCase):
         #add subject 2
         self.es2.addUser(self.u2.id,self.staff_u,True)
         temp_esdu = esd2.ESDU_b.filter(user__id = self.u2.id).first()
-        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
+        r = json.loads(changeConfirmationStatus({"userId":self.u2.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es2.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
@@ -232,7 +232,7 @@ class sessionRunTestCase(TestCase):
         self.assertIn("must agree to the consent form",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
@@ -256,7 +256,7 @@ class sessionRunTestCase(TestCase):
         self.assertIn("must agree to the umbrella form",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=umbrella_consent.consent_form)
         profile_consent_form.save()
@@ -274,7 +274,7 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check no zeros
         r = json.loads(getStripeReaderCheckin({"value":";123456=1234",
@@ -283,7 +283,7 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check no equals
         r = json.loads(getStripeReaderCheckin({"value":";123456",
@@ -292,7 +292,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check no semi colon
         r = json.loads(getStripeReaderCheckin({"value":"123456=",
@@ -301,7 +301,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check wrong number
         r = json.loads(getStripeReaderCheckin({"value":";56456565=",
@@ -310,7 +310,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check checkin similar id numbers
         r = json.loads(getStripeReaderCheckin({"value":";1234=",
@@ -319,7 +319,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status']['message'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #check in unconfirmed
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"unconfirm","actionAll":"false","esduId":esdu.id},self.es1.id,False).content.decode("UTF-8"))
@@ -335,7 +335,7 @@ class sessionRunTestCase(TestCase):
 
         #check add to session
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u3.id).first()
-        self.assertEquals(esdu,None)
+        self.assertEqual(esdu,None)
 
         r = json.loads(getStripeReaderCheckin({"value":";00121212=1234",
                                                    "autoAddUsers":True,
@@ -353,7 +353,7 @@ class sessionRunTestCase(TestCase):
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(changeConfirmationStatus({"userId":self.u3.id,"confirmed":"unconfirm","actionAll":"false","esduId":esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -398,7 +398,7 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #unconfirmed user checkin
         esdu.confirmed=False
@@ -407,7 +407,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #none super user user manaul check in 
         self.staff_u.is_staff=False
@@ -417,14 +417,14 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #attend subject not exists
         r = json.loads(attendSubject({"id":esdu.id+50},esd1.id,self.staff_u,).content.decode("UTF-8"))
         self.assertNotIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
     
     #test bumping subjects
     def testBumpSubject(self):
@@ -439,14 +439,14 @@ class sessionRunTestCase(TestCase):
         self.assertIn("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #bump subject not exists
         r = json.loads(bumpSubject({"id":esdu.id+50},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertNotIn("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #bump subject not confirmed
         esdu.confirmed=False
@@ -455,7 +455,7 @@ class sessionRunTestCase(TestCase):
         self.assertNotIn("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
     #test no showing subjects
     def testNoShowSubject(self):
@@ -466,7 +466,7 @@ class sessionRunTestCase(TestCase):
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
         r = json.loads(noShowSubject({"id":esdu.id+50},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertNotEquals("success",r['status'])
+        self.assertNotEqual("success",r['status'])
 
     #test fill with fixed earnings amount
     def testFillEarningsWithFixedAmount(self):
@@ -491,30 +491,30 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(float(esdu.earnings),6.23)
-        self.assertEquals(float(esdu2.earnings),0)
+        self.assertEqual(float(esdu.earnings),6.23)
+        self.assertEqual(float(esdu2.earnings),0)
 
         #bumped
         r = json.loads(bumpSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
-        self.assertEquals(float(esdu2.earnings),0)
+        self.assertEqual(float(esdu2.earnings),0)
 
         #session not found
         r = json.loads(fillEarningsWithFixed({},esd1.id+50,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
     
     #test fill with default show up fees
     def testFillDefaultShowUpFee(self):
@@ -536,30 +536,30 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(fillDefaultShowUpFee({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(esdu.show_up_fee,esd1.experiment_session.experiment.showUpFee)
-        self.assertEquals(esdu2.show_up_fee,0)
+        self.assertEqual(esdu.show_up_fee,esd1.experiment_session.experiment.showUpFee)
+        self.assertEqual(esdu2.show_up_fee,0)
 
         #bumped
         r = json.loads(bumpSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(fillDefaultShowUpFee({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
-        self.assertEquals(esdu2.show_up_fee,esd1.experiment_session.experiment.showUpFee)
+        self.assertEqual(esdu2.show_up_fee,esd1.experiment_session.experiment.showUpFee)
 
         #session not found
         r = json.loads(fillDefaultShowUpFee({},esd1.id+50,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
     #test complete session button
     def testCompleteSession(self):
@@ -584,48 +584,48 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(bumpSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(float(esdu.earnings),6.23)
-        self.assertEquals(float(esdu2.earnings),0)
+        self.assertEqual(float(esdu.earnings),6.23)
+        self.assertEqual(float(esdu2.earnings),0)
 
         #check now show earnings bump fee
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(attendSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(fillEarningsWithFixed({"amount":6.23},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(fillDefaultShowUpFee({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(float(esdu.earnings),0)
-        self.assertEquals(float(esdu.earnings),0)
+        self.assertEqual(float(esdu.earnings),0)
+        self.assertEqual(float(esdu.earnings),0)
 
         #test invalid session day
         r = json.loads(completeSession({},esd1.id+50,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
     #test reopening session
     def testReopenSession(self):
@@ -658,19 +658,19 @@ class sessionRunTestCase(TestCase):
         #close session
         esd1 = es1.ESD.first()
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         #reopen
         esd1 = es1.ESD.first()
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         self.staff_u.is_staff=True
         self.staff_u.save()
 
         esd1 = es1.ESD.first()
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
     #test save payouts
     def testSavePayouts(self):
@@ -690,30 +690,30 @@ class sessionRunTestCase(TestCase):
         p = {"payoutList" : [{"id":esdu.id,"earnings":6.23,"showUpFee":7.00}]}
 
         r = json.loads(savePayouts(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
-        self.assertEquals(float(esdu.earnings),6.23)
-        self.assertEquals(float(esdu.show_up_fee),7.00)
+        self.assertEqual(float(esdu.earnings),6.23)
+        self.assertEqual(float(esdu.show_up_fee),7.00)
 
         #try to save junk
         p = {"payoutList" : [{"id":esdu.id,"earnings":"a","showUpFee":"b"}]}
 
         r = json.loads(savePayouts(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #save to user that does not exist
         p = {"payoutList" : [{"id":esdu.id + 50,"earnings":6.23,"showUpFee":7.00}]}
 
         r = json.loads(savePayouts(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #save junk
         p = {"payoutList" : [{"id":esdu.id + 50,"showUpFee":7.00}]}
 
         r = json.loads(savePayouts(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
     
     #test background save
     def testBackgroundSave(self):
@@ -739,30 +739,30 @@ class sessionRunTestCase(TestCase):
         p = {"payoutList" : [{"id":esdu.id,"earnings":6.23,"showUpFee":7.00}]}
 
         r = json.loads(backgroundSave(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
 
-        self.assertEquals(float(esdu.earnings),6.23)
-        self.assertEquals(float(esdu.show_up_fee),7.00)
+        self.assertEqual(float(esdu.earnings),6.23)
+        self.assertEqual(float(esdu.show_up_fee),7.00)
 
         #try to save junk
         p = {"payoutList" : [{"id":esdu.id,"earnings":"a","showUpFee":"b"}]}
 
         r = json.loads(backgroundSave(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #save to user that does not exist
         p = {"payoutList" : [{"id":esdu.id + 50,"earnings":6.23,"showUpFee":7.00}]}
 
         r = json.loads(backgroundSave(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #save junk
         p = {"payoutList" : [{"id":esdu.id + 50,"showUpFee":7.00}]}
 
         r = json.loads(backgroundSave(p,esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
     #test bump all
     def testBumpAll(self):
@@ -787,16 +787,16 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])   
 
         r = json.loads(bumpAll({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
-        self.assertEquals(esdu.bumped,True)
-        self.assertEquals(esdu2.bumped,False)
+        self.assertEqual(esdu.bumped,True)
+        self.assertEqual(esdu2.bumped,False)
 
         #junk data
         r = json.loads(bumpAll({},esd1.id+50,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
     
     #test auto bump
     def testAutoBump(self):
@@ -807,8 +807,8 @@ class sessionRunTestCase(TestCase):
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(esdu.bumped,False)
-        self.assertEquals(esdu2.bumped,False)
+        self.assertEqual(esdu.bumped,False)
+        self.assertEqual(esdu2.bumped,False)
 
         #try auto bump subjects that were previously bumped
         r = json.loads(cancelAcceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
@@ -835,15 +835,24 @@ class sessionRunTestCase(TestCase):
         profile_consent_form = ProfileConsentForm(my_profile=self.u2.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
+        #attend subjects
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(attendSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
-        r = json.loads(bumpAll({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        #bump subjects
+        r = json.loads(bumpAll({},esd1.id, self.staff_u).content.decode("UTF-8"))
+        self.assertEqual("success",r['status'])
 
+        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
+        esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
+
+        self.assertEqual(esdu.bumped, True)
+        self.assertEqual(esdu2.bumped, True)
+
+        #add subjects to session 2
         esd2 = self.es2.ESD.first()
         r = json.loads(acceptInvitation({"id":self.es2.id},self.u).content.decode("UTF-8"))
         self.assertFalse(r['failed'])
@@ -852,13 +861,13 @@ class sessionRunTestCase(TestCase):
         self.assertFalse(r['failed'])
 
         r = json.loads(autoBump({},esd2.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd2.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd2.id,user__id = self.u2.id).first()
 
-        self.assertEquals(esdu.bumped,False)
-        self.assertEquals(esdu2.bumped,False)
+        self.assertEqual(esdu.bumped,False)
+        self.assertEqual(esdu2.bumped,False)
 
         #bump 1 of two
         esd1 = self.es1.ESD.first()
@@ -866,10 +875,10 @@ class sessionRunTestCase(TestCase):
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
         # r = json.loads(noShowSubject({"id":esdu.id},esd1.id).content.decode("UTF-8"))
-        # self.assertEquals("success",r['status'])
+        # self.assertEqual("success",r['status'])
 
         # r = json.loads(noShowSubject({"id":esdu2.id},esd1.id).content.decode("UTF-8"))
-        # self.assertEquals("success",r['status'])
+        # self.assertEqual("success",r['status'])
 
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
@@ -878,12 +887,12 @@ class sessionRunTestCase(TestCase):
         self.assertIn("is now attending",r['status'])
 
         r = json.loads(autoBump({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(True if esdu.bumped != esdu2.bumped else False,True)
+        self.assertEqual(True if esdu.bumped != esdu2.bumped else False,True)
 
         #bump 0 of two
         esd1 = self.es1.ESD.first()
@@ -891,35 +900,35 @@ class sessionRunTestCase(TestCase):
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(autoBump({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(esdu.bumped,False)
-        self.assertEquals(esdu2.bumped,False)
+        self.assertEqual(esdu.bumped,False)
+        self.assertEqual(esdu2.bumped,False)
 
         #test junk input
         r = json.loads(noShowSubject({"id":esdu.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(noShowSubject({"id":esdu2.id},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("success",r['status'])
+        self.assertEqual("success",r['status'])
 
         r = json.loads(autoBump({},esd2.id+50,self.staff_u).content.decode("UTF-8"))
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u.id).first()
         esdu2 = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u2.id).first()
 
-        self.assertEquals(esdu.bumped,False)
-        self.assertEquals(esdu2.bumped,False)
+        self.assertEqual(esdu.bumped,False)
+        self.assertEqual(esdu2.bumped,False)
 
     #test earnings upload
     def test_earnings_upload(self):
@@ -959,9 +968,9 @@ class sessionRunTestCase(TestCase):
         self.assertIn("Earnings Imported", r['message'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
-        self.assertEquals(esdu.attended, True)
-        self.assertEquals(esdu.earnings, 25)
-        self.assertEquals(esdu.show_up_fee, 3)
+        self.assertEqual(esdu.attended, True)
+        self.assertEqual(esdu.earnings, 25)
+        self.assertEqual(esdu.show_up_fee, 3)
 
         #upload earning by user id
         my_str = f'{self.u3.id},21.4,4'
@@ -971,9 +980,9 @@ class sessionRunTestCase(TestCase):
         self.assertIn("Earnings Imported", r['message'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
-        self.assertEquals(esdu.attended, True)
-        self.assertEquals(esdu.earnings, Decimal("21.4"))
-        self.assertEquals(esdu.show_up_fee, 4)
+        self.assertEqual(esdu.attended, True)
+        self.assertEqual(esdu.earnings, Decimal("21.4"))
+        self.assertEqual(esdu.show_up_fee, 4)
 
         #upload earning by public id
         my_str = f'{self.u3.profile.public_id},28.01,3'
@@ -983,9 +992,9 @@ class sessionRunTestCase(TestCase):
         self.assertIn("Earnings Imported", r['message'])
 
         esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id,user__id = self.u3.id).first()
-        self.assertEquals(esdu.attended, True)
-        self.assertEquals(esdu.earnings, Decimal("28.01"))
-        self.assertEquals(esdu.show_up_fee, 3)
+        self.assertEqual(esdu.attended, True)
+        self.assertEqual(esdu.earnings, Decimal("28.01"))
+        self.assertEqual(esdu.show_up_fee, 3)
 
 
 

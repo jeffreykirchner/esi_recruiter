@@ -2424,7 +2424,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
     #One trait constraints
     def testOneConstraints(self):
@@ -2458,7 +2458,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
         #check 1 only valid
         tc.min_value = 5
@@ -2478,7 +2478,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
     #no trait constraints
     def testTwoConstraints(self):
@@ -2519,7 +2519,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
         #require both constraints
         es.recruitment_params.trait_constraints_require_all = True
@@ -2539,7 +2539,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
         #check that one of two traits passes
         es.recruitment_params.trait_constraints_require_all = False
@@ -2563,7 +2563,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
     
     def test_one_exclude(self):
         logger = logging.getLogger(__name__)
@@ -2596,7 +2596,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
     
     def test_two_exclude(self):
         logger = logging.getLogger(__name__)
@@ -2636,7 +2636,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
     
     def test_one_exclude_one_include(self):
         logger = logging.getLogger(__name__)
@@ -2676,7 +2676,7 @@ class traitConstraintTestCase(TestCase):
         for u in u_list:
             self.assertIn(u, e_users)
         
-        self.assertEquals(len(e_users), len(u_list))
+        self.assertEqual(len(e_users), len(u_list))
 
 #test school constraints
 class schoolTestCase(TestCase):
