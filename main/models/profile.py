@@ -46,7 +46,9 @@ class profile(models.Model):
     paused = models.BooleanField(verbose_name="Paused", default=False)                                                #allows subject to pause getting invitations
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
     international_student = models.BooleanField(verbose_name="International Student", default=False)                  #true if subject is an international student
-    mfa_hash = models.CharField(verbose_name="Multi-factor hash", max_length = 50, null=True, blank=True)             #hash for multi-factor authentication
+    
+    mfa_hash = models.CharField(verbose_name="Multi-factor Hash", max_length = 50, null=True, blank=True)             #hash for multi-factor authentication
+    mfa_required = models.BooleanField(verbose_name="Multi-factor Required", default=False)                           #true if multi-factor authentication is required
 
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)                                     #publicly sharable id number for subjects
 

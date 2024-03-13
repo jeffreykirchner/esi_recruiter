@@ -4,6 +4,8 @@
 {%block head%}
 <meta name="description" content="Login to the Economic Science Institute's research subject recruiter.">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script type="text/javascript">
   $(document).ready(function(){  
       axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -18,7 +20,11 @@
               loginErrorText : "",
               form_ids : {{form_ids|safe}},     
               show_two_factor : false,
-              two_factor_code : "",                     
+              two_factor_code : "",  
+              show_two_factor_setup : false,    
+              two_factor_uri : "",       
+              two_factor_hash : "",   
+              qr_code : null,     
           },
 
           methods:{
@@ -52,6 +58,24 @@
                         else if(status == "two_factor")
                         {
                           app.$data.show_two_factor = true;
+                        }
+                        else if(status == "two_factor_setup")
+                        {
+                          app.$data.show_two_factor = true;
+                          app.$data.show_two_factor_setup = true;
+                          app.$data.two_factor_uri = response.data.two_factor_uri;
+                          app.$data.two_factor_hash = response.data.two_factor_hash;
+
+                          if(app.$data.qr_code != null)
+                          {
+                            app.$data.qr_code.clear();
+                            app.$data.qr_code.makeCode(app.$data.two_factor_uri);
+                          }
+                          else
+                          {
+                            app.$data.qr_code = new QRCode(document.getElementById("qrcode"), app.$data.two_factor_uri);
+                          }
+                         
                         }
                         else
                         {
@@ -105,6 +129,17 @@
   });
 
 </script>
+
+<style>
+   [v-cloak] {
+    display: none;
+   }
+  /* #qrcode {
+    width:160px;
+    height:160px;
+    margin-top:15px;
+  } */
+</style>
 {%endblock head%}
 
 {% block content %}
@@ -158,12 +193,22 @@
           </form>
         </div>
 
-        <div class="row mt-3" v-if="show_two_factor">
+        <div class="row mt-3" v-show="show_two_factor" v-cloak>
             <div class="col col-lg-8 offset-lg-2">
               <div class="form-group">
                 <label for="idtwofactorcode">Six digit code from your authenticator app*</label>
                 <input v-model="two_factor_code" type="number" maxlength="6" class="form-control" id="idtwofactorcode" aria-describedby="sixdigitcode">
               </div>
+            </div>
+        </div>
+
+        <div class="row mt-3" v-show="show_two_factor_setup" v-cloak>
+            <div class="col col-lg-8 offset-lg-2">
+              <p>Two factor authentication is required for this account. Please set up your authenticator app using the QR code below.</p>
+              <span id="qrcode"></span>
+              <br>
+              Code for manual setup:<br> 
+              [[two_factor_hash]]
             </div>
         </div>
 

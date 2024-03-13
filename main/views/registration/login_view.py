@@ -1,5 +1,6 @@
 import logging
 import json
+import pyotp
 
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
@@ -95,20 +96,36 @@ def login_function(request,data):
             else:
                 
                 #if user can use paypal require two factor code
-                if user.profile.can_paypal and two_factor == "":
-                    return JsonResponse({"status":"two_factor", "message":"Two factor code required."}, safe=False)
+                if user.profile.mfa_required and two_factor == "":
+                    if user.profile.mfa_hash == "" or user.profile.mfa_hash == None:
+                        #user has not setup two factor code
+                        user.profile.mfa_hash = pyotp.random_base32()
+                        user.profile.save()
+                        two_factor_uri = pyotp.totp.TOTP(user.profile.mfa_hash).provisioning_uri(user.username,issuer_name="ESI Recruiter")
+                        return JsonResponse({"status":"two_factor_setup", 
+                                             "message":"Two factor setup required.",
+                                             "two_factor_uri":two_factor_uri,
+                                             "two_factor_hash":user.profile.mfa_hash}, safe=False)
+                    else:    
+                        #if user has two factor code enabled, return two factor code required
+                       
+                        return JsonResponse({"status":"two_factor", "message":"Two factor code required."}, safe=False)
                 #if user can use paypal and two factor code is provided verify it
-                elif user.profile.can_paypal and two_factor != "":
-                    pass
+                elif user.profile.mfa_required and two_factor != "":
+                    totp = pyotp.TOTP(user.profile.mfa_hash)
+
+                    if not totp.verify(two_factor):
+                        return JsonResponse({"status":"error", "message":"Invalid Code"}, safe=False)
+
+
                 #standard user, no two factor code required
-                else:
-                    login(request, user) 
+                login(request, user) 
 
-                    rp = request.session.get('redirect_path','/')        
+                rp = request.session.get('redirect_path','/')        
 
-                    logger.info(f"Login user {username} success , redirect {rp}")
+                logger.info(f"Login user {username} success , redirect {rp}")
 
-                    return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
+                return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
             logger.warning(f"Login user {username} fail user / pass")
             
