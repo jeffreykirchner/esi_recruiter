@@ -231,18 +231,6 @@ class experiment_sessions(models.Model):
         if not es_p.experiments_include_all and ei_c > 1:
             ei_c = 1        
 
-        #allow multiple participations in same experiment
-        # allow_multiple_participations_str=""
-        # if not es_p.allow_multiple_participations:
-        #     allow_multiple_participations_str=f'''
-        #     --check that user has not already done this experiment
-        #     NOT EXISTS(SELECT 1                                                   
-        #                FROM user_experiments
-        #                WHERE user_experiments.user_id = auth_user.id AND
-        #                      experiment_sessions_id != {id} AND
-        #                      user_experiments.experiments_id = {experiment_id}) AND
-        #     '''   
-
         #institutions include strings
         institutions_include_user_where_str = ""
         institutions_include_with_str = ""
@@ -533,8 +521,6 @@ class experiment_sessions(models.Model):
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
             
-          
-
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
                     FROM subject_type_include	
@@ -1090,11 +1076,6 @@ class experiment_sessions(models.Model):
     def getValidUserList_check_multi_participations(self, u_list, testExperiment):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_multi_participations")
-
-        # WHERE main_experiment_sessions.canceled = FALSE AND
-        #                           (main_experiment_session_day_users.attended = TRUE OR
-        #                             (main_experiment_session_day_users.confirmed = TRUE AND 
-        #                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
 
         if not self.recruitment_params.allow_multiple_participations:
            #list of everyone that has done this experiment.
