@@ -603,7 +603,9 @@ class experiment_sessions(models.Model):
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_multi_participations(u_list)
         #logger.info(f"{u_list}")
-        u_list = self.getValidUserList_check_institution_experience(u_list, testInstiutionList)
+        u_list = self.getValidUserList_check_institution_experience_exclude(u_list, testInstiutionList)
+        #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_institution_experience_include(u_list, testInstiutionList)
 
         return u_list
     
@@ -1077,6 +1079,7 @@ class experiment_sessions(models.Model):
             user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
                                                                        .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                        .exclude(experiment_session_day__experiment_session__id = self.id)\
+                                                                       .filter(user__in = u_list)\
                                                                        .filter(bumped = False)\
                                                                        .filter(Q(attended = True) |
                                                                               (Q(confirmed = True) &
@@ -1096,22 +1099,20 @@ class experiment_sessions(models.Model):
             return u_list
         
     #check that user has the correct institution experience
-    def getValidUserList_check_institution_experience(self, u_list, testInstiutionList):
+    def getValidUserList_check_institution_experience_exclude(self, u_list, testInstiutionList):
         logger = logging.getLogger(__name__)
-        logger.info("getValidUserList_check_institution_experience")
+        logger.info("getValidUserList_check_institution_experience_exclude")
 
         #if no institution constraints return list
-        if not self.recruitment_params.institutions_exclude.exists() and \
-           not self.recruitment_params.institutions_include.exists():
+        if not self.recruitment_params.institutions_exclude.exists():
             return u_list
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
-                                                               .filter(bumped = False)\
+                                                               .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(Q(attended = True) |
                                                                       (Q(confirmed = True) &
-                                                                       Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)) &
-                                                                       Q(experiment_session_day__date_end__lte = self.getFirstDate())))\
+                                                                       Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
                                                                .values('user__id',
                                                                        'experiment_session_day__experiment_session__experiment__institution__id')\
                                                                .distinct() 
@@ -1123,43 +1124,65 @@ class experiment_sessions(models.Model):
             else:
                 user_institution_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__institution__id']}
 
-        valid_list_exclude = set()
+        valid_list_exclude = set([u.id for u in u_list])
         #check for excluded institutions
-        if self.recruitment_params.institutions_exclude.exists():
-            exclude_institutions = set(self.recruitment_params.institutions_exclude.values_list("id", flat=True))
 
-            for u in user_institution_dict:
+        exclude_institutions = set(self.recruitment_params.institutions_exclude.values_list("id", flat=True))
 
-                v = user_institution_dict[u].intersection(exclude_institutions)
+        for u in user_institution_dict:
 
-                if self.recruitment_params.institutions_exclude_all:
-                    if not len(v) == len(exclude_institutions):
-                        valid_list_exclude.add(u)
-                else:
-                    if len(v) == 0:
-                        valid_list_exclude.add(u)
-        else:
-            valid_list_exclude = set([u for u in user_institution_dict])
+            v = user_institution_dict[u].intersection(exclude_institutions)
+
+            if self.recruitment_params.institutions_exclude_all:
+                if len(v) == len(exclude_institutions):
+                    valid_list_exclude.remove(u)
+            else:
+                if len(v) > 0:
+                    valid_list_exclude.remove(u)
+       
+        return list(User.objects.filter(id__in = valid_list_exclude))
+    
+    #check that user has the correct institution experience
+    def getValidUserList_check_institution_experience_include(self, u_list, testInstiutionList):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_institution_experience_include")
+
+        #if no institution constraints return list
+        if not self.recruitment_params.institutions_include.exists():
+            return u_list
+
+        #create dictionary with user id and institution id
+        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+                                                               .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                               .filter(attended = True)\
+                                                               .values('user__id',
+                                                                       'experiment_session_day__experiment_session__experiment__institution__id')\
+                                                               .distinct() 
+        #build dictionary of user and institutions
+        user_institution_dict = {}
+        for u in esdu:
+            if u['user__id'] in user_institution_dict:
+                user_institution_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__institution__id'])
+            else:
+                user_institution_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__institution__id']}
 
         valid_list_include = set()
         #check for included institutions
-        if self.recruitment_params.institutions_include.exists():
-            include_institutions = set(self.recruitment_params.institutions_include.values_list("id", flat=True))
+        include_institutions = set(self.recruitment_params.institutions_include.values_list("id", flat=True))
 
-            for u in user_institution_dict:
+        for u in user_institution_dict:
 
-                v = user_institution_dict[u].intersection(include_institutions)
+            v = user_institution_dict[u].intersection(include_institutions)
 
-                if self.recruitment_params.institutions_include_all:
-                    if len(v) == len(include_institutions):
-                        valid_list_include.add(u)
-                else:
-                    if len(v) > 0:
-                        valid_list_include.add(u)
-        else:
-            valid_list_include = set([u for u in user_institution_dict])
+            if self.recruitment_params.institutions_include_all:
+                if len(v) == len(include_institutions):
+                    valid_list_include.add(u)
+            else:
+                if len(v) > 0:
+                    valid_list_include.add(u)
 
-        return list(User.objects.filter(id__in = valid_list_exclude.intersection(valid_list_include)))
+
+        return list(User.objects.filter(id__in = valid_list_include))
 
     #return true if all session days are complete
     def getComplete(self):

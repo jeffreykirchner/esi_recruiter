@@ -218,7 +218,7 @@ class subjectTypeTestCase(TestCase):
         self.assertEqual(c, len(User.objects.all()))
 
 #test recruitment parameters
-class recruiteTestCase(TestCase):
+class recruitTestCase(TestCase):
     e1 = None         #experiments
     e2 = None
     user_list=[]      #list of user
@@ -1066,7 +1066,7 @@ class recruiteTestCase(TestCase):
         
         self.assertEqual(len(e_users),len(u_list))
 
-    #recuit subjects that have comitted for required insiution but not attended at recruit time   
+    #recuit subjects that have comitted for required insiution but not attended at recruit time and should not be included   
     def testOneInstitutionFutureComitted(self):
         """Test one institution required, subject is committed to future requirment""" 
         logger = logging.getLogger(__name__)
@@ -1118,7 +1118,7 @@ class recruiteTestCase(TestCase):
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True, attended=False)
        
         r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
@@ -1367,37 +1367,30 @@ class recruiteTestCase(TestCase):
         """Test two institutions excluded if in one, future conflict""" 
         logger = logging.getLogger(__name__)
 
-        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_two = self.d_now + timedelta(days=2)
         d_now_plus_one = self.d_now + timedelta(days=1)
 
-        #logger.info("here:" + str(d_now_minus_one))
+        #unconfirm all
+        experiment_session_day_users.objects.all().update(confirmed=False, attended=False, bumped=False)
 
         #setup experiment 1, insitution "one"
         e=self.e1
         es=self.e1.ES.first()
         esd1 = es.ESD.first()
 
-        esd1.ESDU_b.all().update(confirmed=False)
         # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
         # self.assertFalse(r['failed'])
 
-        #move session 1 experiment 1 into past so experience is counted
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_minus_one.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
+        #move session 1 to future so experience is counted for future conflict
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%#m/%#d/%Y") + ' 04:00 pm -0700'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
-        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
+        # esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True)
+        # esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True)
 
-        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
-
-        #setup experiment 2 institution "one" and "three", exclude two experience
-        e=self.e2
-        es=self.e2.ES.first()
-        esd1 = es.ESD.first()
-
-        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="two"))
+        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="one"))
 
         #test experiment
         e3 = createExperimentBlank()
@@ -1423,13 +1416,15 @@ class recruiteTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[2])
+        e_users.append(self.user_list[3])
+        e_users.append(self.user_list[4])
         e_users.append(self.user_list[5])
         e_users.append(self.user_list[6])
         e_users.append(self.user_list[7])
 
         u_list = es1.getValidUserList_forward_check([],True,0,0,[],False,10)
 
-        logger.info("Users that done institution one and three:")
+        logger.info("Users that did institution one and three:")
         logger.info(e_users)
         logger.info("Valid users that can be added:")
         logger.info(u_list)
