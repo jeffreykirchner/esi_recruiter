@@ -3,7 +3,7 @@
 db.sqlite3-journal
 *.pyc
 logs/*
-ESIRecruiterEnv
+esi_recruiter_env
 .vscode/*
 Notes.txt
 *.sql

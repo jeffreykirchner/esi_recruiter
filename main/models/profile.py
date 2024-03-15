@@ -37,7 +37,7 @@ class profile(models.Model):
     gender = models.ForeignKey(genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
     subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
-
+    
     studentID = models.CharField(verbose_name="ID Number", max_length=100, default="00000000", null=True, blank=True) #student ID number
     email_confirmed =  models.CharField(verbose_name="Email Confirmed", max_length = 100, default="no")               #yes/code/no
     blackballed = models.BooleanField(verbose_name="Blackballed", default=False)                                      #if a subject is blackballed they will not be auto recruited
@@ -46,7 +46,11 @@ class profile(models.Model):
     paused = models.BooleanField(verbose_name="Paused", default=False)                                                #allows subject to pause getting invitations
     w9Collected = models.BooleanField(verbose_name="W9 Form Collected", default=False)                                #true if a w9 tax form was collected from subject
     international_student = models.BooleanField(verbose_name="International Student", default=False)                  #true if subject is an international student
-
+    
+    mfa_hash = models.CharField(verbose_name="Multi-factor Hash", max_length = 50, null=True, blank=True)             #hash for multi-factor authentication
+    mfa_required = models.BooleanField(verbose_name="Multi-factor Required", default=False)                           #true if multi-factor authentication is required
+    mfa_setup_complete = models.BooleanField(verbose_name="Multi-factor Setup Complete", default=False)               #true if multi-factor authentication is setup
+    
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)                                     #publicly sharable id number for subjects
 
     #consent_required_legacy = models.BooleanField(verbose_name="Consent Form Required", default=True)                #true if the subject must agree to the current consent form (used before session by session consent forms)

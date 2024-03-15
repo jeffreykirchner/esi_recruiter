@@ -1,5 +1,5 @@
 """
-Django settings for ESIRecruiter project.
+Django settings for _esi_recruiter project.
 """
 
 import os
@@ -45,7 +45,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
 
-ROOT_URLCONF = 'ESIRecruiter.urls'
+ROOT_URLCONF = '_esi_recruiter.urls'
 
 TEMPLATES = [
     {
@@ -59,13 +59,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                'ESIRecruiter.context_processors.get_debug',
+                '_esi_recruiter.context_processors.get_debug',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'ESIRecruiter.wsgi.application'
+WSGI_APPLICATION = '_esi_recruiter.wsgi.application'
 
 
 # Password validation

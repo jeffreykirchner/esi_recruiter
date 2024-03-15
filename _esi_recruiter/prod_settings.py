@@ -13,12 +13,12 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
 DEBUG = os.environ.get('DEBUG',False)
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATICFILES_STORAGE = 'ESIRecruiter.custom_azure.AzureStaticStorage'
+STATICFILES_STORAGE = '_esi_recruiter.custom_azure.AzureStaticStorage'
 STATIC_ROOT = os.environ['STATIC_ROOT']
 STATIC_URL = os.environ['STATIC_URL']
 
 MEDIA_ROOT = os.environ['MEDIA_ROOT']
-DEFAULT_FILE_STORAGE = 'ESIRecruiter.custom_azure.AzureMediaStorage'
+DEFAULT_FILE_STORAGE = '_esi_recruiter.custom_azure.AzureMediaStorage'
 AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
 AZURE_ACCOUNT_NAME = os.environ['AZURE_ACCOUNT_NAME']
 AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']

@@ -24,6 +24,7 @@ var app = new Vue({
             max_vaue:0,
             include_if_in_range:true,
         },  
+        loginLast90Days:false,
     },
 
     methods:{     
@@ -49,7 +50,8 @@ var app = new Vue({
                     status :"search" ,                                
                     formData : app.recruitment_params,          
                     trait_parameters : app.recruitment_params.trait_constraints,     
-                    trait_constraints_require_all : app.recruitment_params.trait_constraints_require_all,                                          
+                    trait_constraints_require_all : app.recruitment_params.trait_constraints_require_all,  
+                    login_last_90_days : app.loginLast90Days,                                        
                 })
                 .then(function (response) {     
                                                          

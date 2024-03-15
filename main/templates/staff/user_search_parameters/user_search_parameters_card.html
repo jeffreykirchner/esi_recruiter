@@ -12,94 +12,105 @@
         </div>
     </div>
     <div class="card-body" v-cloak>  
-        <form id="updateRecruitmentParametersForm">
-            <!-- recruitment parameters -->
-            <div class="row">
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.gender | as_crispy_field }}                            
+        <div>
+            <form id="updateRecruitmentParametersForm">
+                <!-- recruitment parameters -->
+                <div class="row">
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.gender | as_crispy_field }}                            
+                    </div>
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.subject_type | as_crispy_field }}
+                    </div>
                 </div>
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.subject_type | as_crispy_field }}
+                <div class="row" v-show="false">
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.actual_participants | as_crispy_field }}
+                    </div>
+                    <div class = "col-md">  
+                        {{updateRecruitmentParametersForm.registration_cutoff | as_crispy_field }}
+                    </div>                            
+                </div> 
+                <div class="row">    
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.experience_constraint | as_crispy_field }}
+                    </div>
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.allow_multiple_participations | as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">    
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.experience_min | as_crispy_field }}
+                    </div>
+                    <div class = "col-md"> 
+                        {{updateRecruitmentParametersForm.experience_max | as_crispy_field }}
+                    </div>
+                </div>       
+                    
+                <div class="row mb-4">
+                    <div class = "col-md"> 
+                        Exclude Institution Experience
+                        <div class = "overflow-auto" style="height: 300px;">
+                            {{updateRecruitmentParametersForm.institutions_exclude | as_crispy_field }} 
+                        </div>     
+                        <br>
+                        {{updateRecruitmentParametersForm.institutions_exclude_all | as_crispy_field }}                                                      
+                    </div>
+                    <div class = "col-md"> 
+                        Include Institution Experience
+                        <div class = "overflow-auto" style="height: 300px;">
+                            {{updateRecruitmentParametersForm.institutions_include | as_crispy_field }}
+                        </div>  
+                        <br>
+                        {{updateRecruitmentParametersForm.institutions_include_all| as_crispy_field }}                              
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class = "col-md"> 
+                        Exclude Experiment Experience
+                        <div class = "overflow-auto" style="height: 300px;">
+                            {{updateRecruitmentParametersForm.experiments_exclude | as_crispy_field }}
+                        </div>       
+                        <br>
+                        {{updateRecruitmentParametersForm.experiments_exclude_all | as_crispy_field }}                           
+                    </div>                            
+                    <div class = "col-md"> 
+                        Include Experiment Experience
+                        <div class=" overflow-auto" style="height: 300px;">
+                            {{updateRecruitmentParametersForm.experiments_include | as_crispy_field }}
+                        </div>    
+                        <br>
+                        {{updateRecruitmentParametersForm.experiments_include_all | as_crispy_field }}                              
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class = "col-md"> 
+                        Exclude Subjects From
+                        <div class = "overflow-auto" style="height: 150px;">
+                            {{updateRecruitmentParametersForm.schools_exclude | as_crispy_field }}
+                        </div>       
+                        {{updateRecruitmentParametersForm.schools_exclude_constraint | as_crispy_field }}                           
+                    </div>                            
+                    <div class = "col-md"> 
+                        Include Subjects From
+                        <div class=" overflow-auto" style="height: 150px;">
+                            {{updateRecruitmentParametersForm.schools_include | as_crispy_field }}
+                        </div>    
+                        {{updateRecruitmentParametersForm.schools_include_constraint | as_crispy_field }}                              
+                    </div>
+                </div>
+            </form> <!-- recruitment parameters form -->     
+        </div>
+        
+        <div class="row mb-4">
+            <div class = "col-md-6"> 
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="idLoginLast90Days" v-model="loginLast90Days">
+                    <label class="form-check-label" for="idLoginLast90Days">Show only subjects that have logged in the last 90 days.</label>
                 </div>
             </div>
-            <div class="row" v-show="false">
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.actual_participants | as_crispy_field }}
-                </div>
-                <div class = "col-md">  
-                    {{updateRecruitmentParametersForm.registration_cutoff | as_crispy_field }}
-                </div>                            
-            </div> 
-            <div class="row">    
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.experience_constraint | as_crispy_field }}
-                </div>
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.allow_multiple_participations | as_crispy_field }}
-                </div>
-            </div>
-            <div class="row">    
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.experience_min | as_crispy_field }}
-                </div>
-                <div class = "col-md"> 
-                    {{updateRecruitmentParametersForm.experience_max | as_crispy_field }}
-                </div>
-            </div>       
-                
-            <div class="row mb-4">
-                <div class = "col-md"> 
-                    Exclude Institution Experience
-                    <div class = "overflow-auto" style="height: 300px;">
-                        {{updateRecruitmentParametersForm.institutions_exclude | as_crispy_field }} 
-                    </div>     
-                    <br>
-                    {{updateRecruitmentParametersForm.institutions_exclude_all | as_crispy_field }}                                                      
-                </div>
-                <div class = "col-md"> 
-                    Include Institution Experience
-                    <div class = "overflow-auto" style="height: 300px;">
-                        {{updateRecruitmentParametersForm.institutions_include | as_crispy_field }}
-                    </div>  
-                    <br>
-                    {{updateRecruitmentParametersForm.institutions_include_all| as_crispy_field }}                              
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class = "col-md"> 
-                    Exclude Experiment Experience
-                    <div class = "overflow-auto" style="height: 300px;">
-                        {{updateRecruitmentParametersForm.experiments_exclude | as_crispy_field }}
-                    </div>       
-                    <br>
-                    {{updateRecruitmentParametersForm.experiments_exclude_all | as_crispy_field }}                           
-                </div>                            
-                <div class = "col-md"> 
-                    Include Experiment Experience
-                    <div class=" overflow-auto" style="height: 300px;">
-                        {{updateRecruitmentParametersForm.experiments_include | as_crispy_field }}
-                    </div>    
-                    <br>
-                    {{updateRecruitmentParametersForm.experiments_include_all | as_crispy_field }}                              
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class = "col-md"> 
-                    Exclude Subjects From
-                    <div class = "overflow-auto" style="height: 150px;">
-                        {{updateRecruitmentParametersForm.schools_exclude | as_crispy_field }}
-                    </div>       
-                    {{updateRecruitmentParametersForm.schools_exclude_constraint | as_crispy_field }}                           
-                </div>                            
-                <div class = "col-md"> 
-                    Include Subjects From
-                    <div class=" overflow-auto" style="height: 150px;">
-                        {{updateRecruitmentParametersForm.schools_include | as_crispy_field }}
-                    </div>    
-                    {{updateRecruitmentParametersForm.schools_include_constraint | as_crispy_field }}                              
-                </div>
-            </div>
-        </form> <!-- recruitment parameters form -->        
+        </div>
 
         <!-- traits -->
         {%if user.is_staff%}
