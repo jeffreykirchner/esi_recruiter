@@ -58,6 +58,11 @@
                         else if(status == "two_factor")
                         {
                           app.$data.show_two_factor = true;
+
+                          app.$nextTick(() => {
+                            document.getElementById("idtwofactorcode").focus();
+                          });
+                          
                         }
                         else if(status == "two_factor_setup")
                         {
@@ -197,7 +202,13 @@
             <div class="col col-lg-8 offset-lg-2">
               <div class="form-group">
                 <label for="idtwofactorcode">Six digit code from your authenticator app*</label>
-                <input v-model="two_factor_code" type="number" maxlength="6" class="form-control" id="idtwofactorcode" aria-describedby="sixdigitcode">
+                <input v-model="two_factor_code" 
+                       type="number" 
+                       maxlength="6" 
+                       class="form-control" 
+                       id="idtwofactorcode" 
+                       aria-describedby="sixdigitcode"
+                       v-on:keyup.enter="login()">
               </div>
             </div>
         </div>
