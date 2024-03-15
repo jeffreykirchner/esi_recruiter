@@ -1100,6 +1100,10 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_institution_experience")
 
+        #if no institution constraints return list
+        if not self.recruitment_params.institutions_exclude.exists() and \
+           not self.recruitment_params.institutions_include.exists():
+            return u_list
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
@@ -1109,21 +1113,53 @@ class experiment_sessions(models.Model):
                                                                        Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)) &
                                                                        Q(experiment_session_day__date_end__lte = self.getFirstDate())))\
                                                                .values('user__id',
-                                                                            'experiment_session_day__experiment_session__experiment__institution__id')\
+                                                                       'experiment_session_day__experiment_session__experiment__institution__id')\
                                                                .distinct() 
-        
+        #build dictionary of user and institutions
         user_institution_dict = {}
         for u in esdu:
             if u['user__id'] in user_institution_dict:
-                user_institution_dict[u['user__id']].append(u['experiment_session_day__experiment_session__experiment__institution__id'])
+                user_institution_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__institution__id'])
             else:
-                user_institution_dict[u['user__id']] = [u['experiment_session_day__experiment_session__experiment__institution__id']]
+                user_institution_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__institution__id']}
 
-        #convert to tuples
-        for k in user_institution_dict:
-            user_institution_dict[k] = tuple(user_institution_dict[k])
+        valid_list_exclude = set()
+        #check for excluded institutions
+        if self.recruitment_params.institutions_exclude.exists():
+            exclude_institutions = set(self.recruitment_params.institutions_exclude.values_list("id", flat=True))
 
-        return u_list
+            for u in user_institution_dict:
+
+                v = user_institution_dict[u].intersection(exclude_institutions)
+
+                if self.recruitment_params.institutions_exclude_all:
+                    if not len(v) == len(exclude_institutions):
+                        valid_list_exclude.add(u)
+                else:
+                    if len(v) == 0:
+                        valid_list_exclude.add(u)
+        else:
+            valid_list_exclude = set([u for u in user_institution_dict])
+
+        valid_list_include = set()
+        #check for included institutions
+        if self.recruitment_params.institutions_include.exists():
+            include_institutions = set(self.recruitment_params.institutions_include.values_list("id", flat=True))
+
+            for u in user_institution_dict:
+
+                v = user_institution_dict[u].intersection(include_institutions)
+
+                if self.recruitment_params.institutions_include_all:
+                    if len(v) == len(include_institutions):
+                        valid_list_include.add(u)
+                else:
+                    if len(v) > 0:
+                        valid_list_include.add(u)
+        else:
+            valid_list_include = set([u for u in user_institution_dict])
+
+        return list(User.objects.filter(id__in = valid_list_exclude.intersection(valid_list_include)))
 
     #return true if all session days are complete
     def getComplete(self):
