@@ -20,6 +20,7 @@ from main.models import parameters
 from main.models import recruitment_parameters
 from main.models import parameters
 from main.models import ConsentForm
+from main.models import institutions
 
 import main
 
@@ -232,57 +233,57 @@ class experiment_sessions(models.Model):
             ei_c = 1        
 
         #institutions include strings
-        institutions_include_user_where_str = ""
-        institutions_include_with_str = ""
-        if ii_c > 0:
-            institutions_include_user_where_str = '''
-            --check that subject has been in correct number of insitutions
-            EXISTS (SELECT 1                                                    
-                FROM institutions_include_user                
-                WHERE institutions_include_user.id = auth_user.id) AND 
-            '''
+        # institutions_include_user_where_str = ""
+        # institutions_include_with_str = ""
+        # if ii_c > 0:
+        #     institutions_include_user_where_str = '''
+        #     --check that subject has been in correct number of insitutions
+        #     EXISTS (SELECT 1                                                    
+        #         FROM institutions_include_user                
+        #         WHERE institutions_include_user.id = auth_user.id) AND 
+        #     '''
 
-            institutions_include_with_str = f'''
-            --institutions that a subject should have done already
-            institutions_include AS (SELECT institutions_id
-                                        FROM main_recruitment_parameters_institutions_include
-                                        INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_include.recruitment_parameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                        WHERE main_experiment_sessions.id = {id}),
+        #     institutions_include_with_str = f'''
+        #     --institutions that a subject should have done already
+        #     institutions_include AS (SELECT institutions_id
+        #                                 FROM main_recruitment_parameters_institutions_include
+        #                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_include.recruitment_parameters_id
+        #                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                 WHERE main_experiment_sessions.id = {id}),
 
-            --table of users that have the correct institution experience
-            institutions_include_user AS (SELECT user_institutions_past.auth_user_id as id
-                                            FROM user_institutions_past
-                                            INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions_past.institution_id
-                                            GROUP BY user_institutions_past.auth_user_id
-                                            HAVING count(user_institutions_past.auth_user_id) >= {ii_c}),
-            '''
+        #     --table of users that have the correct institution experience
+        #     institutions_include_user AS (SELECT user_institutions_past.auth_user_id as id
+        #                                     FROM user_institutions_past
+        #                                     INNER JOIN institutions_include ON institutions_include.institutions_id = user_institutions_past.institution_id
+        #                                     GROUP BY user_institutions_past.auth_user_id
+        #                                     HAVING count(user_institutions_past.auth_user_id) >= {ii_c}),
+        #     '''
         
-        #institution exclude strings
-        institutions_exclude_user_where_str = ""
-        institutions_exclude_with_str = ""
-        if ie_c > 0:
-            institutions_exclude_user_where_str ='''
-                --check if subject has not partipated in institutions they should not have		
-                NOT EXISTS (SELECT 1                                                    
-                        FROM institutions_exclude_user                
-                        WHERE institutions_exclude_user.id = auth_user.id) AND
-                ''' 
-            institutions_exclude_with_str = f'''
-                --institutions that should subject should not have done already
-                institutions_exclude AS (SELECT institutions_id
-                                            FROM main_recruitment_parameters_institutions_exclude
-                                            INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_exclude.recruitment_parameters_id
-                                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                            WHERE main_experiment_sessions.id = {id}), 
+        # #institution exclude strings
+        # institutions_exclude_user_where_str = ""
+        # institutions_exclude_with_str = ""
+        # if ie_c > 0:
+        #     institutions_exclude_user_where_str ='''
+        #         --check if subject has not partipated in institutions they should not have		
+        #         NOT EXISTS (SELECT 1                                                    
+        #                 FROM institutions_exclude_user                
+        #                 WHERE institutions_exclude_user.id = auth_user.id) AND
+        #         ''' 
+        #     institutions_exclude_with_str = f'''
+        #         --institutions that should subject should not have done already
+        #         institutions_exclude AS (SELECT institutions_id
+        #                                     FROM main_recruitment_parameters_institutions_exclude
+        #                                     INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_exclude.recruitment_parameters_id
+        #                                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                     WHERE main_experiment_sessions.id = {id}), 
 
-                --table of users that should be excluded based on past history
-                institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id
-                                                FROM user_institutions
-                                                INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id
-                                                GROUP BY user_institutions.auth_user_id
-                                                HAVING count(user_institutions.auth_user_id) >= {ie_c}),
-                '''
+        #         --table of users that should be excluded based on past history
+        #         institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id
+        #                                         FROM user_institutions
+        #                                         INNER JOIN institutions_exclude ON institutions_exclude.institutions_id = user_institutions.institution_id
+        #                                         GROUP BY user_institutions.auth_user_id
+        #                                         HAVING count(user_institutions.auth_user_id) >= {ie_c}),
+        #         '''
 
         #experiments include strings
         experiments_include_user_where_str = ""
@@ -414,75 +415,69 @@ class experiment_sessions(models.Model):
         user_experiments_str +='''),'''                            
 
         #list of institutions subject has been in in the past
-        user_institutions_past_str=""
-        if ii_c > 0:
-            user_institutions_past_str =f'''
-            -- table of users and institutions they have been in past
-            user_institutions_past AS (SELECT DISTINCT main_institutions.id as institution_id,
-                                                       --main_institutions.name AS institution_name,
-                                                       main_experiment_session_day_users.user_id AS auth_user_id
-                                FROM main_institutions
-                                INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
-                                INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                WHERE main_experiment_sessions.canceled = FALSE AND
-                                      main_experiment_session_day_users.attended = TRUE AND            
-                                      main_institutions.id = main_experiments_institutions.institution_id
-            '''
+        # user_institutions_past_str=""
+        # if ii_c > 0:
+        #     user_institutions_past_str =f'''
+        #     -- table of users and institutions they have been in past
+        #     user_institutions_past AS (SELECT DISTINCT main_institutions.id as institution_id,
+        #                                                --main_institutions.name AS institution_name,
+        #                                                main_experiment_session_day_users.user_id AS auth_user_id
+        #                         FROM main_institutions
+        #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
+        #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
+        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                               main_experiment_session_day_users.attended = TRUE AND            
+        #                               main_institutions.id = main_experiments_institutions.institution_id
+        #     '''
 
-            if len(u_list) > 0:
-                user_institutions_past_str +=f''' AND       
-                                       main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
-                    '''
-            user_institutions_past_str +='''),'''
+        #     if len(u_list) > 0:
+        #         user_institutions_past_str +=f''' AND       
+        #                                main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
+        #             '''
+        #     user_institutions_past_str +='''),'''
 
-        #list of institutions subject has been in or are commited to be in in the future
-        user_institutions_str=""
-        if ie_c > 0:
-            user_institutions_str =f'''
-            -- table of users and institutions they have been in 
-            user_institutions AS (SELECT DISTINCT main_institutions.id as institution_id,
-                                            --main_institutions.name AS institution_name,
-                                            main_experiment_session_day_users.user_id AS auth_user_id
-                                FROM main_institutions
-                                INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
-                                INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                WHERE main_experiment_sessions.canceled = FALSE AND
-                                       (main_experiment_session_day_users.attended = TRUE OR
-                                         (main_experiment_session_day_users.confirmed = TRUE AND 
-                                        main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
-                                        main_institutions.id = main_experiments_institutions.institution_id)
-            '''
+        # #list of institutions subject has been in or are commited to be in in the future
+        # user_institutions_str=""
+        # if ie_c > 0:
+        #     user_institutions_str =f'''
+        #     -- table of users and institutions they have been in 
+        #     user_institutions AS (SELECT DISTINCT main_institutions.id as institution_id,
+        #                                     --main_institutions.name AS institution_name,
+        #                                     main_experiment_session_day_users.user_id AS auth_user_id
+        #                         FROM main_institutions
+        #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
+        #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
+        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                                (main_experiment_session_day_users.attended = TRUE OR
+        #                                  (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                                 main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
+        #                                 main_institutions.id = main_experiments_institutions.institution_id)
+        #     '''
 
-            if len(u_list) > 0:
-                user_institutions_str +=f''' AND       
-                                       main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
-                    '''
+        #     if len(u_list) > 0:
+        #         user_institutions_str +=f''' AND       
+        #                                main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
+        #             '''
             
-            if testExperiment > 0:
-                for i in testInstiutionList:
-                    user_institutions_str +=f'''
-                                    --add test institutions in to check if violation occurs
-                                    UNION   
-                                    SELECT {i} as institution_id,
-                                           v.user_id as auth_user_id
-		                            FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
-                                    '''
-            user_institutions_str +='''),'''
+        #     if testExperiment > 0:
+        #         for i in testInstiutionList:
+        #             user_institutions_str +=f'''
+        #                             --add test institutions in to check if violation occurs
+        #                             UNION   
+        #                             SELECT {i} as institution_id,
+        #                                    v.user_id as auth_user_id
+		#                             FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
+        #                             '''
+        #     user_institutions_str +='''),'''
 
         str1=f'''          	  									
             WITH
-            
-            
-            {user_institutions_str}
-            {user_institutions_past_str}
-            {institutions_include_with_str}
-            {institutions_exclude_with_str}
 
             {user_experiments_past_str}
             {user_experiments_str}
@@ -516,8 +511,6 @@ class experiment_sessions(models.Model):
 
             {users_to_search_for}
 
-            {institutions_exclude_user_where_str}
-            {institutions_include_user_where_str}
             {experiments_exclude_user_where_str}
             {experiments_include_user_where_str}
             
@@ -608,7 +601,9 @@ class experiment_sessions(models.Model):
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_now_show_block(u_list)
         #logger.info(f"{u_list}")
-        u_list = self.getValidUserList_check_multi_participations(u_list, testExperiment)
+        u_list = self.getValidUserList_check_multi_participations(u_list)
+        #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_institution_experience(u_list, testInstiutionList)
 
         return u_list
     
@@ -1073,12 +1068,12 @@ class experiment_sessions(models.Model):
         return valid_list
     
     #check that user has not already particpated
-    def getValidUserList_check_multi_participations(self, u_list, testExperiment):
+    def getValidUserList_check_multi_participations(self, u_list):
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_multi_participations")
 
         if not self.recruitment_params.allow_multiple_participations:
-           #list of everyone that has done this experiment.
+            #list of everyone that has done this experiment.
             user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
                                                                        .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                        .exclude(experiment_session_day__experiment_session__id = self.id)\
@@ -1100,6 +1095,35 @@ class experiment_sessions(models.Model):
         else:
             return u_list
         
+    #check that user has the correct institution experience
+    def getValidUserList_check_institution_experience(self, u_list, testInstiutionList):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_institution_experience")
+
+
+        #create dictionary with user id and institution id
+        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+                                                               .filter(bumped = False)\
+                                                               .filter(Q(attended = True) |
+                                                                      (Q(confirmed = True) &
+                                                                       Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)) &
+                                                                       Q(experiment_session_day__date_end__lte = self.getFirstDate())))\
+                                                               .values('user__id',
+                                                                            'experiment_session_day__experiment_session__experiment__institution__id')\
+                                                               .distinct() 
+        
+        user_institution_dict = {}
+        for u in esdu:
+            if u['user__id'] in user_institution_dict:
+                user_institution_dict[u['user__id']].append(u['experiment_session_day__experiment_session__experiment__institution__id'])
+            else:
+                user_institution_dict[u['user__id']] = [u['experiment_session_day__experiment_session__experiment__institution__id']]
+
+        #convert to tuples
+        for k in user_institution_dict:
+            user_institution_dict[k] = tuple(user_institution_dict[k])
+
+        return u_list
 
     #return true if all session days are complete
     def getComplete(self):
