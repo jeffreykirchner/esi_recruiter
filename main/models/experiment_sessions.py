@@ -546,6 +546,8 @@ class experiment_sessions(models.Model):
     def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL,max_user_count):
         logger = logging.getLogger(__name__)
 
+        start_time = datetime.now()
+
         user_list_valid_clean=[]
 
         #valid list based on current experience
@@ -556,7 +558,7 @@ class experiment_sessions(models.Model):
         #check django based constraints
         user_list_valid = self.getValidUserListDjango(user_list_valid,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL)
 
-        logger.info(f'getValidUserList_forward_check found {user_list_valid}')
+        #logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
         if max_user_count == 0:
             max_user_count = len(user_list_valid)
@@ -572,6 +574,8 @@ class experiment_sessions(models.Model):
 
             if not u.profile.check_for_future_constraints(self, first_date, i_list, experiment_id):
                 user_list_valid_clean.append(u)
+
+        logger.info(f'getValidUserList_forward_check run time: {datetime.now() - start_time}')
         
         return user_list_valid_clean
 
@@ -745,7 +749,7 @@ class experiment_sessions(models.Model):
                 u_list_updated.append(u)
 
         #logger.info(f'getValidUserList_date_time_overlap valid user: {u_list_updated}')
-        logger.info(f'getValidUserList_date_time_overlap run time: {datetime.now() - start_time}')
+        #logger.info(f'getValidUserList_date_time_overlap run time: {datetime.now() - start_time}')
 
         return u_list_updated
         
