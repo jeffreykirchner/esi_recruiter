@@ -341,23 +341,23 @@ class experiment_sessions(models.Model):
         #    '''
 
         #list of users to search for, if empty return all valid users
-        # users_to_search_for=""
-        # user_to_search_for_list_str = ""
-        # user_to_search_for_list_values_str=""
-        # if len(u_list) > 0:
-        #     logger.info(u_list)
-        #     user_to_search_for_list_str = "("
-        #     for u in u_list:
-        #         if( user_to_search_for_list_str != "("):
-        #             user_to_search_for_list_str += " , "
-        #             user_to_search_for_list_values_str +=", "
+        users_to_search_for=""
+        user_to_search_for_list_str = ""
+        user_to_search_for_list_values_str=""
+        if len(u_list) > 0:
+            logger.info(u_list)
+            user_to_search_for_list_str = "("
+            for u in u_list:
+                if( user_to_search_for_list_str != "("):
+                    user_to_search_for_list_str += " , "
+                    user_to_search_for_list_values_str +=", "
 
-        #         user_to_search_for_list_str += str(u['id'])
-        #         user_to_search_for_list_values_str +="(" + str(u['id']) + ")"
+                user_to_search_for_list_str += str(u['id'])
+                user_to_search_for_list_values_str +="(" + str(u['id']) + ")"
 
-        #     user_to_search_for_list_str += ")"
+            user_to_search_for_list_str += ")"
 
-        #     users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
+            users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
         
         # #user experiments past only
         # user_experiments_past_str = ""
@@ -552,17 +552,18 @@ class experiment_sessions(models.Model):
         if max_user_count == 0:
             max_user_count = len(user_list_valid)
 
-        first_date = self.getFirstDate()
-        i_list = self.experiment.institution.values_list("id", flat=True)
-        experiment_id = self.experiment.id
+        # first_date = self.getFirstDate()
+        # i_list = self.experiment.institution.values_list("id", flat=True)
+        # experiment_id = self.experiment.id
 
         while len(user_list_valid_clean) < max_user_count and len(user_list_valid)>0:
             n = randrange(0, len(user_list_valid))
 
             u = user_list_valid.pop(n)
-
-            if not u.profile.check_for_future_constraints(self, first_date, i_list, experiment_id):
-                user_list_valid_clean.append(u)
+            
+            # if not u.profile.check_for_future_constraints(self, first_date, i_list, experiment_id):
+            #    
+            user_list_valid_clean.append(u)
 
         logger.info(f'getValidUserList_forward_check run time: {datetime.now() - start_time}')
         
@@ -1062,41 +1063,43 @@ class experiment_sessions(models.Model):
     
     #check that user has not already particpated
     def getValidUserList_check_multi_participations(self, u_list):
-        logger = logging.getLogger(__name__)
-        logger.info("getValidUserList_check_multi_participations")
-
-        if not self.recruitment_params.allow_multiple_participations:
-            #list of everyone that has done this experiment.
-            user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
-                                                                       .filter(experiment_session_day__experiment_session__canceled = False) \
-                                                                       .exclude(experiment_session_day__experiment_session__id = self.id)\
-                                                                       .filter(user__in = u_list)\
-                                                                       .filter(bumped = False)\
-                                                                       .filter(Q(attended = True) |
-                                                                              (Q(confirmed = True) &
-                                                                               Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
-                                                                       .values_list("user__id",flat=True)
-            
-            valid_list=[]
-
-            user_ids = list(user_ids)
-
-            for u in u_list:
-                if u.id not in user_ids:
-                    valid_list.append(u)
-
-            return valid_list
-        else:
+        
+        if self.recruitment_params.allow_multiple_participations:
             return u_list
         
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_multi_participations")
+        
+        #list of everyone that has done this experiment.
+        user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
+                                                                   .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                                   .exclude(experiment_session_day__experiment_session__id = self.id)\
+                                                                   .filter(user__in = u_list)\
+                                                                   .filter(bumped = False)\
+                                                                   .filter(Q(attended = True) |
+                                                                          (Q(confirmed = True) &
+                                                                           Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
+                                                                   .values_list("user__id",flat=True)
+        
+        valid_list=[]
+
+        user_ids = list(user_ids)
+
+        for u in u_list:
+            if u.id not in user_ids:
+                valid_list.append(u)
+
+        return valid_list
+  
     #check that user has the correct institution experience
     def getValidUserList_check_institution_experience_exclude(self, u_list, testInstiutionList):
-        logger = logging.getLogger(__name__)
-        logger.info("getValidUserList_check_institution_experience_exclude")
-
+        
         #if no institution constraints return list
         if not self.recruitment_params.institutions_exclude.exists():
             return u_list
+        
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_institution_experience_exclude")
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
@@ -1135,12 +1138,12 @@ class experiment_sessions(models.Model):
     
     #check that user has the correct institution experience
     def getValidUserList_check_institution_experience_include(self, u_list, testInstiutionList):
-        logger = logging.getLogger(__name__)
-        logger.info("getValidUserList_check_institution_experience_include")
-
         #if no institution constraints return list
         if not self.recruitment_params.institutions_include.exists():
             return u_list
+        
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_institution_experience_include")
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
@@ -1177,38 +1180,42 @@ class experiment_sessions(models.Model):
 
     #check that user has the correct experiment experience
     def getValidUserList_check_experiment_experience_exclude(self, u_list, testExperimentList):
+        
         #if no experiments_exclude constraints return list
         if not self.recruitment_params.experiments_exclude.exists():
             return u_list
         
-        #create dictionary with user id and institution id
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_experiment_experience_exclude")
+        
+        #create dictionary with user id and experiment id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+                                                               .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(Q(attended = True) |
                                                                       (Q(confirmed = True) &
                                                                        Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
                                                                .values('user__id',
                                                                        'experiment_session_day__experiment_session__experiment__id')\
-                                                               .distinct()
-        
-        #build dictionary of user and institutions
-        user_institution_dict = {}
+                                                               .distinct()\
+        #build dictionary of user and experiments
+        user_experiment_dict = {}
         for u in esdu:
-            if u['user__id'] in user_institution_dict:
-                user_institution_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__id'])
+            if u['user__id'] in user_experiment_dict:
+                user_experiment_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__id'])
             else:
-                user_institution_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__id']}
+                user_experiment_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__id']}
 
         valid_list_exclude = set([u.id for u in u_list])
-        #check for excluded institutions
+        #check for excluded experiments
 
         exclude_experiments = set(self.recruitment_params.experiments_exclude.values_list("id", flat=True))
 
-        for u in user_institution_dict:
+        for u in user_experiment_dict:
 
-            v = user_institution_dict[u].intersection(exclude_experiments)
+            v = user_experiment_dict[u].intersection(exclude_experiments)
 
-            if self.recruitment_params.institutions_exclude_all:
+            if self.recruitment_params.experiments_exclude_all:
                 if len(v) == len(exclude_experiments):
                     valid_list_exclude.remove(u)
             else:
@@ -1219,12 +1226,47 @@ class experiment_sessions(models.Model):
 
     #check that user has the correct experiment experience
     def getValidUserList_check_experiment_experience_include(self, u_list, testExperimentList):
+        
         #if no experiments_include constraints return list
         if not self.recruitment_params.experiments_include.exists():
             return u_list
         
-        return u_list
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_check_experiment_experience_include")
 
+        #create dictionary with user id and experiment id
+        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+                                                               .exclude(experiment_session_day__experiment_session__id = self.id)\
+                                                               .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                               .filter(attended = True)\
+                                                               .values('user__id',
+                                                                       'experiment_session_day__experiment_session__experiment__id')\
+                                                               .distinct() 
+        #build dictionary of user and experiments
+        user_experiment_dict = {}
+        for u in esdu:
+            if u['user__id'] in user_experiment_dict:
+                user_experiment_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__id'])
+            else:
+                user_experiment_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__id']}
+
+        valid_list_include = set()
+        #check for included experiments
+        include_experiments = set(self.recruitment_params.experiments_include.values_list("id", flat=True))
+
+        for u in user_experiment_dict:
+
+            v = user_experiment_dict[u].intersection(include_experiments)
+
+            if self.recruitment_params.experiments_include_all:
+                if len(v) == len(include_experiments):
+                    valid_list_include.add(u)
+            else:
+                if len(v) > 0:
+                    valid_list_include.add(u)
+
+        return list(User.objects.filter(id__in = valid_list_include))
+        
     #return true if all session days are complete
     def getComplete(self):
         esd_not_complete = self.ESD.filter(complete = False)
