@@ -570,6 +570,8 @@ class experiment_sessions(models.Model):
     def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL,max_user_count):
         logger = logging.getLogger(__name__)
 
+        start_time = datetime.now()
+
         user_list_valid_clean=[]
 
         #valid list based on current experience
@@ -596,6 +598,8 @@ class experiment_sessions(models.Model):
 
             if not u.profile.check_for_future_constraints(self, first_date, i_list, experiment_id):
                 user_list_valid_clean.append(u)
+
+        logger.info(f'getValidUserList_forward_check run time: {datetime.now() - start_time}')
         
         return user_list_valid_clean
 
