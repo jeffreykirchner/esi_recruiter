@@ -286,133 +286,133 @@ class experiment_sessions(models.Model):
         #         '''
 
         #experiments include strings
-        experiments_include_user_where_str = ""
-        experiments_include_with_str = ""
-        if ei_c > 0:
-            experiments_include_user_where_str = '''
-            --check that user has been in required experiments	
-            EXISTS (SELECT 1                                                    
-                FROM experiments_include_user                
-                WHERE experiments_include_user.id = auth_user.id) AND
-            '''
+        # experiments_include_user_where_str = ""
+        # experiments_include_with_str = ""
+        # if ei_c > 0:
+        #     experiments_include_user_where_str = '''
+        #     --check that user has been in required experiments	
+        #     EXISTS (SELECT 1                                                    
+        #         FROM experiments_include_user                
+        #         WHERE experiments_include_user.id = auth_user.id) AND
+        #     '''
 
-            experiments_include_with_str = f'''
-            --table of experiments that a subject should have done already
-            experiments_include AS (SELECT experiments_id
-                                        FROM main_recruitment_parameters_experiments_include
-                                        INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_include.recruitment_parameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                        WHERE main_experiment_sessions.id = {id}),
+        #     experiments_include_with_str = f'''
+        #     --table of experiments that a subject should have done already
+        #     experiments_include AS (SELECT experiments_id
+        #                                 FROM main_recruitment_parameters_experiments_include
+        #                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_include.recruitment_parameters_id
+        #                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                 WHERE main_experiment_sessions.id = {id}),
             
 
-            --table of users that have the correct experiment include experience
-            experiments_include_user AS(SELECT user_experiments_past.user_id as id
-                                        FROM user_experiments_past
-                                        INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments_past.experiments_id
-                                        GROUP BY user_experiments_past.user_id
-                                        HAVING count(user_experiments_past.user_id) >= {ei_c}),
-            '''
+        #     --table of users that have the correct experiment include experience
+        #     experiments_include_user AS(SELECT user_experiments_past.user_id as id
+        #                                 FROM user_experiments_past
+        #                                 INNER JOIN experiments_include ON experiments_include.experiments_id = user_experiments_past.experiments_id
+        #                                 GROUP BY user_experiments_past.user_id
+        #                                 HAVING count(user_experiments_past.user_id) >= {ei_c}),
+        #     '''
 
-        #experiments exclude strings
-        experiments_exclude_user_where_str = ""
-        experiments_exclude_with_str=""
-        if ee_c > 0:
-            experiments_exclude_user_where_str = '''
-            --check that user has not been in excluded experiments		
-            NOT EXISTS (SELECT 1                                                    
-                FROM experiments_exclude_user                
-                WHERE experiments_exclude_user.id = auth_user.id) AND 
-            '''
+        # #experiments exclude strings
+        # experiments_exclude_user_where_str = ""
+        # experiments_exclude_with_str=""
+        # if ee_c > 0:
+        #     experiments_exclude_user_where_str = '''
+        #     --check that user has not been in excluded experiments		
+        #     NOT EXISTS (SELECT 1                                                    
+        #         FROM experiments_exclude_user                
+        #         WHERE experiments_exclude_user.id = auth_user.id) AND 
+        #     '''
 
-            experiments_exclude_with_str = f'''
-            --experiments that subject should not have done already
-            experiments_exclude AS (SELECT experiments_id
-                                    FROM main_recruitment_parameters_experiments_exclude
-                                    INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_exclude.recruitment_parameters_id
-                                    INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                    WHERE main_experiment_sessions.id = {id}),
+        #     experiments_exclude_with_str = f'''
+        #     --experiments that subject should not have done already
+        #     experiments_exclude AS (SELECT experiments_id
+        #                             FROM main_recruitment_parameters_experiments_exclude
+        #                             INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_exclude.recruitment_parameters_id
+        #                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
+        #                             WHERE main_experiment_sessions.id = {id}),
 
-            --table of users that have the correct experiment exclude experience
-            experiments_exclude_user AS(SELECT user_experiments.user_id as id
-                                        FROM user_experiments
-                                        INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
-                                        GROUP BY user_experiments.user_id
-                                        HAVING count(user_experiments.user_id) >= {ee_c}),
-            '''
+        #     --table of users that have the correct experiment exclude experience
+        #     experiments_exclude_user AS(SELECT user_experiments.user_id as id
+        #                                 FROM user_experiments
+        #                                 INNER JOIN experiments_exclude ON experiments_exclude.experiments_id = user_experiments.experiments_id
+        #                                 GROUP BY user_experiments.user_id
+        #                                 HAVING count(user_experiments.user_id) >= {ee_c}),
+        #    '''
 
         #list of users to search for, if empty return all valid users
-        users_to_search_for=""
-        user_to_search_for_list_str = ""
-        user_to_search_for_list_values_str=""
-        if len(u_list) > 0:
-            logger.info(u_list)
-            user_to_search_for_list_str = "("
-            for u in u_list:
-                if( user_to_search_for_list_str != "("):
-                    user_to_search_for_list_str += " , "
-                    user_to_search_for_list_values_str +=", "
+        # users_to_search_for=""
+        # user_to_search_for_list_str = ""
+        # user_to_search_for_list_values_str=""
+        # if len(u_list) > 0:
+        #     logger.info(u_list)
+        #     user_to_search_for_list_str = "("
+        #     for u in u_list:
+        #         if( user_to_search_for_list_str != "("):
+        #             user_to_search_for_list_str += " , "
+        #             user_to_search_for_list_values_str +=", "
 
-                user_to_search_for_list_str += str(u['id'])
-                user_to_search_for_list_values_str +="(" + str(u['id']) + ")"
+        #         user_to_search_for_list_str += str(u['id'])
+        #         user_to_search_for_list_values_str +="(" + str(u['id']) + ")"
 
-            user_to_search_for_list_str += ")"
+        #     user_to_search_for_list_str += ")"
 
-            users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
+        #     users_to_search_for += 'auth_user.id IN ' + user_to_search_for_list_str + ' AND '
         
-        #user experiments past only
-        user_experiments_past_str = ""
-        if ei_c > 0:
-            user_experiments_past_str= f'''
-                --table of users and experiments they have been in or commited to be in
-                user_experiments_past AS (SELECT main_experiments.id as experiments_id,
-                                                main_experiment_sessions.id as experiment_sessions_id,
-                                                main_experiment_session_day_users.user_id as user_id
-                                FROM main_experiments
-                                INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-                                INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                                INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                                WHERE main_experiment_sessions.canceled = FALSE AND
-                                      main_experiment_session_day_users.attended = TRUE
-                                '''
+        # #user experiments past only
+        # user_experiments_past_str = ""
+        # if ei_c > 0:
+        #     user_experiments_past_str= f'''
+        #         --table of users and experiments they have been in or commited to be in
+        #         user_experiments_past AS (SELECT main_experiments.id as experiments_id,
+        #                                         main_experiment_sessions.id as experiment_sessions_id,
+        #                                         main_experiment_session_day_users.user_id as user_id
+        #                         FROM main_experiments
+        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                               main_experiment_session_day_users.attended = TRUE
+        #                         '''
 
-            if len(u_list) > 0:
-                user_experiments_past_str +=f''' AND
-                                    main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
-                    '''
+        #     if len(u_list) > 0:
+        #         user_experiments_past_str +=f''' AND
+        #                             main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
+        #             '''
 
-            user_experiments_past_str +='''),'''
+        #     user_experiments_past_str +='''),'''
 
         #user experiments list past and future
-        user_experiments_str = f'''
-            --table of users and experiments they have been in or commited to be in
-            user_experiments AS (SELECT main_experiments.id as experiments_id,
-                                            main_experiment_sessions.id as experiment_sessions_id,
-                                            main_experiment_session_day_users.user_id as user_id
-                            FROM main_experiments
-                            INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-                            INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-                            INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
-                            WHERE main_experiment_sessions.canceled = FALSE AND
-                                  (main_experiment_session_day_users.attended = TRUE OR
-                                    (main_experiment_session_day_users.confirmed = TRUE AND 
-                                     main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
-                            '''
+        # user_experiments_str = f'''
+        #     --table of users and experiments they have been in or commited to be in
+        #     user_experiments AS (SELECT main_experiments.id as experiments_id,
+        #                                     main_experiment_sessions.id as experiment_sessions_id,
+        #                                     main_experiment_session_day_users.user_id as user_id
+        #                     FROM main_experiments
+        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
+        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
+        #                     INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                     WHERE main_experiment_sessions.canceled = FALSE AND
+        #                           (main_experiment_session_day_users.attended = TRUE OR
+        #                             (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
+        #                     '''
 
-        if len(u_list) > 0:
-            user_experiments_str +=f''' AND
-                                  main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
-                '''
+        # if len(u_list) > 0:
+        #     user_experiments_str +=f''' AND
+        #                           main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
+        #         '''
 
-        if testExperiment > 0:
-            user_experiments_str +=f'''
-                                    --add test experiment and session in to check if violation occurs
-                                    UNION   
-                                    SELECT {testExperiment} as experiments_id,
-                                           {testSession} as experiment_sessions_id, 
-                                           v.user_id as user_id
-		                            FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
-                                    '''
-        user_experiments_str +='''),'''                            
+        # if testExperiment > 0:
+        #     user_experiments_str +=f'''
+        #                             --add test experiment and session in to check if violation occurs
+        #                             UNION   
+        #                             SELECT {testExperiment} as experiments_id,
+        #                                    {testSession} as experiment_sessions_id, 
+        #                                    v.user_id as user_id
+		#                             FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
+        #                             '''
+        # user_experiments_str +='''),'''                            
 
         #list of institutions subject has been in in the past
         # user_institutions_past_str=""
@@ -479,12 +479,6 @@ class experiment_sessions(models.Model):
         str1=f'''          	  									
             WITH
 
-            {user_experiments_past_str}
-            {user_experiments_str}
-            {experiments_exclude_with_str}
-            {experiments_include_with_str}
-            
-
             --table of subject types required in session
             subject_type_include AS (SELECT subject_types_id
                                         FROM main_recruitment_parameters_subject_type
@@ -508,11 +502,6 @@ class experiment_sessions(models.Model):
             main_profile.blackballed = FALSE AND                             --subject has not been blackballed  
             main_profile.type_id = 2 AND                                     --only subjects 
             main_profile.email_confirmed = 'yes' AND                          --the email address has been confirmed
-
-            {users_to_search_for}
-
-            {experiments_exclude_user_where_str}
-            {experiments_include_user_where_str}
             
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
@@ -588,6 +577,7 @@ class experiment_sessions(models.Model):
         if checkAlreadyIn:
             u_list = self.getValidUserList_not_already_in_session(u_list)
             u_list = self.getValidUserList_gender(u_list)
+
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
         #check experience count
@@ -610,6 +600,10 @@ class experiment_sessions(models.Model):
         u_list = self.getValidUserList_check_institution_experience_exclude(u_list, testInstiutionList)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_institution_experience_include(u_list, testInstiutionList)
+        #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_experiment_experience_exclude(u_list, testExperiment)
+        #logger.info(f"{u_list}")
+        u_list = self.getValidUserList_check_experiment_experience_include(u_list, testExperiment)
 
         return u_list
     
@@ -894,13 +888,7 @@ class experiment_sessions(models.Model):
         #return u_list
 
         logger.info(f'getValidUserList_date_time_overlap test session: {testSession}')
-        #logger.info(f'getValidUserList_date_time_overlap incoming list: {u_list}')
 
-        #(StartDate1 <= EndDate2) and (StartDate2 <= EndDate1)
-        #date range constraints for all this session's days that have time enabled
-       
-        # d_query = reduce(or_, ((Q(date__lte = esd.date_end) & \
-        #                         Q(date_end__gte = esd.date)) for esd in self.ESD.filter(enable_time = True)))
 
         d_query=[]
 
@@ -932,7 +920,6 @@ class experiment_sessions(models.Model):
             for i in test_session_overlap:
                 session_overlap.append(i)
                                                                    
-
         logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
 
         #find list of users in overlapping sessions who are not eligable
@@ -1187,6 +1174,56 @@ class experiment_sessions(models.Model):
 
 
         return list(User.objects.filter(id__in = valid_list_include))
+
+    #check that user has the correct experiment experience
+    def getValidUserList_check_experiment_experience_exclude(self, u_list, testExperimentList):
+        #if no experiments_exclude constraints return list
+        if not self.recruitment_params.experiments_exclude.exists():
+            return u_list
+        
+        #create dictionary with user id and institution id
+        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+                                                               .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                               .filter(Q(attended = True) |
+                                                                      (Q(confirmed = True) &
+                                                                       Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC))))\
+                                                               .values('user__id',
+                                                                       'experiment_session_day__experiment_session__experiment__id')\
+                                                               .distinct()
+        
+        #build dictionary of user and institutions
+        user_institution_dict = {}
+        for u in esdu:
+            if u['user__id'] in user_institution_dict:
+                user_institution_dict[u['user__id']].add(u['experiment_session_day__experiment_session__experiment__id'])
+            else:
+                user_institution_dict[u['user__id']] = {u['experiment_session_day__experiment_session__experiment__id']}
+
+        valid_list_exclude = set([u.id for u in u_list])
+        #check for excluded institutions
+
+        exclude_experiments = set(self.recruitment_params.experiments_exclude.values_list("id", flat=True))
+
+        for u in user_institution_dict:
+
+            v = user_institution_dict[u].intersection(exclude_experiments)
+
+            if self.recruitment_params.institutions_exclude_all:
+                if len(v) == len(exclude_experiments):
+                    valid_list_exclude.remove(u)
+            else:
+                if len(v) > 0:
+                    valid_list_exclude.remove(u)
+       
+        return list(User.objects.filter(id__in = valid_list_exclude))
+
+    #check that user has the correct experiment experience
+    def getValidUserList_check_experiment_experience_include(self, u_list, testExperimentList):
+        #if no experiments_include constraints return list
+        if not self.recruitment_params.experiments_include.exists():
+            return u_list
+        
+        return u_list
 
     #return true if all session days are complete
     def getComplete(self):
