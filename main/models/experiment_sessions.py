@@ -542,8 +542,20 @@ class experiment_sessions(models.Model):
         user_list_valid_clean=[]
 
         #valid list based on current experience
-        user_list_valid = self.getValidUserList(u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL) 
+        #user_list_valid = self.getValidUserList(u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL) 
 
+    
+        user_list_valid = User.objects.filter(is_active = True)\
+                                      .filter(is_staff = False)\
+                                      .filter(profile__blackballed = False)\
+                                      .filter(profile__type_id = 2)\
+                                      .filter(profile__email_confirmed = 'yes')\
+                                      .filter(profile__paused = False)\
+                                      .filter(profile__subject_type__in = self.recruitment_params.subject_type.all())     
+
+        if len(u_list) > 0:
+            user_list_valid = User.objects.filter(id__in=[u['id'] for u in u_list])
+        
         #logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
         #check django based constraints
@@ -597,7 +609,7 @@ class experiment_sessions(models.Model):
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_now_show_block(u_list)
         #logger.info(f"{u_list}")
-        u_list = self.getValidUserList_check_multi_participations(u_list)
+        u_list = self.getValidUserList_check_multi_participations(u_list, testSession)
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_institution_experience_exclude(u_list, testInstiutionList)
         #logger.info(f"{u_list}")
@@ -1063,13 +1075,16 @@ class experiment_sessions(models.Model):
         return valid_list
     
     #check that user has not already particpated
-    def getValidUserList_check_multi_participations(self, u_list):
+    def getValidUserList_check_multi_participations(self, u_list, testSession):
         
         if self.recruitment_params.allow_multiple_participations:
             return u_list
         
         logger = logging.getLogger(__name__)
         logger.info("getValidUserList_check_multi_participations")
+
+        q1 = Q(attended = True)
+        q2 = (Q(confirmed = True) & Q(experiment_session_day__date__lte = self.getFirstDate()))
         
         #list of everyone that has done this experiment.
         user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
@@ -1077,12 +1092,19 @@ class experiment_sessions(models.Model):
                                                                    .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                    .filter(user__in = u_list)\
                                                                    .filter(bumped = False)\
-                                                                   .filter(Q(attended = True) | Q(confirmed = True) )\
+                                                                   .filter(q1 | q2)\
                                                                    .values_list("user__id", flat=True)
         
+        user_ids_test = []
+        if testSession>0:
+            es =  self.experiment.ES.filter(id = testSession).first()
+            if es:
+                if es.getFirstDate() < self.getFirstDate():
+                    user_ids_test = [u.id for u in u_list]
+
         valid_list=[]
 
-        user_ids = list(user_ids)
+        user_ids = list(user_ids) + user_ids_test
 
         for u in u_list:
             if u.id not in user_ids:
@@ -1108,13 +1130,13 @@ class experiment_sessions(models.Model):
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
-                                                            .exclude(experiment_session_day__experiment_session__id = self.id)\
-                                                            .filter(experiment_session_day__experiment_session__canceled = False) \
-                                                            .filter(bumped = False)\
-                                                            .filter(q1 | q2)\
-                                                            .values('user__id',
-                                                                    'experiment_session_day__experiment_session__experiment__institution__id')\
-                                                            .distinct() 
+                                                               .exclude(experiment_session_day__experiment_session__id = self.id)\
+                                                               .filter(experiment_session_day__experiment_session__canceled = False) \
+                                                               .filter(bumped = False)\
+                                                               .filter(q1 | q2)\
+                                                               .values('user__id',
+                                                                        'experiment_session_day__experiment_session__experiment__institution__id')\
+                                                               .distinct() 
         #build dictionary of user and institutions
         for u in esdu:
             if u['user__id'] in user_institution_dict:

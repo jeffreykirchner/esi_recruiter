@@ -426,7 +426,9 @@ class recruitTestCase(TestCase):
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
 
         e_users = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = e.id,
-                                                              confirmed=True)\
+                                                              confirmed=True, 
+                                                              bumped=False,
+                                                              experiment_session_day__date__lte = es.getFirstDate())\
                                                .values_list("user__id",flat = True)
         e_users=list(User.objects.filter(id__in = e_users))
 
@@ -457,7 +459,7 @@ class recruitTestCase(TestCase):
         e_users = []
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[2])
-        #e_users.append(self.user_list[7])
+        # e_users.append(self.user_list[7]) already confirmed for future session
 
         logger.info("Users not confirmed for experiment with no experience:")
         logger.info(e_users)
@@ -722,6 +724,7 @@ class recruitTestCase(TestCase):
         e_users.append(self.user_list[0])
         e_users.append(self.user_list[1])
         e_users.append(self.user_list[2])
+       
 
         self.p.noShowCutoff = 1
         self.p.save()
@@ -1363,7 +1366,7 @@ class recruitTestCase(TestCase):
         self.assertEqual(len(e_users),len(u_list))   
 
     #recruit subjects excluding two institutions if in one future conflict
-    def testTwoInstitutionExcludedInOneFutureConflict(self):
+    def testInstitutionExcludedInOneFutureConflict(self):
         """Test two institutions excluded if in one, future conflict""" 
         logger = logging.getLogger(__name__)
 
@@ -1387,14 +1390,14 @@ class recruitTestCase(TestCase):
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
-        # esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True)
+        esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True)
         # esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True)
 
-        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="three"))
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(institutions.objects.filter(name="three"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1402,7 +1405,7 @@ class recruitTestCase(TestCase):
         es1.recruitment_params.gender.set(genders.objects.all())
         es1.recruitment_params.institutions_exclude_all=False
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one")))
         es1.recruitment_params.save()
 
         esd1 = es1.ESD.first()
@@ -1415,7 +1418,7 @@ class recruitTestCase(TestCase):
 
         e_users = []
         e_users.append(self.user_list[0])
-        e_users.append(self.user_list[2])
+        #e_users.append(self.user_list[2])
         e_users.append(self.user_list[3])
         e_users.append(self.user_list[4])
         e_users.append(self.user_list[5])
@@ -2234,6 +2237,9 @@ class recruitTestCase(TestCase):
         
         temp_u = self.user_list[1]
         temp_esdu = esd1.ESDU_b.get(user__id = temp_u.id)
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -2244,6 +2250,9 @@ class recruitTestCase(TestCase):
         temp_esdu = esd1.ESDU_b.get(user__id = temp_u.id)
 
         #only check on recruiment email, not on confirmation
+        r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"unconfirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
