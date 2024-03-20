@@ -1184,6 +1184,7 @@ class experiment_sessions(models.Model):
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(bumped = False)\
                                                                .filter(attended = True)\
+                                                               .filter(experiment_session_day__date_end__lte = self.getFirstDate())\
                                                                .values('user__id',
                                                                        'experiment_session_day__experiment_session__experiment__institution__id')\
                                                                .distinct() 
@@ -1285,6 +1286,7 @@ class experiment_sessions(models.Model):
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(bumped = False)\
                                                                .filter(attended = True)\
+                                                               .filter(experiment_session_day__date_end__lte = self.getFirstDate())\
                                                                .values('user__id',
                                                                        'experiment_session_day__experiment_session__experiment__id')\
                                                                .distinct() 
