@@ -431,7 +431,7 @@ def bumpAll(data, id, request_user):
     try:
         esd = experiment_session_days.objects.get(id=id)
         esd.ESDU_b.filter(attended=True) \
-                                            .update(attended=False,bumped=True)
+                  .update(attended=False,bumped=True)
         json_info = esd.json_runInfo(request_user)
     except Exception  as e:
         logger.info("Bump all error")

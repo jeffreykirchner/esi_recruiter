@@ -191,7 +191,7 @@ class cronTests(TestCase):
         r = esd1.sendReminderEmail()
         logger.info(r)
 
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #one user confirmed one not
         esd1 = self.es1.ESD.first()
@@ -201,15 +201,15 @@ class cronTests(TestCase):
         r = esd1.sendReminderEmail()
         logger.info(r)
 
-        self.assertEquals("success",r['status'])
-        self.assertEquals(1,len(r['emailList']))
+        self.assertEqual("success",r['status'])
+        self.assertEqual(1,len(r['emailList']))
 
         #send to session again
         esd1 = self.es1.ESD.first()
         r = esd1.sendReminderEmail()
         logger.info(r)
 
-        self.assertEquals("fail",r['status'])
+        self.assertEqual("fail",r['status'])
 
         #test cron job
         temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
@@ -229,11 +229,11 @@ class cronTests(TestCase):
         #unsent experiment in 23 hours
         r = cj.do()
         #logger.info(r)
-        self.assertEquals(1,len(r["standard"]))
+        self.assertEqual(1,len(r["standard"]))
 
         #sent experiment in 23 hours
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
+        self.assertEqual(0,len(r["standard"]))
 
         #unsent, 30 hours
         esd1 = self.es1.ESD.first()
@@ -246,7 +246,7 @@ class cronTests(TestCase):
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
+        self.assertEqual(0,len(r["standard"]))
 
         #unsent, 15 hours
         esd1 = self.es1.ESD.first()
@@ -259,7 +259,7 @@ class cronTests(TestCase):
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
+        self.assertEqual(0,len(r["standard"]))
 
         #unsent, 23 hours, canceled
         esd1 = self.es1.ESD.first()
@@ -274,7 +274,7 @@ class cronTests(TestCase):
         self.assertEqual(r['status'],"success")
 
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
+        self.assertEqual(0,len(r["standard"]))
 
         #custom time, within range
         esd1 = self.es1.ESD.first()
@@ -294,8 +294,8 @@ class cronTests(TestCase):
         #logger.info(f"Custom cron test: reminder time {esd1.reminder_time} date {esd1.date} custom reminder time {esd1.custom_reminder_time}")
 
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
-        self.assertEquals(1,len(r["custom"]))
+        self.assertEqual(0,len(r["standard"]))
+        self.assertEqual(1,len(r["custom"]))
 
         #custom time, outside range
         esd1 = self.es1.ESD.first()
@@ -315,8 +315,8 @@ class cronTests(TestCase):
         #logger.info(f"Custom cron test: reminder time {esd1.reminder_time} date {esd1.date} custom reminder time {esd1.custom_reminder_time}")
 
         r = cj.do()
-        self.assertEquals(0,len(r["standard"]))
-        self.assertEquals(0,len(r["custom"]))
+        self.assertEqual(0,len(r["standard"]))
+        self.assertEqual(0,len(r["custom"]))
 
 
 
