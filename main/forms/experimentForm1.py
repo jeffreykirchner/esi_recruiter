@@ -151,7 +151,7 @@ class experimentForm1(forms.ModelForm):
         clean invite_to_all boolean
         '''
         logger = logging.getLogger(__name__)
-        logger.info("Clean inite_to_all")
+        logger.info("Clean invite_to_all")
 
         val = self.data['invite_to_all']
 
