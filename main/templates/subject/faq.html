@@ -10,13 +10,12 @@
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
 
-        var app = new Vue({
+        var app = Vue.createApp({
         
-            delimiters: ["[[", "]]"],
-            el: '#root',        
-            data:{
+            delimiters: ["[[", "]]"],        
+            data(){ return {
                 faq:[],
-            },
+            }},
 
             methods:{
                 //get attended and upcoming sessions
@@ -44,10 +43,10 @@
                     },    
             },
 
-            mounted: function(){
+            mounted(){
                     this.getFaqs();                    
             },
-        });
+        }).mount('#app');
 
         
     });
@@ -57,7 +56,7 @@
 {%block content%}
 <div class="row justify-content-lg-center">
     <div class="col col-lg-6">
-        <div class="card">                  
+        <div class="card" v-cloak>                  
             <div class="card-header">
                 <div class="row">
                     <div class ="col">
@@ -88,7 +87,7 @@
 
                         <div v-bind:id="'collapse'+index" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
                             <div class="card-body">
-                                <span v-html = "f.answer"><span>
+                                [[f.answer]]
                             </div>
                         </div>
 

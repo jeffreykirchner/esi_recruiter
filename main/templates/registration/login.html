@@ -7,15 +7,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script type="text/javascript">
-  $(document).ready(function(){  
+ document.addEventListener("DOMContentLoaded", function(){
+
       axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
       axios.defaults.xsrfCookieName = "csrftoken";
 
-      var app = new Vue({
+      var app = Vue.createApp({
       
           delimiters: ['[[', ']]'],
-          el: '#root',        
-          data:{
+                 
+          data(){return {
               loginButtonText : 'Submit <i class="fas fa-sign-in-alt"></i>',
               loginErrorText : "",
               form_ids : {{form_ids|safe}},     
@@ -25,12 +26,12 @@
               two_factor_uri : "",       
               two_factor_hash : "",   
               qr_code : null,     
-          },
+          }},
 
           methods:{
               //get current, last or next month
 
-              login:function(){
+              login: function login(){
                   app.$data.loginButtonText = '<i class="fas fa-spinner fa-spin"></i>';
                   app.$data.loginErrorText = "";
 
@@ -95,50 +96,45 @@
                       });                        
                   },
 
-                  clearMainFormErrors:function(){
+              clearMainFormErrors:function clearMainFormErrors(){
 
-                        s = app.$data.form_ids;                    
-                        for(var i in s)
+                    s = app.$data.form_ids;                    
+                    for(var i in s)
+                    {
+                        $("#id_" + s[i]).attr("class","form-control");
+                        $("#id_errors_" + s[i]).remove();
+                    }
+
+              },
+              
+              //display form errors
+              displayErrors:function displayErrors(errors){
+                    for(var e in errors)
+                    {
+                        $("#id_" + e).attr("class","form-control is-invalid")
+                        var str='<span id=id_errors_'+ e +' class="text-danger">';
+                        
+                        for(var i in errors[e])
                         {
-                            $("#id_" + s[i]).attr("class","form-control");
-                            $("#id_errors_" + s[i]).remove();
+                            str +=errors[e][i] + '<br>';
                         }
 
-                    },
-              
-                //display form errors
-                displayErrors:function(errors){
-                      for(var e in errors)
-                      {
-                          $("#id_" + e).attr("class","form-control is-invalid")
-                          var str='<span id=id_errors_'+ e +' class="text-danger">';
-                          
-                          for(var i in errors[e])
-                          {
-                              str +=errors[e][i] + '<br>';
-                          }
+                        str+='</span>';
+                        $("#div_id_" + e).append(str); 
 
-                          str+='</span>';
-                          $("#div_id_" + e).append(str); 
-
-                      }
-                  },
-
-              
+                    }
+                },
           },            
 
-          mounted: function(){
+          mounted(){
                                       
           },
-      });
+      }).mount('#app');
   });
 
 </script>
 
 <style>
-   [v-cloak] {
-    display: none;
-   }
   /* #qrcode {
     width:160px;
     height:160px;
@@ -151,7 +147,7 @@
 
 {%for i in fpn_list%}
 <!-- notification cards -->
-<div class="row justify-content-center mb-4"> 
+<div class="row justify-content-center mb-4" v-cloak> 
   <div class="col col-lg-6">
 
     <div class="card mx-auto">
@@ -170,7 +166,7 @@
 {%endfor%}
 
 <!-- login card -->
-<div class="row justify-content-center mb-4"> 
+<div class="row justify-content-center mb-4" v-cloak> 
   <div class="col col-lg-6">
 
     <div class="card">
