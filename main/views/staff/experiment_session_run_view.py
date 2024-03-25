@@ -884,16 +884,23 @@ def takeEarningsUpload2(data, id, request_user):
         for i in range(len(v)):
             v[i] = re.split(r',|\t',v[i])
 
+            v_id = v[i][0]
+            
+            #convert to int if student id
             if upload_id_type == "student_id" or upload_id_type == "recruiter_id":            
                 v[i][0] = int(v[i][0])
 
+            #convert earnings to decimal
             v[i][1] = Decimal(v[i][1].replace('$',''))
 
+            #bonus earnings
             if len(v[i]) > 2:
                 v[i][2] = Decimal(v[i][2].replace('$',''))
             else:
-
                 v[i].append(-1)
+            
+            #store orginally formmated Id
+            v[i].append(v_id)
 
         logger.info(v)
 
@@ -904,11 +911,11 @@ def takeEarningsUpload2(data, id, request_user):
         if auto_add_subjects:
             u_list = {}
             if upload_id_type == "student_id":
-                u_list = User.objects.filter(profile__studentID__in=[i[0] for i in v]).values('id')
+                u_list = User.objects.filter(profile__studentID__in=[i[3] for i in v]).values('id')
             elif upload_id_type == "recruiter_id":
-                u_list = User.objects.filter(id__in=[i[0] for i in v]).values('id')
+                u_list = User.objects.filter(id__in=[i[3] for i in v]).values('id')
             else:
-                u_list = User.objects.filter(profile__public_id__in=[i[0] for i in v]).values('id')
+                u_list = User.objects.filter(profile__public_id__in=[i[3] for i in v]).values('id')
 
             u_list_valid = list(esd.experiment_session.getValidUserList_forward_check(list(u_list),True,0,0,[],False,0))
 
