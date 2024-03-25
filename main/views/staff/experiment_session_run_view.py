@@ -22,6 +22,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
+from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
 from main.models import experiment_session_days
@@ -901,7 +902,15 @@ def takeEarningsUpload2(data, id, request_user):
 
         #if adding subjects, get valid list
         if auto_add_subjects:
-            u_list_valid = list(esd.experiment_session.getValidUserList_forward_check([],True,0,0,[],False,0))
+            u_list = {}
+            if upload_id_type == "student_id":
+                u_list = User.objects.filter(profile__studentID__in=[i[0] for i in v]).values('id')
+            elif upload_id_type == "recruiter_id":
+                u_list = User.objects.filter(id__in=[i[0] for i in v]).values('id')
+            else:
+                u_list = User.objects.filter(profile__public_id__in=[i[0] for i in v]).values('id')
+
+            u_list_valid = list(esd.experiment_session.getValidUserList_forward_check(list(u_list),True,0,0,[],False,0))
 
         #store earnings
         for i in v:
