@@ -2,11 +2,11 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{        
+       
+    data(){return{   
         experiment : null,
         recruitment_params:{                          //recruiment parameters
                 gender:[],
@@ -31,7 +31,7 @@ var app = new Vue({
         session:{confirmedCount:0},             //recruitment form parameter
         loading:true,
         buttonText1:'Update <i class="fas fa-sign-in-alt"></i>',                 //recruitment parameters update button text                   
-    },
+    }},
 
     methods:{     
 
@@ -120,10 +120,10 @@ var app = new Vue({
     },
 
     //run when vue is mounted
-    mounted: function(){
+    mounted(){
         this.getExperiment();
     },                 
 
-});
+}).mount('#app');
 
 

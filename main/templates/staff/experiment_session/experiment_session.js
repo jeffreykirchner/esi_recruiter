@@ -1,28 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-// http://eonasdan.github.io/bootstrap-datetimepicker/
-Vue.component('date-picker', VueBootstrapDatetimePicker);
-
-$.extend(true, $.fn.datetimepicker.defaults, {
-    icons: {
-        time: 'far fa-clock',
-        date: 'far fa-calendar',
-        up: 'fas fa-arrow-up',
-        down: 'fas fa-arrow-down',
-        previous: 'fas fa-chevron-left',
-        next: 'fas fa-chevron-right',
-        today: 'fas fa-calendar-check',
-        clear: 'far fa-trash-alt',
-        close: 'far fa-times-circle'
-    }
-    });
-
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{        
+      
+    data(){return{
         loading: true,   
         message: null,       
         showLoadingSpinner : true,
@@ -94,7 +77,7 @@ var app = new Vue({
             },   
         first_load : false,              //true after first load done   
         working : false,                   
-    },
+    }},
 
     methods:{ 
         do_first_load:function(){
@@ -1360,7 +1343,7 @@ var app = new Vue({
     },
 
     //run when vue is mounted
-    mounted: function(){
+    mounted(){
        
         //attach modal close events to vue
         //$('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
@@ -1369,6 +1352,23 @@ var app = new Vue({
         
     },                 
 
-});
+}).mount('#app');
+
+// http://eonasdan.github.io/bootstrap-datetimepicker/
+app.component('date-picker', VueBootstrapDatetimePicker);
+
+$.extend(true, $.fn.datetimepicker.defaults, {
+    icons: {
+        time: 'far fa-clock',
+        date: 'far fa-calendar',
+        up: 'fas fa-arrow-up',
+        down: 'fas fa-arrow-down',
+        previous: 'fas fa-chevron-left',
+        next: 'fas fa-chevron-right',
+        today: 'fas fa-calendar-check',
+        clear: 'far fa-trash-alt',
+        close: 'far fa-times-circle'
+    }
+    });
 
 
