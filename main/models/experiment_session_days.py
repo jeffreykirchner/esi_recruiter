@@ -179,6 +179,11 @@ class experiment_session_days(models.Model):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p %z")
+    
+    def getDateStringTZOffsetInput(self):
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+        return  self.date.astimezone(tz).strftime("%Y-%m-%dT%H:%M")
 
     #get the local time of experiment start
     def getStartTimeString(self):
