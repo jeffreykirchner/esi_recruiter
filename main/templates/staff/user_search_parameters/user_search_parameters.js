@@ -2,11 +2,11 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{        
+         
+    data() {return{   
         recruitment_params:{{recruitment_params|safe}},
         recruitment_parameters_form_ids: {{recruitment_parameters_form_ids|safe}},
         confirmedCount:0,
@@ -25,7 +25,7 @@ var app = new Vue({
             include_if_in_range:true,
         },  
         loginLast90Days:false,
-    },
+    }},
 
     methods:{     
 
@@ -211,7 +211,7 @@ var app = new Vue({
     },
 
     //run when vue is mounted
-    mounted: function(){
+    mounted(){
         this.$nextTick(() => {
             app.$data.loading = false;
         });
@@ -220,6 +220,6 @@ var app = new Vue({
         $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
     },                 
 
-});
+}).mount('#app');
 
 
