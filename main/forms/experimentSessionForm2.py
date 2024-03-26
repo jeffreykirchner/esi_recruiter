@@ -24,11 +24,12 @@ class experimentSessionForm2(forms.ModelForm):
 
     date = forms.DateTimeField(label="Date and Time",
                                localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p'],
+                               input_formats=['%Y-%m-%dT%H:%M'],
                                error_messages={'invalid': 'Format: MM/DD/YYYY HH:MM am/pm'},
                                widget=forms.DateTimeInput(attrs={"type": "datetime-local",
                                                                  "v-model":"currentSessionDay.date",
-                                                                 "v-on:change":"mainFormChange2"}))
+                                                                 "v-on:change":"mainFormChange2",
+                                                                 "v-bind:disabled":"session.confirmedCount > 0"}))
 
     length = forms.IntegerField(label='Length in Minutes',
                                 min_value=1,
@@ -56,7 +57,7 @@ class experimentSessionForm2(forms.ModelForm):
     reminder_time = forms.DateTimeField(label="Reminder Date and Time",
                                         localize=True,
                                         input_formats=['%m/%d/%Y %I:%M %p'],
-                                        error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm'},
+                                        error_messages={'invalid': 'Format: MM/DD/YYYY HH:MM am/pm'},
                                         widget=forms.DateTimeInput(attrs={"type": "datetime-local",
                                                                           "v-model":"currentSessionDay.reminder_time",
                                                                           "v-on:change":"mainFormChange2"}))
