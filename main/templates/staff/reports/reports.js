@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+   
+    data(){return{
         pettyCash:{
                     department:"",
                     startDate:"",
@@ -26,7 +26,7 @@ var app = new Vue({
         pettyCashButtonText:'Generate <i class="fas fa-scroll fa-xs"></i>',
         studentReportButtonText:'Generate <i class="fas fa-scroll fa-xs"></i>',
 
-    },
+    }},
 
     methods:{
         //display form errors
@@ -145,7 +145,7 @@ var app = new Vue({
                     },
     },
 
-    mounted: function(){
+    mounted(){
                                 
     },
-});
+}).mount('#app');

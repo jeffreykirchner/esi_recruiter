@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+       
+    data(){return{
         searchInfo:"",
         experiments:[],
         experiments_recent:[],
@@ -19,7 +19,7 @@ var app = new Vue({
         titleSortButtonText: 'Title <i class="fas fa-sort"></i>',
         managerSortButtonText: 'Manager <i class="fas fa-sort"></i>',
 
-    },
+    }},
 
     methods:{
         //sort experiments by date
@@ -222,7 +222,7 @@ var app = new Vue({
             }                          
     },
 
-    mounted: function(){
+    mounted(){
         this.getRecentExperiments();                  
     },
-});
+}).mount('#app');

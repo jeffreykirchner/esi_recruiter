@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+       
+    data(){return{
         //sessions:[],
         file: '',
         file_name:'Choose File',
@@ -17,7 +17,7 @@ var app = new Vue({
         select_all_value:true,
         include_sign_up_metrics:false,
         session_day:{{session_day|safe}},
-    },
+    }},
 
     methods:{
         uploadCSV:function(){
@@ -112,7 +112,7 @@ var app = new Vue({
     },
 
 
-    mounted: function(){
+    mounted(){
             //this.getUser();                    
     },
-});
+}).mount('#app');
