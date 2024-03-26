@@ -4,12 +4,14 @@ Experiment session day form
 from datetime import datetime
 
 import logging
+import pytz
 
 from django import forms
 
 from main.models import locations
 from main.models import accounts
 from main.models import experiment_session_days
+from main.models import parameters
 
 class experimentSessionForm2(forms.ModelForm):
     '''
@@ -22,16 +24,18 @@ class experimentSessionForm2(forms.ModelForm):
 
     date = forms.DateTimeField(label="Date and Time",
                                localize=True,
-                               input_formats=['%m/%d/%Y %I:%M %p %z'],
-                               error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},
-                               widget=forms.DateTimeInput(attrs={"v-model":"currentSessionDay.date",
+                               input_formats=['%m/%d/%Y %I:%M %p'],
+                               error_messages={'invalid': 'Format: MM/DD/YYYY HH:MM am/pm'},
+                               widget=forms.DateTimeInput(attrs={"type": "datetime-local",
+                                                                 "v-model":"currentSessionDay.date",
                                                                  "v-on:change":"mainFormChange2"}))
 
-    length = forms.CharField(label='Length in Minutes',
-                             widget=forms.NumberInput(attrs={"v-model":"currentSessionDay.length",
-                                                             "v-on:keyup":"mainFormChange2",
-                                                             "v-on:change":"mainFormChange2",
-                                                             "v-bind:disabled":"session.confirmedCount > 0"}))
+    length = forms.IntegerField(label='Length in Minutes',
+                                min_value=1,
+                                widget=forms.NumberInput(attrs={"v-model":"currentSessionDay.length",
+                                                                "v-on:keyup":"mainFormChange2",
+                                                                "v-on:change":"mainFormChange2",
+                                                                "v-bind:disabled":"session.confirmedCount > 0"}))
 
     account = forms.ModelChoiceField(label="Account",
                                      queryset=accounts.objects.filter(archived=False),
@@ -51,9 +55,10 @@ class experimentSessionForm2(forms.ModelForm):
 
     reminder_time = forms.DateTimeField(label="Reminder Date and Time",
                                         localize=True,
-                                        input_formats=['%m/%d/%Y %I:%M %p %z'],
-                                        error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm ZZ'},
-                                        widget=forms.DateTimeInput(attrs={"v-model":"currentSessionDay.reminder_time",
+                                        input_formats=['%m/%d/%Y %I:%M %p'],
+                                        error_messages={'invalid': 'Format: M/D/YYYY H:MM am/pm'},
+                                        widget=forms.DateTimeInput(attrs={"type": "datetime-local",
+                                                                          "v-model":"currentSessionDay.reminder_time",
                                                                           "v-on:change":"mainFormChange2"}))
 
     custom_reminder_time = forms.ChoiceField(label="Set Custom Reminder Time",
@@ -129,10 +134,15 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            date_time_obj = datetime.strptime(date, '%m/%d/%Y %I:%M %p %z')
+            p = parameters.objects.first()
+            tz = pytz.timezone(p.subjectTimeZone)
+
+            date_time_obj = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+            date_time_obj = tz.localize(date_time_obj)
+
             #logger.info(date_time_obj)
         except ValueError:
-            raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
+            raise forms.ValidationError('Invalid Format: MM/DD/YYYY HH:MM am/pm')
 
         return date_time_obj
 
@@ -149,14 +159,22 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            date_time_obj = datetime.strptime(date_reminder, '%m/%d/%Y %I:%M %p %z')
+            p = parameters.objects.first()
+            tz = pytz.timezone(p.subjectTimeZone)
+
+            date_time_obj = datetime.strptime(date_reminder, '%Y-%m-%dT%H:%M')
+            date_time_obj = tz.localize(date_time_obj)
             #logger.info(date_time_obj)
         except ValueError:
             raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
 
         try:
-            date_time_obj2 = datetime.strptime(date, '%m/%d/%Y %I:%M %p %z')
-            #logger.info(date_time_obj)
+            p = parameters.objects.first()
+            tz = pytz.timezone(p.subjectTimeZone)
+
+            date_time_obj2 = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+            date_time_obj2 = tz.localize(date_time_obj2)
+            #logger.info(date_time_obj2)
         except ValueError:
             raise forms.ValidationError('Reminder must be sooner than session date.')
 
