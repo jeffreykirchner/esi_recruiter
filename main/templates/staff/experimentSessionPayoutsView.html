@@ -50,11 +50,16 @@
                 max-width: 200px;
                 border-style: none;
             }
+
+            [v-cloak] {
+                display: none;
+            }
+        
         </style>
         
     </head>
     <body style="font-size:16px">
-        <div  id="app">
+        <div id="app" v-cloak>
             {%include "staff/experiment_session_payouts/experiment_session_payouts.html"%}    
         </div>         
     </body>
