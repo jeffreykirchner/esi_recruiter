@@ -4,103 +4,100 @@
 {%block head%}
 <script type="text/javascript">
   $(document).ready(function(){  
-      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-      axios.defaults.xsrfCookieName = "csrftoken";
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    axios.defaults.xsrfCookieName = "csrftoken";
 
-      var app = new Vue({
-      
-          delimiters: ['[[', ']]'],
-          el: '#root',        
-          data:{
-              buttonText : 'Update <i class="fas fa-sign-in-alt"></i>',
-              form_ids : {{form_ids|safe}},    
-              status: "update", 
-              emailVerificationRequired: false,                  
-          },
+    var app = Vue.createApp({
+    
+      delimiters: ['[[', ']]'],
 
-          methods:{
-              //get current, last or next month
+      data() {return{
+        buttonText : 'Update <i class="fas fa-sign-in-alt"></i>',
+        form_ids : {{form_ids|safe}},    
+        status: "update", 
+        emailVerificationRequired: false,                  
+      }},
 
-              update:function(){
+      methods:{
+      //get current, last or next month
 
-                  app.$data.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
-                  
-                  axios.post('/accounts/profile/', {
-                          action :"update",
-                          formData : $("#updateForm").serializeArray(),                              
-                      })
-                      .then(function (response) {     
-                          
-                        status = response.data.status;                               
+      update:function(){
 
-                        app.clearMainFormErrors();
+        app.$data.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        axios.post('/accounts/profile/', {
+                action :"update",
+                formData : $("#updateForm").serializeArray(),                              
+            })
+            .then(function (response) {     
+                
+              status = response.data.status;                               
 
-                        if(status == "error")
-                        {              
-                          //form validation error           
-                          app.displayErrors(response.data.errors);
-                        }
-                        else
-                        {
-                          app.$data.status = "done";
-                          app.$data.emailVerificationRequired = response.data.email_verification_required;
-                        }                        
+              app.clearMainFormErrors();
 
-                        app.$data.buttonText = 'Update <i class="fas fa-sign-in-alt"></i>';
+              if(status == "error")
+              {              
+                //form validation error           
+                app.displayErrors(response.data.errors);
+              }
+              else
+              {
+                app.$data.status = "done";
+                app.$data.emailVerificationRequired = response.data.email_verification_required;
+              }                        
 
-                      })
-                      .catch(function (error) {
-                          console.log(error);                            
-                      });                        
-                  },
+              app.$data.buttonText = 'Update <i class="fas fa-sign-in-alt"></i>';
 
-                  clearMainFormErrors:function(){
+            })
+            .catch(function (error) {
+                console.log(error);                            
+            });                        
+        },
 
-                        s = app.$data.form_ids;                    
-                        for(var i in s)
-                        {
-                            $("#id_" + s[i]).attr("class","form-control");
-                            $("#id_errors_" + s[i]).remove();
-                        }
+        clearMainFormErrors:function(){
 
-                    },
-              
-                //display form errors
-                displayErrors:function(errors){
-                      for(var e in errors)
-                      {
-                          $("#id_" + e).attr("class","form-control is-invalid")
-                          var str='<span id=id_errors_'+ e +' class="text-danger">';
-                          
-                          for(var i in errors[e])
-                          {
-                              str +=errors[e][i] + '<br>';
-                          }
+          s = app.$data.form_ids;                    
+          for(var i in s)
+          {
+            $("#id_" + s[i]).attr("class","form-control");
+            $("#id_errors_" + s[i]).remove();
+          }
 
-                          str+='</span>';
-                          $("#div_id_" + e).append(str); 
+        },
+        
+        //display form errors
+        displayErrors:function(errors){
+          for(var e in errors)
+          {
+            $("#id_" + e).attr("class","form-control is-invalid")
+            var str='<span id=id_errors_'+ e +' class="text-danger">';
+            
+            for(var i in errors[e])
+            {
+                str +=errors[e][i] + '<br>';
+            }
 
-                          var elmnt = document.getElementById("div_id_" + e);
-                          elmnt.scrollIntoView(); 
+            str+='</span>';
+            $("#div_id_" + e).append(str); 
 
-                      }
-                  },
+            var elmnt = document.getElementById("div_id_" + e);
+            elmnt.scrollIntoView(); 
 
-              
-          },            
+          }
+        },
 
-          mounted: function(){
-                                      
-          },
-      });
+      },            
+
+      mounted(){
+                                  
+      },
+    }).mount('#app');
   });
 
 </script>
 
 <style>
-  [v-cloak] {
-    display: none;
-  }
+ 
 </style>
 {%endblock head%}
 

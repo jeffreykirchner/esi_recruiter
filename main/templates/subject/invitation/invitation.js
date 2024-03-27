@@ -1,13 +1,13 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+        
+    data() {return{
 
-    },
+    }},
 
     methods:{
   
@@ -17,4 +17,4 @@ var app = new Vue({
     mounted: function(){
           
     },
-});
+}).mount('#app')

@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
-    delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+    delimiters: ['[[', ']]'],       
+
+    data(){return{
         calendar:[],
         todayDay:"",
         todayMonth:"",
@@ -23,7 +23,7 @@ var app = new Vue({
         jump_to_month : "",
         working : true,
         load_url_month : true,
-    },
+    }},
 
     methods:{
         //get current, last or next month
@@ -169,7 +169,7 @@ var app = new Vue({
         },
     },            
 
-    mounted: function(){
+    mounted(){
         this.getMonth();                          
     },
-});
+}).mount('#app');

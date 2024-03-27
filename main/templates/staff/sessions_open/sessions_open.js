@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{                
+  
+    data(){return{                
         sessions:[],
         autoRefreshButtonText:'Auto Refresh: Off <i class="fas fa-sync fa-spin"></i>',
         closeAllButtonText:'Complete All Sessions <i class="fas fa-check"></i>',
@@ -13,7 +13,7 @@ var app = new Vue({
         last_refresh:"",
         timeouts:[],
         isAdmin:{%if user.is_staff%}true{%else%}false{%endif%},
-    },
+    }},
 
     methods:{
         
@@ -90,8 +90,8 @@ var app = new Vue({
     
     },
         
-    mounted: function(){
+    mounted(){
         this.getOpenSessions();                  
     },
     
-});
+}).mount('#app');

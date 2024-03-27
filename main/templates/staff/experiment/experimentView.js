@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
         
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{           
+       
+    data(){return{      
         experimentURL:'',   
         loading: true,   
         message: null,              
@@ -46,7 +46,7 @@ var app = new Vue({
         working : false,
         add_to_allow_list:"",
         allow_list_error:"",
-    },
+    }},
 
     methods:{       
         
@@ -579,7 +579,7 @@ var app = new Vue({
         },
     },
 
-    mounted: function(){
+    mounted(){
         this.getExperiment();
         $('#setupModalCenter').on("hidden.bs.modal", this.hideEditExperiment);
         $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
@@ -587,5 +587,5 @@ var app = new Vue({
         $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
     },                 
 
-});
+}).mount('#app');
 

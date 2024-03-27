@@ -1,10 +1,10 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+   
+    data() {return{
         baseURL:'{{request.get_full_path}}',                                                                                                                 
         users:[],      
         searchInfo:"", 
@@ -21,7 +21,7 @@ var app = new Vue({
         uploadInternationalText : "",
         uploadInternationalButtonText : 'Upload <i class="fa fa-upload" aria-hidden="true"></i>',
         uploadInternationalMessage : "",
-    },
+    }},
 
     methods:{
         do_first_load:function(){
@@ -237,10 +237,10 @@ var app = new Vue({
         
     },
     
-    mounted: function(){
+    mounted(){
         $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
 
         setTimeout(this.do_first_load, 500);
         
     },
-});
+}).mount('#app');
