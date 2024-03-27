@@ -1,28 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-// http://eonasdan.github.io/bootstrap-datetimepicker/
-Vue.component('date-picker', VueBootstrapDatetimePicker);
-
-$.extend(true, $.fn.datetimepicker.defaults, {
-    icons: {
-        time: 'far fa-clock',
-        date: 'far fa-calendar',
-        up: 'fas fa-arrow-up',
-        down: 'fas fa-arrow-down',
-        previous: 'fas fa-chevron-left',
-        next: 'fas fa-chevron-right',
-        today: 'fas fa-calendar-check',
-        clear: 'far fa-trash-alt',
-        close: 'far fa-times-circle'
-    }
-    });
-
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{        
+      
+    data(){return{
         loading: true,   
         message: null,       
         showLoadingSpinner : true,
@@ -94,10 +77,10 @@ var app = new Vue({
             },   
         first_load : false,              //true after first load done   
         working : false,                   
-    },
+    }},
 
     methods:{ 
-        do_first_load:function(){
+        do_first_load:function do_first_load(){
             tinyMCE.init({
                 target: document.getElementById('id_invitationRawText'),
                 height : "400",
@@ -141,7 +124,7 @@ var app = new Vue({
         },    
 
         //remove all the form errors
-        clearMainFormErrors:function(){
+        clearMainFormErrors:function clearMainFormErrors(){
 
             for(var item in app.$data.currentSessionDay)
             {
@@ -157,7 +140,7 @@ var app = new Vue({
         },
 
         //creates lists  of recruitment parameters
-        updateDisplayLists:function(errors){
+        updateDisplayLists:function updateDisplayLists(errors){
             var e = app.$data.recruitment_params;
             
             app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
@@ -172,7 +155,7 @@ var app = new Vue({
             
         },
 
-        updateDisplayLists2:function(list){
+        updateDisplayLists2:function updateDisplayLists2(list){
             str="";
 
             if(list.length == 0)
@@ -192,7 +175,7 @@ var app = new Vue({
         },
 
         //gets session info from the server
-        getSession: function(){
+        getSession: function getSession(){
             axios.post('{{request.get_full_path}}', {
                     status:"get",                                                              
                 })
@@ -222,7 +205,7 @@ var app = new Vue({
         },
 
         //add a new session day
-        addSessionDay: function(){
+        addSessionDay: function addSessionDay(){
             if(app.$data.multiDayButtonText.includes("Multi"))
             {
                 app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -246,7 +229,7 @@ var app = new Vue({
         },
 
         //deletes a session day
-        removeSessionDay: function(id){
+        removeSessionDay: function removeSessionDay(id){
             if(confirm("Delete Session Day?")){
                 axios.post('{{request.get_full_path}}', {
                         status:"removeSessionDay",    
@@ -264,7 +247,7 @@ var app = new Vue({
         },
 
         //invite subjects
-        inviteSubjects: function(){
+        inviteSubjects: function inviteSubjects(){
             if(!app.$data.inviteButtonText.includes("Invite")) return;
 
             app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
@@ -315,7 +298,7 @@ var app = new Vue({
         },
 
         //find subjects to invite
-        findSubjectsToInvite: function(){
+        findSubjectsToInvite: function findSubjectsToInvite(){
 
             if(app.$data.subjectInvitationList.includes('class')) return;
 
@@ -364,14 +347,14 @@ var app = new Vue({
         },
 
         //clear subjects to invite
-        clearSubjectsToInvite: function(){
+        clearSubjectsToInvite: function clearSubjectsToInvite(){
             app.$data.subjectInvitationList ="";
             app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";   
             app.$data.inviteResultsEmptyText="";                      
         },
 
         //cancel a session day (not in use)
-        cancelSessionDay: function(){      
+        cancelSessionDay: function cancelSessionDay(){      
             if( app.$data.session.canceled) return;
             if(app.$data.subjectCancelationList=='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>') return;
             //if(app.$data.cancelSessionButtonText == "*** CANCELED ***" ) return;
@@ -406,7 +389,7 @@ var app = new Vue({
         },
 
         //update the session day parameters
-        updateSessionDay: function(){
+        updateSessionDay: function updateSessionDay(){
 
             var sessionCanceledChangedMessage=false;
 
@@ -454,7 +437,7 @@ var app = new Vue({
         },
 
         //update the session day parameters
-        updateInvitationText: function(){
+        updateInvitationText: function updateInvitationText(){
 
             app.$data.updateInvitationButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             app.$data.session.invitationRawText = tinymce.get("id_invitationRawText").getContent();
@@ -477,13 +460,13 @@ var app = new Vue({
         },
 
         //fill inviation text with experiment default
-        fillInvitationWithDefault:function(){
+        fillInvitationWithDefault:function fillInvitationWithDefault(){
             app.$data.session.invitationRawText = app.$data.experiment_invitation_text;
             tinymce.get("id_invitationRawText").setContent(app.$data.session.invitationRawText);
         },
 
         //displays to the form errors
-        displayErrors:function(errors){
+        displayErrors:function displayErrors(errors){
             for(var e in errors)
             {
                 $("#id_" + e).attr("class","form-control is-invalid")
@@ -503,28 +486,28 @@ var app = new Vue({
         },
 
         //if form is changed add * to button
-        recruitmentFormChange:function(){
+        recruitmentFormChange:function recruitmentFormChange(){
             app.$data.buttonText1="Update *";
         },
 
         //if form is changed add * to button
-        mainFormChange2:function(){
+        mainFormChange2:function mainFormChange2(){
             app.$data.buttonText2="Update *";
         },
 
         // fire when edit experiment model is shown, save copy for cancel
-        showEditRecruitment:function(){
+        showEditRecruitment:function showEditRecruitment(){
             window.open("{%url 'experimentSessionParametersView' session.id %}","_self");
         },
 
         //fire when the run session button is pressed
-        runSession:function(id)
+        runSession:function runSession(id)
         {
             window.open('/experimentSessionRun/' + id,"_self");
         },
 
         //add trait
-        addTrait:function(){
+        addTrait:function addTrait(){
             app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('{{request.get_full_path}}', {
                     status : "addTrait" ,                                                                                                                                                             
@@ -541,7 +524,7 @@ var app = new Vue({
         },
 
         //update trait
-        updateTrait:function(){
+        updateTrait:function updateTrait(){
             app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('{{request.get_full_path}}', {
                     status : "updateTrait",
@@ -574,7 +557,7 @@ var app = new Vue({
         },
 
         //delete trait
-        deleteTrait:function(id){
+        deleteTrait:function deleteTrait(id){
             
             axios.post('{{request.get_full_path}}', {
                     status : "deleteTrait", 
@@ -591,7 +574,7 @@ var app = new Vue({
         },
 
         //update require all trait constraints
-        updateRequireAllTraitContraints:function(){
+        updateRequireAllTraitContraints:function updateRequireAllTraitContraints(){
             axios.post('{{request.get_full_path}}', {
                     status : "updateRequireAllTraitContraints", 
                     value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
@@ -606,12 +589,12 @@ var app = new Vue({
         },
 
         // fire when edit setup model is shown, save copy for cancel
-        showSetup:function(id){
+        showSetup:function showSetup(id){
             app.$data.cancelModal=true;
             app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
             app.$data.currentSessionDayIndex=id;
-            app.$data.currentSessionDay.date_local = app.formatDate(app.$data.currentSessionDay.date_raw,false,true);
-            app.$data.currentSessionDay.reminder_time_local = app.formatDate(app.$data.currentSessionDay.reminder_time_raw,false,true);
+            app.$data.currentSessionDay.date = app.formatDateForInput(app.$data.currentSessionDay.date_raw);
+            app.$data.currentSessionDay.reminder_time = app.formatDateForInput(app.$data.currentSessionDay.reminder_time_raw);
             app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
             app.$data.buttonText2="Update";
             $('#sessionModal').modal('show');
@@ -621,7 +604,7 @@ var app = new Vue({
         },
 
         //fire when edit setup model hides, cancel action if nessicary
-        hideSetup:function(){
+        hideSetup:function hideSetup(){
             if(app.$data.cancelModal)
             {
                 Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
@@ -631,7 +614,7 @@ var app = new Vue({
         },
 
         // fire when view subjects model is shown
-        showSubjects:function(id){
+        showSubjects:function showSubjects(id){
             app.$data.cancelModal=true;
             app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[id]);
             app.$data.currentSessionDayIndex =id;
@@ -642,19 +625,19 @@ var app = new Vue({
         },
 
         //fire when view setup model closes, cancel action if nessicary
-        hideShowSubjects:function(){    
+        hideShowSubjects:function hideShowSubjects(){    
             app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';                    
         },
 
         // fire when invite subjects subjects model is shown
-        showInviteSubjects:function(id){                        
+        showInviteSubjects:function showInviteSubjects(id){                        
             $('#inviteSubjectsModalCenter').modal('show');
             app.$data.inviteResultsEmptyText="";
             // app.clearMainFormErrors();
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
-        hideInviteSubjects:function(){   
+        hideInviteSubjects:function hideInviteSubjects(){   
 
             app.$data.subjectInvitations = [];                    
             app.$data.subjectInvitationCount = 0;               
@@ -664,7 +647,7 @@ var app = new Vue({
         },
 
         // fire when cancel session model is shown
-        showCancelSession:function(id){ 
+        showCancelSession:function showCancelSession(id){ 
 
             app.$data.subjectCancelationList = "";
 
@@ -697,13 +680,13 @@ var app = new Vue({
         },
 
         //fire when hide cancel session  model, cancel action if nessicary
-        hideCancelSession:function(){   
+        hideCancelSession:function hideCancelSession(){   
 
             
         },
 
         // fire when invite subjects subjects model is shown
-        showEditInvitation:function(id){    
+        showEditInvitation:function showEditInvitation(id){    
 
             tinymce.get("id_invitationRawText").setContent(app.$data.session.invitationRawText);
             $('#editInvitationTextModal').modal('show');
@@ -711,17 +694,17 @@ var app = new Vue({
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
-        hideEditInvitation:function(){       
+        hideEditInvitation:function hideEditInvitation(){       
                         
         },
 
         //invitation text changed, put * in buttonn text
-        invitationTextChange:function(){
+        invitationTextChange:function invitationTextChange(){
             app.$data.updateInvitationButtonText="Update <i class='fas fa-sign-in-alt'></i> *";
         },
 
         // fire when invite subjects subjects model is shown
-        showManuallyAddSubjects:function(id){    
+        showManuallyAddSubjects:function showManuallyAddSubjects(id){    
             app.$data.searchAddResult="";   
             app.$data.searchResults=[];
             app.$data.searchText=""; 
@@ -731,14 +714,14 @@ var app = new Vue({
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
-        hideManuallyAddSubjects:function(){       
+        hideManuallyAddSubjects:function hideManuallyAddSubjects(){       
             app.$data.searchResults=[];
             app.$data.searchText="";  
             app.$data.findButtonText="Find";             
         },
 
         // fire when invite subjects subjects model is shown
-        showSendMessage:function(id){    
+        showSendMessage:function showSendMessage(id){    
 
             app.$data.emailMessageList="";
             tinymce.get("sendMessageText").setContent(app.sendMessageText);
@@ -762,7 +745,7 @@ var app = new Vue({
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
-        hideSendMessage:function(){       
+        hideSendMessage:function hideSendMessage(){       
             app.$data.sendMessageText="<p>[first name],</p><p>If you have any questions contact [contact email].</p>";      
             app.$data.emailMessageList="";    
             // app.$data.sendMessageSubject=""; 
@@ -770,7 +753,7 @@ var app = new Vue({
         },
 
         //send an email to all of the confirmed subjects
-        sendEmailMessage:function(){
+        sendEmailMessage:function sendEmailMessage(){
 
             if(app.sendMessageSubject == "" )
             {
@@ -818,7 +801,7 @@ var app = new Vue({
         },
 
          //send an email to all of the confirmed subjects
-         reSendInvitation:function(id){
+         reSendInvitation:function reSendInvitation(id){
 
             if(app.reSendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
@@ -854,7 +837,7 @@ var app = new Vue({
         },
 
         //remove subject from a sesssion day
-        removeSubject: function(userId,esduId){
+        removeSubject: function removeSubject(userId,esduId){
 
             if(confirm("Remove subject from session?")){
 
@@ -892,7 +875,7 @@ var app = new Vue({
         },                  
 
         //change a subject's confirmation status
-        confirmSubject: function(userId,esduId,confirmed){                       
+        confirmSubject: function confirmSubject(userId,esduId,confirmed){                       
 
             $( '#confirmSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
@@ -932,7 +915,7 @@ var app = new Vue({
         },
 
         //search for a subject to add manually
-        searchForSubject: function(){
+        searchForSubject: function searchForSubject(){
             if(app.$data.findButtonText != "Find") return;
             if(app.$data.searchText == "") return;
 
@@ -977,7 +960,7 @@ var app = new Vue({
         },
 
         //clear search results
-        clearSearchForSubject: function(){
+        clearSearchForSubject: function clearSearchForSubject(){
 
             app.$data.searchResults=[];
             app.$data.searchText="";  
@@ -985,7 +968,7 @@ var app = new Vue({
         },
 
         //manually add subject to sessoin
-        manuallyAddSubject: function(u){
+        manuallyAddSubject: function manuallyAddSubject(u){
 
             $( '#manualAdd' + u.id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
@@ -1037,7 +1020,7 @@ var app = new Vue({
         },
 
         //show unconfirmed
-        showUnconfirmedSubjects: function(u){
+        showUnconfirmedSubjects: function showUnconfirmedSubjects(u){
 
             app.$data.showUnconfirmedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -1059,7 +1042,7 @@ var app = new Vue({
             },
 
         //show message list
-        showMessages:function(){
+        showMessages:function showMessages(){
 
             app.$data.showMessageListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -1104,7 +1087,7 @@ var app = new Vue({
         },
 
         //show invitation list
-        showInvitations:function(){
+        showInvitations:function showInvitations(){
 
             app.$data.showInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -1125,7 +1108,7 @@ var app = new Vue({
         },
         
         //show invitation list
-        downloadInvitations:function(){
+        downloadInvitations:function downloadInvitations(){
 
             app.$data.downloadInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -1153,7 +1136,7 @@ var app = new Vue({
         },
 
         //format inivation messages for display
-        formatInvitations:function(){
+        formatInvitations:function formatInvitations(){
             for(i=0;i<app.$data.invitationList.length;i++)
             {
                 m=app.$data.invitationList[i];
@@ -1182,16 +1165,16 @@ var app = new Vue({
         },
 
         //fire when edit trait model needs to be shown
-        showEditTraits:function(){                       
+        showEditTraits:function showEditTraits(){                       
             $('#editTraitsModal').modal('show');
         },
 
         //fire when hide edit traits
-        hideEditTraits:function(){
+        hideEditTraits:function hideEditTraits(){
         },
 
         // fire when edit trait model is shown
-        showUpdateTrait:function(id,index){
+        showUpdateTrait:function showUpdateTrait(id,index){
 
             tc = app.$data.recruitment_params.trait_constraints[index];
 
@@ -1207,7 +1190,7 @@ var app = new Vue({
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideUpdateTrait:function(){
+        hideUpdateTrait:function hideUpdateTrait(){
             if(app.$data.cancelModal)
             {
             
@@ -1215,7 +1198,7 @@ var app = new Vue({
         },
 
         //fire when edit trait model needs to be shown
-        showEditSession:function(){         
+        showEditSession:function showEditSession(){         
             app.clearMainFormErrors();              
             app.$data.cancelModal=true;
             app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
@@ -1224,7 +1207,7 @@ var app = new Vue({
         },
 
         //fire when hide edit traits
-        hideEditSession:function(){
+        hideEditSession:function hideEditSession(){
             app.clearMainFormErrors();
             if(app.$data.cancelModal)
             {
@@ -1234,7 +1217,7 @@ var app = new Vue({
         },
 
         //update require all trait constraints
-        sendUpdateSession:function(){
+        sendUpdateSession:function sendUpdateSession(){
             app.$data.cancelModal=false;
             axios.post('{{request.get_full_path}}', {
                     status : "updateSession", 
@@ -1261,14 +1244,14 @@ var app = new Vue({
         },
 
         //fire when edit trait model needs to be shown
-        showEditAllowList:function(){         
+        showEditAllowList:function showEditAllowList(){         
             app.clearMainFormErrors();              
            
             $('#editAllowListModal').modal('show');
         },
 
         //update require all trait constraints
-        sendAddToAllowList:function(){
+        sendAddToAllowList:function sendAddToAllowList(){
 
             app.$data.working = true;
 
@@ -1296,7 +1279,7 @@ var app = new Vue({
                 });
         },
 
-        sendClearAllowList:function(){
+        sendClearAllowList:function sendClearAllowList(){
 
             app.$data.working = true;
 
@@ -1323,7 +1306,7 @@ var app = new Vue({
                 });
         },
         
-        formatDate: function(value,date_only,show_timezone){
+        formatDate: function formatDate(value, date_only, show_timezone){
             if (value) {        
                 //console.log(value);
                 if(date_only)
@@ -1344,7 +1327,16 @@ var app = new Vue({
             }
         },
 
-        checkToday: function(value1){
+        formatDateForInput: function formatDateForInput(value){
+            if (value) {        
+                return moment(String(value)).format('YYYY-MM-DDTHH:mm');
+            }
+            else{
+                return "date format error";
+            }
+        },
+
+        checkToday: function checkToday(value1){
             if(moment(value1).format("YYYY/MM/DD")== moment().format("YYYY/MM/DD"))
             {
                 return true;
@@ -1360,7 +1352,7 @@ var app = new Vue({
     },
 
     //run when vue is mounted
-    mounted: function(){
+    mounted(){
        
         //attach modal close events to vue
         //$('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
@@ -1369,6 +1361,23 @@ var app = new Vue({
         
     },                 
 
-});
+}).mount('#app');
+
+// // http://eonasdan.github.io/bootstrap-datetimepicker/
+// app.component('date-picker', VueBootstrapDatetimePicker);
+
+// $.extend(true, $.fn.datetimepicker.defaults, {
+//     icons: {
+//         time: 'far fa-clock',
+//         date: 'far fa-calendar',
+//         up: 'fas fa-arrow-up',
+//         down: 'fas fa-arrow-down',
+//         previous: 'fas fa-chevron-left',
+//         next: 'fas fa-chevron-right',
+//         today: 'fas fa-calendar-check',
+//         clear: 'far fa-trash-alt',
+//         close: 'far fa-times-circle'
+//     }
+//     });
 
 

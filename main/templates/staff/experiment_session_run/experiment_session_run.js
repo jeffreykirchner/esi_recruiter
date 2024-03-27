@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+       
+    data(){return{
         sessionDay:{{sessionDay_json|safe}},
         bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
         noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
@@ -45,7 +45,7 @@ var app = new Vue({
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
         auto_add_users_on_upload : false,  
-    },
+    }},
 
     methods:{
         //get the session day json info
@@ -630,9 +630,9 @@ var app = new Vue({
         },
     },
 
-    mounted: function(){
+    mounted(){
             this.getSession();       
             window.setTimeout(this.stripeReaderCheckin, 250);      
             $('#hideUploadEarnings').on("hidden.bs.modal", this.hideEditSubject);       
     },
-});
+}).mount('#app');

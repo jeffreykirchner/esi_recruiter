@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+  
+    data() {return{
         upcomingInvitations:[],
         pastAcceptedInvitations:[],
         umbrellaConsents:[],
@@ -19,7 +19,7 @@ var app = new Vue({
         current_invitation:null,
         account_paused : {{account_paused|safe}},
 
-    },
+    }},
 
     methods:{
         getCurrentInvitations:function(){
@@ -196,11 +196,11 @@ var app = new Vue({
     },
 
 
-    mounted: function(){
+    mounted(){
         this.getCurrentInvitations();        
         $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);
         $('#subject_consent_form_modal').on("shown.bs.modal", this.openConsentForm);       
 
         window.addEventListener('resize', this.handleResize);     
     },
-});
+}).mount('#app');

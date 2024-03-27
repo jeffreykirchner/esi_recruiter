@@ -230,7 +230,7 @@
             <tbody>                        
                 <tr v-for="(s,index) in session_day_upcoming" v-bind:key="s.id">
                     <td class="text-nowrap">                                
-                        <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
+                        <a v-bind:href='"/experimentSession/" + s.session_id'>[[s.title]]</a>
                     </td>
                     <td  class="text-nowrap text-center">                                                                
                         [[s.date]]
@@ -272,7 +272,7 @@
             <tbody>                        
                 <tr v-for="(s,index) in session_day_attended" v-bind:key="s.id">
                     <td class="text-nowrap">                                
-                        <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
+                        <a v-bind:href='"/experimentSession/" + s.session_id'>[[s.title]]</a>
                     </td>
                     <td  class="text-nowrap text-center">                                                                
                         [[s.date]]
@@ -321,7 +321,7 @@
             <tbody>                        
                 <tr v-for="(s,index) in invitations" v-bind:key="s.id">
                     <td class="text-nowrap">                                
-                        <a v-bind:href='"/experimentSession/" + s.session_id' v-html="s.title">[[s.title]]</a>
+                        <a v-bind:href='"/experimentSession/" + s.session_id'>[[s.title]]</a>
                     </td>
                     <td  class="text-nowrap text-center">                                                                
                         [[s.date]]

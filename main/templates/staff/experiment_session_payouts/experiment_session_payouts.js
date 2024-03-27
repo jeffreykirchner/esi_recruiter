@@ -1,21 +1,19 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+      
+    data(){return{
         sessionDayUsers:[],
         payGroup:"{{payGroup|safe}}",
         payoutTotal:"",
         experiment_session_day:null,
         consentForm:{{consent_form|safe}},
-    },
+    }},
 
     methods:{
-
-        
         //get the session day json info
         getSession:function(payGroup){           
             if(app)
@@ -54,10 +52,9 @@ var app = new Vue({
         },  
 
         //hide subject from list and payout total
-        hideSubject:function(id,localIndex){
-            u = app.$data.sessionDayUsers[localIndex];
-            u.show=false;
-
+        hideSubject:function(id, localIndex){
+            u = app.$data.sessionDayUsers.splice(localIndex,1);
+           
             app.calcPayoutTotal();
         },
 
@@ -92,7 +89,7 @@ var app = new Vue({
         {%include "staff/experiment_session_payouts/pixi_setup.js"%}
     },
 
-    mounted: function(){
+    mounted(){
             this.getSession("{{payGroup}}");                    
     },
-});
+}).mount('#app');

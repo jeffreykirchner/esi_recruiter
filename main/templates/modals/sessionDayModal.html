@@ -18,14 +18,7 @@
                                 {{form2.location | as_crispy_field }}                            
                             </div>
                             <div class = "col"> 
-                                <div id="div_id_date" class="form-group">
-                                    <label for="id_date" class="requiredField">
-                                        Date and Time<span class="asteriskField">*</span>
-                                    </label>
-                                    <div>
-                                       <date-picker name="date" id="id_date" v-model="currentSessionDay.date_local" :config="options" v-on:change="mainFormChange2" v-bind:disabled="session.confirmedCount > 0"></date-picker>
-                                    </div>
-                                </div>
+                                {{form2.date | as_crispy_field }}   
                             </div>
                         </div>                              
                         <div class="row">
@@ -55,16 +48,7 @@
                         <div class="row">
                             <div class = "col"> 
                                 <div v-if="currentSessionDay.custom_reminder_time === 'true' | currentSessionDay.custom_reminder_time">
-                                    <div id="div_id_reminder_time" class="form-group">
-                                        <label for="id_date" class="requiredField">
-                                            Reminder Date and Time<span class="asteriskField">*</span>
-                                        </label>
-                                        <div>
-                                        <date-picker name="reminder_time" id="id_reminder_time" 
-                                                        v-model="currentSessionDay.reminder_time_local" :config="options"
-                                                        v-on:change="mainFormChange2"></date-picker>
-                                        </div>
-                                    </div> 
+                                    {{form2.reminder_time | as_crispy_field }}
                                 </div>
                             </div>
                             <div class = "col"> 

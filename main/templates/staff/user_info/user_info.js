@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ["[[", "]]"],
-    el: '#root',        
-    data:{
+       
+    data(){return{
         session_day_attended:[{id:"0"}],
         session_day_upcoming:[{id:"0"}],
         invitations:[{id:"0"}],
@@ -20,7 +20,7 @@ var app = new Vue({
         noteText:'',
         working:'false',
         su:{%if user.is_staff%}true{%else%}false{%endif%},
-    },
+    }},
 
     methods:{
         //get attended and upcoming sessions
@@ -198,8 +198,8 @@ var app = new Vue({
             },    
     },
 
-    mounted: function(){
+    mounted(){
             this.getSessions();  
             $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);                  
     },
-});
+}).mount('#app');

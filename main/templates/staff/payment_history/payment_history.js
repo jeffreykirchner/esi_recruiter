@@ -1,10 +1,10 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+   
+    data(){return{
         baseURL:'{{request.get_full_path}}',                                                                                                                 
               
         searchButtonText:'Search <i class="fas fa-search"></i>',
@@ -31,7 +31,7 @@ var app = new Vue({
                             budget : ""},
 
         working : false,
-    },
+    }},
 
     methods:{
         //get history of payments made to paypal api
@@ -126,7 +126,7 @@ var app = new Vue({
       
     },
     
-    mounted: function(){
+    mounted(){
         //this.getHistory();
     },
-});
+}).mount('#app');

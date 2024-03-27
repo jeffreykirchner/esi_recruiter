@@ -1,11 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = new Vue({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
-    el: '#root',        
-    data:{
+     
+    data() {return{
 
         waiting:false,
         current_invitation:null,
@@ -19,7 +19,7 @@ var app = new Vue({
         pixi_signature_texture:null,
 
         consent_form_error:"",
-    },
+    }},
 
     methods:{
 
@@ -123,8 +123,8 @@ var app = new Vue({
     },
 
 
-    mounted: function(){
+    mounted(){
         setTimeout(this.resetPixiApp, 500);
         window.addEventListener('resize', this.handleResize);     
     },
-});
+}).mount('#app');
