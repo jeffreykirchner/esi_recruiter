@@ -104,16 +104,9 @@
                         <span>&nbsp</span>
                     </div>
                     <div v-else>
-                        <span v-if="s.enable_time">
-                            [[s.startTime]]-[[s.endTime]]                            
-                        </span>
-                        <span v-else>
-                            Anytime
-                        </span>  
-                        <a v-bind:href="'/experimentSessionRun/' + s.id +'/'"
-                           v-bind:class="{is_canceled:s.canceled }">
-                            [[s.name]]
-                        </a>      
+                        <span v-if="s.enable_time">[[s.startTime]]-[[s.endTime]]</span>
+                        <span v-else>Anytime</span>
+                        <span>&nbsp<a v-bind:href="'/experimentSessionRun/' + s.id +'/'" v-bind:class="{is_canceled:s.canceled }">[[s.name]]</a></span>  
                     </div>
                 </div>
                 
