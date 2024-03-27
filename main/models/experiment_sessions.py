@@ -590,7 +590,8 @@ class experiment_sessions(models.Model):
        
         if checkAlreadyIn:
             u_list = self.getValidUserList_not_already_in_session(u_list)
-            u_list = self.getValidUserList_gender(u_list)
+        
+        u_list = self.getValidUserList_gender(u_list)
 
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
