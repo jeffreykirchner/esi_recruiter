@@ -11,6 +11,7 @@ from django.db.models import CharField, F, Value as V
 from django.http import JsonResponse
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from django.urls import reverse
 
 from main.models import help_docs
 from main.forms import profileFormUpdate
@@ -46,8 +47,8 @@ class UpdateProfile(View):
         )
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path, output_field=CharField()))\
-                                        .filter(rp__icontains=F('path')).first().text
+            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
+                                        .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:
             helpText = "No help doc was found."
