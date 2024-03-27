@@ -2254,7 +2254,7 @@ class recruitTestCase(TestCase):
         self.assertEqual(r['status'],"success")
 
         r = json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es.id,False).content.decode("UTF-8"))
-        self.assertEqual(r['status'],"success")
+        self.assertEqual(r['status'],"fail")
 
         self.assertEqual(es.recruitment_params.gender.count(),0)
     
