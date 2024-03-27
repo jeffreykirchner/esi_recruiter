@@ -199,8 +199,7 @@
               <div class="form-group">
                 <label for="idtwofactorcode">Six digit code from your authenticator app*</label>
                 <input v-model="two_factor_code" 
-                       type="number" 
-                       maxlength="6" 
+                       maxlength="6"
                        class="form-control" 
                        id="idtwofactorcode" 
                        aria-describedby="sixdigitcode"
@@ -224,8 +223,7 @@
                 <button type="button" v-on:click='login()' class="btn btn-outline-primary">
                   <span v-html ="loginButtonText"></span>
                 </button> 
-
-                <span style="color: red;" v-html="loginErrorText">
+                <span class="ml-2" style="color: red;" v-html="loginErrorText">
                 </span>
             </div>
         </div>
