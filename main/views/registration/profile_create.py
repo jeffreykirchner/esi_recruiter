@@ -39,7 +39,7 @@ class ProfileCreate(View):
 
         #logger.info(reverse('profile'))
         try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile'),output_field=CharField()))\
+            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
