@@ -50,7 +50,7 @@
             <div class="col-md-6 text-center">
                 
                     <div class="input-group mb-3">
-                        <input  v-on:keyup.enter="getUsers()" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
+                        <input  v-on:keyup.enter="getUsers()" id="idsearchInfo" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
                         <div class="input-group-append">
                             <button class="btn btn-outline-primary" type="button" v-on:click = "getUsers()">
                                 <span v-html="searchButtonText"></span>
@@ -75,7 +75,7 @@
         </div>           
         <div class = "row ">
             <div class = "col text-center mt-4 mt-md-2">                
-                <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getBlackballs()">
+                <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "getBlackballs()">
                     <span v-html="blackBallButtonText"></span>
                 </button> 
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getNoShowBlocks()">
