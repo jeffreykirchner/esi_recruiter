@@ -17,6 +17,8 @@ from main.models import help_docs
 
 from main.globals import get_now_show_blocks
 
+from main.forms import EditSubjectForm
+
 class UserInfo(SingleObjectMixin, View):
     '''
     user information view
@@ -41,12 +43,15 @@ class UserInfo(SingleObjectMixin, View):
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        u = self.get_object() 
+        u = self.get_object()
+
+        edit_subject_form = EditSubjectForm(instance=u.profile)
 
         return render(request, self.template_name, {"u":u,
                                                     "id":u.id,
                                                     "now_show_block" :  True if u in get_now_show_blocks() else False,
                                                     "helpText":helpText,
+                                                    "edit_subject_form":edit_subject_form,
                                                     "experiments":u.ESDU.all() })
     
     @method_decorator(login_required)
