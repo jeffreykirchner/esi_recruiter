@@ -218,6 +218,26 @@ var app = Vue.createApp({
                 });                        
         },
 
+        //displays to the form errors
+        displayErrors:function(errors){
+            for(var e in errors)
+            {
+                $("#id_" + e).attr("class","form-control is-invalid")
+                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                
+                for(var i in errors[e])
+                {
+                    str +=errors[e][i] + '<br>';
+                }
+
+                str+='</span>';
+                $("#div_id_" + e).append(str);  
+
+                var elmnt = document.getElementById("div_id_" + e);
+                elmnt.scrollIntoView();   
+            }
+        },
+
         formatDate: function(value, enable_time){
                 if (value) {        
                     if(enable_time)

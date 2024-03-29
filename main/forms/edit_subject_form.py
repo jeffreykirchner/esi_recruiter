@@ -16,6 +16,7 @@ class EditSubjectForm(forms.ModelForm):
     studentID = forms.CharField(label='Student ID (Leave blank if non-student)', max_length=25, required=False)
 
     type = forms.ModelChoiceField(label='Account type',
+                                  empty_label=None,
                                   queryset=account_types.objects.all(),
                                   widget=forms.Select)
 
