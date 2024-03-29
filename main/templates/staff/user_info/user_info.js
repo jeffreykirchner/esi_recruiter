@@ -180,6 +180,44 @@ var app = Vue.createApp({
             
         },
 
+        // fire when edit subject model is shown
+        showEditSubject:function(){
+            $('#editSubjectModal').modal('show');  
+        },
+
+        //fire when subject model hides
+        hideEditSubject:function(){
+            
+        },
+
+        //make a not about the subject
+        sendEditSubject: function(){                       
+            axios.post('{{ request.path }}', {
+                    status :"editSubject" ,                                
+                    formData : $("#EditSubjectForm").serializeArray(),                                                              
+                })
+                .then(function (response) {     
+                                                                           
+                    status=response.data.status; 
+                    // app.clearMainFormErrors();
+
+                    if(status=="success")
+                    {                                 
+                        location.reload();
+                    }
+                    else
+                    {   
+                        console.log("Edit subject errors: " + response.data.errors);                             
+                        app.displayErrors(response.data.errors);
+                    }          
+            
+                })
+                .catch(function (error) {
+                    console.log(error);
+
+                });                        
+        },
+
         formatDate: function(value, enable_time){
                 if (value) {        
                     if(enable_time)
@@ -200,6 +238,7 @@ var app = Vue.createApp({
 
     mounted(){
             this.getSessions();  
-            $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);                  
+            $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);       
+            $('#editSubjectModal').on("hidden.bs.modal", this.hideEditSubject);           
     },
 }).mount('#app');

@@ -1,4 +1,4 @@
-<div class="card">                  
+<div class="card" v-cloak>                  
     <div class="card-header">
         User Info: {{u.last_name.capitalize}}, {{u.first_name.capitalize}} ({{u.id}})
         
@@ -9,20 +9,20 @@
         <span class="float-md-right">
             <div class="row">
                 {%if user.is_staff%}
-                    <div class="col-md-auto pl-3 mr-0">
+                    <div class="col-md-auto p-0 mr-2">
                         <a href="{%url 'subject_auto_login' u.id %}">
                             Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
                         </a>
                     </div>
                     
-                    <div class="col-md-auto pl-3 pr-md-3">
-                        <a href="/admin/main/profile/{{u.profile.id}}/change">
+                    <div class="col-md-auto p-0 mr-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showEditSubject()">
                             Edit Subject <i class="fas fa-edit fa-xs"></i>
-                        </a>
+                        </button>
                     </div>                
                 {%endif%}
                 {%if u.profile.type.name == "subject"%}
-                <div class="col-md-auto pl-3 m-0">
+                <div class="col-md-auto p-0">
                     <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showMakeNote()">
                         Make Note <i class="fas fa-sticky-note fa-xs"></i>
                     </button>

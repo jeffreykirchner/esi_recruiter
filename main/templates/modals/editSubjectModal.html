@@ -12,7 +12,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                    <form id="mainForm1">
+                    <form id="EditSubjectForm">
                         <!-- setup parameters -->
                         {% for i in edit_subject_form %}
                             <div class="row">
@@ -26,7 +26,7 @@
             <div class="modal-footer">                
                 <button type="button"
                         class="btn btn-outline-primary"
-                        v-on:click = "sendUpdateSubject()">
+                        v-on:click = "sendEditSubject()">
                     Update <i class="fas fa-sign-in-alt"></i>
                 </button>
             </div>

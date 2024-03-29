@@ -76,7 +76,9 @@ class UserInfo(SingleObjectMixin, View):
         elif data["status"] == "deleteNote":
             return deleteNote(request, data, id)       
         elif data["status"] == "getTraits":
-            return getTraits(request, data, id)  
+            return getTraits(request, data, id)
+        elif data["status"] == "editSubject":
+            return editSubject(request, data, id)
 
 #store a note about the user
 def makeNote(request, data, id):
@@ -150,3 +152,30 @@ def getTraits(request, data, id):
     return JsonResponse({"subject_traits" : u.profile.sorted_trait_list(),
                             },safe=False,
                         )
+
+#edit the subject
+def editSubject(request, data, id):
+    logger = logging.getLogger(__name__) 
+    logger.info("Edit Subject")
+    logger.info(data)
+
+    u=User.objects.get(id=id)
+
+    if not request.user.is_staff:
+        return JsonResponse({"status":"fail","errors":{}}, safe=False)
+
+    form_data_dict = {}
+
+    for field in data["formData"]:
+        form_data_dict[field["name"]] = field["value"]
+
+    edit_subject_form = EditSubjectForm(form_data_dict, instance=u.profile)
+
+    if edit_subject_form.is_valid():
+        edit_subject_form.save()
+
+        return JsonResponse({"status":"success"}, safe=False)
+    
+    logger.info("invalid edit subject form")
+    return JsonResponse({"status":"fail","errors":dict(edit_subject_form.errors.items())}, safe=False)
+
