@@ -58,6 +58,9 @@ class profile(models.Model):
     send_daily_email_report = models.BooleanField(verbose_name="Send Daily Email Report", default=False)              #if true, send daily report of the past day's activity
     can_paypal = models.BooleanField(verbose_name="User can send PayPal payments", default=False)                     #if true, user can send PayPal Payments
     can_recruit = models.BooleanField(verbose_name="User can recruit subjects to sessions", default=False)            #if true, user can recruit subjects to sessions
+    pi_eligible = models.BooleanField(verbose_name="User can be a PI", default=False)                                  #if true, user can be a PI
+
+    disabled = models.BooleanField(verbose_name="Disabled", default=False)                                             #if true, user is disabled and cannot login
 
     password_reset_key = models.UUIDField(verbose_name='Password Reset Key', null=True, blank=True)                   #log in key used to reset subject password
 

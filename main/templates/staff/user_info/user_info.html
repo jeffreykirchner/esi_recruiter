@@ -1,4 +1,4 @@
-<div class="card">                  
+<div class="card" v-cloak>                  
     <div class="card-header">
         User Info: {{u.last_name.capitalize}}, {{u.first_name.capitalize}} ({{u.id}})
         
@@ -9,20 +9,20 @@
         <span class="float-md-right">
             <div class="row">
                 {%if user.is_staff%}
-                    <div class="col-md-auto pl-3 mr-0">
+                    <div class="col-md-auto p-0 mr-2">
                         <a href="{%url 'subject_auto_login' u.id %}">
                             Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
                         </a>
                     </div>
                     
-                    <div class="col-md-auto pl-3 pr-md-3">
-                        <a href="/admin/main/profile/{{u.profile.id}}/change">
-                            Edit Subject <i class="fas fa-edit fa-xs"></i>
-                        </a>
+                    <div class="col-md-auto p-0 mr-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showEditSubject()">
+                            Edit User <i class="fas fa-edit fa-xs"></i>
+                        </button>
                     </div>                
                 {%endif%}
                 {%if u.profile.type.name == "subject"%}
-                <div class="col-md-auto pl-3 m-0">
+                <div class="col-md-auto p-0">
                     <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showMakeNote()">
                         Make Note <i class="fas fa-sticky-note fa-xs"></i>
                     </button>
@@ -48,6 +48,48 @@
             <div class = "col-md"> 
                 <span class="float-right float-md-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
             </div>                
+        </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                <span class="float-md-right">PI Eligible:</span>                            
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.pi_eligible%}Yes{%else%}No{%endif%}</span>
+            </div> 
+            <div class = "col-md"> 
+                <span class="float-md-right">Disabled (cannot login):</span>                            
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.disabled%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
+            </div>              
+        </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                <span class="float-md-right">Can use PayPal</span>                              
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.can_paypal%}Yes{%else%}No{%endif%}</span>
+            </div> 
+            <div class = "col-md"> 
+                <span class="float-md-right">Active:</span>                             
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+            </div>              
+        </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                <span class="float-md-right">Can recruit</span>                              
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.can_recruit%}Yes{%else%}No{%endif%}</span>
+            </div> 
+            <div class = "col-md"> 
+                                       
+            </div>
+            <div class = "col-md"> 
+               
+            </div>              
         </div>
 
         {%if u.profile.type.name == "subject"%}
@@ -92,21 +134,7 @@
             <div class = "col-md"> 
                 <span class="float-right float-md-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>               
-        </div>
-        <div class = "row">
-            <div class = "col-md"> 
-                <span class="float-md-right">Student ID:</span>                            
-            </div>
-            <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.studentID}}</span>
-            </div>   
-            <div class = "col-md"> 
-                <span class="float-md-right">Active:</span>                             
-            </div>
-            <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
-            </div>                                    
-        </div>        
+        </div>      
         <div class = "row">
             <div class = "col-md"> 
                 <span class="float-md-right">YTD Earnings</span>                    
@@ -137,10 +165,10 @@
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                
+                <span class="float-md-right">Student ID:</span>                            
             </div>
             <div class = "col-md"> 
-
+                <span class="float-right float-md-left">{{u.profile.studentID}}</span>
             </div> 
             <div class = "col-md"> 
                 <span class="float-md-right">Last Login:</span>                             
