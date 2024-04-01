@@ -352,27 +352,27 @@ class ProfileAdmin(admin.ModelAdmin):
       
       def deactivate_all(self, request, queryset):
 
-            user_list = User.objects.filter(profile__in = queryset)
-            updated_users = user_list.update(is_active = False)
+            # user_list = User.objects.filter(profile__in = queryset)
+            updated_users = queryset.update(disabled = True)
 
             self.message_user(request, ngettext(
-                  '%d user was de-activated.',
-                  '%d users were de-activated.',
+                  '%d user was disabled.',
+                  '%d users were disabled.',
                   updated_users,
             ) % updated_users, messages.SUCCESS)
-      deactivate_all.short_description = "De-activate selected users"
+      deactivate_all.short_description = "Disable selected users"
 
       def activate_all(self, request, queryset):
 
-            user_list = User.objects.filter(profile__in = queryset)
-            updated_users = user_list.update(is_active = True)
+            # user_list = User.objects.filter(profile__in = queryset)
+            updated_users = queryset.update(disabled = False)
 
             self.message_user(request, ngettext(
-                  '%d user was activated.',
-                  '%d users were activated.',
+                  '%d user was enabled.',
+                  '%d users were enabled.',
                   updated_users,
             ) % updated_users, messages.SUCCESS)
-      activate_all.short_description = "Activate selected users"
+      activate_all.short_description = "Enable selected users"
 
       def pause_all(self, request, queryset):
 
@@ -514,8 +514,8 @@ class ProfileAdmin(admin.ModelAdmin):
       if settings.DEBUG:
             actions.append(setup_test_users)
 
-      list_display = ['__str__', 'paused', 'get_user_is_active', 'email_filter', 'updated', 'last_login']
-      list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'user__is_active', NoLoginIn400Days)
+      list_display = ['__str__', 'paused', 'disabled', 'email_filter', 'updated', 'last_login']
+      list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'disabled', NoLoginIn400Days)
       readonly_fields = ['user', 'password_reset_key', 'public_id']
       inlines = [ProfileConsentFormInline, ProfileTraitsInline, ProfileLoginAttemptInline]
 

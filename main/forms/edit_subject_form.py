@@ -28,7 +28,7 @@ class EditSubjectForm(forms.ModelForm):
                                       choices=((True, 'Yes'), (False, 'No')),                 
                                       widget=forms.Select)       
 
-    blackballed = forms.ChoiceField(label='Blackballed?',
+    blackballed = forms.ChoiceField(label='Blackballed',
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)         
     
@@ -36,7 +36,15 @@ class EditSubjectForm(forms.ModelForm):
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)
     
-    international_student = forms.ChoiceField(label='International student?',
+    international_student = forms.ChoiceField(label='International student',
+                                    choices=((True, 'Yes'), (False, 'No')),
+                                    widget=forms.Select)
+    
+    can_paypal = forms.ChoiceField(label='Can use PayPal',
+                                    choices=((True, 'Yes'), (False, 'No')),
+                                    widget=forms.Select)
+    
+    can_recruit = forms.ChoiceField(label='Can recruit subjects',
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)
     
@@ -47,7 +55,8 @@ class EditSubjectForm(forms.ModelForm):
     
     class Meta:
         model=profile
-        fields = ['studentID', 'type', 'pi_eligible', 'studentWorker', 'blackballed', 'paused', 'international_student', 'disabled']        
+        fields = ['studentID', 'type', 'pi_eligible', 'can_paypal', 'can_recruit', 'studentWorker', 'blackballed', 
+                  'paused', 'international_student', 'disabled']        
 
     def clean_studentWorker(self):
         logger = logging.getLogger(__name__) 
@@ -110,6 +119,32 @@ class EditSubjectForm(forms.ModelForm):
         if international_student == "True":
             return True
         elif international_student == "False":
+            return False
+        else:
+            raise forms.ValidationError("Please answer the question.")
+        
+    def clean_can_paypal(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Clean can_paypal")
+
+        can_paypal = self.cleaned_data['can_paypal']
+
+        if can_paypal == "True":
+            return True
+        elif can_paypal == "False":
+            return False
+        else:
+            raise forms.ValidationError("Please answer the question.")
+    
+    def clean_can_recruit(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Clean can_recruit")
+
+        can_recruit = self.cleaned_data['can_recruit']
+
+        if can_recruit == "True":
+            return True
+        elif can_recruit == "False":
             return False
         else:
             raise forms.ValidationError("Please answer the question.")

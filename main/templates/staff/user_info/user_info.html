@@ -65,16 +65,30 @@
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                                            
+                <span class="float-md-right">Can use PayPal</span>                              
             </div>
             <div class = "col-md"> 
-                
+                <span class="float-right float-md-left">{%if u.profile.can_paypal%}Yes{%else%}No{%endif%}</span>
             </div> 
             <div class = "col-md"> 
                 <span class="float-md-right">Active:</span>                             
             </div>
             <div class = "col-md"> 
                 <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+            </div>              
+        </div>
+        <div class = "row">
+            <div class = "col-md"> 
+                <span class="float-md-right">Can recruit</span>                              
+            </div>
+            <div class = "col-md"> 
+                <span class="float-right float-md-left">{%if u.profile.can_recruit%}Yes{%else%}No{%endif%}</span>
+            </div> 
+            <div class = "col-md"> 
+                                       
+            </div>
+            <div class = "col-md"> 
+               
             </div>              
         </div>
 

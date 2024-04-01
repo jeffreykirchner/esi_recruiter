@@ -311,7 +311,10 @@ def lookup(value, returnJSON, activeOnly):
                         .order_by('-similarity_total')
 
     if activeOnly:
-        users = users.filter(is_active=True, profile__paused = False, profile__email_confirmed='yes')
+        users = users.filter(is_active=True, 
+                             profile__paused = False, 
+                             profile__disabled=False,
+                             profile__email_confirmed='yes')
 
     u_list = list(users[:100])
 
