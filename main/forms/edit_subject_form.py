@@ -19,8 +19,12 @@ class EditSubjectForm(forms.ModelForm):
                                   empty_label=None,
                                   queryset=account_types.objects.all(),
                                   widget=forms.Select)
+    
+    pi_eligible = forms.ChoiceField(label='Can be PI',
+                                  choices=((True, 'Yes'), (False, 'No')),
+                                  widget=forms.Select)
 
-    studentWorker = forms.ChoiceField(label='Student worker?',             
+    studentWorker = forms.ChoiceField(label='Student worker',             
                                       choices=((True, 'Yes'), (False, 'No')),                 
                                       widget=forms.Select)       
 
@@ -28,7 +32,7 @@ class EditSubjectForm(forms.ModelForm):
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)         
     
-    paused = forms.ChoiceField(label='Paused?',
+    paused = forms.ChoiceField(label='Paused',
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)
     
@@ -36,10 +40,14 @@ class EditSubjectForm(forms.ModelForm):
                                     choices=((True, 'Yes'), (False, 'No')),
                                     widget=forms.Select)
     
+    disabled = forms.ChoiceField(label='Disabled (cannot login)',
+                                 choices=((True, 'Yes'), (False, 'No')),
+                                 widget=forms.Select)
+
+    
     class Meta:
         model=profile
-        fields = ['studentID', 'type', 'studentWorker', 'blackballed', 'paused', 'international_student']        
-
+        fields = ['studentID', 'type', 'pi_eligible', 'studentWorker', 'blackballed', 'paused', 'international_student', 'disabled']        
 
     def clean_studentWorker(self):
         logger = logging.getLogger(__name__) 
@@ -50,6 +58,19 @@ class EditSubjectForm(forms.ModelForm):
         if studentWorker == "True":
             return True
         elif studentWorker == "False":
+            return False
+        else:
+            raise forms.ValidationError("Please answer the question.")
+        
+    def clean_pi_eligible(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Clean pi_eligible")
+
+        pi_eligible = self.cleaned_data['pi_eligible']
+
+        if pi_eligible == "True":
+            return True
+        elif pi_eligible == "False":
             return False
         else:
             raise forms.ValidationError("Please answer the question.")
@@ -92,3 +113,17 @@ class EditSubjectForm(forms.ModelForm):
             return False
         else:
             raise forms.ValidationError("Please answer the question.")
+    
+    def clean_disabled(self):
+        logger = logging.getLogger(__name__) 
+        logger.info("Clean disabled")
+
+        disabled = self.cleaned_data['disabled']
+
+        if disabled == "True":
+            return True
+        elif disabled == "False":
+            return False
+        else:
+            raise forms.ValidationError("Please answer the question.")
+        

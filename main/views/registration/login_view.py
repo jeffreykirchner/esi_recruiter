@@ -100,51 +100,51 @@ def login_function(request,data):
         user = authenticate(request, username=username.lower(), password=password)
 
         if user is not None:
-            if not user.is_active:
+
+            if not user.is_active or user.profile.disabled:
                 ProfileLoginAttempt.objects.create(my_profile=user.profile, success=False, note="Inactive Account")
                 logger.error(f"Login user {username} inactive account.")                
                 return JsonResponse({"status":"error", "message":"Your account is not active. Contact us for more information."}, safe=False)
-            else:
-                
-                #if user can use paypal require two factor code
-                if user.profile.mfa_required and two_factor == "":
-                    if not user.profile.mfa_setup_complete:
-                        
-                        if user.profile.mfa_hash == "" or user.profile.mfa_hash == None:
-                            #user has not setup two factor code
-                            user.profile.mfa_hash = pyotp.random_base32()
-                            user.profile.save()
-
-                        two_factor_uri = pyotp.totp.TOTP(user.profile.mfa_hash).provisioning_uri(user.username,issuer_name="ESI Recruiter")
-                        return JsonResponse({"status":"two_factor_setup", 
-                                             "message":"Two factor setup required.",
-                                             "two_factor_uri":two_factor_uri,
-                                             "two_factor_hash":user.profile.mfa_hash}, safe=False)
-                    else:    
-                        #if user has two factor code enabled, return two factor code required
-                        return JsonResponse({"status":"two_factor", "message":"Two factor code required."}, safe=False)
+            
+            #if user can use paypal require two factor code
+            if user.profile.mfa_required and two_factor == "":
+                if not user.profile.mfa_setup_complete:
                     
-                #check two factor code if required
-                elif user.profile.mfa_required and two_factor != "":
-                    totp = pyotp.TOTP(user.profile.mfa_hash)
+                    if user.profile.mfa_hash == "" or user.profile.mfa_hash == None:
+                        #user has not setup two factor code
+                        user.profile.mfa_hash = pyotp.random_base32()
+                        user.profile.save()
 
-                    if not totp.verify(two_factor):
-                        ProfileLoginAttempt.objects.create(my_profile=user.profile, success=False, note="Invalid Two Factor Code")
-                        return JsonResponse({"status":"error", "message":"Invalid Code"}, safe=False)
-                    else:
-                        if user.profile.mfa_setup_complete == False:
-                            user.profile.mfa_setup_complete = True
-                            user.profile.save()
+                    two_factor_uri = pyotp.totp.TOTP(user.profile.mfa_hash).provisioning_uri(user.username,issuer_name="ESI Recruiter")
+                    return JsonResponse({"status":"two_factor_setup", 
+                                            "message":"Two factor setup required.",
+                                            "two_factor_uri":two_factor_uri,
+                                            "two_factor_hash":user.profile.mfa_hash}, safe=False)
+                else:    
+                    #if user has two factor code enabled, return two factor code required
+                    return JsonResponse({"status":"two_factor", "message":"Two factor code required."}, safe=False)
+                
+            #check two factor code if required
+            elif user.profile.mfa_required and two_factor != "":
+                totp = pyotp.TOTP(user.profile.mfa_hash)
 
-                #standard user, no two factor code required
-                login(request, user) 
-                ProfileLoginAttempt.objects.create(my_profile=user.profile, success=True)
+                if not totp.verify(two_factor):
+                    ProfileLoginAttempt.objects.create(my_profile=user.profile, success=False, note="Invalid Two Factor Code")
+                    return JsonResponse({"status":"error", "message":"Invalid Code"}, safe=False)
+                else:
+                    if user.profile.mfa_setup_complete == False:
+                        user.profile.mfa_setup_complete = True
+                        user.profile.save()
 
-                rp = request.session.get('redirect_path','/')        
+            #standard user, no two factor code required
+            login(request, user) 
+            ProfileLoginAttempt.objects.create(my_profile=user.profile, success=True)
 
-                logger.info(f"Login user {username} success , redirect {rp}")
+            rp = request.session.get('redirect_path','/')        
 
-                return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
+            logger.info(f"Login user {username} success , redirect {rp}")
+
+            return JsonResponse({"status":"success","redirect_path":rp}, safe=False)
         else:
             logger.warning(f"Login user {username} fail user / pass")
             user = User.objects.filter(username=username.lower()).first()

@@ -635,8 +635,8 @@ class ExperimentSessionInvitationsInline(admin.TabularInline):
 class ExperimentSessionsAdmin(admin.ModelAdmin):
       
       def render_change_form(self, request, context, *args, **kwargs):
-         context['adminform'].form.fields['budget'].queryset = User.objects.filter(profile__type__id=1).order_by('last_name','first_name')
-
+         context['adminform'].form.fields['budget'].queryset = User.objects.filter(profile__type__id=1, profile__pi_eligible=True).order_by('last_name','first_name')
+      
          return super(ExperimentSessionsAdmin, self).render_change_form(request, context, *args, **kwargs)
          
       def has_delete_permission(self, request, obj=None):
@@ -684,6 +684,9 @@ class ExperimentsAdmin(admin.ModelAdmin):
 
             form.base_fields['consent_form_default'].widget.can_change_related = False
             form.base_fields['consent_form_default'].widget.can_add_related = False
+
+            form.base_fields['budget_default'].queryset = User.objects.filter(profile__type__id=1, profile__pi_eligible=True).order_by('last_name','first_name')
+            form.base_fields['experiment_pi'].queryset = User.objects.filter(profile__type__id=1, profile__pi_eligible=True).order_by('last_name','first_name')
 
             return form
       

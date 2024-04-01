@@ -29,13 +29,13 @@ class experimentForm1(forms.ModelForm):
                                                                        "v-on:keyup":"mainFormChange1"}))
     
     budget_default = forms.ModelChoiceField(label='Budget (default)',
-                                            queryset=User.objects.filter(profile__type__id=1, is_active=True).order_by('last_name','first_name'),
+                                            queryset=User.objects.filter(profile__type__id=1, profile__pi_eligible=True).order_by('last_name','first_name'),
                                             required=False,
                                             widget=forms.Select(attrs={"v-model":"experiment.budget_default",
                                                                         "v-on:change":"mainFormChange1"}))
 
     experiment_pi = forms.ModelChoiceField(label='Primary Investigator',
-                                           queryset=User.objects.filter(profile__type__id=1, is_active=True).order_by('last_name','first_name'),
+                                           queryset=User.objects.filter(profile__type__id=1, profile__pi_eligible=True).order_by('last_name','first_name'),
                                            required=False,
                                            widget=forms.Select(attrs={"v-model":"experiment.experiment_pi",
                                                                       "v-on:change":"mainFormChange1"}))
