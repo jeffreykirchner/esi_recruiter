@@ -79,6 +79,11 @@ class profile(models.Model):
     @admin.display(ordering='user__last_login')
     def last_login(self):
         return self.user.last_login
+    
+    #return the last login time in the server's time zone
+    def last_login_tz(self):
+        p = parameters.objects.first()
+        return self.user.last_login.astimezone(pytz.timezone(p.subjectTimeZone)).strftime("%m/%d/%Y %I:%M %p %Z")
 
     #find which email filter, if any applies to user
     def setup_email_filter(self):
