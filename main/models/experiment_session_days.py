@@ -183,11 +183,10 @@ class experiment_session_days(models.Model):
         v += self.date.astimezone(tz).strftime("%-m/%-d/%Y") + "<br>"
         
         if self.enable_time:
-            v += self.date.astimezone(tz).strftime("%-I:%M %p") + "-" +  self.date_end.astimezone(tz).strftime("%-I:%M %p") + "<br>"
+            v += self.date.astimezone(tz).strftime("%-I:%M %p") + "-" +  self.date_end.astimezone(tz).strftime("%-I:%M %p") + " " + self.date.astimezone(tz).strftime("%Z") + "<br>"
         else:
             v +=  "Anytime" + "<br>"
         
-        v += p.subjectTimeZone
         return v
 
 
