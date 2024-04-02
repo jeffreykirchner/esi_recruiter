@@ -179,7 +179,7 @@ class experiment_session_days(models.Model):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
-        v = self.date.astimezone(tz).strftime("%A") + "<br>"
+        v = self.date.astimezone(tz).strftime("%a") + " "
         v += self.date.astimezone(tz).strftime("%-m/%-d/%Y") + "<br>"
         
         if self.enable_time:
