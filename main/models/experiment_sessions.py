@@ -1440,13 +1440,11 @@ class experiment_sessions(models.Model):
             "experiment_session_days" : [{"id" : esd.id,
                                           "date" : esd.date,
                                           "date_end" : esd.date_end,
+                                          "date_html" : esd.getDateStringHTML(),
                                           "enable_time" : esd.enable_time,
                                           "length" : esd.length,
-                                          "hours_until_start ": esd.hoursUntilStart(),
-                                          "hours_until_start_str":  str(int(esd.hoursUntilStart())) + " hours<br>" + 
-                                                                       str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes' 
-                                                                   if esd.hoursUntilStart() >= 1 else
-                                                                    str(int(esd.hoursUntilStart() %1 * 60)) + ' minutes'   ,
+                                          "hours_until_start": esd.hoursUntilStart(),
+                                          "hours_until_start_str":  esd.hoursUntilStartHTML(),
                                           } for esd in self.ESD.all().annotate(first_date=models.Min('date'))
                                                                      .order_by('-first_date')
                                         ],

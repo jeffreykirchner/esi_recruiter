@@ -22,7 +22,7 @@ var app = Vue.createApp({
     }},
 
     methods:{
-        getCurrentInvitations:function(){
+        getCurrentInvitations:function (){
             
             axios.post('/subjectHome/', {
                             action :"getCurrentInvitations" ,                                                                                                                             
@@ -123,13 +123,13 @@ var app = Vue.createApp({
             {
                 temp_s = app.$data.upcomingInvitations[i];
 
-                for(var j=0;j<temp_s.experiment_session_days.length;j++)
-                {
-                    temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,
-                                                                            temp_s.experiment_session_days[j].date_end,
-                                                                            temp_s.experiment_session_days[j].enable_time,
-                                                                            temp_s.experiment_session_days[j].length);
-                }                        
+                // for(var j=0;j<temp_s.experiment_session_days.length;j++)
+                // {
+                //     temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,
+                //                                                             temp_s.experiment_session_days[j].date_end,
+                //                                                             temp_s.experiment_session_days[j].enable_time,
+                //                                                             temp_s.experiment_session_days[j].length);
+                // }                        
             }
             
             app.$data.lastActionFailed = response.data.failed;
@@ -162,7 +162,9 @@ var app = Vue.createApp({
         },
 
         formatDate: function(value,value2,enable_time,length){
-                if (value) {        
+                if (value) {
+                    return value;
+
                     //console.log(value);       
                     rValue =   moment(String(value)).local().format('dddd');
                     rValue +=   "<br>";
