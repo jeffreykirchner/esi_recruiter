@@ -30,8 +30,9 @@ var app = Vue.createApp({
                 height : "400",
                 theme: "silver",
                 convert_urls: false,
+                promotion: false,
                 auto_focus: 'id_sendMessageText',
-                plugins: "directionality,paste,searchreplace,code,link",
+                plugins: "directionality,searchreplace,code,link",
                     toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
                 directionality: "{{ directionality }}",
             });
