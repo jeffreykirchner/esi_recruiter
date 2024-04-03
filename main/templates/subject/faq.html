@@ -87,7 +87,7 @@
 
                         <div v-bind:id="'collapse'+index" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
                             <div class="card-body">
-                                [[f.answer]]
+                                <span v-html="f.answer"></span>
                             </div>
                         </div>
 
