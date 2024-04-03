@@ -56,9 +56,9 @@ var app = Vue.createApp({
                 height : "400",
                 theme: "silver",
                 convert_urls: false,
-                plugins: "directionality,paste,searchreplace,code,link",
+                promotion: false,
+                plugins: "searchreplace,code,link",
                 toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
-                directionality: "{{ directionality }}",
             });
 
             tinyMCE.init({
@@ -66,7 +66,8 @@ var app = Vue.createApp({
                 height : "400",
                 theme: "silver",
                 convert_urls: false,
-                plugins: "directionality,paste,searchreplace,code,link",
+                promotion: false,
+                plugins: "directionality,searchreplace,code,link",
                 toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
                 directionality: "{{ directionality }}",
             });
