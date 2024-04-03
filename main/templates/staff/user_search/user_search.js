@@ -240,7 +240,14 @@ var app = Vue.createApp({
     mounted(){
         $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
 
-        setTimeout(this.do_first_load, 500);
-        
+        Vue.nextTick(() => {
+            this.do_first_load();
+        });
+
+        setTimeout(() => {
+            Vue.nextTick(() => {
+                document.getElementById("idsearchInfo").focus();
+            });
+        }, 500);     
     },
 }).mount('#app');

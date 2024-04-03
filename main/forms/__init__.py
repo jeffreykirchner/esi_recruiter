@@ -3,7 +3,6 @@ from .profileForm import *
 from .profileFormUpdate import *
 from .verifyForm import *
 from .verifyFormResend import *
-from .userInfoForm import *
 from .experimentForm1 import *
 from .recruitmentParametersForm import *
 from .experimentForm1 import *
@@ -23,3 +22,4 @@ from .invitationEmailTemplateSelectForm import *
 from .consent_form_report_form import *
 from .irb_report_form import *
 from .expenditure_report_form import *
+from .edit_subject_form import *

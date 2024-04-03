@@ -24,7 +24,7 @@
             <tbody>                        
                 <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
                     <td  style="text-align: center;">                                                                
-                        <span v-html="s.date"></span>
+                        <span v-html="s.date_html"></span>
                         <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
                     </td>
                     <td  style="text-align: center;">  

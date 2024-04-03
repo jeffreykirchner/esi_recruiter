@@ -173,6 +173,22 @@ class experiment_session_days(models.Model):
             return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") + " " + p.subjectTimeZone
         else:
             return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y") + " Anytime " + p.subjectTimeZone
+    
+    #get html version of date string
+    def getDateStringHTML(self):
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+
+        v = self.date.astimezone(tz).strftime("%a") + " "
+        v += self.date.astimezone(tz).strftime("%-m/%-d/%Y") + "<br>"
+        
+        if self.enable_time:
+            v += self.date.astimezone(tz).strftime("%-I:%M %p") + "-" +  self.date_end.astimezone(tz).strftime("%-I:%M %p") + " " + self.date.astimezone(tz).strftime("%Z") + "<br>"
+        else:
+            v +=  "Anytime" + "<br>"
+        
+        return v
+
 
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
@@ -206,6 +222,28 @@ class experiment_session_days(models.Model):
 
         return timeRemaining.total_seconds()/60/60
         #return str(timeRemaining)
+    
+    #hours until start in html format
+    def hoursUntilStartHTML(self):
+        #time remaining until start
+        time_until_start = self.hoursUntilStart()
+        hours_until_start = int(time_until_start)
+        minutes_until_start = int(time_until_start %1 * 60)
+
+        v = ""
+
+        if hours_until_start > 0:
+            if hours_until_start == 1:
+                v += str(hours_until_start) + " hr "
+            else:
+                 v += str(hours_until_start) + " hrs "
+        if minutes_until_start > 0:
+            if minutes_until_start == 1:
+                v += str(minutes_until_start) + " min"
+            else:
+                v += str(minutes_until_start) + " mins"
+        
+        return v
 
     #get a list of session who's room and time overlap this one
     def getRoomOverlap(self):

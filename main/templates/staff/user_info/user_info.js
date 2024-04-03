@@ -180,6 +180,64 @@ var app = Vue.createApp({
             
         },
 
+        // fire when edit subject model is shown
+        showEditSubject:function(){
+            $('#editSubjectModal').modal('show');  
+        },
+
+        //fire when subject model hides
+        hideEditSubject:function(){
+            
+        },
+
+        //make a not about the subject
+        sendEditSubject: function(){                       
+            axios.post('{{ request.path }}', {
+                    status :"editSubject" ,                                
+                    formData : $("#EditSubjectForm").serializeArray(),                                                              
+                })
+                .then(function (response) {     
+                                                                           
+                    status=response.data.status; 
+                    // app.clearMainFormErrors();
+
+                    if(status=="success")
+                    {                                 
+                        location.reload();
+                    }
+                    else
+                    {   
+                        console.log("Edit subject errors: " + response.data.errors);                             
+                        app.displayErrors(response.data.errors);
+                    }          
+            
+                })
+                .catch(function (error) {
+                    console.log(error);
+
+                });                        
+        },
+
+        //displays to the form errors
+        displayErrors:function(errors){
+            for(var e in errors)
+            {
+                $("#id_" + e).attr("class","form-control is-invalid")
+                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                
+                for(var i in errors[e])
+                {
+                    str +=errors[e][i] + '<br>';
+                }
+
+                str+='</span>';
+                $("#div_id_" + e).append(str);  
+
+                var elmnt = document.getElementById("div_id_" + e);
+                elmnt.scrollIntoView();   
+            }
+        },
+
         formatDate: function(value, enable_time){
                 if (value) {        
                     if(enable_time)
@@ -200,6 +258,7 @@ var app = Vue.createApp({
 
     mounted(){
             this.getSessions();  
-            $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);                  
+            $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);       
+            $('#editSubjectModal').on("hidden.bs.modal", this.hideEditSubject);           
     },
 }).mount('#app');
