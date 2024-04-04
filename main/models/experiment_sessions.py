@@ -590,33 +590,59 @@ class experiment_sessions(models.Model):
        
         if checkAlreadyIn:
             u_list = self.getValidUserList_not_already_in_session(u_list)
-        
+            if len(u_list) == 0: return u_list
+
         u_list = self.getValidUserList_gender(u_list)
+        if len(u_list) == 0: return u_list
 
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
+        if len(u_list) == 0: return u_list
+        
         #check experience count
         u_list = self.getValidUserList_school_exclude(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_school_include(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_experience(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_trait_constraints(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_trait_constraints_exclude(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_date_time_overlap(u_list, testSession)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_now_show_block(u_list)
+        if len(u_list) == 0: return u_list
+
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_multi_participations(u_list, testSession)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_institution_experience_exclude(u_list, testInstiutionList)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_institution_experience_include(u_list, testInstiutionList)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_experiment_experience_exclude(u_list, testExperiment)
+        if len(u_list) == 0: return u_list
+        
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_experiment_experience_include(u_list, testExperiment)
 
