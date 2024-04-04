@@ -13,7 +13,7 @@
 
                     <a v-bind:href="(consent_form) ? consent_form.pdf_file_url : ''"
                        target="_blank">                       
-                        <h5>[[consent_form ? consent_form.link_text : '']]</h5>
+                        <span v-if="consent_form.pdf_file_url"><h5>[[consent_form ? consent_form.link_text : '']]</h5></span>
                     </a>
 
                     <!-- <object class="conset_form" 

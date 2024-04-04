@@ -15,7 +15,7 @@ class ConsentForm(models.Model):
     irb_study = models.ForeignKey(IrbStudy, on_delete=models.CASCADE, related_name='consent_forms', null=True, blank=True, verbose_name="IRB Study")
 
     name = models.CharField(max_length = 300, default="", unique=True)         #title of the consent form
-    pdf_file = models.FileField()                                              #pdf file from the IRB
+    pdf_file = models.FileField(blank=True, null=True)                         #pdf file from the IRB
     signature_required = models.BooleanField(default=True)                     #if true, subject must do digital signature
     agreement_required = models.BooleanField(default=True)                     #if true, subject must agree to consent form to participate
     archived = models.BooleanField(verbose_name="Archived", default=False)     #if true, new sessions cannot use this consent form
@@ -59,8 +59,8 @@ class ConsentForm(models.Model):
         return{            
             "id" : self.id,
             "name" : self.name,     
-            "pdf_file_url" : self.pdf_file.url,
-            "pdf_file_name" : self.pdf_file.name,
+            "pdf_file_url" : self.pdf_file.url if self.pdf_file else None,
+            "pdf_file_name" : self.pdf_file.name if self.pdf_file else None,
             "signature_required" : self.signature_required,
             "agreement_required" : self.agreement_required,
             "archived" : self.archived,
