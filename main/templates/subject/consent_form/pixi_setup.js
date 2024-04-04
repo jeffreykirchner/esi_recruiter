@@ -11,17 +11,17 @@ resetPixiApp(){
     
     let canvas = document.getElementById('signature_canvas_id');
 
-    if(!app.$data.pixi_app)
+    if(!pixi_app)
     {
-        app.$data.pixi_app = new PIXI.Application({resizeTo : canvas,
-                                                backgroundColor : 0xFFFFFF,
-                                                autoResize: true,
-                                                antialias: true,
-                                                resolution: 1,
-                                                view: canvas });
+        pixi_app = new PIXI.Application({resizeTo : canvas,
+                                         backgroundColor : 0xFFFFFF,
+                                         autoResize: true,
+                                         antialias: true,
+                                         resolution: 1,
+                                         view: canvas });
     }
     
-    app.$data.pixi_signature_texture = PIXI.Texture.from('{% static "signature_4.png" %}');
+    pixi_signature_texture = PIXI.Texture.from('{% static "signature_4.png" %}');
 
     app.$data.canvas_width = canvas.width;
     app.$data.canvas_height = canvas.height;
@@ -36,7 +36,7 @@ resetPixiApp(){
     background.on("pointerdown", app.handleStagePointerDown)
               .on("pointerup", app.handleStagePointerUp)              
               .on("pointermove", app.handleStagePointerMove);
-    app.$data.pixi_app.stage.addChild(background);
+    pixi_app.stage.addChild(background);
 
     //add signature line
     let signature_line = new PIXI.Graphics();
@@ -48,7 +48,7 @@ resetPixiApp(){
                   .moveTo(15, canvas.height*0.65)                     
                   .lineTo(5, canvas.height*0.74);
 
-    app.$data.pixi_app.stage.addChild(signature_line);
+    pixi_app.stage.addChild(signature_line);
 
     //sign here text
     let text = "";
@@ -62,10 +62,10 @@ resetPixiApp(){
     }
     text.x = canvas.width/2-text.width/2;
     text.y = canvas.height*0.74-text.height;
-    app.$data.pixi_app.stage.addChild(text);
+    pixi_app.stage.addChild(text);
 
     //animation ticker
-    app.$data.pixi_app.ticker.add((delta) => {               
+    pixi_app.ticker.add((delta) => {               
         app.pixiTicker(delta)
     });
 
@@ -76,7 +76,7 @@ resetPixiApp(){
 //load past signature
 loadSignature(){
 
-    app.$data.pixi_signatures_rope_array = [];
+    pixi_signatures_rope_array = [];
 
     if(!app.consent_form) return;
     if(!app.consent_form.signature_required) return;
@@ -107,26 +107,26 @@ loadSignature(){
                                        t[j].y * app.$data.canvas_height / s.height))
         }
 
-        v = {points:points, rope:new PIXI.SimpleRope(app.$data.pixi_signature_texture, new PIXI.Point(0, 0))};
+        v = {points:points, rope:new PIXI.SimpleRope(pixi_signature_texture, new PIXI.Point(0, 0))};
             
        //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
-       app.$data.pixi_signatures_rope_array.push(v);
+       pixi_signatures_rope_array.push(v);
     }
 },
 
 pixiTicker(delta){
-    for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+    for(i=0;i<pixi_signatures_rope_array.length;i++)
     {
-        if(app.$data.pixi_signatures_rope_array[i].points.length > 0)
+        if(pixi_signatures_rope_array[i].points.length > 0)
         {
-            if(app.$data.pixi_signatures_rope_array[i].rope) app.$data.pixi_signatures_rope_array[i].rope.destroy();
+            if(pixi_signatures_rope_array[i].rope) pixi_signatures_rope_array[i].rope.destroy();
             
-            app.$data.pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(app.$data.pixi_signature_texture,
-                                                                               app.$data.pixi_signatures_rope_array[i].points,
-                                                                               start=0,
+            pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(pixi_signature_texture,
+                                                                     pixi_signatures_rope_array[i].points,
+                                                                     start=0,
                                                                             );
                                                                             
-            app.$data.pixi_app.stage.addChild(app.$data.pixi_signatures_rope_array[i].rope);
+            pixi_app.stage.addChild(pixi_signatures_rope_array[i].rope);
         }
     }
 },
@@ -139,18 +139,18 @@ handleStagePointerDown(event){
     if(app.consent_form_subject) return;
     if(app.waiting) return;
 
-    app.$data.pixi_pointer_down=true;
+    pixi_pointer_down=true;
     v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)], rope: null};
         
     //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
-    app.$data.pixi_signatures_rope_array.push(v);
+    pixi_signatures_rope_array.push(v);
 },
 
 /**
  *pointer up on stage
  */
 handleStagePointerUp(){
-    app.$data.pixi_pointer_down=false;    
+    pixi_pointer_down=false;    
 },
 
 /**
@@ -158,16 +158,16 @@ handleStagePointerUp(){
  */
 handleStagePointerMove(event){
     if(app.waiting) return;
-    if(!app.$data.pixi_pointer_down) return;
+    if(!pixi_pointer_down) return;
 
-    let i = app.$data.pixi_signatures_rope_array.length-1;
+    let i = pixi_signatures_rope_array.length-1;
 
     if(i<0)i=0;
 
     let p1 = new PIXI.Point(event.data.global.x, event.data.global.y);
-    let p2 = app.$data.pixi_signatures_rope_array[i].points[app.$data.pixi_signatures_rope_array[i].points.length-1];
+    let p2 = pixi_signatures_rope_array[i].points[pixi_signatures_rope_array[i].points.length-1];
 
     if(app.getDistance(p1.x, p1.y, p2.x, p2.y) < 5) return;
 
-    app.$data.pixi_signatures_rope_array[i].points.push(p1);    
+    pixi_signatures_rope_array[i].points.push(p1);    
 },

@@ -1,6 +1,11 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
+var pixi_app = null;
+var pixi_pointer_down = false;        
+var pixi_signatures_rope_array = [];
+var pixi_signature_texture = null;
+
 var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
@@ -12,11 +17,6 @@ var app = Vue.createApp({
 
         consent_form:{{consent_form_json|safe}},
         consent_form_subject:{{consent_form_subject_json|safe}},
-
-        pixi_app:null,
-        pixi_pointer_down:false,        
-        pixi_signatures_rope_array:[],
-        pixi_signature_texture:null,
 
         consent_form_error:"",
     }},
@@ -38,21 +38,21 @@ var app = Vue.createApp({
 
             if(app.$data.consent_form.signature_required)
             {
-                if(app.$data.pixi_signatures_rope_array.length==0)
+                if(pixi_signatures_rope_array.length==0)
                 {
                     app.$data.consent_form_error = "Error: Sign before accepting.";
                     return;
                 } 
                 
                 total_length=0;
-                for(let i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+                for(let i=0;i<pixi_signatures_rope_array.length;i++)
                 {
-                    consent_form_signature[i]=app.$data.pixi_signatures_rope_array[i].points;
+                    consent_form_signature[i]=pixi_signatures_rope_array[i].points;
 
-                    for(let j=1;j<app.$data.pixi_signatures_rope_array[i].points.length;j++)
+                    for(let j=1;j<pixi_signatures_rope_array[i].points.length;j++)
                     {
-                        let p1 = app.$data.pixi_signatures_rope_array[i].points[j-1];
-                        let p2 = app.$data.pixi_signatures_rope_array[i].points[j];
+                        let p1 = pixi_signatures_rope_array[i].points[j-1];
+                        let p2 = pixi_signatures_rope_array[i].points[j];
                         total_length += app.getDistance(p1.x, p1.y, p2.x, p2.y);
                     }
                 }
@@ -94,13 +94,13 @@ var app = Vue.createApp({
         clearSignature(event){
             if(app.consent_form_subject) return;
 
-            for(i=0;i<app.$data.pixi_signatures_rope_array.length;i++)
+            for(i=0;i<pixi_signatures_rope_array.length;i++)
             {
-                if(app.$data.pixi_signatures_rope_array[i].rope) app.$data.pixi_signatures_rope_array[i].rope.destroy();
+                if(pixi_signatures_rope_array[i].rope) pixi_signatures_rope_array[i].rope.destroy();
                 
             }
 
-            app.$data.pixi_signatures_rope_array = [];
+            pixi_signatures_rope_array = [];
             app.$data.consent_form_error = "";
         },
 
