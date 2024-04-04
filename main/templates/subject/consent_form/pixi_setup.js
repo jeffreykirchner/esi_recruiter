@@ -32,7 +32,7 @@ resetPixiApp(){
     background.drawRect(0, 0, canvas.width, canvas.height);
     background.endFill();
 
-    background.interactive = true;
+    background.eventMode = 'static';
     background.on("pointerdown", app.handleStagePointerDown)
               .on("pointerup", app.handleStagePointerUp)              
               .on("pointermove", app.handleStagePointerMove);
