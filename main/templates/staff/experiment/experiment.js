@@ -18,7 +18,8 @@ var app = Vue.createApp({
             max_vaue:0,
             include_if_in_range:true,
         },                    
-        sessions:[],                       
+        sessions:[],       
+        sessions_count:0,                
         institutions_list:"",
         include_institutions_list:"",
         exclude_institutions_list:"",
@@ -50,7 +51,7 @@ var app = Vue.createApp({
 
     methods:{       
         
-        do_first_load:function(){
+        do_first_load:function do_first_load(){
             tinyMCE.init({
                 target: document.getElementById('id_reminderText'),
                 height : "400",
@@ -80,20 +81,20 @@ var app = Vue.createApp({
             });
         },
 
-        clearMainFormErrors:function(){
-            for(var item in app.$data.experiment)
+        clearMainFormErrors:function clearMainFormErrors(){
+            for(var item in app.experiment)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
             }
 
-            for(var item in app.$data.recruitment_params)
+            for(var item in app.recruitment_params)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
             }
 
-            for(var item in app.$data.current_trait)
+            for(var item in app.current_trait)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
@@ -101,24 +102,24 @@ var app = Vue.createApp({
         },
 
         //update recruitment display lists
-        updateDisplayLists:function(errors){
-            var e = app.$data.recruitment_params;
+        updateDisplayLists:function updateDisplayLists(errors){
+            var e = app.recruitment_params;
 
-            app.$data.institutions_list=app.updateDisplayLists2(app.$data.experiment.institution_full);
-            app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
-            app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
-            app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
-            app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
-            app.$data.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
-            app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
-            app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
-            app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
-            app.$data.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
-            app.$data.experiment.showUpFee =  parseFloat(app.$data.experiment.showUpFee).toFixed(2); 
+            app.institutions_list=app.updateDisplayLists2(app.experiment.institution_full);
+            app.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
+            app.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
+            app.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
+            app.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
+            app.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
+            app.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
+            app.genders_list=app.updateDisplayLists2(e.gender_full);
+            app.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
+            app.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
+            app.experiment.showUpFee =  parseFloat(app.experiment.showUpFee).toFixed(2); 
         },
 
         //update recruitment display lists
-        updateDisplayLists2:function(list){
+        updateDisplayLists2:function updateDisplayLists2(list){
             str="";
 
             if(list.length == 0)
@@ -138,33 +139,49 @@ var app = Vue.createApp({
         },
 
         //get experiment info from server
-        getExperiment: function(){
+        getExperiment: function getExperiment(){
             axios.post('/experiment/{{id}}/', {
                     status:"get",                                                              
                 })
                 .then(function (response) {                                   
-                    // app.$data.institutions= response.data.institutions; 
-                    app.$data.experiment =  response.data.experiment;     
-                    app.$data.sessions = response.data.sessions.experiment_sessions;      
-                    app.$data.parameters = response.data.parameters;  
-                    app.$data.recruitment_params = response.data.recruitment_params;                                        
-                    app.$data.loading=false; 
+                    // app.institutions= response.data.institutions; 
+                    app.experiment =  response.data.experiment;     
+                    app.sessions = response.data.sessions.experiment_sessions; 
+                    app.sessions_count = response.data.sessions_count;     
+                    app.parameters = response.data.parameters;  
+                    app.recruitment_params = response.data.recruitment_params;                                        
+                    app.loading=false; 
                     app.updateDisplayLists();
 
-                    if(!app.$data.first_load)
+                    if(!app.first_load)
                     {   
                         setTimeout(app.do_first_load, 250);
-                        app.$data.first_load = true;
+                        app.first_load = true;
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
+        showAllSessions:function showAllSessions(){
+            app.working=true; 
+            axios.post('/experiment/{{id}}/', {
+                status:"showAllSessions",                                                              
+            })
+            .then(function (response) {                                   
+                app.sessions = response.data.sessions.experiment_sessions;      
+                app.working=false; 
+            })
+            .catch(function (error) {
+                console.log(error);
+    
+            });                        
+        },
+
         //display form errors
-        displayErrors:function(errors){
+        displayErrors:function displayErrors(errors){
             for(var e in errors)
             {
                 $("#id_" + e).attr("class","form-control is-invalid")
@@ -193,9 +210,9 @@ var app = Vue.createApp({
         },                   
 
         //update experiment parameters
-        updateExperiment1: function(){
+        updateExperiment1: function updateExperiment1(){
 
-            app.$data.cancelModal=false;  
+            app.cancelModal=false;  
 
             document.getElementById('id_invitationText').value = tinymce.get("id_invitationText").getContent();
             document.getElementById('id_reminderText').value = tinymce.get("id_reminderText").getContent();
@@ -212,27 +229,27 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {                                 
-                        app.$data.experiment =  response.data.experiment;  
+                        app.experiment =  response.data.experiment;  
                         app.updateDisplayLists();
                         $('#setupModalCenter').modal('toggle');
                     }
                     else
                     {      
-                        app.$data.cancelModal=true;                          
+                        app.cancelModal=true;                          
                         app.displayErrors(response.data.errors);
                     }          
 
-                    app.$data.buttonText1="Update"                      
+                    app.buttonText1="Update"                      
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });                        
         },
 
         //add new session to experiment
-        addSession: function(){
-            app.$data.addSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+        addSession: function addSession(){
+            app.addSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experiment/{{id}}/', {
                     status :"add" ,                                                                                                                              
@@ -240,28 +257,34 @@ var app = Vue.createApp({
                 .then(function (response) {                                   
                     //redirect to new session     
 
-                    app.$data.sessions = response.data.sessions.experiment_sessions;
-                    app.$data.addSessionButtonText ='Add <i class="fas fa-plus fa-xs"></i>';
-                    app.$data.addSessionErrorText = response.data.status;
+                    app.sessions = response.data.sessions.experiment_sessions;
+                    app.sessions_count = response.data.sessions_count;
+
+                    app.addSessionButtonText ='Add <i class="fas fa-plus fa-xs"></i>';
+                    app.addSessionErrorText = response.data.status;
 
                     //window.location.href = response.data.url;            
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });
         },
 
         //remove session from experiment
-        removeSession: function(sid){
+        removeSession: function removeSession(sid){
+            app.working = true;
             if(confirm("Delete session?")){
                 axios.post('/experiment/{{id}}/', {
                         status : "remove" ,
                         sid : sid,                                                                                                                              
                     })
-                    .then(function (response) {                                   
+                    .then(function (response) {                                 
                         
-                        app.$data.sessions = response.data.sessions.experiment_sessions;            
+                        app.sessions = response.data.sessions.experiment_sessions;   
+                        app.sessions_count = response.data.sessions_count;
+                        
+                        app.working = false;         
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -270,16 +293,16 @@ var app = Vue.createApp({
         },
 
         //add trait
-        addTrait:function(){
-            app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+        addTrait:function addTrait(){
+            app.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experiment/{{id}}/', {
                     status : "addTrait" ,                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;  
+                    app.recruitment_params = response.data.recruitment_params;  
                     app.updateDisplayLists();      
-                    app.$data.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
+                    app.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -287,11 +310,11 @@ var app = Vue.createApp({
         },
 
         //update trait
-        updateTrait:function(){
-            app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+        updateTrait:function updateTrait(){
+            app.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experiment/{{id}}/', {
                     status : "updateTrait",
-                    trait_id:app.$data.current_trait.id,
+                    trait_id:app.current_trait.id,
                     formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
                 })
                 .then(function (response) {                                   
@@ -302,17 +325,17 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;  
+                        app.recruitment_params = response.data.recruitment_params;  
                         app.updateDisplayLists();   
                         $('#updateTraitModal').modal('toggle');   
                     }
                     else
                     {
-                        app.$data.cancelModal=true;                           
+                        app.cancelModal=true;                           
                         app.displayErrors(response.data.errors);
                     }
 
-                    app.$data.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
+                    app.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -320,7 +343,7 @@ var app = Vue.createApp({
         },
 
         //delete trait
-        deleteTrait:function(id){
+        deleteTrait:function deleteTrait(id){
             
             axios.post('/experiment/{{id}}/', {
                     status : "deleteTrait", 
@@ -328,7 +351,7 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;  
+                    app.recruitment_params = response.data.recruitment_params;  
                     app.updateDisplayLists();       
                 })
                 .catch(function (error) {
@@ -337,14 +360,14 @@ var app = Vue.createApp({
         },
 
         //update require all trait constraints
-        updateRequireAllTraitContraints:function(){
+        updateRequireAllTraitContraints:function updateRequireAllTraitContraints(){
             axios.post('/experiment/{{id}}/', {
                     status : "updateRequireAllTraitContraints", 
-                    value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
+                    value: app.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;         
+                    app.recruitment_params = response.data.recruitment_params;         
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -352,7 +375,7 @@ var app = Vue.createApp({
         },
 
         //format date to human readable
-        formatDate: function(value,date_only){
+        formatDate: function formatDate(value,date_only){
             if (value) {
                 //return value;
                 //console.log(value);
@@ -371,7 +394,7 @@ var app = Vue.createApp({
         },
 
         //check if date is today
-        checkToday: function(value1){
+        checkToday: function checkToday(value1){
             if(moment(value1).format("YYYY/MM/DD")== moment().format("YYYY/MM/DD"))
             {
                 return true;
@@ -384,36 +407,36 @@ var app = Vue.createApp({
         },
 
         //put * notification on update button on change
-        mainFormChange1:function(){
-            app.$data.buttonText1="Update *";
+        mainFormChange1:function mainFormChange1(){
+            app.buttonText1="Update *";
         },
 
         //put * notification on update button on change of recruitment form
-        recruitmentFormChange:function(){
-            app.$data.buttonText2="Update *";
+        recruitmentFormChange:function recruitmentFormChange(){
+            app.buttonText2="Update *";
         },                   
 
         //fire when edit trait model needs to be shown
-        showEditTraits:function(){
-            // app.$data.cancelModal=true;
-            // app.$data.recruitmentParamsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
+        showEditTraits:function showEditTraits(){
+            // app.cancelModal=true;
+            // app.recruitmentParamsBeforeEdit = Object.assign({}, app.recruitment_params);
             $('#editTraitsModal').modal('show');
             //app.clearMainFormErrors();
         },
 
         //fire when hide edit traits
-        hideEditTraits:function(){
-            // if(app.$data.cancelModal)
+        hideEditTraits:function hideEditTraits(){
+            // if(app.cancelModal)
             // {
-            //     Object.assign(app.$data.recruitment_params, app.$data.recruitmentParamsBeforeEdit);
-            //     app.$data.recruitmentParamsBeforeEdit=null;
+            //     Object.assign(app.recruitment_params, app.recruitmentParamsBeforeEdit);
+            //     app.recruitmentParamsBeforeEdit=null;
             // }
         },
 
         // fire when edit experiment model is shown, save copy for cancel
-        showEditExperiment:function(){
-            app.$data.cancelModal=true;
-            app.$data.experimentBeforeEdit = Object.assign({}, app.$data.experiment);
+        showEditExperiment:function showEditExperiment(){
+            app.cancelModal=true;
+            app.experimentBeforeEdit = Object.assign({}, app.experiment);
 
             tinymce.get("id_reminderText").setContent(this.experiment.reminderText);
             tinymce.get("id_invitationText").setContent(this.experiment.invitationText);
@@ -424,73 +447,73 @@ var app = Vue.createApp({
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideEditExperiment:function(){
-            if(app.$data.cancelModal)
+        hideEditExperiment:function hideEditExperiment(){
+            if(app.cancelModal)
             {
-                Object.assign(app.$data.experiment, app.$data.experimentBeforeEdit);
-                app.$data.experimentBeforeEdit=null;
+                Object.assign(app.experiment, app.experimentBeforeEdit);
+                app.experimentBeforeEdit=null;
             }
         },
 
         // fire when edit trait model is shown
-        showUpdateTrait:function(id,index){
+        showUpdateTrait:function showUpdateTrait(id,index){
 
-            tc = app.$data.recruitment_params.trait_constraints[index];
+            tc = app.recruitment_params.trait_constraints[index];
 
-            app.$data.cancelModal=true;
-            app.$data.current_trait.id = id;
-            app.$data.current_trait.min_value = tc.min_value;
-            app.$data.current_trait.max_value = tc.max_value;
-            app.$data.current_trait.trait_id = tc.trait_id;
-            app.$data.current_trait.include_if_in_range = tc.include_if_in_range;
+            app.cancelModal=true;
+            app.current_trait.id = id;
+            app.current_trait.min_value = tc.min_value;
+            app.current_trait.max_value = tc.max_value;
+            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.include_if_in_range = tc.include_if_in_range;
 
             $('#updateTraitModal').modal('show');
             app.clearMainFormErrors();
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideUpdateTrait:function(){
-            if(app.$data.cancelModal)
+        hideUpdateTrait:function hideUpdateTrait(){
+            if(app.cancelModal)
             {
                
             }
         },
 
         // fire when edit experiment model is shown, save copy for cancel
-        showEditRecruitment:function(){
-            // app.$data.cancelModal=true;
-            // app.$data.recruitment_paramsBeforeEdit = Object.assign({}, app.$data.recruitment_params);
+        showEditRecruitment:function showEditRecruitment(){
+            // app.cancelModal=true;
+            // app.recruitment_paramsBeforeEdit = Object.assign({}, app.recruitment_params);
             // $('#recruitmentModalCenter').modal('show');
             // app.clearMainFormErrors();
             window.open("{%url 'experimentParametersView' id %}","_self");
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideEditRecruitment:function(){
-            if(app.$data.cancelModal)
+        hideEditRecruitment:function hideEditRecruitment(){
+            if(app.cancelModal)
             {
-                Object.assign(app.$data.recruitment_params, app.$data.recruitment_paramsBeforeEdit);
-                app.$data.experiment.experimentBeforeEdit=null;
+                Object.assign(app.recruitment_params, app.recruitment_paramsBeforeEdit);
+                app.experiment.experimentBeforeEdit=null;
             }
         },
 
         //fire when the edit session button is pressed
-        editSession:function(id)
+        editSession:function editSession(id)
         {
             window.open('/experimentSession/' + id,"_self");
         },
 
         //fill parameters with default reminder
-        fillWithDefaultReminder:function(){
-            app.$data.fillDefaultReminderButtonText='<i class="fas fa-spinner fa-spin"></i>';
+        fillWithDefaultReminder:function fillWithDefaultReminder(){
+            app.fillDefaultReminderButtonText='<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experiment/{{id}}/', {
                     status : "fillDefaultReminderText",                                                                                                                                                           
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.experiment.reminderText = response.data.text;  
-                    app.$data.fillDefaultReminderButtonText = 'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>'; 
-                    tinymce.get("id_reminderText").setContent(app.$data.experiment.reminderText);      
+                    app.experiment.reminderText = response.data.text;  
+                    app.fillDefaultReminderButtonText = 'Default Reminder <i class="fa fa-arrow-up" aria-hidden="true"></i>'; 
+                    tinymce.get("id_reminderText").setContent(app.experiment.reminderText);      
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -498,17 +521,17 @@ var app = Vue.createApp({
         },
 
         //fill invitation text from template
-        fillInvitationTextFromTemplate:function(){
-            app.$data.fillInvitationFromTemplateButtonText='<i class="fas fa-spinner fa-spin"></i>';
+        fillInvitationTextFromTemplate:function fillInvitationTextFromTemplate(){
+            app.fillInvitationFromTemplateButtonText='<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experiment/{{id}}/', {
                     status : "fillInvitationTextFromTemplate", 
-                    value: app.$data.invitation_email_template,                                                                                                                                                            
+                    value: app.invitation_email_template,                                                                                                                                                            
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.experiment.invitationText = response.data.text;  
-                    app.$data.fillInvitationFromTemplateButtonText='Fill <i class="fa fa-arrow-up" aria-hidden="true"></i>';    
-                    tinymce.get("id_invitationText").setContent(app.$data.experiment.invitationText);
+                    app.experiment.invitationText = response.data.text;  
+                    app.fillInvitationFromTemplateButtonText='Fill <i class="fa fa-arrow-up" aria-hidden="true"></i>';    
+                    tinymce.get("id_invitationText").setContent(app.experiment.invitationText);
    
                 })
                 .catch(function (error) {
@@ -517,27 +540,27 @@ var app = Vue.createApp({
         },
 
         //update require all trait constraints
-        sendAddToAllowList:function(){
+        sendAddToAllowList:function sendAddToAllowList(){
 
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('{{request.get_full_path}}', {
                     status : "addToAllowList", 
-                    formData : {allowed_list:app.$data.add_to_allow_list},                                                                                                                                                             
+                    formData : {allowed_list:app.add_to_allow_list},                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
                     if(response.data.status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;
-                        app.$data.allow_list_error = "";
+                        app.recruitment_params = response.data.recruitment_params;
+                        app.allow_list_error = "";
                     }
                     else
                     {                 
-                        app.$data.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
+                        app.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
                     }
 
-                    app.$data.working = false;
+                    app.working = false;
             
                 })
                 .catch(function (error) {
@@ -545,9 +568,9 @@ var app = Vue.createApp({
                 });
         },
 
-        sendClearAllowList:function(){
+        sendClearAllowList:function sendClearAllowList(){
 
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('{{request.get_full_path}}', {
                     status : "clearAllowList", 
@@ -557,14 +580,14 @@ var app = Vue.createApp({
                     
                     if(response.data.status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;
+                        app.recruitment_params = response.data.recruitment_params;
                     }
                     else
                     {                                              
                         app.displayErrors(response.data.errors);
                     }
 
-                    app.$data.working = false;
+                    app.working = false;
             
                 })
                 .catch(function (error) {
@@ -573,7 +596,7 @@ var app = Vue.createApp({
         },
 
         //fire when edit trait model needs to be shown
-        showEditAllowList:function(){         
+        showEditAllowList:function showEditAllowList(){         
             app.clearMainFormErrors();              
            
             $('#editAllowListModal').modal('show');

@@ -153,10 +153,11 @@ class experiments(models.Model):
         }
         
     #get json sessions from this experiment
-    def json_sessions(self):
+    def json_sessions(self, offset=0, limit=10000):
         return{
              "experiment_sessions":[es.json_min() for es in self.ES.all()
-                                    .annotate(first_date=models.Min("ESD__date")).order_by('-first_date')],
+                                      .annotate(first_date=models.Min("ESD__date"))
+                                      .order_by('-first_date')[offset:limit]],
         }
 
     #get json object experiment
