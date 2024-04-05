@@ -176,7 +176,17 @@
         <div class="row">                   
             <div class="col">
                 <table class="table table-hover table-condensed table-responsive-xl">
-                    <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>
+                    <caption style="caption-side:top;text-align: center;">
+                        <span v-if="sessions_count<=25">
+                            Sessions ([[sessions.length]])
+                        </span> 
+                        <span v-else-if="sessions.length ==sessions_count">
+                            Sessions ([[sessions_count]])
+                        </span>
+                        <span v-else>
+                            Sessions (1-25 of [[sessions_count]])
+                        </span>
+                    </caption>
                     <thead>
                         <th scope="col" class="text-nowrap">
                             Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
@@ -256,7 +266,9 @@
                                 </a>                                                                                                                                                            
                             </td>
                             <td class="text-center text-nowrap">                                        
-                                <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSession(s.id)" v-bind:disabled="s.allow_delete === false">
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        type="button" v-on:click = "removeSession(s.id)" 
+                                        v-bind:disabled="s.allow_delete == false || working">
                                     Delete <i class="fas fa-trash fa-xs"></i>
                                 </button>                                                                                                                                                                    
                             </td>                            
@@ -272,8 +284,18 @@
                     </tfoot>
                 </table>
             </div>
-        </div>             
+        </div>  
         
+        <div class="row" v-if="sessions_count>25 && sessions.length < sessions_count">
+            <div class="col text-center">
+                <button class="btn btn-outline-primary btn-sm" 
+                        type="button" 
+                        v-on:click = "showAllSessions()"
+                        v-bind:disabled = "working">
+                    Show All [[sessions_count]] Sessions <i class="far fa-eye"></i>
+                </button>
+            </div>
+        </div>
         
     </div>      
 </div>

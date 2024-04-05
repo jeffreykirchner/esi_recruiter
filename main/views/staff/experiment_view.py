@@ -36,7 +36,7 @@ class ExperimentView(SingleObjectMixin, View):
     experiment view
     '''
 
-    template_name = "staff/experimentView.html"
+    template_name = "staff/experiment.html"
     model = experiments
 
     @method_decorator(login_required)
@@ -81,7 +81,9 @@ class ExperimentView(SingleObjectMixin, View):
         data = json.loads(request.body.decode('utf-8'))         
         
         if data["status"] == "get":
-            return getExperiment(data, id)          
+            return getExperiment(data, id)  
+        elif data["status"] == "showAllSessions":
+            return showAllSessions(data, id)        
         elif data["status"] == "update1":
             return updateForm1(data, id)                   
         elif data["status"] == "updateRecruitmentParameters":   
@@ -121,9 +123,19 @@ def getExperiment(data, id):
     p = parameters.objects.first()
             
     return JsonResponse({"experiment" :  e.json(),
-                         "sessions" : e.json_sessions(),
+                         "sessions" : e.json_sessions(offset=0, limit=25),
+                         "sessions_count":e.ES.count(),
                          "recruitment_params":e.recruitment_params_default.json(),
                            }, safe=False)
+
+def showAllSessions(data, id):
+    logger = logging.getLogger(__name__)
+    logger.info("Show All Sessions")
+    logger.info(data)
+
+    e = experiments.objects.get(id=id) 
+
+    return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
 
 #delete session from experiment
 def removeSession(data, id):
@@ -141,7 +153,9 @@ def removeSession(data, id):
 
     e = experiments.objects.get(id=id) 
 
-    return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
+    return JsonResponse({"sessions" : e.json_sessions(offset=0, limit=25),
+                         "sessions_count":e.ES.count(),
+                         }, safe=False)
 
 #create experiment session, attach to experiment
 def addSession(data, id, creator):
@@ -174,7 +188,9 @@ def addSession(data, id, creator):
             esd.reminder_time = esd.date - timedelta(days=1)
             esd.save()
 
-    return JsonResponse({ "sessions" : e.json_sessions(),"status":status},safe=False)
+    return JsonResponse({"sessions" : e.json_sessions(offset=0, limit=25),
+                         "sessions_count":e.ES.count(),
+                         "status":status}, safe=False)
 
 #create empty experiment
 def addSessionBlank(e):
@@ -470,14 +486,13 @@ def clearAllowList(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"clearAllowList session: {data}")
 
-    s = experiment_sessions.objects.get(id=id)
 
     form_data_dict = data["formData"]
 
-    experiment_session = experiment_sessions.objects.get(id=id)
+    experiment = experiments.objects.get(id=id)
 
-    experiment_session.recruitment_params.allowed_list = []
-    experiment_session.recruitment_params.save()
+    experiment.recruitment_params_default.allowed_list = []
+    experiment.recruitment_params_default.save()
                    
-    return JsonResponse({"recruitment_params" : experiment_session.recruitment_params.json(), "status":"success"}, safe=False)
+    return JsonResponse({"recruitment_params" : experiment.recruitment_params_default.json(), "status":"success"}, safe=False)
     

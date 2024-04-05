@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-6">
                 <div class="input-group mb-3 text-center">
-                    <input  v-on:keyup.enter="searchExperiments()" v-model="searchInfo" type="text" class="form-control" placeholder="Experiment Info" aria-label="User Info" aria-describedby="basic-addon2">
+                    <input  v-on:keyup.enter="searchExperiments()" id="idsearchInfo" v-model="searchInfo" type="text" class="form-control" placeholder="Experiment Info" aria-label="User Info" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-primary" type="button" v-on:click = "searchExperiments()">
                             <span v-html="searchButtonText"></span>

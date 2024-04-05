@@ -223,6 +223,10 @@ var app = Vue.createApp({
     },
 
     mounted(){
-        this.getRecentExperiments();                  
+        this.getRecentExperiments();       
+        
+        Vue.nextTick(() => {
+            document.getElementById("idsearchInfo").focus();
+        });
     },
 }).mount('#app');

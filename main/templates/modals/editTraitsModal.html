@@ -39,7 +39,7 @@
                                 <span v-html="t.max_value"></span>                                      
                             </td>
                             <td class="text-center text-nowrap"> 
-                                <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
+                                <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm mr-2" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
                                     Edit <i class="far fa-edit"></i>  
                                 </button> 
                                 <button v-bind:id="'deleteTrait' + t.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteTrait(t.id)" title="Delete trait">
