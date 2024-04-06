@@ -18,7 +18,7 @@
         <div class="col-sm-2">
             Experiment:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             {{sessionDay.experiment_session.experiment.title}} ({{sessionDay.experiment_session.experiment.id}})
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="col-sm-2">
             Manager:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             {{sessionDay.experiment_session.experiment.experiment_manager}}
         </div>
     </div>
@@ -34,7 +34,7 @@
         <div class="col-sm-2">
             Consent Form:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             <a v-bind:href="consentForm ? consentForm.pdf_file_url : ''">[[consentForm ? consentForm.name : '---']]</a>
         </div>
     </div>
@@ -42,7 +42,7 @@
         <div class="col-md-2">
             IRB ID:
         </div>
-        <div class = "col-md float-left">
+        <div class = "col-md float-start">
             [[consentForm && consentForm.irb_study ? consentForm.irb_study.number : '---']]
         </div>
     </div>
@@ -50,7 +50,7 @@
         <div class="col-sm-2">
             Date:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             {{sessionDay.getDateString}}
         </div>
     </div>
@@ -58,7 +58,7 @@
         <div class="col-sm-2">
             Payout Total:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             $[[payoutTotal]]
         </div>
     </div>
@@ -66,7 +66,7 @@
         <div class="col-sm-2">
             Viewed Paysheet:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             [[experiment_session_day.users_who_printed_paysheet]]
         </div>
     </div>
@@ -74,7 +74,7 @@
         <div class="col-sm-2">
             Viewed Bumps:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             [[experiment_session_day.users_who_printed_bumps]]
         </div>
     </div>
@@ -82,7 +82,7 @@
         <div class="col-sm-2">
             PayPal Direct:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             [[experiment_session_day.user_who_paypal_api]]
         </div>
     </div>
@@ -90,7 +90,7 @@
         <div class="col-sm-2">
             PayPal Export:
         </div>
-        <div class = "col-sm float-left">
+        <div class = "col-sm float-start">
             [[experiment_session_day.users_who_paypal_paysheet]]
         </div>
     </div>
@@ -159,7 +159,7 @@
         
     </div>
     <div class="row mt-4" v-if="payGroup != 'consent'">
-        <div class = "col" class="text-right">                                    
+        <div class = "col" class="text-end">                                    
            I certify the above amounts are true and correct _______________________________                                       
         </div>                                
     </div>

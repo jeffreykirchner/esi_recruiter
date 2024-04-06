@@ -6,16 +6,16 @@
         (Staff)
         {%endif%}
 
-        <span class="float-md-right">
+        <span class="float-md-end">
             <div class="row">
                 {%if user.is_staff%}
-                    <div class="col-md-auto p-0 mr-2">
+                    <div class="col-md-auto p-0 me-2">
                         <a href="{%url 'subject_auto_login' u.id %}">
                             Login as user <i class="fas fa-sign-in-alt fa-xs"></i>
                         </a>
                     </div>
                     
-                    <div class="col-md-auto p-0 mr-2">
+                    <div class="col-md-auto p-0 me-2">
                         <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showEditSubject()">
                             Edit User <i class="fas fa-edit fa-xs"></i>
                         </button>
@@ -37,52 +37,52 @@
                           
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Email:</span>                            
+                <span class="float-md-end">Email:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.email}}</span>
+                <span class="float-end float-md-start">{{u.email}}</span>
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">Email Confirmed:</span>                            
+                <span class="float-md-end">Email Confirmed:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
             </div>                
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">PI Eligible:</span>                            
+                <span class="float-md-end">PI Eligible:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.pi_eligible%}Yes{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.pi_eligible%}Yes{%else%}No{%endif%}</span>
             </div> 
             <div class = "col-md"> 
-                <span class="float-md-right">Disabled (cannot login):</span>                            
+                <span class="float-md-end">Disabled (cannot login):</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.disabled%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.disabled%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
             </div>              
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Can use PayPal</span>                              
+                <span class="float-md-end">Can use PayPal</span>                              
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.can_paypal%}Yes{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.can_paypal%}Yes{%else%}No{%endif%}</span>
             </div> 
             <div class = "col-md"> 
-                <span class="float-md-right">Active:</span>                             
+                <span class="float-md-end">Active:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+                <span class="float-end float-md-start">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
             </div>              
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Can recruit</span>                              
+                <span class="float-md-end">Can recruit</span>                              
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.can_recruit%}Yes{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.can_recruit%}Yes{%else%}No{%endif%}</span>
             </div> 
             <div class = "col-md"> 
                                        
@@ -95,100 +95,100 @@
         {%if u.profile.type.name == "subject"%}
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Major:</span>                            
+                <span class="float-md-end">Major:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.major}}</span>
+                <span class="float-end float-md-start">{{u.profile.major}}</span>
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">Gender:</span>                            
+                <span class="float-md-end">Gender:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.gender}}</span>
+                <span class="float-end float-md-start">{{u.profile.gender}}</span>
             </div>               
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Enrollment Status:</span>                            
+                <span class="float-md-end">Enrollment Status:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.subject_type}}</span>
+                <span class="float-end float-md-start">{{u.profile.subject_type}}</span>
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">Student Worker:</span>                            
+                <span class="float-md-end">Student Worker:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.studentWorker%}Yes{%else%}No{%endif%}</span>
             </div>               
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Phone:</span>                            
+                <span class="float-md-end">Phone:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.phone}}</span>
+                <span class="float-end float-md-start">{{u.profile.phone}}</span>
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">Blackballed:</span>                            
+                <span class="float-md-end">Blackballed:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                <span class="float-end float-md-start">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>               
         </div>      
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">YTD Earnings</span>                    
+                <span class="float-md-end">YTD Earnings</span>                    
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.get_ytd_payouts}}</span>
+                <span class="float-end float-md-start">{{u.profile.get_ytd_payouts}}</span>
             </div> 
             <div class = "col-md"> 
-                <span class="float-md-right">Paused:</span>                        
+                <span class="float-md-end">Paused:</span>                        
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                <span class="float-end float-md-start">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>             
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">International Student:</span>                        
+                <span class="float-md-end">International Student:</span>                        
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if u.profile.international_student%}Yes{%else%}No{%endif%}
+                <span class="float-end float-md-start">{%if u.profile.international_student%}Yes{%else%}No{%endif%}
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">No-show block:</span>                             
+                <span class="float-md-end">No-show block:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
+                <span class="float-end float-md-start">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
             </div>
         </div>
         <div class = "row">
             <div class = "col-md"> 
-                <span class="float-md-right">Student ID:</span>                            
+                <span class="float-md-end">Student ID:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.studentID}}</span>
+                <span class="float-end float-md-start">{{u.profile.studentID}}</span>
             </div> 
             <div class = "col-md"> 
-                <span class="float-md-right">Last Login:</span>                             
+                <span class="float-md-end">Last Login:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left">{{u.profile.last_login_tz}}</span>
+                <span class="float-end float-md-start">{{u.profile.last_login_tz}}</span>
             </div>
         </div>
         <div class = "row mb-4">
             <div class = "col-md"> 
-                <span class="float-md-right">Public ID:</span>                            
+                <span class="float-md-end">Public ID:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-md-right">{{u.profile.public_id}}</span>
+                <span class="float-md-end">{{u.profile.public_id}}</span>
             </div> 
             <div class = "col-md"> 
-                <span class="float-md-right">In Institutions:</span>                             
+                <span class="float-md-end">In Institutions:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-right float-md-left" v-html="institutionsList"></span> 
+                <span class="float-end float-md-start" v-html="institutionsList"></span> 
             </div>
         </div>
         {%endif%}

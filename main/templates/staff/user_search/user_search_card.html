@@ -6,15 +6,15 @@
                 Search Users 
             </div>
             <div class="col-md">
-                <span class="float-right">
+                <span class="float-end">
                     <div class="row">
 
                         <div class="col-md-auto mt-2 mt-md-0">
-                            <a href="{% url 'userSearchParameters' %}" class="mr-2">Search by recruitment parameters</a>
+                            <a href="{% url 'userSearchParameters' %}" class="me-2">Search by recruitment parameters</a>
                         </div>
                         {%if user.is_staff%}
                         <div class="col-md-auto mt-2 mt-md-0 pl-3 pl-md-0 pr-0">
-                            <button class="btn btn-outline-primary btn-sm mr-2" 
+                            <button class="btn btn-outline-primary btn-sm me-2" 
                                     type="button" 
                                     title="Upload international student list"
                                     v-on:click = "showInternational()">
@@ -23,7 +23,7 @@
                         </div>
 
                         <div class="col-md-auto mt-2 mt-md-0 pl-3 pl-md-0 pr-0">
-                            <button class="btn btn-outline-primary btn-sm mr-2" 
+                            <button class="btn btn-outline-primary btn-sm me-2" 
                                     type="button" 
                                     title="Send Email to all active subjects."
                                     v-on:click = "showSendMessage()">
@@ -59,7 +59,7 @@
                     </div>
                 
             </div>
-            <div class="col-md-3 text-center text-md-left">
+            <div class="col-md-3 text-center text-md-start">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="activeOnly">
                     <label class="form-check-label" for="defaultCheck1">
@@ -75,7 +75,7 @@
         </div>           
         <div class = "row ">
             <div class = "col text-center mt-4 mt-md-2">                
-                <button class="btn btn-outline-primary btn-sm mr-2" type="button" v-on:click = "getBlackballs()">
+                <button class="btn btn-outline-primary btn-sm me-2" type="button" v-on:click = "getBlackballs()">
                     <span v-html="blackBallButtonText"></span>
                 </button> 
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "getNoShowBlocks()">

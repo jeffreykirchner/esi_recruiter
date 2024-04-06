@@ -8,7 +8,7 @@
     <div class="card-body">
         <!-- Experiment parameters-->
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 <!-- <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="modal" data-target="#setupModalCenter"><i class="fas fa-pen fa-xs"></i></button> <u>Experiment Parameters</u>  -->                      
                 <u>Experiment Parameters</u>
             </div>
@@ -17,118 +17,118 @@
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.title.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="experiment.title"></span>
             </div>               
         </div>  
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.experiment_manager.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="experiment.experiment_manager"></span>
             </div>               
         </div>                                
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.length_default.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="experiment.length_default"></span>
             </div>               
         </div> 
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.school.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="experiment.school_full.name"></span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.consent_form_default.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.consent_form_default_full"><a v-bind:href="experiment.consent_form_default_full.pdf_file_url">[[experiment.consent_form_default_full.name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>
         
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.survey.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.survey">Yes</span>
                 <span v-else>No</span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.account_default.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="experiment.account_default_full.str"></span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.budget_default.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.budget_default_full"><a v-bind:href="'/userInfo/' + experiment.budget_default_full.id">[[experiment.budget_default_full.last_name]], [[experiment.budget_default_full.first_name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.experiment_pi.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.experiment_pi_full"><a v-bind:href="'/userInfo/' + experiment.experiment_pi_full.id">[[experiment.experiment_pi_full.last_name]], [[experiment.experiment_pi_full.first_name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.invite_to_all.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.invite_to_all">Yes</span>
                 <span v-else>No</span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.special_instructions_default.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.special_instructions_default==''">---</span>
                 <span v-else>[[experiment.special_instructions_default]]</span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.showUpFee.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 $[[experiment.showUpFee]]
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 Institution(s):
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-html="institutions_list"></span>
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.notes.label}}:
             </div>
             <div class="col-md-8">   
@@ -136,7 +136,7 @@
             </div>               
         </div>
         <div class = "row row mt-2">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.invitationText.label}}:
             </div>
             <div class="col-md-8">                        
@@ -144,7 +144,7 @@
             </div>               
         </div>
         <div class = "row row mt-2">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.reminderText.label}}:
             </div>
             <div class="col-md-8">                        
@@ -152,10 +152,10 @@
             </div>               
         </div>
         <div class = "row mt-2 mb-2">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                     
             </div>
-            <div class="col-md-8 text-right text-md-left">      
+            <div class="col-md-8 text-end text-md-start">      
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditExperiment()">Edit <i class="fas fa-pen fa-xs"></i></button>
             </div>               
         </div>                
@@ -164,7 +164,7 @@
         {%include "snippits/recruitmentParametersTable.html"%}
 
         <div class = "row mt-2 mb-4">
-            <div class="col-md-4 text-right">
+            <div class="col-md-4 text-end">
                     
             </div>
             <div class="col-md-8">                        

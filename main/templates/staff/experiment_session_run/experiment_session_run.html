@@ -1,7 +1,7 @@
 <div class="card mb-4">                  
     <div class="card-header">
         <div class="row">
-            <div class="col-md-auto pr-0 pl-0 pl-md-3 mr-0">Run Session Day</div>
+            <div class="col-md-auto pr-0 pl-0 pl-md-3 me-0">Run Session Day</div>
             <div class="col-md-auto p-0 m-0 d-none d-md-block">&nbsp;:&nbsp;</div>
             <div class="col-md-auto p-0 p-md-0 m-0"><a href="{% url 'experimentView' sessionDay.experiment_session.experiment.id %}">{{sessionDay.experiment_session.experiment}}</a></div>
             <div class="col-md-auto p-0 m-0 d-none d-md-block">&nbsp;|&nbsp;</div>
@@ -13,7 +13,7 @@
     <div class="card-body">  
         <!-- stripe reader -->
         <div v-show="sessionDay.complete === false" class="d-none d-md-block">
-            <div class="row align-items-left">
+            <div class="row align-items-start">
                 <div class = "col-md-4" style="text-align: right;">
                     
                     <div class="form-check" v-if='isAdmin'>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                <div class = "col text-left pt-3">
+                <div class = "col text-start pt-3">
                     <span v-html="stripeReaderStatus"></span>
                 </div>                    
             </div>  
@@ -80,7 +80,7 @@
                                 <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
                                     <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                 </a>
-                                <span v-if="esdu.user.international_student" title="International Student" class="ml-1"><i class="fas fa-globe-europe"></i></span>                              
+                                <span v-if="esdu.user.international_student" title="International Student" class="ms-1"><i class="fas fa-globe-europe"></i></span>                              
                             </td>
                             <td  class="align-middle text-center m-1 p-1 text-nowrap">                                       
                                 <span v-html="esdu.user.studentID"></span>                                    

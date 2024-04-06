@@ -4,7 +4,7 @@
     <div class="card-header">
         Student Report 
         {%if user.is_staff%}
-        <span class="float-right">
+        <span class="float-end">
             <!-- buttons here -->
         </span>
         {%endif%}                                                 
@@ -21,7 +21,7 @@
         </form>                              
     </div>
     <div class="card-footer">       
-        <span class="float-right">            
+        <span class="float-end">            
             <button class="btn btn-outline-primary" type="button" v-on:click = "getStudentReport()">
                 <span v-html ="studentReportButtonText"></span>
             </button>   

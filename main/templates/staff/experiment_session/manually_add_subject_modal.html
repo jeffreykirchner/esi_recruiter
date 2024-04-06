@@ -22,7 +22,7 @@
                         </div>  
                         <div v-html="searchResultsEmptyText" class="text-center" style="color: red;"></div>                                            
                     </div>
-                    <div class = "col-md-3 text-right">
+                    <div class = "col-md-3 text-end">
                         <div class="form-check">
                             <input v-model="manualAddSendInvitation" class="form-check-input" type="checkbox">
                             <label class="form-check-label" for="manualAddSendInvitation">
@@ -55,7 +55,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
-                                    <td class="text-left text-nowrap">
+                                    <td class="text-start text-nowrap">
                                         <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
                                             <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
                                         </a>

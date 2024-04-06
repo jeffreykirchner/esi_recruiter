@@ -20,12 +20,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 
         <!-- Styles -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css" integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM9F8N3tdErpFI8iaGx6x5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.0/moment-with-locales.min.js" integrity="sha512-EATaemfsDRVs6gs1pHbvhc6+rKFGv8+w4Wnxk4LmkC0fzdVoyWb+Xtexfrszd1YuUMBEhucNuorkf8LpFBhj6w==" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/js/bootstrap.min.js" integrity="sha512-UR25UO94eTnCVwjbXozyeVd6ZqpaAE9naiEUBK/A+QDbfSTQFhPGj5lOR6d8tsgbBk84Ggb5A3EkjsOgPRPcKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        
+       
         {%if DEBUG%}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js" integrity="sha512-Wbf9QOX8TxnLykSrNGmAc5mDntbpyXjOw9zgnKql3DgQ7Iyr5TCSPWpvpwDuo+jikYoSNMD9tRRH854VfPpL9A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         {%else%}
@@ -54,67 +53,87 @@
             [v-cloak] {
             display: none;
             }
+
+            a{
+                text-decoration: none;
+            }
         </style>
 
         {%block head%}
         {%endblock head%}        
     </head>
     <body style="font-size:16px"> 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js" integrity="sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light p-1 d-print-none">
             {%if user.profile.type.name == 'staff'%}
-                <a class="navbar-brand" href="{% url 'MainHome' %}"  data-placement="bottom" title="Calendar">
+                <a class="navbar-brand ms-2" href="{% url 'MainHome' %}" title="Calendar">
                     ESI <i class="far fa-calendar-alt fa-xs"></i>
                 </a>
             {%else%}
-                <a class="navbar-brand" href="{% url 'MainHome' %}"  data-placement="bottom" title="Invitations">
+                <a class="navbar-brand ms-2" href="{% url 'MainHome' %}" title="Invitations">
                     ESI
                 </a>
             {%endif%}
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 {% if user.is_authenticated %}
-                    <ul class="navbar-nav mr-auto">                                             
+                    <ul class="navbar-nav me-auto">                                           
                         {%if user.profile.type.name == 'staff'%}
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'userSearch'%}"  data-placement="bottom" title="Search Users">Users <i class="fas fa-users fa-xs"></i></a>                           
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'userSearch'%}"  data-placement="bottom" title="Search Users">Users <i class="fas fa-users fa-xs"></i></a>                           
                         </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'experimentSearch'%}"  data-placement="bottom" title="Search / Create Experiments">Experiments <i class="fas fa-flask fa-xs"></i></a>                           
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'experimentSearch'%}"  data-placement="bottom" title="Search / Create Experiments">Experiments <i class="fas fa-flask fa-xs"></i></a>                           
                         </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'sessionsOpen'%}"  data-placement="bottom" title="Open Session List">Sessions <i class='far fa-edit fa-sm'></i> </a></a>                           
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'sessionsOpen'%}"  data-placement="bottom" title="Open Session List">Sessions <i class='far fa-edit fa-sm'></i> </a></a>                           
                         </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'reports'%}"  data-placement="bottom" title="Generate Reports">Reports <i class="fas fa-scroll fa-xs"></i></a>                           
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'reports'%}"  data-placement="bottom" title="Generate Reports">Reports <i class="fas fa-scroll fa-xs"></i></a>                           
                         </li>
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'paymentHistory' %}"  data-placement="bottom" title="Payment History">Payment History <i class="fab fa-paypal fa-xs"></i></a>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'paymentHistory' %}"  data-placement="bottom" title="Payment History">Payment History <i class="fab fa-paypal fa-xs"></i></a>
                         </li>
                         {%else%}
-                        <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'faqView'%}">FAQ</span></a>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'faqView'%}">FAQ</span></a>
                         </li>
                         {%endif%}
                     </ul>                     
 
-                    <div class="nav-item dropdown my-2 my-lg-0">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="d-flex dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ user.last_name }}, {{ user.first_name }}
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{% url 'profile'%}"  data-placement="bottom" title="Edit Profile"><i class="fas fa-user fa-fw"></i> Profile</a>
+                        <ul class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile'%}"  data-placement="bottom" title="Edit Profile"><i class="fas fa-user fa-fw"></i> Profile</a>
+                            </li>
+                            
                             {%if user.is_staff%}
-                                <a class="dropdown-item" href="{% url 'admin:index' %}"  data-placement="bottom" title="Admin Panel"><i class="fas fa-cogs fa-fw"></i> Admin</a>
-                                <a class="dropdown-item" href="{% url 'traits' %}"  data-placement="bottom" title="Manage Traits"><i class="fas fa-cubes"></i> Traits</a>
-                                <a class="dropdown-item" href="{% url 'consentFormReport' %}"  data-placement="bottom" title="Consent Form Report"><i class="fab fa-wpforms"></i> Consent Form Report</a>
-                                <a class="dropdown-item" href="{% url 'irbReport' %}"  data-placement="bottom" title="IRB Report"><i class="fas fa-chart-bar"></i> IRB Report</a>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'admin:index' %}"  data-placement="bottom" title="Admin Panel"><i class="fas fa-cogs fa-fw"></i> Admin</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'traits' %}"  data-placement="bottom" title="Manage Traits"><i class="fas fa-cubes"></i> Traits</a>
+                                </li>
+                                <li>
+                                     <a class="dropdown-item" href="{% url 'consentFormReport' %}"  data-placement="bottom" title="Consent Form Report"><i class="fab fa-wpforms"></i> Consent Form Report</a>
+                                </li>
+                                <li>
+                                     <a class="dropdown-item" href="{% url 'irbReport' %}"  data-placement="bottom" title="IRB Report"><i class="fas fa-chart-bar"></i> IRB Report</a>
+                                </li>
                             {%endif%}
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a>
-                        </div>
+                            <li>
+                                 <a class="dropdown-item" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a>
+                            </li>
+                        </ul>
                     </div>
 
                     <button type="button" class="btn btn-link" id="helpButton" style="text-align: right;"  data-placement="bottom" title="Show Help Doc">
@@ -122,11 +141,11 @@
                     </button>
                 {%else%}
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'profileCreate'%}">Sign Up</span></a>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'profileCreate'%}">Sign Up</span></a>
                     </li>        
-                    <li class="nav-item active">                                 
-                        <a class="nav-link" href="{% url 'faqView'%}">FAQ</span></a>
+                    <li class="nav-item">                                 
+                        <a class="nav-link active" href="{% url 'faqView'%}">FAQ</span></a>
                     </li>
                 </ul>
                 {% endif %}

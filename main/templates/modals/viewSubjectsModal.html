@@ -40,7 +40,7 @@
                                     </td>                                                                   
                                     <td style="text-align: center;">   
                                         {%if user.is_staff%}                                     
-                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm mr-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
+                                            <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm me-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
                                                 Remove <i class="fas fa-user-minus fa-xs"></i>  
                                             </button>
                                             
@@ -81,7 +81,7 @@
                                         </a>                                                                           
                                     </td>                               
                                     <td style="text-align: center;">
-                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm mr-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
+                                        <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm me-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
                                         {%if user.is_staff%}

@@ -2,7 +2,7 @@
     <div class="card-header">
         Upcoming Experiments 
 
-        <div class="float-right" v-show="waiting">
+        <div class="float-end" v-show="waiting">
             <i class="fas fa-spinner fa-spin"></i>
         </div>                                                  
     </div>
@@ -128,7 +128,7 @@
                                     </a>
                                 </span> -->
                                 
-                                <a v-bind:href="'/subjectInvitation/'+s.id" title="View Invitation" class="border p-2 rounded border-primary ml-2">
+                                <a v-bind:href="'/subjectInvitation/'+s.id" title="View Invitation" class="border p-2 rounded border-primary ms-2">
                                     <i class="fas fa-envelope"></i>
                                 </a> 
 
