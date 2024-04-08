@@ -4,7 +4,7 @@
     <div class="card-header">
         <span class="align-middle">IRB Report</span>     
         
-        <span class="float-right d-none d-md-block">
+        <span class="float-end d-none d-md-block">
             <span v-show="working"><i class="fas fa-spinner fa-spin"></i></span>                                
         <span>
     </div>
@@ -47,7 +47,7 @@
     <div class="col-md-2">
         IRB ID:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         [[irb_report ? irb_report.irb_study.number : '---']]
     </div>
 </div>
@@ -56,7 +56,7 @@
     <div class="col-md-2">
         Date Range:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         [[irb_report ? irb_report.start_range + " to " + irb_report.end_range : '---']]
     </div>
 </div>
@@ -65,7 +65,7 @@
     <div class="col-md-2">
         Total Participants:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         [[irb_report ? irb_report.total_subject_count : '---']]
     </div>
 </div>
@@ -101,7 +101,7 @@
             <td class="text-nowrap w-auto"> 
                 <div v-for="(e, index2) in p[1].experiments" v-bind:key="e.id">
                     <div class="row">
-                        <div class="col w-auto text-left">
+                        <div class="col w-auto text-start">
                             <a v-bind:href="'/experiment/'+e.id">
                                [[e.title]]                                                    
                             </a>

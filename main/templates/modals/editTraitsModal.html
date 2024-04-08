@@ -39,7 +39,7 @@
                                 <span v-html="t.max_value"></span>                                      
                             </td>
                             <td class="text-center text-nowrap"> 
-                                <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm mr-2" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
+                                <button v-bind:id="'updateTrait' + t.id" type="button" class="btn btn-outline-primary btn-sm me-2" v-on:click = "showUpdateTrait(t.id,index)" title="Edit trait">
                                     Edit <i class="far fa-edit"></i>  
                                 </button> 
                                 <button v-bind:id="'deleteTrait' + t.id" type="button" class="btn btn-outline-danger btn-sm" v-on:click = "deleteTrait(t.id)" title="Delete trait">
@@ -51,7 +51,7 @@
                 </table>                                              
             </div>
             <div class="modal-footer">  
-                <div class="form-check mr-auto">
+                <div class="form-check me-auto">
                     <input type="checkbox" class="form-check-input" v-on:change="updateRequireAllTraitContraints()" v-model="recruitment_params.trait_constraints_require_all" id="trait_constraints_require_all">
                     <label class="form-check-label" for="trait_constraints_require_all">Require all Includes to be true.</label>
                 </div>

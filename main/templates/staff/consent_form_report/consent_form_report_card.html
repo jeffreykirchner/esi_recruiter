@@ -4,7 +4,7 @@
     <div class="card-header">
         <span class="align-middle">Consent Form Report</span>     
         
-        <span class="float-right d-none d-md-block">
+        <span class="float-end d-none d-md-block">
             <span v-show="working"><i class="fas fa-spinner fa-spin"></i></span>                                
         <span>
     </div>
@@ -47,7 +47,7 @@
     <div class="col-md-2">
         Consent Form:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         <a v-bind:href="consent_form ? consent_form.pdf_file_url : ''">[[consent_form ? consent_form.name : '---']]</a>
     </div>
 </div>
@@ -56,7 +56,7 @@
     <div class="col-md-2">
         IRB ID:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         [[consent_form && consent_form.irb_study ? consent_form.irb_study.number : '---']]
     </div>
 </div>
@@ -65,7 +65,7 @@
     <div class="col-md-2">
         Filename:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         [[consent_form ? consent_form.pdf_file_name : '---']]
     </div>
 </div>
@@ -74,7 +74,7 @@
     <div class="col-md-2">
         Experiments:
     </div>
-    <div class = "col-md float-left">
+    <div class = "col-md float-start">
         <div class="row" v-for="(e, index) in experiment_list" v-bind:key="e.id">
             <div class="col">
                 <a v-bind:href="consent_form ? '/experiment/' + e.id + '/' : ''">[[consent_form ? e.title : '---']]</a>

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'main',
     'crispy_forms',
+    'crispy_bootstrap5',
     'django.contrib.admin',
     'tinymce',
 ]
@@ -99,7 +100,8 @@ USE_L10N = True
 USE_TZ = True
 
 #boot stramp applied to form templates
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 #tiny MCE
 TINYMCE_DEFAULT_CONFIG = {

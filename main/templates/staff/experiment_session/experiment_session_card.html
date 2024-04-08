@@ -7,7 +7,7 @@
         <!-- session parameters -->
 
         <div class = "row">
-            <div class="col-md-4 text-md-right">                        
+            <div class="col-md-4 text-md-end">                        
                 <u>Session Parameters</u>
             </div>
             <div class="col-md-8">
@@ -15,61 +15,61 @@
             </div>               
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.consent_form.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="session.consent_form_full"><a v-bind:href="session.consent_form_full.pdf_file_url">[[session.consent_form_full.name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div>
         </div>
         <div class = "row">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.budget.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="session.budget_full"><a v-bind:href="'/userInfo/' + session.budget_full.id">[[session.budget_full.last_name]], [[session.budget_full.first_name]]</a></span>
                 <span v-else style="color: red;font-weight:bold">---</span>
             </div> 
         </div>
         <div class = "row mb-1">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 Creator:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="session.creator"><a v-bind:href="'/userInfo/' + session.creator.id">[[session.creator.last_name]], [[session.creator.first_name]]</a></span>
                 <span v-else>---</span>
             </div>               
         </div>
         <div class = "row mb-1">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 IRB Incident Occurred:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="session.incident_occurred=='True'">Yes</span>
                 <span v-else>No</span>
             </div>               
         </div>
         <div class = "row mb-1">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 {{form1.special_instructions.label}}:
             </div>
-            <div class="col-md-8 text-right text-md-left">
+            <div class="col-md-8 text-end text-md-start">
                 <span v-if="session.special_instructions==''">---</span>
                 <span v-else>[[session.special_instructions]]</span>
             </div>               
         </div>
         <div class = "row mb-2">
-            <div class="col-md-4 text-md-right">
+            <div class="col-md-4 text-md-end">
                 
             </div>
-            <div class="col-md-auto pr-3 pr-md-1 text-right text-md-left">
+            <div class="col-md-auto pe-3 pe-md-1 text-end text-md-start">
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showEditSession()">Edit <i class="fas fa-pen fa-xs"></i></button>
             </div>       
-            <div class="col-md-auto pt-3 pt-md-0 pr-3 pr-md-1 pl-1 text-right text-md-left">
+            <div class="col-md-auto pt-3 pt-md-0 pe-3 pe-md-1 ps-1 text-end text-md-start">
                 <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSendMessage()">Send Message <i class="fas fa-envelope fa-xs"></i></button>
             </div>
-            <div class="col-md-auto pt-3 pt-md-0 pl-1 pr-3 pr-md-1 text-right text-md-left">
+            <div class="col-md-auto pt-3 pt-md-0 ps-1 pe-3 pe-md-1 text-end text-md-start">
                 <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "showCancelSession()" v-bind:disabled="session.allowEdit === false"><span v-html = "cancelSessionButtonText"></span></button>     
             </div>     
         </div>
@@ -78,15 +78,15 @@
 
         {%if user.profile.can_recruit%}
         <div class = "row mt-2">
-            <div class="col-md-4 text-right">
+            <div class="col-md-4 text-end">
                 
             </div>
             <div class="col-md-8">
                 <div class="row">
-                    <div class="col-md-auto pt-3 pt-md-0 pt-1 pr-3 pr-md-1 text-right text-md-left">
+                    <div class="col-md-auto pt-3 pt-md-0 pt-1 pe-3 pe-md-1 text-end text-md-start">
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showInviteSubjects()" v-bind:disabled="session.allowEdit === false">Invite Subjects <i class="fa fa-users"></i></button>
                     </div>                    
-                    <div class="col-md-auto pt-3 pt-md-0 pr-3 pr-md-1 pl-1 text-right text-md-left">
+                    <div class="col-md-auto pt-3 pt-md-0 pe-3 pe-md-1 ps-1 text-end text-md-start">
                         <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showManuallyAddSubjects()" v-bind:disabled="session.allowEdit === false">Manually Add Subject <i class="fas fa-plus-square fa-xs"></i></button>
                     </div>                    
                 </div>                 
@@ -102,18 +102,30 @@
                     <thead>
                         <th scope="col">
                             <div class = "row" class="text-center text-nowrap">
-                                <div class="col-7 text-left text-nowrap">
-                                    <div class="input-group" style="width: 150px;">
-                                        <input type="number" min="1" class="form-control text-center" placeholder="Count" aria-label="Recipient's username" aria-describedby="basic-addon2" v-model="multiDayCount">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSessionDay()" v-bind:disabled="session.confirmedCount > 0"><span v-html="multiDayButtonText"></span></button>
-                                        </div>
+                                <div class="col-5 text-start text-nowrap">
+                                    <div class="input-group">
+                                        <input type="number" 
+                                               id="multiDayCount"
+                                               min="1" 
+                                               class="form-control text-center" 
+                                               placeholder="Count" 
+                                               aria-label="Multi day count additions" 
+                                               autocomplete="off"
+                                               v-model="multiDayCount">
+                                        
+                                        <button class="btn btn-outline-success" 
+                                                type="button" 
+                                                v-on:click = "addSessionDay()" 
+                                                v-bind:disabled="session.confirmedCount > 0">
+                                            <span v-html="multiDayButtonText"></span>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
                                 </div>
-                            </div>                                                                        
+                            </div>      
+
                         </th> 
                         <th scope="col" class="text-center text-nowrap">
                             Reminders Sent
@@ -143,7 +155,7 @@
                     </thead>
                     <tbody id="sessionList">                       
                         <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
-                            <td class="text-left text-nowrap">
+                            <td class="text-start text-nowrap">
                                 <span v-if="sd.enable_time">
                                     [[formatDate(sd.date_raw,false,false)]]
                                 </span>
