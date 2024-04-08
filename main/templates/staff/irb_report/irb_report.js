@@ -22,7 +22,7 @@ var app = Vue.createApp({
         //get list of open experiments
         getIrbForm:function(){       
 
-            app.$data.working=true;
+            app.working=true;
             app.clearMainFormErrors();
 
             axios.post('{{ request.path }}', {
@@ -32,7 +32,7 @@ var app = Vue.createApp({
                         .then(function (response) {     
 
                             status=response.data.status;                                                                  
-                            app.$data.working=false;
+                            app.working=false;
 
                             if(status=="fail")
                             {                         
@@ -40,7 +40,7 @@ var app = Vue.createApp({
                             }
                             else
                             {                            
-                                app.$data.irb_report = response.data.irb_report;
+                                app.irb_report = response.data.irb_report;
                             }
                             
                             
@@ -73,7 +73,7 @@ var app = Vue.createApp({
         //clear errors from forms
         clearMainFormErrors:function(){
                 
-                s = app.$data.form_ids;
+                s = app.form_ids;
                 for(var i in s)
                 {
                     $("#id_" + s[i]).attr("class","form-control");

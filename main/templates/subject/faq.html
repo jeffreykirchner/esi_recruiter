@@ -24,11 +24,11 @@
                         status :"getFaqs" ,                                                                                                                             
                     })
                     .then(function (response) {     
-                        app.$data.faq =  response.data.faq;                    
+                        app.faq =  response.data.faq;                    
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 },
 

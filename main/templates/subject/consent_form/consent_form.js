@@ -25,22 +25,22 @@ var app = Vue.createApp({
 
         acceptConsentForm:function(){
 
-            if(app.$data.consent_form_subject)
+            if(app.consent_form_subject)
             {
-                app.$data.consent_form_error = "Refresh the page.";
+                app.consent_form_error = "Refresh the page.";
                 return;
             }
 
-            app.$data.consent_form_error = "";
+            app.consent_form_error = "";
 
             consent_form_signature = {};
             consent_form_signature_resolution = {};
 
-            if(app.$data.consent_form.signature_required)
+            if(app.consent_form.signature_required)
             {
                 if(pixi_signatures_rope_array.length==0)
                 {
-                    app.$data.consent_form_error = "Error: Sign before accepting.";
+                    app.consent_form_error = "Error: Sign before accepting.";
                     return;
                 } 
                 
@@ -59,7 +59,7 @@ var app = Vue.createApp({
 
                 if(total_length < 600)
                 {
-                    app.$data.consent_form_error = "Error: Make your signature larger.";
+                    app.consent_form_error = "Error: Make your signature larger.";
                     return;
                 }
 
@@ -69,18 +69,18 @@ var app = Vue.createApp({
                 consent_form_signature_resolution['height']=canvas.height;
             }
 
-            app.$data.waiting=true;
+            app.waiting=true;
 
             axios.post('{{request.get_full_path}}', {
                             action :"acceptConsentForm",        
-                            consent_form_id : app.$data.consent_form.id, 
+                            consent_form_id : app.consent_form.id, 
                             consent_form_signature : consent_form_signature, 
                             consent_form_signature_resolution : consent_form_signature_resolution, //{'width':0, 'height':0},                                                                                                                                                      
                         })
                         .then(function (response) {     
 
-                            app.$data.consent_form_subject = response.data.consent_form_subject_json;                                
-                            app.$data.waiting=false;
+                            app.consent_form_subject = response.data.consent_form_subject_json;                                
+                            app.waiting=false;
                             
                         })
                         .catch(function (error) {
@@ -101,7 +101,7 @@ var app = Vue.createApp({
             }
 
             pixi_signatures_rope_array = [];
-            app.$data.consent_form_error = "";
+            app.consent_form_error = "";
         },
 
         getDistance:function(x1, y1, x2, y2){
@@ -112,7 +112,7 @@ var app = Vue.createApp({
         },
         
         handleResize:function(){      
-            if(app.$data.consent_form_subject)
+            if(app.consent_form_subject)
             {
                 app.resetPixiApp();
             } 

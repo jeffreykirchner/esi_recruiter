@@ -128,13 +128,13 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function clearMainFormErrors(){
 
-            for(var item in app.$data.currentSessionDay)
+            for(var item in app.currentSessionDay)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
             }
 
-            for(var item in app.$data.session)
+            for(var item in app.session)
             {
                 $("#id_" + item).attr("class","form-control");
                 $("#id_errors_" + item).remove();
@@ -143,17 +143,17 @@ var app = Vue.createApp({
 
         //creates lists  of recruitment parameters
         updateDisplayLists:function updateDisplayLists(errors){
-            var e = app.$data.recruitment_params;
+            var e = app.recruitment_params;
             
-            app.$data.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
-            app.$data.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
-            app.$data.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
-            app.$data.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
-            app.$data.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
-            app.$data.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
-            app.$data.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
-            app.$data.genders_list=app.updateDisplayLists2(e.gender_full);
-            app.$data.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
+            app.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
+            app.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
+            app.include_experiments_list=app.updateDisplayLists2(e.experiments_include_full);
+            app.exclude_experiments_list=app.updateDisplayLists2(e.experiments_exclude_full);
+            app.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
+            app.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
+            app.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
+            app.genders_list=app.updateDisplayLists2(e.gender_full);
+            app.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
             
         },
 
@@ -182,49 +182,49 @@ var app = Vue.createApp({
                     status:"get",                                                              
                 })
                 .then(function (response) {                                                                   
-                    app.$data.session= response.data.session;
-                    app.$data.experiment_invitation_text = response.data.experiment_invitation_text;
-                    app.$data.recruitment_params = response.data.recruitment_params;                                
+                    app.session= response.data.session;
+                    app.experiment_invitation_text = response.data.experiment_invitation_text;
+                    app.recruitment_params = response.data.recruitment_params;                                
                     app.updateDisplayLists();
-                    app.$data.showLoadingSpinner=false;
-                    app.$data.invite_to_all = response.data.invite_to_all;
+                    app.showLoadingSpinner=false;
+                    app.invite_to_all = response.data.invite_to_all;
 
-                    if(app.$data.session.canceled)
+                    if(app.session.canceled)
                     {
-                        app.$data.cancelSessionButtonText = "*** CANCELED ***";
+                        app.cancelSessionButtonText = "*** CANCELED ***";
                     }
 
-                    if(!app.$data.first_load)
+                    if(!app.first_load)
                     {   
                         setTimeout(app.do_first_load, 250);
-                        app.$data.first_load = true;
+                        app.first_load = true;
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
         //add a new session day
         addSessionDay: function addSessionDay(){
-            if(app.$data.multiDayButtonText.includes("Multi"))
+            if(app.multiDayButtonText.includes("Multi"))
             {
-                app.$data.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+                app.multiDayButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                 axios.post('{{request.get_full_path}}', {
                     status:"addSessionDay", 
-                    count:app.$data.multiDayCount,                                                             
+                    count:app.multiDayCount,                                                             
                 })
                 .then(function (response) {                                   
-                    app.$data.session= response.data.session;  
-                    app.$data.session = response.data.session;             
+                    app.session= response.data.session;  
+                    app.session = response.data.session;             
                     
-                    app.$data.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
+                    app.multiDayButtonText = "Multi Day <i class='fas fa-plus fa-xs'></i>";
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });
             }
                                     
@@ -238,34 +238,34 @@ var app = Vue.createApp({
                         id:id,                                                          
                     })
                     .then(function (response) {                                   
-                        app.$data.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                
+                        app.session.experiment_session_days= response.data.sessionDays.experiment_session_days;                                
                         //app.updateDisplayLists();
                     })
                     .catch(function (error) {
                         console.log(error);
-                        //app.$data.searching=false;                                                              
+                        //app.searching=false;                                                              
                     });                        
             }
         },
 
         //invite subjects
         inviteSubjects: function inviteSubjects(){
-            if(!app.$data.inviteButtonText.includes("Invite")) return;
+            if(!app.inviteButtonText.includes("Invite")) return;
 
-            app.$data.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.inviteButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"inviteSubjects",     
-                subjectInvitations:app.$data.subjectInvitations,                                                                
+                subjectInvitations:app.subjectInvitations,                                                                
             })
             .then(function (response) {                                   
 
                 status = response.data.status
-                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;
+                app.session.experiment_session_days=response.data.es_min.experiment_session_days;
                 
-                app.$data.subjectInvitations = [];                    
-                app.$data.subjectInvitationCount = 0;               
-                app.$data.subjectInvitationList = ""; 
+                app.subjectInvitations = [];                    
+                app.subjectInvitationCount = 0;               
+                app.subjectInvitationList = ""; 
 
                 if(status != 'success')
                 {
@@ -273,15 +273,15 @@ var app = Vue.createApp({
 
                     for (var i = 0; i < userFails.length; i++)
                     {
-                        app.$data.subjectInvitationList += 'Failed to add user to session: ';
-                        app.$data.subjectInvitationList += '<a href = "/userInfo/' + userFails[i].id + '" target="_blank" >'; 
-                        app.$data.subjectInvitationList += userFails[i].last_name + ", " + userFails[i].first_name + "</a><br>"
+                        app.subjectInvitationList += 'Failed to add user to session: ';
+                        app.subjectInvitationList += '<a href = "/userInfo/' + userFails[i].id + '" target="_blank" >'; 
+                        app.subjectInvitationList += userFails[i].last_name + ", " + userFails[i].first_name + "</a><br>"
                     }
                     
                     if(response.data.mailResult.error_message != "")
                     {
-                        app.$data.subjectInvitationList += "<br>Email Send Error:<br>"
-                        app.$data.subjectInvitationList += response.data.mailResult.error_message + "<br><br>";
+                        app.subjectInvitationList += "<br>Email Send Error:<br>"
+                        app.subjectInvitationList += response.data.mailResult.error_message + "<br><br>";
                     }                                
                 }                             
                 else
@@ -289,9 +289,9 @@ var app = Vue.createApp({
                                                                 
                     //$('#inviteSubjectsModalCenter').modal('toggle');                             
                 }      
-                app.$data.subjectInvitationList +=  response.data.mailResult.mail_count + " invitations sent.";  
-                app.$data.inviteButtonText="";    
-                app.$data.session.invitationCount = response.data.invitationCount;               
+                app.subjectInvitationList +=  response.data.mailResult.mail_count + " invitations sent.";  
+                app.inviteButtonText="";    
+                app.session.invitationCount = response.data.invitationCount;               
                 
             })
             .catch(function (error) {
@@ -302,22 +302,22 @@ var app = Vue.createApp({
         //find subjects to invite
         findSubjectsToInvite: function findSubjectsToInvite(){
 
-            if(app.$data.subjectInvitationList.includes('class')) return;
+            if(app.subjectInvitationList.includes('class')) return;
 
-            app.$data.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-            app.$data.inviteResultsEmptyText="";
+            app.subjectInvitationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.inviteResultsEmptyText="";
 
             axios.post('{{request.get_full_path}}', {
                 status:"findSubjectsToInvite",    
-                number:app.$data.subjectInvitationCount,                                                          
+                number:app.subjectInvitationCount,                                                          
             })
             .then(function (response) {                                   
-                app.$data.subjectInvitations = response.data.subjectInvitations;   
+                app.subjectInvitations = response.data.subjectInvitations;   
                 
                 var totalValid = response.data.totalValid;
 
                 var s ="";
-                var l = app.$data.subjectInvitations.length
+                var l = app.subjectInvitations.length
 
                 for (var i = 0; i < l; i++) {
                     if (l > 1)
@@ -328,19 +328,19 @@ var app = Vue.createApp({
                             s += " and "; 
                     }                                                                  
 
-                    s += '<a href = "/userInfo/' + app.$data.subjectInvitations[i].id + '" target="_blank" >';
-                    s += app.$data.subjectInvitations[i].first_name + " ";
-                    s += app.$data.subjectInvitations[i].last_name; 
+                    s += '<a href = "/userInfo/' + app.subjectInvitations[i].id + '" target="_blank" >';
+                    s += app.subjectInvitations[i].first_name + " ";
+                    s += app.subjectInvitations[i].last_name; 
                     s += "</a>";
                 }
 
                 s += "<br><br>";
                 s += "<center><span style='color:gray;'>Total Found: " + totalValid + "<span><center>";
 
-                app.$data.subjectInvitationList = s;  
-                app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";    
+                app.subjectInvitationList = s;  
+                app.inviteButtonText="Invite <i class='fa fa-users'></i>";    
 
-                if(s=="") app.$data.inviteResultsEmptyText="No Users Found<br><br>";                       
+                if(s=="") app.inviteResultsEmptyText="No Users Found<br><br>";                       
                 //app.updateDisplayLists();
             })
             .catch(function (error) {
@@ -350,43 +350,43 @@ var app = Vue.createApp({
 
         //clear subjects to invite
         clearSubjectsToInvite: function clearSubjectsToInvite(){
-            app.$data.subjectInvitationList ="";
-            app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";   
-            app.$data.inviteResultsEmptyText="";                      
+            app.subjectInvitationList ="";
+            app.inviteButtonText="Invite <i class='fa fa-users'></i>";   
+            app.inviteResultsEmptyText="";                      
         },
 
         //cancel a session day (not in use)
         cancelSessionDay: function cancelSessionDay(){      
-            if( app.$data.session.canceled) return;
-            if(app.$data.subjectCancelationList=='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>') return;
-            //if(app.$data.cancelSessionButtonText == "*** CANCELED ***" ) return;
+            if( app.session.canceled) return;
+            if(app.subjectCancelationList=='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>') return;
+            //if(app.cancelSessionButtonText == "*** CANCELED ***" ) return;
 
-            app.$data.subjectCancelationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.subjectCancelationList='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
             axios.post('{{request.get_full_path}}', {
                     status:"cancelSession",   
                     //id:id,                                                           
                 })
                 .then(function (response) {                                   
-                    app.$data.session = response.data.session;
+                    app.session = response.data.session;
 
-                    app.$data.cancelSessionButtonText='*** CANCELED ***';
+                    app.cancelSessionButtonText='*** CANCELED ***';
 
-                    app.$data.subjectCancelationList = "";
+                    app.subjectCancelationList = "";
 
                     if(response.data.mailResult.error_message != "")
                     {
-                        app.$data.subjectCancelationList += "<br>Email Send Error:<br>"
-                        app.$data.subjectCancelationList += response.data.mailResult.error_message + "<br><br>";
+                        app.subjectCancelationList += "<br>Email Send Error:<br>"
+                        app.subjectCancelationList += response.data.mailResult.error_message + "<br><br>";
                     }
                     else
                     {
-                        app.$data.subjectCancelationList +=  response.data.mailResult.mail_count + " cancelations sent.";                                     
+                        app.subjectCancelationList +=  response.data.mailResult.mail_count + " cancelations sent.";                                     
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
@@ -395,8 +395,8 @@ var app = Vue.createApp({
 
             var sessionCanceledChangedMessage=false;
 
-            if(app.$data.currentSessionDay.canceled != 
-                app.$data.session.experiment_session_days[app.$data.currentSessionDayIndex].canceled)
+            if(app.currentSessionDay.canceled != 
+                app.session.experiment_session_days[app.currentSessionDayIndex].canceled)
             {
                 if(confirm("Send email about cancellation update?")){
                     var sessionCanceledChangedMessage=true;
@@ -411,7 +411,7 @@ var app = Vue.createApp({
 
             axios.post('{{request.get_full_path}}', {
                     status:"updateSessionDay",   
-                    id:app.$data.currentSessionDay.id, 
+                    id:app.currentSessionDay.id, 
                     formData : formData,
                     sessionCanceledChangedMessage:sessionCanceledChangedMessage,                                                          
                 })
@@ -422,8 +422,8 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {
-                        app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
-                        app.$data.cancelModal=false;
+                        app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
+                        app.cancelModal=false;
                         $('#sessionModal').modal('toggle');
                     }
                     else
@@ -434,37 +434,37 @@ var app = Vue.createApp({
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
         //update the session day parameters
         updateInvitationText: function updateInvitationText(){
 
-            app.$data.updateInvitationButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.session.invitationRawText = tinymce.get("id_invitationRawText").getContent();
+            app.updateInvitationButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.session.invitationRawText = tinymce.get("id_invitationRawText").getContent();
 
             axios.post('{{request.get_full_path}}', {
                     status:"updateInvitationText",   
-                    invitationRawText : app.$data.session.invitationRawText,                                                          
+                    invitationRawText : app.session.invitationRawText,                                                          
                 })
                 .then(function (response) {
-                    app.$data.session.invitationText = response.data.invitationText;
+                    app.session.invitationText = response.data.invitationText;
                     
-                    app.$data.updateInvitationButtonText ='Update <i class="fas fa-sign-in-alt"></i>';
+                    app.updateInvitationButtonText ='Update <i class="fas fa-sign-in-alt"></i>';
                     $('#editInvitationTextModal').modal('toggle');
                 
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
         //fill inviation text with experiment default
         fillInvitationWithDefault:function fillInvitationWithDefault(){
-            app.$data.session.invitationRawText = app.$data.experiment_invitation_text;
-            tinymce.get("id_invitationRawText").setContent(app.$data.session.invitationRawText);
+            app.session.invitationRawText = app.experiment_invitation_text;
+            tinymce.get("id_invitationRawText").setContent(app.session.invitationRawText);
         },
 
         //displays to the form errors
@@ -489,12 +489,12 @@ var app = Vue.createApp({
 
         //if form is changed add * to button
         recruitmentFormChange:function recruitmentFormChange(){
-            app.$data.buttonText1="Update *";
+            app.buttonText1="Update *";
         },
 
         //if form is changed add * to button
         mainFormChange2:function mainFormChange2(){
-            app.$data.buttonText2="Update *";
+            app.buttonText2="Update *";
         },
 
         // fire when edit experiment model is shown, save copy for cancel
@@ -510,15 +510,15 @@ var app = Vue.createApp({
 
         //add trait
         addTrait:function addTrait(){
-            app.$data.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.addTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('{{request.get_full_path}}', {
                     status : "addTrait" ,                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;  
+                    app.recruitment_params = response.data.recruitment_params;  
                     app.updateDisplayLists();      
-                    app.$data.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
+                    app.addTraitButtonText = 'Add <i class="fas fa-plus fa-xs"></i>'; 
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -527,10 +527,10 @@ var app = Vue.createApp({
 
         //update trait
         updateTrait:function updateTrait(){
-            app.$data.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('{{request.get_full_path}}', {
                     status : "updateTrait",
-                    trait_id:app.$data.current_trait.id,
+                    trait_id:app.current_trait.id,
                     formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
                 })
                 .then(function (response) {                                   
@@ -541,17 +541,17 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;  
+                        app.recruitment_params = response.data.recruitment_params;  
                         app.updateDisplayLists();   
                         $('#updateTraitModal').modal('toggle');   
                     }
                     else
                     {
-                        app.$data.cancelModal=true;                           
+                        app.cancelModal=true;                           
                         app.displayErrors(response.data.errors);
                     }
 
-                    app.$data.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
+                    app.updateTraitButtonText = 'Update <i class="fas fa-sign-in-alt"></i>'; 
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -567,7 +567,7 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;  
+                    app.recruitment_params = response.data.recruitment_params;  
                     app.updateDisplayLists();       
                 })
                 .catch(function (error) {
@@ -579,11 +579,11 @@ var app = Vue.createApp({
         updateRequireAllTraitContraints:function updateRequireAllTraitContraints(){
             axios.post('{{request.get_full_path}}', {
                     status : "updateRequireAllTraitContraints", 
-                    value: app.$data.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
+                    value: app.recruitment_params.trait_constraints_require_all,                                                                                                                                                            
                 })
                 .then(function (response) {                                   
                     
-                    app.$data.recruitment_params = response.data.recruitment_params;         
+                    app.recruitment_params = response.data.recruitment_params;         
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -592,71 +592,71 @@ var app = Vue.createApp({
 
         // fire when edit setup model is shown, save copy for cancel
         showSetup:function showSetup(id){
-            app.$data.cancelModal=true;
-            app.$data.currentSessionDay= Object.assign({},app.$data.session.experiment_session_days[id]);
-            app.$data.currentSessionDayIndex=id;
-            app.$data.currentSessionDay.date = app.formatDateForInput(app.$data.currentSessionDay.date_raw);
-            app.$data.currentSessionDay.reminder_time = app.formatDateForInput(app.$data.currentSessionDay.reminder_time_raw);
-            app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
-            app.$data.buttonText2="Update";
+            app.cancelModal=true;
+            app.currentSessionDay= Object.assign({},app.session.experiment_session_days[id]);
+            app.currentSessionDayIndex=id;
+            app.currentSessionDay.date = app.formatDateForInput(app.currentSessionDay.date_raw);
+            app.currentSessionDay.reminder_time = app.formatDateForInput(app.currentSessionDay.reminder_time_raw);
+            app.sessionBeforeEdit = Object.assign({}, app.session);
+            app.buttonText2="Update";
             $('#sessionModal').modal('show');
             //$('#id_date').datepicker('update');;
             app.clearMainFormErrors();
-            //$('#id_date').val(app.formatDate(app.$data.currentSessionDay.date));
+            //$('#id_date').val(app.formatDate(app.currentSessionDay.date));
         },
 
         //fire when edit setup model hides, cancel action if nessicary
         hideSetup:function hideSetup(){
-            if(app.$data.cancelModal)
+            if(app.cancelModal)
             {
-                Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
-                app.$data.sessionBeforeEdit=null;                            
-                app.$data.buttonText2="Update";
+                Object.assign(app.session, app.sessionBeforeEdit);
+                app.sessionBeforeEdit=null;                            
+                app.buttonText2="Update";
             }
         },
 
         // fire when view subjects model is shown
         showSubjects:function showSubjects(id){
-            app.$data.cancelModal=true;
-            app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[id]);
-            app.$data.currentSessionDayIndex =id;
-            // app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
-            app.$data.buttonText3="Update";
+            app.cancelModal=true;
+            app.currentSessionDay = Object.assign({},app.session.experiment_session_days[id]);
+            app.currentSessionDayIndex =id;
+            // app.sessionBeforeEdit = Object.assign({}, app.session);
+            app.buttonText3="Update";
             $('#subjectsModalCenter').modal('show');
             // app.clearMainFormErrors();
         },
 
         //fire when view setup model closes, cancel action if nessicary
         hideShowSubjects:function hideShowSubjects(){    
-            app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';                    
+            app.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';                    
         },
 
         // fire when invite subjects subjects model is shown
         showInviteSubjects:function showInviteSubjects(id){                        
             $('#inviteSubjectsModalCenter').modal('show');
-            app.$data.inviteResultsEmptyText="";
+            app.inviteResultsEmptyText="";
             // app.clearMainFormErrors();
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
         hideInviteSubjects:function hideInviteSubjects(){   
 
-            app.$data.subjectInvitations = [];                    
-            app.$data.subjectInvitationCount = 0;               
-            app.$data.subjectInvitationList = "";    
+            app.subjectInvitations = [];                    
+            app.subjectInvitationCount = 0;               
+            app.subjectInvitationList = "";    
             
-            app.$data.inviteButtonText="Invite <i class='fa fa-users'></i>";
+            app.inviteButtonText="Invite <i class='fa fa-users'></i>";
         },
 
         // fire when cancel session model is shown
         showCancelSession:function showCancelSession(id){ 
 
-            app.$data.subjectCancelationList = "";
+            app.subjectCancelationList = "";
 
             l="";
             s="Emails will be sent to the subjects that have confirmed: <br><br>"
-            c1=app.$data.session.experiment_session_days.length;
-            u1 = app.$data.session.confirmedEmailList
+            c1=app.session.experiment_session_days.length;
+            u1 = app.session.confirmedEmailList
 
             for(i=0;i<u1.length;i++)
             {
@@ -676,7 +676,7 @@ var app = Vue.createApp({
                     s += "</a>";
             }
 
-            app.$data.subjectCancelationList = s;
+            app.subjectCancelationList = s;
             $('#cancelSessionModalCenter').modal('show');
             // app.clearMainFormErrors();
         },
@@ -690,7 +690,7 @@ var app = Vue.createApp({
         // fire when invite subjects subjects model is shown
         showEditInvitation:function showEditInvitation(id){    
 
-            tinymce.get("id_invitationRawText").setContent(app.$data.session.invitationRawText);
+            tinymce.get("id_invitationRawText").setContent(app.session.invitationRawText);
             $('#editInvitationTextModal').modal('show');
             // app.clearMainFormErrors();
         },
@@ -702,44 +702,44 @@ var app = Vue.createApp({
 
         //invitation text changed, put * in buttonn text
         invitationTextChange:function invitationTextChange(){
-            app.$data.updateInvitationButtonText="Update <i class='fas fa-sign-in-alt'></i> *";
+            app.updateInvitationButtonText="Update <i class='fas fa-sign-in-alt'></i> *";
         },
 
         // fire when invite subjects subjects model is shown
         showManuallyAddSubjects:function showManuallyAddSubjects(id){    
-            app.$data.searchAddResult="";   
-            app.$data.searchResults=[];
-            app.$data.searchText=""; 
-            app.$data.searchAddResult = "";          
+            app.searchAddResult="";   
+            app.searchResults=[];
+            app.searchText=""; 
+            app.searchAddResult = "";          
             $('#manuallyAddSubjectsModalCenter').modal('show');
             // app.clearMainFormErrors();
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
         hideManuallyAddSubjects:function hideManuallyAddSubjects(){       
-            app.$data.searchResults=[];
-            app.$data.searchText="";  
-            app.$data.findButtonText="Find";             
+            app.searchResults=[];
+            app.searchText="";  
+            app.findButtonText="Find";             
         },
 
         // fire when invite subjects subjects model is shown
         showSendMessage:function showSendMessage(id){    
 
-            app.$data.emailMessageList="";
+            app.emailMessageList="";
             tinymce.get("sendMessageText").setContent(app.sendMessageText);
 
-            for(i=0;i<app.$data.session.confirmedEmailList.length;i++)
+            for(i=0;i<app.session.confirmedEmailList.length;i++)
             {
-                v = app.$data.session.confirmedEmailList[i];
+                v = app.session.confirmedEmailList[i];
 
-                if(app.$data.emailMessageList != "")
+                if(app.emailMessageList != "")
                 {
-                    app.$data.emailMessageList += ", ";
+                    app.emailMessageList += ", ";
                 }
                 
-                app.$data.emailMessageList += '<a href = "/userInfo/' + v.user_id + '" target="_blank" >';
-                app.$data.emailMessageList += v.user_email; 
-                app.$data.emailMessageList += "</a>";
+                app.emailMessageList += '<a href = "/userInfo/' + v.user_id + '" target="_blank" >';
+                app.emailMessageList += v.user_email; 
+                app.emailMessageList += "</a>";
             }
 
             $('#sendMessageModalCenter').modal('show');
@@ -748,10 +748,10 @@ var app = Vue.createApp({
 
         //fire when hide invite subjects  model, cancel action if nessicary
         hideSendMessage:function hideSendMessage(){       
-            app.$data.sendMessageText="<p>[first name],</p><p>If you have any questions contact [contact email].</p>";      
-            app.$data.emailMessageList="";    
-            // app.$data.sendMessageSubject=""; 
-            app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
+            app.sendMessageText="<p>[first name],</p><p>If you have any questions contact [contact email].</p>";      
+            app.emailMessageList="";    
+            // app.sendMessageSubject=""; 
+            app.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";       
         },
 
         //send an email to all of the confirmed subjects
@@ -777,28 +777,28 @@ var app = Vue.createApp({
 
             axios.post('{{request.get_full_path}}', {
                     status:"sendMessage", 
-                    subject:app.$data.sendMessageSubject,
-                    text:app.$data.sendMessageText,                                                                                                                                              
+                    subject:app.sendMessageSubject,
+                    text:app.sendMessageText,                                                                                                                                              
                 })
                 .then(function (response) {
                     //status=response.data.status;
 
                     if(response.data.mailResult.error_message != "")
                     {
-                        app.$data.emailMessageList = "<br>Email Send Error:<br>"
-                        app.$data.emailMessageList += response.data.mailResult.error_message + "<br><br>";
+                        app.emailMessageList = "<br>Email Send Error:<br>"
+                        app.emailMessageList += response.data.mailResult.error_message + "<br><br>";
                     }
                     else
                     {
-                        app.$data.emailMessageList =  response.data.mailResult.mail_count + " messages sent.";                                     
+                        app.emailMessageList =  response.data.mailResult.mail_count + " messages sent.";                                     
                     }   
 
-                    app.$data.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              
-                    app.$data.session.messageCount = response.data.messageCount;
+                    app.sendMessageButtonText = "Send Message <i class='fas fa-envelope fa-xs'></i>";                                                              
+                    app.session.messageCount = response.data.messageCount;
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });
         },
 
@@ -829,7 +829,7 @@ var app = Vue.createApp({
                         }
                     }
 
-                    app.$data.reSendMessageButtonText = "Re-send <i class='fas fa-envelope fa-xs'></i>";                                                              
+                    app.reSendMessageButtonText = "Re-send <i class='fas fa-envelope fa-xs'></i>";                                                              
 
                 })
                 .catch(function (error) {
@@ -849,18 +849,18 @@ var app = Vue.createApp({
                     status:"removeSubject",   
                     userId:userId, 
                     esduId:esduId,   
-                    actionAll:app.$data.currentSessionDayActionAll,                                                                                                                     
+                    actionAll:app.currentSessionDayActionAll,                                                                                                                     
                 })
                 .then(function (response) {
                     status=response.data.status;
 
-                    app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                    app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+                    app.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                    app.currentSessionDay = Object.assign({},app.session.experiment_session_days[ app.currentSessionDayIndex]);
 
                     if(status=="success")
                     {
                         
-                        // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                        // app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
                     }
                     else
                     {
@@ -870,7 +870,7 @@ var app = Vue.createApp({
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });
             }                       
                                     
@@ -886,20 +886,20 @@ var app = Vue.createApp({
                 userId:userId, 
                 esduId:esduId,  
                 confirmed:confirmed,          
-                actionAll:app.$data.currentSessionDayActionAll,                                                                                                         
+                actionAll:app.currentSessionDayActionAll,                                                                                                         
             })
             .then(function (response) {
                 status=response.data.status;
 
-                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                app.$data.session.confirmedEmailList = response.data.es_min.confirmedEmailList;
-                app.$data.session.confirmedCount = response.data.es_min.confirmedCount;
-                app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+                app.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                app.session.confirmedEmailList = response.data.es_min.confirmedEmailList;
+                app.session.confirmedCount = response.data.es_min.confirmedCount;
+                app.currentSessionDay = Object.assign({},app.session.experiment_session_days[ app.currentSessionDayIndex]);
 
                 if(status=="success")
                 {
                     
-                    // app.$data.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
+                    // app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
                 }
                 else
                 {
@@ -911,52 +911,52 @@ var app = Vue.createApp({
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });                      
                                     
         },
 
         //search for a subject to add manually
         searchForSubject: function searchForSubject(){
-            if(app.$data.findButtonText != "Find") return;
-            if(app.$data.searchText == "") return;
+            if(app.findButtonText != "Find") return;
+            if(app.searchText == "") return;
 
-            app.$data.searchAddResult = "";
+            app.searchAddResult = "";
 
-            app.$data.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.findButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('{{request.get_full_path}}', {
                 status:"searchForSubject",   
-                searchInfo:app.$data.searchText,                                                                                                                         
+                searchInfo:app.searchText,                                                                                                                         
             })
             .then(function (response) {
 
                     
-                app.$data.findButtonText = 'Find';  
+                app.findButtonText = 'Find';  
                 status = response.data.status;
 
                 if (status == "success")
                 {
-                    app.$data.searchResults=JSON.parse(response.data.users);
+                    app.searchResults=JSON.parse(response.data.users);
 
-                    if(app.$data.searchResults.length > 0)
+                    if(app.searchResults.length > 0)
                     {
-                        app.$data.searchResultsEmptyText="";
+                        app.searchResultsEmptyText="";
                     }   
                     else
                     {
-                        app.$data.searchResultsEmptyText="No Users Found<br><br>";
+                        app.searchResultsEmptyText="No Users Found<br><br>";
                     } 
                 }
                 else
                 {
-                    app.$data.searchResultsEmptyText=response.data.message + "<br><br>";
+                    app.searchResultsEmptyText=response.data.message + "<br><br>";
                 }
 
                                                                     
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });                                       
                                 
         },
@@ -964,9 +964,9 @@ var app = Vue.createApp({
         //clear search results
         clearSearchForSubject: function clearSearchForSubject(){
 
-            app.$data.searchResults=[];
-            app.$data.searchText="";  
-            app.$data.findButtonText="Find";                                    
+            app.searchResults=[];
+            app.searchText="";  
+            app.findButtonText="Find";                                    
         },
 
         //manually add subject to sessoin
@@ -977,14 +977,14 @@ var app = Vue.createApp({
             axios.post('{{request.get_full_path}}', {
                 status:"manuallyAddSubject",   
                 user:u,
-                sendInvitation:app.$data.manualAddSendInvitation,                                                                                                                      
+                sendInvitation:app.manualAddSendInvitation,                                                                                                                      
             })
             .then(function (response) {
-                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;   
+                app.session.experiment_session_days=response.data.es_min.experiment_session_days;   
                 //$('#manuallyAddSubjectsModalCenter').modal('toggle');
-                app.$data.searchResults=[];
-                app.$data.searchText="";   
-                app.$data.searchAddResult = "";
+                app.searchResults=[];
+                app.searchText="";   
+                app.searchAddResult = "";
 
                 status = response.data.status
                 
@@ -992,31 +992,31 @@ var app = Vue.createApp({
                 {
                     user = response.data.user;
                     
-                    app.$data.searchAddResult = 'Failed to add user to session: ';
-                    app.$data.searchAddResult += '<a href = "/userInfo/' + user.id + '" target="_blank" >'; 
-                    app.$data.searchAddResult += user.last_name + ", " + user.first_name + "</a><br>"
+                    app.searchAddResult = 'Failed to add user to session: ';
+                    app.searchAddResult += '<a href = "/userInfo/' + user.id + '" target="_blank" >'; 
+                    app.searchAddResult += user.last_name + ", " + user.first_name + "</a><br>"
                                                                                     
                 }
                 else if(response.data.mailResult.error_message != "")
                 {
-                    app.$data.searchAddResult += "<br>Email Send Error:<br>"
-                    app.$data.searchAddResult += response.data.mailResult.error_message + "<br><br>";
+                    app.searchAddResult += "<br>Email Send Error:<br>"
+                    app.searchAddResult += response.data.mailResult.error_message + "<br><br>";
                 }                            
                 else if(response.data.mailResult.mail_count == 0)
                 {
-                    app.$data.searchAddResult = "Subject added, no invitation was sent.";
+                    app.searchAddResult = "Subject added, no invitation was sent.";
                 }
                 else
                 {                                               
-                    app.$data.searchAddResult = "Subject added, an invitation was sent.";                                 
+                    app.searchAddResult = "Subject added, an invitation was sent.";                                 
                 }      
 
-                app.$data.session.invitationCount = response.data.invitationCount;
+                app.session.invitationCount = response.data.invitationCount;
                 
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });                                       
                             
         },
@@ -1024,21 +1024,21 @@ var app = Vue.createApp({
         //show unconfirmed
         showUnconfirmedSubjects: function showUnconfirmedSubjects(u){
 
-            app.$data.showUnconfirmedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.showUnconfirmedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"showUnconfirmedSubjects",   
                                                                                                                                             
             })
             .then(function (response) {
-                app.$data.session.experiment_session_days=response.data.es_min.experiment_session_days;                             
-                app.$data.currentSessionDay = Object.assign({},app.$data.session.experiment_session_days[ app.$data.currentSessionDayIndex]);
+                app.session.experiment_session_days=response.data.es_min.experiment_session_days;                             
+                app.currentSessionDay = Object.assign({},app.session.experiment_session_days[ app.currentSessionDayIndex]);
 
-                app.$data.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+                app.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });                                       
                             
             },
@@ -1046,17 +1046,17 @@ var app = Vue.createApp({
         //show message list
         showMessages:function showMessages(){
 
-            app.$data.showMessageListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.showMessageListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"showMessages",                                                                                                    
             })
             .then(function (response) {
-                app.$data.messageList = response.data.messageList;     
+                app.messageList = response.data.messageList;     
 
-                for(i=0;i<app.$data.messageList.length;i++)
+                for(i=0;i<app.messageList.length;i++)
                 {
-                    m=app.$data.messageList[i];
+                    m=app.messageList[i];
                     m.date_raw=app.formatDate(m.date_raw,false,false);
 
                     emailMessageList="";
@@ -1080,39 +1080,39 @@ var app = Vue.createApp({
                     m.emailMessageList = emailMessageList;
                 }                        
                 
-                app.$data.showMessageListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+                app.showMessageListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });
         },
 
         //show invitation list
         showInvitations:function showInvitations(){
 
-            app.$data.showInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.showInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"showInvitations",                                                                                                    
             })
             .then(function (response) {
-                app.$data.invitationList = response.data.invitationList;     
+                app.invitationList = response.data.invitationList;     
 
                 app.formatInvitations();                                        
                 
-                app.$data.showInvitationListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+                app.showInvitationListButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });
         },
         
         //show invitation list
         downloadInvitations:function downloadInvitations(){
 
-            app.$data.downloadInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.downloadInvitationListButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"downloadInvitations",                                                                                                    
@@ -1123,25 +1123,25 @@ var app = Vue.createApp({
                 var blob = new Blob(["\ufeff", response.data]);
                 var url = URL.createObjectURL(blob);
                 downloadLink.href = url;
-                downloadLink.download = "Invited_Export_Session_" + app.$data.session.id + ".csv";
+                downloadLink.download = "Invited_Export_Session_" + app.session.id + ".csv";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
                 
-                app.$data.downloadInvitationListButtonText = 'Download <i class="fas fa-download"></i>';
+                app.downloadInvitationListButtonText = 'Download <i class="fas fa-download"></i>';
             })
             .catch(function (error) {
                 console.log(error);
-                //app.$data.searching=false;                                                              
+                //app.searching=false;                                                              
             });
         },
 
         //format inivation messages for display
         formatInvitations:function formatInvitations(){
-            for(i=0;i<app.$data.invitationList.length;i++)
+            for(i=0;i<app.invitationList.length;i++)
             {
-                m=app.$data.invitationList[i];
+                m=app.invitationList[i];
                 m.date_raw=app.formatDate(m.date_raw,false,false);
 
                 emailMessageList="";
@@ -1178,14 +1178,14 @@ var app = Vue.createApp({
         // fire when edit trait model is shown
         showUpdateTrait:function showUpdateTrait(id,index){
 
-            tc = app.$data.recruitment_params.trait_constraints[index];
+            tc = app.recruitment_params.trait_constraints[index];
 
-            app.$data.cancelModal=true;
-            app.$data.current_trait.id = id;
-            app.$data.current_trait.min_value = tc.min_value;
-            app.$data.current_trait.max_value = tc.max_value;
-            app.$data.current_trait.trait_id = tc.trait_id;
-            app.$data.current_trait.include_if_in_range = tc.include_if_in_range;
+            app.cancelModal=true;
+            app.current_trait.id = id;
+            app.current_trait.min_value = tc.min_value;
+            app.current_trait.max_value = tc.max_value;
+            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.include_if_in_range = tc.include_if_in_range;
 
             $('#updateTraitModal').modal('show');
             app.clearMainFormErrors();
@@ -1193,7 +1193,7 @@ var app = Vue.createApp({
 
         //fire when edit experiment model hides, cancel action if nessicary
         hideUpdateTrait:function hideUpdateTrait(){
-            if(app.$data.cancelModal)
+            if(app.cancelModal)
             {
             
             }
@@ -1202,8 +1202,8 @@ var app = Vue.createApp({
         //fire when edit trait model needs to be shown
         showEditSession:function showEditSession(){         
             app.clearMainFormErrors();              
-            app.$data.cancelModal=true;
-            app.$data.sessionBeforeEdit = Object.assign({}, app.$data.session);
+            app.cancelModal=true;
+            app.sessionBeforeEdit = Object.assign({}, app.session);
 
             $('#editSessionModal').modal('show');
         },
@@ -1211,16 +1211,16 @@ var app = Vue.createApp({
         //fire when hide edit traits
         hideEditSession:function hideEditSession(){
             app.clearMainFormErrors();
-            if(app.$data.cancelModal)
+            if(app.cancelModal)
             {
-                Object.assign(app.$data.session, app.$data.sessionBeforeEdit);
-                app.$data.sessionBeforeEdit=null;
+                Object.assign(app.session, app.sessionBeforeEdit);
+                app.sessionBeforeEdit=null;
             }
         },
 
         //update require all trait constraints
         sendUpdateSession:function sendUpdateSession(){
-            app.$data.cancelModal=false;
+            app.cancelModal=false;
             axios.post('{{request.get_full_path}}', {
                     status : "updateSession", 
                     formData : $("#mainForm1").serializeArray(),                                                                                                                                                             
@@ -1229,13 +1229,13 @@ var app = Vue.createApp({
                     
                     if(response.data.status=="success")
                     {
-                        app.$data.session = response.data.session;  
+                        app.session = response.data.session;  
                         app.updateDisplayLists();   
                         $('#editSessionModal').modal('toggle');   
                     }
                     else
                     {
-                        app.$data.cancelModal=true;                           
+                        app.cancelModal=true;                           
                         app.displayErrors(response.data.errors);
                     }
          
@@ -1255,25 +1255,25 @@ var app = Vue.createApp({
         //update require all trait constraints
         sendAddToAllowList:function sendAddToAllowList(){
 
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('{{request.get_full_path}}', {
                     status : "addToAllowList", 
-                    formData : {allowed_list:app.$data.add_to_allow_list},                                                                                                                                                             
+                    formData : {allowed_list:app.add_to_allow_list},                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
                     if(response.data.status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;
-                        app.$data.allow_list_error = "";
+                        app.recruitment_params = response.data.recruitment_params;
+                        app.allow_list_error = "";
                     }
                     else
                     {                 
-                        app.$data.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
+                        app.allow_list_error = "Error, ids not found: " + response.data.not_found_list;
                     }
 
-                    app.$data.working = false;
+                    app.working = false;
          
                 })
                 .catch(function (error) {
@@ -1283,7 +1283,7 @@ var app = Vue.createApp({
 
         sendClearAllowList:function sendClearAllowList(){
 
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('{{request.get_full_path}}', {
                     status : "clearAllowList", 
@@ -1293,14 +1293,14 @@ var app = Vue.createApp({
                     
                     if(response.data.status=="success")
                     {
-                        app.$data.recruitment_params = response.data.recruitment_params;
+                        app.recruitment_params = response.data.recruitment_params;
                     }
                     else
                     {                                              
                         app.displayErrors(response.data.errors);
                     }
 
-                    app.$data.working = false;
+                    app.working = false;
          
                 })
                 .catch(function (error) {

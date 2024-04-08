@@ -38,7 +38,7 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            s = app.$data.recruitment_parameters_form_ids;
+            s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
                 $("#id_" + s[i]).attr("class","form-control");
@@ -66,11 +66,11 @@ var app = Vue.createApp({
                         app.displayErrors(response.data.errors);
                     }          
 
-                    app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i>';                      
+                    app.buttonText1='Update <i class="fas fa-sign-in-alt"></i>';                      
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });                        
             },
 
@@ -82,19 +82,19 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {                                                                   
                    
-                    app.$data.recruitment_params = response.data.recruitment_params;    
-                    app.$data.experiment = response.data.experiment;                            
-                    app.$data.loading = false;
+                    app.recruitment_params = response.data.recruitment_params;    
+                    app.experiment = response.data.experiment;                            
+                    app.loading = false;
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
         //if form is changed add * to button
         recruitmentFormChange:function(){
-            app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
+            app.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
         },
 
         //displays to the form errors

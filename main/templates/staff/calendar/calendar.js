@@ -36,8 +36,8 @@ var app = Vue.createApp({
             }
             else
             {
-                load_url_month = app.$data.load_url_month;
-                app.$data.working = true;
+                load_url_month = app.load_url_month;
+                app.working = true;
             }
                
             axios.post('{{request.path}}', {
@@ -47,13 +47,13 @@ var app = Vue.createApp({
                 .then(function (response) {     
                     app.updateMonth(response);  
 
-                    app.$data.locations = response.data.locations;     
-                    app.$data.todayDay = response.data.todayDay;
-                    app.$data.todayMonth = response.data.todayMonth; 
-                    app.$data.todayYear = response.data.todayYear;           
+                    app.locations = response.data.locations;     
+                    app.todayDay = response.data.todayDay;
+                    app.todayMonth = response.data.todayMonth; 
+                    app.todayYear = response.data.todayYear;           
                     
-                    app.$data.working = false;
-                    app.$data.load_url_month = false;
+                    app.working = false;
+                    app.load_url_month = false;
 
                     setTimeout(app.scollToToday, 250);
                 })
@@ -64,30 +64,30 @@ var app = Vue.createApp({
 
         //get new month's data
         changeMonth:function(direction){
-            app.$data.working = true;
+            app.working = true;
 
             // if(direction == "next")
             // {
-            //     app.$data.forwardButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            //     app.forwardButtonText='<i class="fas fa-spinner fa-spin"></i>';
             // }
             // else
             // {
-            //     app.$data.backButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            //     app.backButtonText='<i class="fas fa-spinner fa-spin"></i>';
             // }
 
             axios.post('/calendar/', {
                     action :"changeMonth" , 
                     direction: direction,
-                    currentMonth: app.$data.currentMonth,
-                    currentYear: app.$data.currentYear,
+                    currentMonth: app.currentMonth,
+                    currentYear: app.currentYear,
                 })
                 .then(function (response) {     
                     app.updateMonth(response);
                     
-                    app.$data.working = false;
+                    app.working = false;
 
-                    // app.$data.backButtonText="<<";
-                    // app.$data.forwardButtonText=">>";
+                    // app.backButtonText="<<";
+                    // app.forwardButtonText=">>";
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -96,15 +96,15 @@ var app = Vue.createApp({
         
         //show day modal
         showDayModal:function(weekIndex, dayIndex, dayString){
-            currentSessions = app.$data.calendar[weekIndex][dayIndex].sessions;
+            currentSessions = app.calendar[weekIndex][dayIndex].sessions;
 
             displayDayLocations=[];
 
-            app.$data.displayDay.no_experiments = true;
+            app.displayDay.no_experiments = true;
 
-            for(i=0;i<app.$data.locations.length;i++)
+            for(i=0;i<app.locations.length;i++)
             {
-                l = app.$data.locations[i];
+                l = app.locations[i];
                 sessionList = [];
 
                 for(j=0;j<currentSessions.length;j++)
@@ -112,7 +112,7 @@ var app = Vue.createApp({
                     if(currentSessions[j].location.id == l.id)
                     {
                         sessionList.push(currentSessions[j]);
-                        app.$data.displayDay.no_experiments = false;
+                        app.displayDay.no_experiments = false;
                     }
                 }
 
@@ -121,8 +121,8 @@ var app = Vue.createApp({
                                         })
             }
 
-            app.$data.displayDay.sessionLocations = displayDayLocations;
-            app.$data.displayDay.dayString = dayString;
+            app.displayDay.sessionLocations = displayDayLocations;
+            app.displayDay.dayString = dayString;
 
             $('#calendarDayModal').modal('toggle');
 
@@ -131,16 +131,16 @@ var app = Vue.createApp({
         //jump to new month
         jump_to_new_month:function()
         {
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('/calendar/', {
                 action :"jump_to_month" , 
-                new_month: app.$data.jump_to_month,
+                new_month: app.jump_to_month,
             })
             .then(function (response) {     
                 app.updateMonth(response);
 
-               app.$data.working = false;
+               app.working = false;
             })
             .catch(function (error) {
                 console.log(error);                            
@@ -149,20 +149,20 @@ var app = Vue.createApp({
 
         //update the current month's da
         updateMonth:function(response){
-            app.$data.currentMonth = response.data.currentMonth;
-            app.$data.currentYear = response.data.currentYear;       
-            app.$data.calendar = response.data.calendar;          
-            app.$data.currentMonthString = response.data.currentMonthString; 
-            app.$data.jump_to_month = response.data.jump_to_month;
+            app.currentMonth = response.data.currentMonth;
+            app.currentYear = response.data.currentYear;       
+            app.calendar = response.data.calendar;          
+            app.currentMonthString = response.data.currentMonthString; 
+            app.jump_to_month = response.data.jump_to_month;
 
-            history.replaceState({}, null, '/calendar/' + app.$data.currentMonth +'/' + app.$data.currentYear + '/');
+            history.replaceState({}, null, '/calendar/' + app.currentMonth +'/' + app.currentYear + '/');
 
             
         },
 
         //scroll to today's cell
         scollToToday(){
-            v = "id_" + app.$data.todayDay + "_" + app.$data.todayMonth + "_" + app.$data.todayYear;
+            v = "id_" + app.todayDay + "_" + app.todayMonth + "_" + app.todayYear;
             var elmnt = document.getElementById(v);
 
             if(elmnt) elmnt.scrollIntoView(); 

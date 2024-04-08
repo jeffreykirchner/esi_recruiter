@@ -25,9 +25,9 @@ var app = Vue.createApp({
         //sort experiments by date
         sortByDate:function(){
 
-            app.$data.dateSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.dateSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            app.$data.experiments.sort(function(a, b) {
+            app.experiments.sort(function(a, b) {
                 if(b.date_start == "No Sessions")
                 {
                     return 1; 
@@ -43,83 +43,83 @@ var app = Vue.createApp({
 
             });
 
-            app.$data.dateSortButtonText = 'Date <i class="fas fa-sort"></i>';
+            app.dateSortButtonText = 'Date <i class="fas fa-sort"></i>';
         },
 
         //sort by title
         sortByTitle:function(){
 
-            app.$data.titleSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.titleSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            app.$data.experiments.sort(function(a, b) {
+            app.experiments.sort(function(a, b) {
                 a=a.title.trim().toLowerCase();
                 b=b.title.trim().toLowerCase();
                 return a < b ? -1 : a > b ? 1 : 0;
             });
 
-            app.$data.titleSortButtonText = 'Title <i class="fas fa-sort"></i>';
+            app.titleSortButtonText = 'Title <i class="fas fa-sort"></i>';
         },
 
         //sort by manager
         sortByManager:function(){
 
-            app.$data.managerSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.managerSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
-            app.$data.experiments.sort(function(a, b) {
+            app.experiments.sort(function(a, b) {
                 a=a.experiment_manager.trim().toLowerCase();
                 b=b.experiment_manager.trim().toLowerCase();
                 return a < b ? -1 : a > b ? 1 : 0;
             });
 
-            app.$data.managerSortButtonText = 'Manager <i class="fas fa-sort"></i>';
+            app.managerSortButtonText = 'Manager <i class="fas fa-sort"></i>';
             },
 
         //get list of experiments based on search
         searchExperiments:function(){
-            if(app.$data.searchInfo == "")
+            if(app.searchInfo == "")
                 return;
 
-            app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.experiments=[];
-            app.$data.warningText = "";
+            app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.experiments=[];
+            app.warningText = "";
 
             axios.post('/experimentSearch/', {
                             action :"searchExperiments" ,
-                            searchInfo:app.$data.searchInfo,                                                                                                                             
+                            searchInfo:app.searchInfo,                                                                                                                             
                         })
                         .then(function (response) {     
                             app.updateExperiments(response);
-                            app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';                                                   
+                            app.searchButtonText = 'Search <i class="fas fa-search"></i>';                                                   
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
         },
         
         //create new experient
         createExperiment:function(){                    
-            app.$data.experiments = [];
-            app.$data.warningText = '';
-            app.$data.createExperimentButtonText ='<i class="fas fa-spinner fa-spin"></i>';
+            app.experiments = [];
+            app.warningText = '';
+            app.createExperimentButtonText ='<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experimentSearch/', {
                             action :"createExperiment" ,                                                                                                                                                                
                         })
                         .then(function (response) {     
                             app.updateExperiments(response);        
-                            app.$data.createExperimentButtonText = 'Create Experiment <i class="fas fa-plus"></i>';                                        
+                            app.createExperimentButtonText = 'Create Experiment <i class="fas fa-plus"></i>';                                        
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
         },
         
         //get list of all experiments
         getAllExperiments:function(){
-            app.$data.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.experiments = [];
-            app.$data.warningText = "";
+            app.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.experiments = [];
+            app.warningText = "";
 
             axios.post('/experimentSearch/', {
                             action :"getAllExperiments" ,                                                                                                                             
@@ -127,20 +127,20 @@ var app = Vue.createApp({
                         .then(function (response) {     
                             
                             app.updateExperiments(response);
-                            app.$data.showAllButtonText = 'Show All';
+                            app.showAllButtonText = 'Show All';
                            
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
                     },
         
         //get list of open experiments
         getOpenExperiments:function(){
-            app.$data.showOpenButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.experiments = [];
-            app.$data.warningText = "";
+            app.showOpenButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.experiments = [];
+            app.warningText = "";
 
             axios.post('/experimentSearch/', {
                             action :"getOpenExperiments" ,                                                                                                                             
@@ -148,12 +148,12 @@ var app = Vue.createApp({
                         .then(function (response) {     
                             
                             app.updateExperiments(response);
-                            app.$data.showOpenButtonText = 'Show Open';
+                            app.showOpenButtonText = 'Show Open';
                            
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
                     },
         
@@ -165,37 +165,37 @@ var app = Vue.createApp({
                         })
                         .then(function (response) {     
                             
-                            app.$data.experiments_recent = response.data.experiments_recent;
+                            app.experiments_recent = response.data.experiments_recent;
                            
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
                     },
         
         //update the experiment list from server
         updateExperiments:function(response){
-            app.$data.experiments = response.data.experiments;       
+            app.experiments = response.data.experiments;       
                             
-            if(app.$data.experiments.length == 0)
+            if(app.experiments.length == 0)
             {
-                app.$data.warningText = "No experiments found.";
+                app.warningText = "No experiments found.";
             }
             else
             {
-                app.$data.warningText = "";
+                app.warningText = "";
             }
 
-            app.$data.searchCount = app.$data.experiments.length;
+            app.searchCount = app.experiments.length;
         },
 
         //delete the selected experiment
         deleteExperiment:function(id){
             if(confirm("Delete Experiment?"))
             {
-                app.$data.experiments=[];
-                app.$data.warningText ='<i class="fas fa-spinner fa-spin"></i>';
+                app.experiments=[];
+                app.warningText ='<i class="fas fa-spinner fa-spin"></i>';
 
                 axios.post('/experimentSearch/', {
                         action :"deleteExperiment" ,
@@ -204,19 +204,19 @@ var app = Vue.createApp({
                     .then(function (response) {   
                         if(response.data.status == "success")
                         {
-                            app.$data.warningText ='The experiment "'+ response.data.title  +  '" was deleted.';
+                            app.warningText ='The experiment "'+ response.data.title  +  '" was deleted.';
                         }  
                         else
                         {
-                            app.$data.warningText="The experiment could not be deleted."
+                            app.warningText="The experiment could not be deleted."
                         }
 
-                        app.$data.experiments_recent = response.data.experiments_recent;
+                        app.experiments_recent = response.data.experiments_recent;
                                                                   
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 }
             }                          

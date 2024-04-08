@@ -32,18 +32,18 @@ var app = Vue.createApp({
                             app.takeUpcomingInvitations(response);
                             app.takePastAcceptedInvitations(response);
 
-                            app.$data.umbrellaConsents = response.data.umbrellaConsents;
-                            app.$data.requiredUmbrellaConsents = response.data.requiredUmbrellaConsents;
+                            app.umbrellaConsents = response.data.umbrellaConsents;
+                            app.requiredUmbrellaConsents = response.data.requiredUmbrellaConsents;
                             
-                            app.$data.waiting=false;
+                            app.waiting=false;
                             
-                            if(app.$data.requiredUmbrellaConsents.length>0)
+                            if(app.requiredUmbrellaConsents.length>0)
                             {
                               $('#subject_consent_form_modal').modal('toggle');
                             }
 
                             //test code
-                            //app.viewConsentForm(app.$data.upcomingInvitations[0])
+                            //app.viewConsentForm(app.upcomingInvitations[0])
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -53,8 +53,8 @@ var app = Vue.createApp({
         acceptInvitation:function(id,index){
             //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
-            app.$data.upcomingInvitations[index].waiting=true;
-            app.$data.waiting=true;
+            app.upcomingInvitations[index].waiting=true;
+            app.waiting=true;
 
             axios.post('/subjectHome/', {
                             action :"acceptInvitation",
@@ -62,7 +62,7 @@ var app = Vue.createApp({
                         })
                         .then(function (response) {     
                             app.takeUpcomingInvitations(response); 
-                            app.$data.waiting=false;
+                            app.waiting=false;
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -71,8 +71,8 @@ var app = Vue.createApp({
 
         cancelAcceptInvitation:function(id,index){
             //$( '#cancelAcceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
-            app.$data.upcomingInvitations[index].waiting=true;
-            app.$data.waiting=true;
+            app.upcomingInvitations[index].waiting=true;
+            app.waiting=true;
 
             axios.post('/subjectHome/', {
                             action :"cancelAcceptInvitation",
@@ -80,7 +80,7 @@ var app = Vue.createApp({
                         })
                         .then(function (response) {     
                             app.takeUpcomingInvitations(response);  
-                            app.$data.waiting=false;                                                                
+                            app.waiting=false;                                                                
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -88,27 +88,27 @@ var app = Vue.createApp({
         },
         
         showAllInvitations:function(index){
-            app.$data.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-            app.$data.waiting=true;
+            app.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.waiting=true;
 
             axios.post('/subjectHome/', {
                             action :"showAllInvitations",                                                                                                                            
                         })
                         .then(function (response) {     
-                            app.$data.allInvitations=response.data.allInvitations;      
+                            app.allInvitations=response.data.allInvitations;      
                             
-                            app.$data.noInvitationsFoundText = "No invitations found"
+                            app.noInvitationsFoundText = "No invitations found"
 
-                            for(var i=0;i<app.$data.allInvitations.length;i++)
+                            for(var i=0;i<app.allInvitations.length;i++)
                             {
-                                app.$data.allInvitations[i].date = app.formatDate(app.$data.allInvitations[i].date,
+                                app.allInvitations[i].date = app.formatDate(app.allInvitations[i].date,
                                                                                     null,
-                                                                                    app.$data.allInvitations[i].enable_time,
+                                                                                    app.allInvitations[i].enable_time,
                                                                                     null);                                       
                             }
                             
-                            app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
-                            app.$data.waiting=false;
+                            app.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
+                            app.waiting=false;
                         })
                         .catch(function (error) {
                             console.log(error);                                    
@@ -117,11 +117,11 @@ var app = Vue.createApp({
         
         takeUpcomingInvitations:function(response){            
              
-            app.$data.upcomingInvitations=response.data.upcomingInvitations;                   
+            app.upcomingInvitations=response.data.upcomingInvitations;                   
 
-            for(var i=0;i<app.$data.upcomingInvitations.length;i++)
+            for(var i=0;i<app.upcomingInvitations.length;i++)
             {
-                temp_s = app.$data.upcomingInvitations[i];
+                temp_s = app.upcomingInvitations[i];
 
                 // for(var j=0;j<temp_s.experiment_session_days.length;j++)
                 // {
@@ -132,28 +132,28 @@ var app = Vue.createApp({
                 // }                        
             }
             
-            app.$data.lastActionFailed = response.data.failed;
+            app.lastActionFailed = response.data.failed;
         },
 
         takePastAcceptedInvitations:function(response){
-            app.$data.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
+            app.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                         
-            for(var i=0;i<app.$data.pastAcceptedInvitations.length;i++)
+            for(var i=0;i<app.pastAcceptedInvitations.length;i++)
             {
-                app.$data.pastAcceptedInvitations[i].date = app.formatDate(app.$data.pastAcceptedInvitations[i].date,
+                app.pastAcceptedInvitations[i].date = app.formatDate(app.pastAcceptedInvitations[i].date,
                                                                             null,
-                                                                            app.$data.pastAcceptedInvitations[i].enable_time,
+                                                                            app.pastAcceptedInvitations[i].enable_time,
                                                                             null);
 
-                app.$data.pastAcceptedInvitations[i].earnings = parseFloat(app.$data.pastAcceptedInvitations[i].earnings).toFixed(2);
-                app.$data.pastAcceptedInvitations[i].total_earnings = parseFloat(app.$data.pastAcceptedInvitations[i].total_earnings).toFixed(2);
-                app.$data.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.$data.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
+                app.pastAcceptedInvitations[i].earnings = parseFloat(app.pastAcceptedInvitations[i].earnings).toFixed(2);
+                app.pastAcceptedInvitations[i].total_earnings = parseFloat(app.pastAcceptedInvitations[i].total_earnings).toFixed(2);
+                app.pastAcceptedInvitations[i].show_up_fee = parseFloat(app.pastAcceptedInvitations[i].show_up_fee).toFixed(2);
             }
         },
 
         showInvitationText:function(index){
             
-            app.$data.current_invitation = index;
+            app.current_invitation = index;
             $('#subject_invitation_text_modal').modal('show');
         },
 

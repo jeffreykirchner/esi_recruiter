@@ -33,77 +33,77 @@ var app = Vue.createApp({
             })
             .catch(function (error) {
                 console.log(error);
-                app.$data.searching=false;
+                app.searching=false;
             });                        
         },
 
         //process get session response
         takeGetSessions:function(response)
         {
-            app.$data.session_day_attended = response.data.session_day_attended;
-            app.$data.session_day_upcoming = response.data.session_day_upcoming;  
-            app.$data.institutions = response.data.institutions;     
-            app.$data.notes = response.data.notes;
+            app.session_day_attended = response.data.session_day_attended;
+            app.session_day_upcoming = response.data.session_day_upcoming;  
+            app.institutions = response.data.institutions;     
+            app.notes = response.data.notes;
 
             //format session data
-            for(var i=0;i<app.$data.session_day_attended.length;i++)
+            for(var i=0;i<app.session_day_attended.length;i++)
             {
-                app.$data.session_day_attended[i].date = app.formatDate(app.$data.session_day_attended[i].date,
-                                                                        app.$data.session_day_attended[i].enable_time);
-                app.$data.session_day_attended[i].earnings = parseFloat(app.$data.session_day_attended[i].earnings).toFixed(2);
-                app.$data.session_day_attended[i].show_up_fee = parseFloat(app.$data.session_day_attended[i].show_up_fee).toFixed(2);
+                app.session_day_attended[i].date = app.formatDate(app.session_day_attended[i].date,
+                                                                        app.session_day_attended[i].enable_time);
+                app.session_day_attended[i].earnings = parseFloat(app.session_day_attended[i].earnings).toFixed(2);
+                app.session_day_attended[i].show_up_fee = parseFloat(app.session_day_attended[i].show_up_fee).toFixed(2);
             } 
 
-            for(var i=0;i<app.$data.session_day_upcoming.length;i++)
+            for(var i=0;i<app.session_day_upcoming.length;i++)
             {
-                app.$data.session_day_upcoming[i].date = app.formatDate(app.$data.session_day_upcoming[i].date,
-                                                                        app.$data.session_day_upcoming[i].enable_time);
-                app.$data.session_day_upcoming[i].earnings = parseFloat(app.$data.session_day_upcoming[i].earnings).toFixed(2);
-                app.$data.session_day_upcoming[i].show_up_fee = parseFloat(app.$data.session_day_upcoming[i].show_up_fee).toFixed(2);
+                app.session_day_upcoming[i].date = app.formatDate(app.session_day_upcoming[i].date,
+                                                                        app.session_day_upcoming[i].enable_time);
+                app.session_day_upcoming[i].earnings = parseFloat(app.session_day_upcoming[i].earnings).toFixed(2);
+                app.session_day_upcoming[i].show_up_fee = parseFloat(app.session_day_upcoming[i].show_up_fee).toFixed(2);
             }
 
-            for(var i=0;i<app.$data.notes.length;i++)
+            for(var i=0;i<app.notes.length;i++)
             {
-                app.$data.notes[i].date = app.formatDate(app.$data.notes[i].date, true);
+                app.notes[i].date = app.formatDate(app.notes[i].date, true);
             }
 
-            app.$data.institutionsList="";
+            app.institutionsList="";
             //create institution list
-            for(var i=0;i<app.$data.institutions.length;i++)
+            for(var i=0;i<app.institutions.length;i++)
             {
                 if(i>0)
                 {
-                    app.$data.institutionsList += ", ";
+                    app.institutionsList += ", ";
                 }
 
-                app.$data.institutionsList += app.$data.institutions[i].name;
+                app.institutionsList += app.institutions[i].name;
             }
 
-            app.$data.working = false;
+            app.working = false;
         },
 
         // show the full invitation list
         showInvitations: function(value){
-            app.$data.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-            app.$data.working = true;
+            app.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.working = true;
             
             axios.post('/userInfo/{{id}}/', {
                     status :"getInvitations",                                                                                                                        
                 })
                 .then(function (response) {     
-                    app.$data.invitations = response.data.invitations;
-                    app.$data.noInvitationsFoundText = "No invitations found"
+                    app.invitations = response.data.invitations;
+                    app.noInvitationsFoundText = "No invitations found"
 
-                    for(var i=0;i<app.$data.invitations.length;i++)
+                    for(var i=0;i<app.invitations.length;i++)
                     {
-                        app.$data.invitations[i].date = app.formatDate(app.$data.invitations[i].date,
-                                                                        app.$data.invitations[i].enable_time );
-                        app.$data.invitations[i].earnings = parseFloat(app.$data.invitations[i].earnings).toFixed(2);
-                        app.$data.invitations[i].show_up_fee = parseFloat(app.$data.invitations[i].show_up_fee).toFixed(2);
+                        app.invitations[i].date = app.formatDate(app.invitations[i].date,
+                                                                        app.invitations[i].enable_time );
+                        app.invitations[i].earnings = parseFloat(app.invitations[i].earnings).toFixed(2);
+                        app.invitations[i].show_up_fee = parseFloat(app.invitations[i].show_up_fee).toFixed(2);
                     }
 
-                    app.$data.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
-                    app.$data.working = false;
+                    app.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
+                    app.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -112,18 +112,18 @@ var app = Vue.createApp({
 
         //show traits
         showTraits:function(){
-            app.$data.showTraitsButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-            app.$data.working = true;
+            app.showTraitsButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.working = true;
 
             axios.post('/userInfo/{{id}}/', {
                     status :"getTraits",                                                                                                                        
                 })
                 .then(function (response) {     
-                    app.$data.subject_traits = response.data.subject_traits;
-                    app.$data.noTraitsFoundText = "No traits found"
+                    app.subject_traits = response.data.subject_traits;
+                    app.noTraitsFoundText = "No traits found"
                                                 
-                    app.$data.showTraitsButtonText='Show <i class="fa fa-eye fa-xs"></i>';
-                    app.$data.working = false;
+                    app.showTraitsButtonText='Show <i class="fa fa-eye fa-xs"></i>';
+                    app.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -132,7 +132,7 @@ var app = Vue.createApp({
 
         //delete the selected note
         deleteNote:function(id){
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('/userInfo/{{id}}/', {
                     status : "deleteNote",
@@ -140,7 +140,7 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {     
                     app.takeGetSessions(response);
-                    app.$data.working = false;                            
+                    app.working = false;                            
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -150,18 +150,18 @@ var app = Vue.createApp({
         //make a not about the subject
         sendMakeNote:function(){
             
-            if(app.$data.noteText == '') return;
-            app.$data.working = true;
+            if(app.noteText == '') return;
+            app.working = true;
 
             axios.post('/userInfo/{{id}}/', {
                     status : "makeNote",
-                    text : app.$data.noteText,                                                                                                                
+                    text : app.noteText,                                                                                                                
                 })
                 .then(function (response) {     
                     app.takeGetSessions(response);
                     $('#noteModalCenter').modal('toggle');
-                    app.$data.noteText = "";
-                    app.$data.working = false;
+                    app.noteText = "";
+                    app.working = false;
                 })
                 .catch(function (error) {
                     console.log(error);                            

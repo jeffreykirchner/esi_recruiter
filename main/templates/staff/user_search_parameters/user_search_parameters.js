@@ -32,7 +32,7 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            s = app.$data.recruitment_parameters_form_ids;
+            s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
                 $("#id_" + s[i]).attr("class","form-control");
@@ -70,7 +70,7 @@ var app = Vue.createApp({
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });                        
             },
 
@@ -202,7 +202,7 @@ var app = Vue.createApp({
 
         //fire when edit experiment model hides, cancel action if nessicary
         hideUpdateTrait:function(){
-            if(app.$data.cancelModal)
+            if(app.cancelModal)
             {
                
             }
@@ -213,7 +213,7 @@ var app = Vue.createApp({
     //run when vue is mounted
     mounted(){
         this.$nextTick(() => {
-            app.$data.loading = false;
+            app.loading = false;
         });
         
         $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
