@@ -14,18 +14,37 @@
                     </div>                  
                     <div class = "col-md-6">
                         <div class="input-group mb-3">
-                            <input id="manualSearchInput" v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Subject Info" aria-label="Manual Add" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()"><span v-html="findButtonText"></span></button>
-                                <button class="btn btn-outline-primary" type="button" v-on:click ="clearSearchForSubject()">Clear</button>
-                            </div>
+                            <input id="manualSearchInput" 
+                                   v-on:keyup.enter="searchForSubject()" 
+                                   v-model="searchText" 
+                                   type="text" 
+                                   class="form-control" 
+                                   placeholder="Subject Info" 
+                                   aria-label="Manual Add" 
+                                   aria-describedby="basic-addon2">
+             
+                            <button class="btn btn-outline-primary" 
+                                    type="button" 
+                                    v-on:click = "searchForSubject()">
+                                <span v-html="findButtonText"></span>
+                            </button>
+
+                            <button class="btn btn-outline-primary" 
+                                    type="button" 
+                                    v-on:click ="clearSearchForSubject()">Clear
+                            </button>
                         </div>  
+
                         <div v-html="searchResultsEmptyText" class="text-center" style="color: red;"></div>                                            
                     </div>
-                    <div class = "col-md-3 text-end">
-                        <div class="form-check">
-                            <input v-model="manualAddSendInvitation" class="form-check-input" type="checkbox">
-                            <label class="form-check-label" for="manualAddSendInvitation">
+                    <div class = "col-md-3">
+                        <div class="form-check float-end">
+                            <input v-model="manualAddSendInvitation" 
+                                   id="manualAddSendInvitation"
+                                   class="form-check-input" 
+                                   type="checkbox">
+                            <label class="form-check-label" 
+                                   for="manualAddSendInvitation">
                                 Send Invitation
                             </label>
                         </div>

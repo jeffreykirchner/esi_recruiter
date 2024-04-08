@@ -27,10 +27,18 @@
                                    aria-describedby="basic-addon2"
                                    min="0"
                                    max="{{max_invitation_block_size}}">
-                            <div class="input-group-append">
-                                <button v-on:click="findSubjectsToInvite()" class="btn btn-outline-primary" type="button">Find <i class="fas fa-search"></i></button>
-                                <button v-on:click="clearSubjectsToInvite()" class="btn btn-outline-primary" type="button">Clear <i class="fas fa-eraser"></i></button>
-                            </div>
+            
+                                <button v-on:click="findSubjectsToInvite()" 
+                                        class="btn btn-outline-primary" 
+                                        type="button">
+                                    Find <i class="fas fa-search"></i>
+                                </button>
+
+                                <button v-on:click="clearSubjectsToInvite()" 
+                                        class="btn btn-outline-primary" 
+                                        type="button">
+                                    Clear <i class="fas fa-eraser"></i>
+                                </button>
                         </div>
                         <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>                        
                     </div>

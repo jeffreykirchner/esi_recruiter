@@ -99,9 +99,9 @@
 
         <!-- content -->
         <div class="row" v-for="(s,index) in d.sessions" v-bind:key="s.id">
-            <div class = "col" style="font-size: 13px;">
+            <div class = "col ps-1 pe-1" style="font-size: 13px;">
 
-                <div class="ps-1 pe-1">
+                <div>
                     <div v-if = "s.name===''">
                     <!-- spacer -->
                         <span>&nbsp</span>
@@ -111,10 +111,8 @@
                         <span v-else>Anytime</span>
                         <span>&nbsp<a v-bind:href="'/experimentSessionRun/' + s.id +'/'" v-bind:class="{is_canceled:s.canceled }">[[s.name]]</a></span>  
                     </div>
-                </div>
-                
+                </div>                
             </div>
-            
-        <div class="row">      
+        </div>      
     </div> 
 </div>
