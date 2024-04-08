@@ -1,5 +1,5 @@
 <!-- calander control -->
-<div class="row mt-4 ms-4 me-4 mb-2" v-cloak>
+<div class="row mt-4 ms-2 me-2 mb-2" v-cloak>
     <div class="col-md-4 text-md-start mb-2 mb-md-0">
         [[currentMonthString]]
         <span class="ms-2" v-if="working">
@@ -48,7 +48,7 @@
 </div>
 <!-- calendar header -->
 <div class="d-none d-md-block">
-    <div class="row ms-4 me-4 bg-light">
+    <div class="row ms-2 me-2 bg-light">
         <div class="col-md border rounded text-center">
             Sunday
         </div>
@@ -74,7 +74,7 @@
 </div>
 
 <!-- calendar body -->
-<div class="row ms-4 me-4 no-gutters" v-for="(w,indexW) in calendar" v-bind:key="w.id">
+<div class="row ms-2 me-2 no-gutters" v-for="(w,indexW) in calendar" v-bind:key="w.id">
     <div class="col-md border rounded no-gutters cell" v-for="(d,indexD) in w" v-bind:key="d.id">
 
         <!-- calendar cell -->
@@ -101,7 +101,7 @@
         <div class="row" v-for="(s,index) in d.sessions" v-bind:key="s.id">
             <div class = "col" style="font-size: 13px;">
 
-                <div class="pl-1 pr-1">
+                <div class="ps-1 pe-1">
                     <div v-if = "s.name===''">
                     <!-- spacer -->
                         <span>&nbsp</span>
