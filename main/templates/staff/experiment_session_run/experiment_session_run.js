@@ -7,9 +7,9 @@ var app = Vue.createApp({
        
     data(){return{
         sessionDay:{{sessionDay_json|safe}},
-        bumpButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Bump',
-        noShowButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> No Show',
-        attendButtonText : '<i class="fa fa-arrow-left" aria-hidden="true"></i> Attend',
+        bumpButtonText : '<i class="fas fa-arrow-left"></i> Bump',
+        noShowButtonText : '<i class="fas fa-arrow-left"></i> No Show',
+        attendButtonText : '<i class="fas fa-arrow-left"></i> Attend',
         waitButtonText : '<i class="fas fa-spinner fa-spin"></i>',
         dateText:'<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>',
         saveButtonText: 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>',

@@ -8,13 +8,8 @@
     </div>
     <div class="card-body">            
         <div class="row">
-            <div class = "col-md text-center">
-                
-                <div class="custom-file">
-                    <input type="file" ref="file" class="custom-file-input" id="file" v-on:change="handleFileUpload()">
-                    <label class="custom-file-label" for="file">[[file_name]]</label>
-                </div> 
-
+            <div class = "col-md text-center">                
+               <input type="file" ref="file" class="form-control" id="file" v-on:change="handleFileUpload()">
             </div>   
         </div>
         <div class="row mt-2">

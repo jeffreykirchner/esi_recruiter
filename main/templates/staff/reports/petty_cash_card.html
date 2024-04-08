@@ -3,7 +3,7 @@
     <div class="card-header">
         Petty Cash Reconciliation Sheet 
         {%if user.is_staff%}
-        <span class="float-right">
+        <span class="float-end">
             <!-- buttons here -->
         </span>
         {%endif%}                                                 
@@ -22,7 +22,7 @@
         </form>                              
     </div>
     <div class="card-footer">       
-        <span class="float-right">            
+        <span class="float-end">            
             <button class="btn btn-outline-primary" type="button" v-on:click = "getPettyCash()">
                 <span v-html ="pettyCashButtonText"></span>
             </button>   

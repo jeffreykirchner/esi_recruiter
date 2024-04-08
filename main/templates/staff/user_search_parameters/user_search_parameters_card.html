@@ -4,9 +4,9 @@
     <div class="card-header" >
         Search for users meeting recruitment parameters
         
-        <div class="float-right">
+        <div class="float-end">
             {%if experiment_title %}
-            <span class="mr-2"> <a href='{%url 'experimentView' experiment_id%}'>{{experiment_title}}</a></span>
+            <span class="me-2"> <a href='{%url 'experimentView' experiment_id%}'>{{experiment_title}}</a></span>
             {%endif%}
             <i v-if="loading" class="fas fa-spinner fa-spin"></i>
         </div>
@@ -146,7 +146,7 @@
         {%endif%}        
     </div>
 
-    <div class="card-footer text-right" v-cloak>
+    <div class="card-footer text-end" v-cloak>
         <button type="button" 
                 class="btn btn-outline-primary" 
                 v-on:click = "search" 

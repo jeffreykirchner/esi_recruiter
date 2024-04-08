@@ -3,7 +3,7 @@
 <div class="card">                  
     <div class="card-header" >
       Default Recruitment Parameters : <a href="{% url 'experimentView' experiment.id %}">{{experiment}}</a>
-        <span class="float-right" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
+        <span class="float-end" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
     </div>
     <div class="card-body">  
         <form id="updateRecruitmentParametersForm" v-show="loading==false">
@@ -95,7 +95,7 @@
             </div>
         </form> <!-- recruitment parameters form -->        
     </div>
-    <div class="card-footer text-right" v-cloak>
+    <div class="card-footer text-end" v-cloak>
         <button type="button" 
                 class="btn btn-outline-primary" 
                 v-on:click = "updateRecruitmentParameters()">
