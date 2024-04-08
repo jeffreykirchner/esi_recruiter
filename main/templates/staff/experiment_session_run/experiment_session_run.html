@@ -13,28 +13,49 @@
     <div class="card-body">  
         <!-- stripe reader -->
         <div v-show="sessionDay.complete === false" class="d-none d-md-block">
-            <div class="row align-items-start">
-                <div class = "col-md-4" style="text-align: right;">
+            <div class="row">
+                <div class = "col-md-4">
                     
-                    <div class="form-check" v-if='isAdmin'>
-                        <input type="checkbox" class="form-check-input" id="autoAdd" v-model='autoAddUsers'>
-                        <label class="form-check-label" for="autoAdd" title="Add user to session after card swipe.">Automatically add subjects</label>
-                    </div>
-                    <div class="form-check" v-if='isAdmin'>
-                        <input type="checkbox" class="form-check-input" id="ignoreConstraints" v-model='ignoreConstraints'>
-                        <label class="form-check-label" for="ignoreConstraints" title="Force-add user to session even if not eligible.">Ignore recruitment constraints</label>
+                    <div class="float-end">
+                        <div class="form-check " v-if='isAdmin'>
+                            <input type="checkbox" 
+                                class="form-check-input" 
+                                id="autoAdd" 
+                                v-model='autoAddUsers'>
+                            <label class="form-check-label" 
+                                for="autoAdd" 
+                                title="Add user to session after card swipe.">
+                                Automatically add subjects
+                            </label>
+                        </div>
+                        
+                        <div class="form-check" v-if='isAdmin'>
+                            <input type="checkbox" 
+                                class="form-check-input" 
+                                id="ignoreConstraints" 
+                                v-model='ignoreConstraints'>
+                            <label class="form-check-label" 
+                                for="ignoreConstraints" 
+                                title="Force-add user to session even if not eligible.">
+                                Ignore recruitment constraints
+                            </label>
+                        </div>
                     </div>
                     
                 </div>
                 <div class = "col-md-4">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
+                    <div class="input-group mb-3">   
                         <span class="input-group-text">Stripe Reader</span>
-                        </div>
-                        <input type="password" autocomplete="off" placeholder="Cursor Here" class="form-control" aria-label="Stripe Reader" v-model="stripeReaderValue" title="Put the mouse cursor here and swipe the subject's id card to check-in.">
-                        <div class="input-group-append">
-                        <span class="input-group-text"><span v-html="stripeReaderSpinner"></span></span>
-                        </div>
+                        <input type="password" 
+                               id="stripeReader"
+                               autocomplete="off" 
+                               placeholder="Cursor Here" 
+                               class="form-control" 
+                               aria-label="Stripe reader input" 
+                               v-model="stripeReaderValue" 
+                               title="Put the mouse cursor here and swipe the subject's id card to check-in.">
+                        <span class="input-group-text"><span v-html="stripeReaderSpinner"></span>
+
                     </div>
                 </div>
                 <div class = "col text-start pt-3">
