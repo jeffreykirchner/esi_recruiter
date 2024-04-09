@@ -222,11 +222,11 @@
                                 <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
                                     <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
                                             aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
-                                            <span v-html="fillEarningsWithFixedButtonText"></span>
-                                        </button>
-                                    </div>
+                                    
+                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
+                                        <span v-html="fillEarningsWithFixedButtonText"></span>
+                                    </button>
+                                    
                                 </div>                                                                                                                    
                             </td>
                             <td class="text-nowrap text-center">                                        
