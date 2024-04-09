@@ -634,13 +634,19 @@ class experiment_session_days(models.Model):
 
             #get list of valid users
             u_list_u2_json = [{"id" : i.user.id} for i in u_list_u]
+            
+            #start time
+            start_time = datetime.now()
 
             user_list_valid_clean = []
             if u_list_u2_json != []:
                 user_list_valid_clean = self.experiment_session.getValidUserList_forward_check(u_list_u2_json,False,0,0,[],False,len(u_list_u2_json))
 
+            #log elapsed time
+            logger.info(f'Experiment Session Day Json, elapsed time to get getValidUserList_forward_check: {datetime.now() - start_time}')
+
             #logger.info()
-            logger.info(f'Valid list session day {self.id}, {user_list_valid_clean}')
+            #logger.info(f'Valid list session day {self.id}, {user_list_valid_clean}')
 
             u_list_u_json = [{"id":i.id,
                               "confirmed":i.bumped,
@@ -649,9 +655,10 @@ class experiment_session_days(models.Model):
                                       "last_name":i.user.last_name.capitalize(),},
                               "allowDelete" : i.allowDelete(),
                               "allowConfirm" : i.allowConfirm(),
-                              "alreadyAttending":i.getAlreadyAttended(),
                               "valid" :  0}
                             for i in u_list_u]
+            
+            logger.info(f'Experiment Session Day Json, elapsed time to build u_list_u_json: {datetime.now() - start_time}')
 
             #mark users that do not violate recruitment parameters
             for u in u_list_u_json:
@@ -680,7 +687,6 @@ class experiment_session_days(models.Model):
                                                         "first_name":i.user.first_name.capitalize(),
                                                         "last_name":i.user.last_name.capitalize(),},
                                                "allowDelete" : i.allowDelete(),
-                                               "alreadyAttending":i.getAlreadyAttended(),
                                                "allowConfirm" : i.allowConfirm(),}
                                              for i in u_list_c],
 
