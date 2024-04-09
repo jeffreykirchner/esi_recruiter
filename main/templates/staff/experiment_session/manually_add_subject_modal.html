@@ -4,8 +4,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Manually Add Subject to Session</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    
                 </button>
             </div>
             <div class="modal-body">   
@@ -14,18 +14,37 @@
                     </div>                  
                     <div class = "col-md-6">
                         <div class="input-group mb-3">
-                            <input id="manualSearchInput" v-on:keyup.enter="searchForSubject()" v-model="searchText" type="text" class="form-control" placeholder="Subject Info" aria-label="Manual Add" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" v-on:click = "searchForSubject()"><span v-html="findButtonText"></span></button>
-                                <button class="btn btn-outline-primary" type="button" v-on:click ="clearSearchForSubject()">Clear</button>
-                            </div>
+                            <input id="manualSearchInput" 
+                                   v-on:keyup.enter="searchForSubject()" 
+                                   v-model="searchText" 
+                                   type="text" 
+                                   class="form-control" 
+                                   placeholder="Subject Info" 
+                                   aria-label="Manual Add" 
+                                   aria-describedby="basic-addon2">
+             
+                            <button class="btn btn-outline-primary" 
+                                    type="button" 
+                                    v-on:click = "searchForSubject()">
+                                <span v-html="findButtonText"></span>
+                            </button>
+
+                            <button class="btn btn-outline-primary" 
+                                    type="button" 
+                                    v-on:click ="clearSearchForSubject()">Clear
+                            </button>
                         </div>  
+
                         <div v-html="searchResultsEmptyText" class="text-center" style="color: red;"></div>                                            
                     </div>
-                    <div class = "col-md-3 text-right">
-                        <div class="form-check">
-                            <input v-model="manualAddSendInvitation" class="form-check-input" type="checkbox">
-                            <label class="form-check-label" for="manualAddSendInvitation">
+                    <div class = "col-md-3">
+                        <div class="form-check float-end">
+                            <input v-model="manualAddSendInvitation" 
+                                   id="manualAddSendInvitation"
+                                   class="form-check-input" 
+                                   type="checkbox">
+                            <label class="form-check-label" 
+                                   for="manualAddSendInvitation">
                                 Send Invitation
                             </label>
                         </div>
@@ -55,7 +74,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
-                                    <td class="text-left text-nowrap">
+                                    <td class="text-start text-nowrap">
                                         <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
                                             <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
                                         </a>

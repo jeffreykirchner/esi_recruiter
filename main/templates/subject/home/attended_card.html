@@ -2,7 +2,7 @@
     <div class="card-header">
         Experiments Attended 
 
-        <div class="float-right" v-show="waiting">
+        <div class="float-end" v-show="waiting">
             <i class="fas fa-spinner fa-spin"></i>
         </div>                                                  
     </div>
@@ -32,7 +32,7 @@
                         <div v-else>
                             <span v-html="'$' + s.total_earnings"></span>
                         </div>
-                        <div class="text-center mt-2">
+                        <div class="text-center mt-2 mb-2">
                             <a v-bind:href="'/subjectConsent/'+s.session_id+'/session/view/'" title="View Consent Form" class="border p-2 rounded border-primary">
                                 <i class="fas fa-scroll"></i>
                             </a>

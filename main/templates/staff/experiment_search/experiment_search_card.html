@@ -2,7 +2,7 @@
     <div class="card-header">
         <span class="align-middle">Search Experiments</span>               
         
-        <span class="float-right">
+        <span class="float-end">
             <button class="btn btn-outline-success" type="button" v-on:click = "createExperiment()">
                 <span v-html="createExperimentButtonText"></span>
             </button>
@@ -25,8 +25,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 text-center text-md-left">                    
-                <button class="btn btn-outline-primary" type="button" v-on:click = "getAllExperiments()">
+            <div class="col-md-3 text-center text-md-start">                    
+                <button class="btn btn-outline-primary me-2" type="button" v-on:click = "getAllExperiments()">
                     <span v-html="showAllButtonText"></span>
                 </button> 
                 <button class="btn btn-outline-primary" type="button" v-on:click = "getOpenExperiments()">

@@ -5,7 +5,7 @@
       Parameters Session Day : <a href="{% url 'experimentView' session.experiment.id %}">{{session.experiment}}</a> | 
                                <a href="{% url 'experimentSessionView' session.id %}">Session</a>
 
-        <span class="float-right" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
+        <span class="float-end" v-if="loading"><i class="fas fa-spinner fa-spin"></i></span>
     </div>
     <div class="card-body">  
         <form id="updateRecruitmentParametersForm" v-show="loading==false">
@@ -97,7 +97,7 @@
             </div>
         </form> <!-- recruitment parameters form -->        
     </div>
-    <div class="card-footer text-right" v-cloak>
+    <div class="card-footer text-end" v-cloak>
         <button type="button" class="btn btn-outline-primary" v-on:click = "updateRecruitmentParameters()">
             <span v-html="buttonText1"></span>
         </button>

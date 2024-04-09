@@ -1374,8 +1374,8 @@ var app = Vue.createApp({
 //         date: 'far fa-calendar',
 //         up: 'fas fa-arrow-up',
 //         down: 'fas fa-arrow-down',
-//         previous: 'fas fa-chevron-left',
-//         next: 'fas fa-chevron-right',
+//         previous: 'fas fa-chevron-start',
+//         next: 'fas fa-chevron-end',
 //         today: 'fas fa-calendar-check',
 //         clear: 'far fa-trash-alt',
 //         close: 'far fa-times-circle'
