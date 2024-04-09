@@ -212,7 +212,7 @@ var app = Vue.createApp({
 
     //run when vue is mounted
     mounted(){
-        this.$nextTick(() => {
+        Vue.nextTick(() => {
             app.loading = false;
         });
         
