@@ -14,11 +14,13 @@
                     <div class = "col" style="text-align: center;">
                         
                         <div class="custom-file">
-                            <input type="file"
-                                   ref="file"
-                                   class="custom-file-input"
-                                   id="parameterFileUpload"
+                           
+                            <input type="file" 
+                                   ref="file" 
+                                   class="form-control" 
+                                   id="parameterFileUpload" 
                                    v-on:change="handleFileUpload()">
+                                   
                             <label class="custom-file-label" for="file">[[upload_file_name]]</label>
                         </div> 
 
@@ -57,7 +59,7 @@
                     </div>
 
                     <!-- upload button -->
-                    <div class = "col text-center pt-3">
+                    <div class = "col text-center pt-4">
                         <button class="btn btn-outline-primary"
                                 title="Upload the earnings text listed above."
                                 v-on:click="uploadEarningsTextJS()"><span v-html="uploadEarningsTextBoxButtonText"></span>
@@ -66,9 +68,9 @@
                 </div>
 
                 {%if user.is_staff%}
-                <div class="row mt-4">
-                    <div class = "col text-end">
-                        <div class="form-check">
+                <div class="row mt-2">
+                    <div class = "col">
+                        <div class="form-check float-end">
                             <input type="checkbox"
                                    title="If subjects are not in the session, add them."
                                    class="form-check-input"

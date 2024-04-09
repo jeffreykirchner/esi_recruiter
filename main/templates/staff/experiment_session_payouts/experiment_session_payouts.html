@@ -165,15 +165,21 @@
     </div>
     <div class="row mt-4 d-print-none">
         <div class = "col-sm-6 float-center">                                    
-            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click="getSession('payouts')">
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm me-2" 
+                    v-on:click="getSession('payouts')">
                 Show Attendees
             </button>    
             
-            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('bumps')">
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm d-print-none me-2" 
+                    v-on:click = "getSession('bumps')">
                 Show Bumps 
             </button>
             
-            <button type="button" class="btn btn-outline-primary btn-sm d-print-none" v-on:click = "getSession('consent')" v-if="consentForm && consentForm.agreement_required">
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm d-print-none" 
+                    v-on:click = "getSession('consent')" v-if="consentForm && consentForm.agreement_required">
                 Show Consent 
             </button>
         </div>

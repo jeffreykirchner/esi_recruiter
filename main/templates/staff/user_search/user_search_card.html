@@ -50,12 +50,21 @@
             <div class="col-md-6 text-center">
                 
                     <div class="input-group mb-3">
-                        <input  v-on:keyup.enter="getUsers()" id="idsearchInfo" v-model="searchInfo" type="text" class="form-control" placeholder="User Info" aria-label="User Info" aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" v-on:click = "getUsers()">
-                                <span v-html="searchButtonText"></span>
-                            </button>
-                        </div>
+                        <input  v-on:keyup.enter="getUsers()" 
+                                id="idsearchInfo" 
+                                v-model="searchInfo" 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="User Info" 
+                                aria-label="User Info" 
+                                aria-describedby="User search input">
+                        
+                        <button class="btn btn-outline-primary" 
+                                type="button" 
+                                v-on:click = "getUsers()">
+                            <span v-html="searchButtonText"></span>
+                        </button>
+                        
                     </div>
                 
             </div>
