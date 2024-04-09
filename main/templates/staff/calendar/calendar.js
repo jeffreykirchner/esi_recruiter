@@ -23,6 +23,7 @@ var app = Vue.createApp({
         jump_to_month : "",
         working : true,
         load_url_month : true,
+        calendarDayModal : null,
     }},
 
     methods:{
@@ -124,7 +125,7 @@ var app = Vue.createApp({
             app.displayDay.sessionLocations = displayDayLocations;
             app.displayDay.dayString = dayString;
 
-            $('#calendarDayModal').modal('toggle');
+           app.calendarDayModal.show();
 
         },
 
@@ -170,6 +171,7 @@ var app = Vue.createApp({
     },            
 
     mounted(){
-        this.getMonth();                          
+        this.getMonth();  
+        this.calendarDayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('calendarDayModal'), {keyboard: false})                     
     },
 }).mount('#app');
