@@ -92,17 +92,16 @@ class experimentForm1(forms.ModelForm):
                                                          "rows":"12"}))               
 
     survey = forms.ChoiceField(label="Online Survey (no accept button)",
-                                    choices=(('true', "Yes"), ('false', "No")),
-                                    widget=forms.Select(attrs={"v-model":"experiment.survey",
-                                                                    "v-on:change":"mainFormChange1",
-                                                                    "v-bind:disabled":"experiment.confirmationFound === true"}))                                                                                                                                                                                                                                                    
+                               choices=((True, "Yes"), (False, "No")),
+                               widget=forms.Select(attrs={"v-model":"experiment.survey",
+                                                          "v-on:change":"mainFormChange1",
+                                                          "v-bind:disabled":"experiment.confirmationFound === true"}))                                                                                                                                                                                                                                                    
 
     invite_to_all = forms.ChoiceField(label="Invite Subjects to All Future Sessions",
-                                    choices=(('true', "Yes"), ('false', "No")),
-                                    widget=forms.Select(attrs={"v-model":"experiment.invite_to_all",
-                                                                    "v-on:change":"mainFormChange1",
-                                                                    })) 
-    
+                                      choices=((True, "Yes"), (False, "No")),
+                                      widget=forms.Select(attrs={"v-model":"experiment.invite_to_all",
+                                                                        "v-on:change":"mainFormChange1",})) 
+                                                                        
     special_instructions_default = forms.CharField(label='Special Instructions for Subjects, i.e., Zoom Meeting (default)',
                                                    required=False,
                                                    widget=forms.TextInput(attrs={"v-model":"experiment.special_instructions_default",
@@ -129,36 +128,36 @@ class experimentForm1(forms.ModelForm):
 
         return length_default
     
-    def clean_survey(self):
-        '''
-        clean survey boolean
-        '''
-        logger = logging.getLogger(__name__)
-        logger.info("Clean survey")
+    # def clean_survey(self):
+    #     '''
+    #     clean survey boolean
+    #     '''
+    #     logger = logging.getLogger(__name__)
+    #     logger.info("Clean survey")
 
-        val = self.data['survey']
+    #     val = self.data['survey']
 
-        if val == 'true':
-            return True
+    #     if val == 'True':
+    #         return True
 
-        if val == 'false':
-            return False
+    #     if val == 'False':
+    #         return False
 
-        raise forms.ValidationError('Invalid Entry')
+    #     raise forms.ValidationError('Invalid Entry')
     
-    def clean_invite_to_all(self):
-        '''
-        clean invite_to_all boolean
-        '''
-        logger = logging.getLogger(__name__)
-        logger.info("Clean invite_to_all")
+    # def clean_invite_to_all(self):
+    #     '''
+    #     clean invite_to_all boolean
+    #     '''
+    #     logger = logging.getLogger(__name__)
+    #     logger.info("Clean invite_to_all")
 
-        val = self.data['invite_to_all']
+    #     val = self.data['invite_to_all']
 
-        if val == 'true':
-            return True
+    #     if val == 'True':
+    #         return True
 
-        if val == 'false':
-            return False
+    #     if val == 'False':
+    #         return False
 
-        raise forms.ValidationError('Invalid Entry')
+    #     raise forms.ValidationError('Invalid Entry')

@@ -40,10 +40,10 @@ class experiments(models.Model):
     title = models.CharField(max_length=300, default="***New Experiment***")                    #name of experimet 
     experiment_manager = models.CharField(max_length=300, default="***Manager Here***")         #faculty running experiment
     
-    length_default = models.IntegerField(default=60)                                #default length of experiment
-    notes = models.TextField(default="")                                            #notes about the experiment
-    showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)     #amount subjects earn for attending by default
-    special_instructions_default = models.CharField(max_length=300, default="")     #special instructions for subject, ie online zoom meeting
+    length_default = models.IntegerField(default=60)                                                       #default length of experiment
+    notes = models.TextField(default="", null=True, blank=True)                                            #notes about the experiment
+    showUpFee = models.DecimalField(decimal_places=6, max_digits=10, default=0)                            #amount subjects earn for attending by default
+    special_instructions_default = models.CharField(max_length=300, default="", null=True, blank=True)     #special instructions for subject, ie online zoom meeting
 
     survey = models.BooleanField(default=False, verbose_name="Survey")              #experiment is a online survey
 
@@ -66,8 +66,9 @@ class experiments(models.Model):
     #called when model form method is used
     def clean(self):
         for field in self._meta.fields:
-            if isinstance(field, (models.CharField, models.TextField)):
-                setattr(self, field.name, getattr(self, field.name).strip()) 
+                if isinstance(field, (models.CharField, models.TextField)):
+                    if getattr(self, field.name):
+                        setattr(self, field.name, getattr(self, field.name).strip()) 
     
     #check if experiment can be deleted
     def allowDelete(self):
@@ -185,8 +186,8 @@ class experiments(models.Model):
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),
-            "survey":self.survey,
-            "invite_to_all":self.invite_to_all,
+            "survey": "True" if self.survey else "False",
+            "invite_to_all": "True" if self.invite_to_all else "False",
         }
 
 #delete recruitment parameters when deleted

@@ -47,6 +47,11 @@ var app = Vue.createApp({
         working : false,
         add_to_allow_list:"",
         allow_list_error:"",
+
+        //modal instances
+        setupModalCenter:null,
+        editTraitsModal:null,
+        updateTraitModal:null,
     }},
 
     methods:{       
@@ -79,25 +84,34 @@ var app = Vue.createApp({
                     e.stopImmediatePropagation();
                 }
             });
+
+            //setup modals
+            app.setupModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('setupModalCenter'), {keyboard: false});
+            app.editTraitsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editTraitsModal'), {keyboard: false});
+            app.updateTraitModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('updateTraitModal'), {keyboard: false});
+
+            document.getElementById('setupModalCenter').addEventListener('hidden.bs.modal', app.hideEditExperiment);
+            document.getElementById('editTraitsModal').addEventListener('hidden.bs.modal', app.hideEditTraits);
+            document.getElementById('updateTraitModal').addEventListener('hidden.bs.modal', app.hideUpdateTrait);
         },
 
         clearMainFormErrors:function clearMainFormErrors(){
             for(var item in app.experiment)
             {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
             }
 
             for(var item in app.recruitment_params)
-            {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+            {                
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
             }
 
             for(var item in app.current_trait)
-            {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+            {               
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
             }
         },
 
@@ -181,31 +195,19 @@ var app = Vue.createApp({
         },
 
         //display form errors
-        displayErrors:function displayErrors(errors){
-            for(var e in errors)
+        displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str); 
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView(); 
-
-                //scroll error into view
-                if(e == "institution")
-                {
-                    var myElement = document.getElementById('id_errors_institution');
-                    var topPos = myElement.offsetTop;
-                    document.getElementById('institution_list_area').scrollTop = topPos;
-                }
-
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
         },                   
 
@@ -219,7 +221,8 @@ var app = Vue.createApp({
             
             axios.post('/experiment/{{id}}/', {
                     status :"update1" ,                                
-                    formData : $("#mainForm1").serializeArray(),                                                              
+                    //formData : $("#mainForm1").serializeArray(),  
+                    formData : app.experiment,                                                            
                 })
                 .then(function (response) {     
                                                    
@@ -231,7 +234,7 @@ var app = Vue.createApp({
                     {                                 
                         app.experiment =  response.data.experiment;  
                         app.updateDisplayLists();
-                        $('#setupModalCenter').modal('toggle');
+                        app.setupModalCenter.toggle();
                     }
                     else
                     {      
@@ -327,7 +330,7 @@ var app = Vue.createApp({
                     {
                         app.recruitment_params = response.data.recruitment_params;  
                         app.updateDisplayLists();   
-                        $('#updateTraitModal').modal('toggle');   
+                        app.updateTraitModal.toggle();
                     }
                     else
                     {
@@ -420,7 +423,7 @@ var app = Vue.createApp({
         showEditTraits:function showEditTraits(){
             // app.cancelModal=true;
             // app.recruitmentParamsBeforeEdit = Object.assign({}, app.recruitment_params);
-            $('#editTraitsModal').modal('show');
+            app.editTraitsModal.show();
             //app.clearMainFormErrors();
         },
 
@@ -441,7 +444,7 @@ var app = Vue.createApp({
             tinymce.get("id_reminderText").setContent(this.experiment.reminderText);
             tinymce.get("id_invitationText").setContent(this.experiment.invitationText);
 
-            $('#setupModalCenter').modal('show');
+            app.setupModalCenter.show();
             app.clearMainFormErrors();
             
         },
@@ -467,7 +470,7 @@ var app = Vue.createApp({
             app.current_trait.trait_id = tc.trait_id;
             app.current_trait.include_if_in_range = tc.include_if_in_range;
 
-            $('#updateTraitModal').modal('show');
+            app.updateTraitModal.show();
             app.clearMainFormErrors();
         },
 
@@ -481,10 +484,6 @@ var app = Vue.createApp({
 
         // fire when edit experiment model is shown, save copy for cancel
         showEditRecruitment:function showEditRecruitment(){
-            // app.cancelModal=true;
-            // app.recruitment_paramsBeforeEdit = Object.assign({}, app.recruitment_params);
-            // $('#recruitmentModalCenter').modal('show');
-            // app.clearMainFormErrors();
             window.open("{%url 'experimentParametersView' id %}","_self");
         },
 
@@ -605,10 +604,6 @@ var app = Vue.createApp({
 
     mounted(){
         this.getExperiment();
-        $('#setupModalCenter').on("hidden.bs.modal", this.hideEditExperiment);
-        $('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
-        $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
-        $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
     },                 
 
 }).mount('#app');
