@@ -30,7 +30,7 @@ var app = Vue.createApp({
 
             axios.post('{{ request.path }}', {
                         action :"getConsentForm" ,   
-                        formData : $("#consentFormReportForm").serializeArray(),                                                                                                                          
+                        formData : {"consent_form":app.consent_form_choice},                                                                                                                          
                         })
                         .then(function (response) {     
                             
