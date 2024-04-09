@@ -554,7 +554,7 @@ class experiment_sessions(models.Model):
                                       .filter(profile__subject_type__in = self.recruitment_params.subject_type.all())     
 
         if len(u_list) > 0:
-            user_list_valid = User.objects.filter(id__in=[u['id'] for u in u_list])
+            user_list_valid = user_list_valid.filter(id__in=[u['id'] for u in u_list])
         
         #logger.info(f'getValidUserList_forward_check found {user_list_valid}')
 
