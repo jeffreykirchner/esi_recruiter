@@ -63,7 +63,7 @@
                 {{form1.survey.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-if="experiment.survey=='True'">Yes</span>
+                <span v-if="experiment.survey">Yes</span>
                 <span v-else>No</span>
             </div>               
         </div>
@@ -98,7 +98,7 @@
                 {{form1.invite_to_all.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-if="experiment.invite_to_all=='True'">Yes</span>
+                <span v-if="experiment.invite_to_all">Yes</span>
                 <span v-else>No</span>
             </div>               
         </div>

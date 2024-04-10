@@ -92,13 +92,13 @@ class experimentForm1(forms.ModelForm):
                                                          "rows":"12"}))               
 
     survey = forms.ChoiceField(label="Online Survey (no accept button)",
-                               choices=((True, "Yes"), (False, "No")),
+                               choices=((1, "Yes"), (0, "No")),
                                widget=forms.Select(attrs={"v-model":"experiment.survey",
                                                           "v-on:change":"mainFormChange1",
                                                           "v-bind:disabled":"experiment.confirmationFound === true"}))                                                                                                                                                                                                                                                    
 
     invite_to_all = forms.ChoiceField(label="Invite Subjects to All Future Sessions",
-                                      choices=((True, "Yes"), (False, "No")),
+                                      choices=((1, "Yes"), (0, "No")),
                                       widget=forms.Select(attrs={"v-model":"experiment.invite_to_all",
                                                                         "v-on:change":"mainFormChange1",})) 
                                                                         

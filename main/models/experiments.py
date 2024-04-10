@@ -186,8 +186,8 @@ class experiments(models.Model):
             "institution": [str(i.id) for i in self.institution.all()],
             "institution_full": [i.json() for i in self.institution.all().order_by('name')],    
             "confirmationFound":self.checkForConfirmation(),
-            "survey": "True" if self.survey else "False",
-            "invite_to_all": "True" if self.invite_to_all else "False",
+            "survey": 1 if self.survey else 0,
+            "invite_to_all":1 if self.invite_to_all else 0,
         }
 
 #delete recruitment parameters when deleted
