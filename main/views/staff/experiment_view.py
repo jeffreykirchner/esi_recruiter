@@ -358,10 +358,10 @@ def updateTrait(data,id):
 
     tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
 
-    form_data_dict = {} 
+    form_data_dict = data["formData"] 
 
-    for field in data["formData"]:
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     form_data_dict[field["name"]] = field["value"]
 
     form = TraitConstraintForm(form_data_dict,instance=tc)
 

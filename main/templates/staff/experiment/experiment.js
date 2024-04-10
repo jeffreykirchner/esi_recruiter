@@ -13,7 +13,7 @@ var app = Vue.createApp({
         recruitment_params:{allowed_list_users:[]},
         current_trait:{
             id:0,
-            trait_id:0,
+            trait:0,
             min_value:0,
             max_vaue:0,
             include_if_in_range:true,
@@ -52,6 +52,7 @@ var app = Vue.createApp({
         setupModalCenter:null,
         editTraitsModal:null,
         updateTraitModal:null,
+        editAllowListModal:null,
     }},
 
     methods:{       
@@ -89,6 +90,7 @@ var app = Vue.createApp({
             app.setupModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('setupModalCenter'), {keyboard: false});
             app.editTraitsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editTraitsModal'), {keyboard: false});
             app.updateTraitModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('updateTraitModal'), {keyboard: false});
+            app.editAllowListModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editAllowListModal'), {keyboard: false});
 
             document.getElementById('setupModalCenter').addEventListener('hidden.bs.modal', app.hideEditExperiment);
             document.getElementById('editTraitsModal').addEventListener('hidden.bs.modal', app.hideEditTraits);
@@ -221,7 +223,6 @@ var app = Vue.createApp({
             
             axios.post('/experiment/{{id}}/', {
                     status :"update1" ,                                
-                    //formData : $("#mainForm1").serializeArray(),  
                     formData : app.experiment,                                                            
                 })
                 .then(function (response) {     
@@ -317,8 +318,8 @@ var app = Vue.createApp({
             app.updateTraitButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             axios.post('/experiment/{{id}}/', {
                     status : "updateTrait",
-                    trait_id:app.current_trait.id,
-                    formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
+                    trait_id:app.current_trait.id,        
+                    formData : app.current_trait,                                                                                                                                                    
                 })
                 .then(function (response) {                                   
                     
@@ -467,7 +468,7 @@ var app = Vue.createApp({
             app.current_trait.id = id;
             app.current_trait.min_value = tc.min_value;
             app.current_trait.max_value = tc.max_value;
-            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.trait = tc.trait;
             app.current_trait.include_if_in_range = tc.include_if_in_range;
 
             app.updateTraitModal.show();
@@ -598,7 +599,7 @@ var app = Vue.createApp({
         showEditAllowList:function showEditAllowList(){         
             app.clearMainFormErrors();              
            
-            $('#editAllowListModal').modal('show');
+            app.editAllowListModal.show();
         },
     },
 
