@@ -1517,7 +1517,7 @@ class experiment_sessions(models.Model):
             "id" : self.id,            
             "experiment" : self.experiment.id,
             "canceled" : self.canceled,
-            "incident_occurred" : "True" if self.incident_occurred else "False",
+            "incident_occurred" : 1 if self.incident_occurred else 0,
             "consent_form" : self.consent_form.id if self.consent_form else None,
             "consent_form_full" : self.consent_form.json() if self.consent_form else None,
             "budget" : self.budget.id if self.budget else None,

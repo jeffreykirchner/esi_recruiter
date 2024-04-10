@@ -22,7 +22,7 @@ var app = Vue.createApp({
             trait_id:0,
             min_value:0,
             max_vaue:0,
-            include_if_in_range:"true",
+            include_if_in_range:1,
         },  
         loginLast90Days:false,
     }},
@@ -123,7 +123,7 @@ var app = Vue.createApp({
                      "min_value":"0.00",
                      "max_value":"10.00",
                      "recruitment_parameter_id":0,
-                     "include_if_in_range":true};
+                     "include_if_in_range":1};
             
             app.recruitment_params.trait_constraints.push(trait);
         },

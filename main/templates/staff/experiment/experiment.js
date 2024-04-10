@@ -16,7 +16,7 @@ var app = Vue.createApp({
             trait:0,
             min_value:0,
             max_vaue:0,
-            include_if_in_range:true,
+            include_if_in_range:1,
         },                    
         sessions:[],       
         sessions_count:0,                

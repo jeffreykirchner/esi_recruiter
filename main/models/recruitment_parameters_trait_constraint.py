@@ -46,5 +46,5 @@ class Recruitment_parameters_trait_constraint(models.Model):
             "min_value":self.min_value,
             "max_value":self.max_value,
             "recruitment_parameter_id":self.recruitment_parameter.id,
-            "include_if_in_range": "True" if self.include_if_in_range else "False",
+            "include_if_in_range": 1 if self.include_if_in_range else 0,
         }

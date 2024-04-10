@@ -34,7 +34,7 @@ class experimentSessionForm1(forms.ModelForm):
 
     incident_occurred = forms.ChoiceField(label='IRB Incident Occurred',
                                           required=False,
-                                          choices=((True, 'Yes'), (False,'No' )),
+                                          choices=((1, 'Yes'), (0,'No' )),
                                           widget=forms.Select(attrs={"v-model":"session.incident_occurred",}))
 
     special_instructions = forms.CharField(label='Special Instructions for Subjects, i.e., Zoom Meeting',

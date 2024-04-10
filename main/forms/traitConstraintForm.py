@@ -12,7 +12,7 @@ class TraitConstraintForm(forms.ModelForm):
                                    widget=forms.Select(attrs={"v-model":"current_trait.trait"}))
 
     include_if_in_range = forms.ChoiceField(label="Mode",
-                                      choices=((True, "Include if in range."), (False, "Exclude if in range.")),
+                                      choices=((1, "Include if in range."), (0, "Exclude if in range.")),
                                       widget=forms.Select(attrs={"v-model":"current_trait.include_if_in_range",}))
 
     min_value = forms.DecimalField(label='Minimum Value',
