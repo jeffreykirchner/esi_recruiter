@@ -819,19 +819,19 @@ def updateSessionDay(data,id):
     es = experiment_sessions.objects.get(id=id)
     esd = experiment_session_days.objects.get(id = data["id"])           
 
-    form_data_dict = {}            
+    form_data_dict = data["formData"]           
 
-    for field in data["formData"]:           
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:           
+    #     form_data_dict[field["name"]] = field["value"]
 
     if es.getConfirmedCount() > 0:
         logger.warning("Cannot change session date or length when subjects have confirmed")
         form_data_dict["date"] = esd.getDateStringTZOffsetInput()
         form_data_dict["length"] = str(esd.length)
-        form_data_dict["enable_time"] = 'true' if esd.enable_time else 'false'
+        form_data_dict["enable_time"] = 1 if esd.enable_time else 0
         #status = "fail"
     
-    if form_data_dict["custom_reminder_time"] == 'false':
+    if form_data_dict["custom_reminder_time"] == 0:
         form_data_dict["reminder_time"] = form_data_dict["date"]
 
     form = experimentSessionForm2(form_data_dict,instance=esd)   

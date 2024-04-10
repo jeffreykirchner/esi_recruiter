@@ -1467,7 +1467,7 @@ class experiment_sessions(models.Model):
                                           "date" : esd.date,
                                           "date_end" : esd.date_end,
                                           "date_html" : esd.getDateStringHTML(),
-                                          "enable_time" : esd.enable_time,
+                                          "enable_time" : 1 if esd.enable_time else 0,
                                           "length" : esd.length,
                                           "hours_until_start": esd.hoursUntilStart(),
                                           "hours_until_start_str":  esd.hoursUntilStartHTML(),

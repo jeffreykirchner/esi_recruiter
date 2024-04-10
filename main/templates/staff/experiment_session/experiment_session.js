@@ -32,7 +32,7 @@ var app = Vue.createApp({
             trait_id:0,
             min_value:0,
             max_vaue:0,
-            include_if_in_range:true,
+            include_if_in_range:1,
         },
         recruitmentTitle:"Recruitment Parameters",
         subjectInvitations:[],                     //list of subject invitations
@@ -76,7 +76,19 @@ var app = Vue.createApp({
             sideBySide: true,
             },   
         first_load : false,              //true after first load done   
-        working : false,                   
+        working : false,    
+        
+        //modals
+        sessionModal : null,
+        editSessionModal : null,
+        subjectsModalCenter : null,
+        inviteSubjectsModalCenter : null,
+        cancelSessionModalCenter : null,
+        manuallyAddSubjectsModalCenter : null,
+        sendMessageModalCenter : null,
+        editInvitationTextModal : null,
+        editTraitsModal : null,
+        updateTraitModal : null,
     }},
 
     methods:{ 
@@ -106,23 +118,35 @@ var app = Vue.createApp({
             });
     
             // Prevent Bootstrap dialog from blocking focusin
-            $(document).on('focusin', function(e) {
-                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+            document.addEventListener('focusin', (e) => {
+                if (e.target.closest(".tox-tinymce-aux, .moxman-window, .tam-assetmanager-root") !== null) {
                     e.stopImmediatePropagation();
                 }
             });
 
-            $('#sessionModal').on("hidden.bs.modal", this.hideSetup);
-            $('#editSessionModal').on("hidden.bs.modal", this.hideEditSession);
-            $('#subjectsModalCenter').on("hidden.bs.modal", this.hideShowSubjects);
-            $('#id_date').on("dp.hide",this.mainFormChange2);
-            $('#inviteSubjectsModalCenter').on("hidden.bs.modal", this.hideInviteSubjects);
-            $('#cancelSessionModalCenter').on("hidden.bs.modal", this.hideCancelSession);
-            $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideManuallyAddSubjects);
-            $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
-            $('#manuallyAddSubjectsModalCenter').on("hidden.bs.modal", this.hideEditInvitation);
-            $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
-            $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
+            app.sessionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('sessionModal'), {keyboard: false});
+            app.editSessionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editSessionModal'), {keyboard: false});
+            app.subjectsModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('subjectsModalCenter'), {keyboard: false});
+            app.inviteSubjectsModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('inviteSubjectsModalCenter'), {keyboard: false});
+            app.cancelSessionModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('cancelSessionModalCenter'), {keyboard: false});
+            app.manuallyAddSubjectsModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('manuallyAddSubjectsModalCenter'), {keyboard: false});
+            app.sendMessageModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('sendMessageModalCenter'), {keyboard: false});
+            app.editInvitationTextModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editInvitationTextModal'), {keyboard: false});
+            app.editTraitsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editTraitsModal'), {keyboard: false});
+            app.updateTraitModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('updateTraitModal'), {keyboard: false});
+
+            document.getElementById('sessionModal').addEventListener('hidden.bs.modal', app.hideSetup);
+            document.getElementById('editSessionModal').addEventListener('hidden.bs.modal', app.hideEditSession);
+            document.getElementById('subjectsModalCenter').addEventListener('hidden.bs.modal', app.hideShowSubjects);
+            document.getElementById('inviteSubjectsModalCenter').addEventListener('hidden.bs.modal', app.hideInviteSubjects);
+            document.getElementById('cancelSessionModalCenter').addEventListener('hidden.bs.modal', app.hideCancelSession);
+            document.getElementById('manuallyAddSubjectsModalCenter').addEventListener('hidden.bs.modal', app.hideManuallyAddSubjects);
+            document.getElementById('sendMessageModalCenter').addEventListener('hidden.bs.modal', app.hideSendMessage);
+            document.getElementById('editInvitationTextModal').addEventListener('hidden.bs.modal', app.hideEditInvitation);
+            document.getElementById('editTraitsModal').addEventListener('hidden.bs.modal', app.hideEditTraits);
+            document.getElementById('updateTraitModal').addEventListener('hidden.bs.modal', app.hideUpdateTrait);
+
+            // $('#id_date').on("dp.hide",this.mainFormChange2);
         },    
 
         //remove all the form errors
@@ -130,14 +154,14 @@ var app = Vue.createApp({
 
             for(var item in app.currentSessionDay)
             {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
             }
 
             for(var item in app.session)
             {
-                $("#id_" + item).attr("class","form-control");
-                $("#id_errors_" + item).remove();
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
             }
         },
 
@@ -287,7 +311,7 @@ var app = Vue.createApp({
                 else
                 {      
                                                                 
-                    //$('#inviteSubjectsModalCenter').modal('toggle');                             
+                                          
                 }      
                 app.subjectInvitationList +=  response.data.mailResult.mail_count + " invitations sent.";  
                 app.inviteButtonText="";    
@@ -403,7 +427,7 @@ var app = Vue.createApp({
                 }
             }
 
-            var formData =  $("#mainForm2").serializeArray();
+            // var formData =  $("#mainForm2").serializeArray();
 
             //tz = moment.tz(formData[1].value)
 
@@ -412,7 +436,7 @@ var app = Vue.createApp({
             axios.post('{{request.get_full_path}}', {
                     status:"updateSessionDay",   
                     id:app.currentSessionDay.id, 
-                    formData : formData,
+                    formData : app.currentSessionDay,
                     sessionCanceledChangedMessage:sessionCanceledChangedMessage,                                                          
                 })
                 .then(function (response) {
@@ -1364,22 +1388,5 @@ var app = Vue.createApp({
     },                 
 
 }).mount('#app');
-
-// // http://eonasdan.github.io/bootstrap-datetimepicker/
-// app.component('date-picker', VueBootstrapDatetimePicker);
-
-// $.extend(true, $.fn.datetimepicker.defaults, {
-//     icons: {
-//         time: 'far fa-clock',
-//         date: 'far fa-calendar',
-//         up: 'fas fa-arrow-up',
-//         down: 'fas fa-arrow-down',
-//         previous: 'fas fa-chevron-start',
-//         next: 'fas fa-chevron-end',
-//         today: 'fas fa-calendar-check',
-//         clear: 'far fa-trash-alt',
-//         close: 'far fa-times-circle'
-//     }
-//     });
 
 
