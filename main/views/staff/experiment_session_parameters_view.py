@@ -94,49 +94,11 @@ def updateRecruitmentParameters(data,id):
 
     es = experiment_sessions.objects.get(id=id)
     
-    form_data_dict = {} 
-
-    genderList=[]
-    subject_typeList=[]
-    institutionsExcludeList=[]
-    institutionsIncludeList=[]
-    experimentsExcludeList=[]
-    experimentsIncludeList=[]
-    schoolsExcludeList=[]
-    schoolsIncludeList=[]
-
-    for field in data["formData"]:            
-        if field["name"] == "gender":                 
-            genderList.append(field["value"])
-        elif field["name"] == "subject_type":                 
-            subject_typeList.append(field["value"])
-        elif field["name"] == "institutions_exclude":                 
-            institutionsExcludeList.append(field["value"])
-        elif field["name"] == "institutions_include":                 
-            institutionsIncludeList.append(field["value"])
-        elif field["name"] == "experiments_exclude":                 
-            experimentsExcludeList.append(field["value"])
-        elif field["name"] == "experiments_include":                 
-            experimentsIncludeList.append(field["value"])
-        elif field["name"] == "schools_exclude":                 
-            schoolsExcludeList.append(field["value"])
-        elif field["name"] == "schools_include":                 
-            schoolsIncludeList.append(field["value"])
-        else:
-            form_data_dict[field["name"]] = field["value"]
-
-    form_data_dict["gender"]=genderList
-    form_data_dict["subject_type"]=subject_typeList
-    form_data_dict["institutions_exclude"]=institutionsExcludeList
-    form_data_dict["institutions_include"]=institutionsIncludeList
-    form_data_dict["experiments_exclude"]=experimentsExcludeList
-    form_data_dict["experiments_include"]=experimentsIncludeList
-    form_data_dict["schools_exclude"]=schoolsExcludeList
-    form_data_dict["schools_include"]=schoolsIncludeList 
+    form_data_dict = data["formData"]
 
     #if a subject has confirmed cannot some parameters
     if es.getConfirmedCount() > 0:
-        form_data_dict["allow_multiple_participations"] = "1" if es.recruitment_params.allow_multiple_participations else "0"
+        form_data_dict["allow_multiple_participations"] = 1 if es.recruitment_params.allow_multiple_participations else 0
 
     #print(form_data_dict)
     form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
