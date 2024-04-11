@@ -32,6 +32,12 @@ class TraitConstraintForm(forms.ModelForm):
         logger = logging.getLogger(__name__)
         logger.info("Clean max_value")
 
+        if self.cleaned_data.get('max_value', None) == None:
+            raise forms.ValidationError('')
+
+        if self.cleaned_data.get('min_value', None) == None:
+            raise forms.ValidationError('')
+
         max_value = self.cleaned_data['max_value']
         min_value = self.cleaned_data['min_value']
 
@@ -39,20 +45,3 @@ class TraitConstraintForm(forms.ModelForm):
             raise forms.ValidationError('Max value ≥ Min value.')
         
         return max_value
-    
-    # def clean_include_if_in_range(self):
-    #     '''
-    #     clean include_if_in_range
-    #     '''
-    #     logger = logging.getLogger(__name__)
-    #     logger.info("Clean include_if_in_range")
-
-    #     val = self.data['include_if_in_range']
-
-    #     if val == 'true':
-    #         return True
-
-    #     if val == 'false':
-    #         return False
-
-    #     raise forms.ValidationError('Invalid Entry')

@@ -29,7 +29,7 @@ var app = Vue.createApp({
         recruitment_params:{allowed_list_users:[]},
         current_trait:{                   //current trait being edited
             id:0,
-            trait_id:0,
+            trait:0,
             min_value:0,
             max_vaue:0,
             include_if_in_range:1,
@@ -67,14 +67,6 @@ var app = Vue.createApp({
         invite_to_all:false,
         add_to_allow_list:"",
         allow_list_error:"",
-        options: {                                               //options for date time picker
-            // https://momentjs.com/docs/#/displaying/
-            format: 'MM/DD/YYYY hh:mm a ZZ',
-            useCurrent: true,
-            showClear: false,
-            showClose: true,
-            sideBySide: true,
-            },   
         first_load : false,              //true after first load done   
         working : false,    
         
@@ -89,6 +81,7 @@ var app = Vue.createApp({
         editInvitationTextModal : null,
         editTraitsModal : null,
         updateTraitModal : null,
+        editAllowListModal : null,
     }},
 
     methods:{ 
@@ -134,6 +127,7 @@ var app = Vue.createApp({
             app.editInvitationTextModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editInvitationTextModal'), {keyboard: false});
             app.editTraitsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editTraitsModal'), {keyboard: false});
             app.updateTraitModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('updateTraitModal'), {keyboard: false});
+            app.editAllowListModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editAllowListModal'), {keyboard: false});
 
             document.getElementById('sessionModal').addEventListener('hidden.bs.modal', app.hideSetup);
             document.getElementById('editSessionModal').addEventListener('hidden.bs.modal', app.hideEditSession);
@@ -145,8 +139,6 @@ var app = Vue.createApp({
             document.getElementById('editInvitationTextModal').addEventListener('hidden.bs.modal', app.hideEditInvitation);
             document.getElementById('editTraitsModal').addEventListener('hidden.bs.modal', app.hideEditTraits);
             document.getElementById('updateTraitModal').addEventListener('hidden.bs.modal', app.hideUpdateTrait);
-
-            // $('#id_date').on("dp.hide",this.mainFormChange2);
         },    
 
         //remove all the form errors
@@ -159,6 +151,12 @@ var app = Vue.createApp({
             }
 
             for(var item in app.session)
+            {
+                let e = document.getElementById("id_errors_" + item);
+                if(e) e.remove();
+            }
+
+            for(var item in app.current_trait)
             {
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
@@ -427,12 +425,6 @@ var app = Vue.createApp({
                 }
             }
 
-            // var formData =  $("#mainForm2").serializeArray();
-
-            //tz = moment.tz(formData[1].value)
-
-            //formData[1].value = moment.tz(formData[1].value, tz ).utc().format();
-
             axios.post('{{request.get_full_path}}', {
                     status:"updateSessionDay",   
                     id:app.currentSessionDay.id, 
@@ -448,7 +440,7 @@ var app = Vue.createApp({
                     {
                         app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
                         app.cancelModal=false;
-                        $('#sessionModal').modal('toggle');
+                        app.sessionModal.toggle();
                     }
                     else
                     {
@@ -476,7 +468,7 @@ var app = Vue.createApp({
                     app.session.invitationText = response.data.invitationText;
                     
                     app.updateInvitationButtonText ='Update <i class="fas fa-sign-in-alt"></i>';
-                    $('#editInvitationTextModal').modal('toggle');
+                    app.editInvitationTextModal.toggle();
                 
                 })
                 .catch(function (error) {
@@ -491,25 +483,22 @@ var app = Vue.createApp({
             tinymce.get("id_invitationRawText").setContent(app.session.invitationRawText);
         },
 
-        //displays to the form errors
-        displayErrors:function displayErrors(errors){
-            for(var e in errors)
+         //display form errors
+         displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str);  
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView();   
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
-        },
+        },  
 
         //if form is changed add * to button
         recruitmentFormChange:function recruitmentFormChange(){
@@ -555,7 +544,7 @@ var app = Vue.createApp({
             axios.post('{{request.get_full_path}}', {
                     status : "updateTrait",
                     trait_id:app.current_trait.id,
-                    formData : $("#traitConstraintForm").serializeArray(),                                                                                                                                                             
+                    formData : app.current_trait,                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
@@ -567,7 +556,7 @@ var app = Vue.createApp({
                     {
                         app.recruitment_params = response.data.recruitment_params;  
                         app.updateDisplayLists();   
-                        $('#updateTraitModal').modal('toggle');   
+                        app.updateTraitModal.toggle();  
                     }
                     else
                     {
@@ -623,10 +612,8 @@ var app = Vue.createApp({
             app.currentSessionDay.reminder_time = app.formatDateForInput(app.currentSessionDay.reminder_time_raw);
             app.sessionBeforeEdit = Object.assign({}, app.session);
             app.buttonText2="Update";
-            $('#sessionModal').modal('show');
-            //$('#id_date').datepicker('update');;
+            app.sessionModal.show();
             app.clearMainFormErrors();
-            //$('#id_date').val(app.formatDate(app.currentSessionDay.date));
         },
 
         //fire when edit setup model hides, cancel action if nessicary
@@ -646,7 +633,7 @@ var app = Vue.createApp({
             app.currentSessionDayIndex =id;
             // app.sessionBeforeEdit = Object.assign({}, app.session);
             app.buttonText3="Update";
-            $('#subjectsModalCenter').modal('show');
+            app.subjectsModalCenter.show();
             // app.clearMainFormErrors();
         },
 
@@ -657,7 +644,7 @@ var app = Vue.createApp({
 
         // fire when invite subjects subjects model is shown
         showInviteSubjects:function showInviteSubjects(id){                        
-            $('#inviteSubjectsModalCenter').modal('show');
+            app.inviteSubjectsModalCenter.show();
             app.inviteResultsEmptyText="";
             // app.clearMainFormErrors();
         },
@@ -701,7 +688,7 @@ var app = Vue.createApp({
             }
 
             app.subjectCancelationList = s;
-            $('#cancelSessionModalCenter').modal('show');
+            app.cancelSessionModalCenter.show();
             // app.clearMainFormErrors();
         },
 
@@ -715,7 +702,7 @@ var app = Vue.createApp({
         showEditInvitation:function showEditInvitation(id){    
 
             tinymce.get("id_invitationRawText").setContent(app.session.invitationRawText);
-            $('#editInvitationTextModal').modal('show');
+            app.editInvitationTextModal.show();
             // app.clearMainFormErrors();
         },
 
@@ -735,7 +722,7 @@ var app = Vue.createApp({
             app.searchResults=[];
             app.searchText=""; 
             app.searchAddResult = "";          
-            $('#manuallyAddSubjectsModalCenter').modal('show');
+            app.manuallyAddSubjectsModalCenter.show();
             // app.clearMainFormErrors();
         },
 
@@ -766,7 +753,7 @@ var app = Vue.createApp({
                 app.emailMessageList += "</a>";
             }
 
-            $('#sendMessageModalCenter').modal('show');
+            app.sendMessageModalCenter.show();
             // app.clearMainFormErrors();
         },
 
@@ -866,9 +853,9 @@ var app = Vue.createApp({
         removeSubject: function removeSubject(userId,esduId){
 
             if(confirm("Remove subject from session?")){
-
-                $( '#removeSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
-
+                
+                document.getElementById("removeSubject" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+               
                 axios.post('{{request.get_full_path}}', {
                     status:"removeSubject",   
                     userId:userId, 
@@ -903,8 +890,8 @@ var app = Vue.createApp({
         //change a subject's confirmation status
         confirmSubject: function confirmSubject(userId,esduId,confirmed){                       
 
-            $( '#confirmSubject' + esduId ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
-
+            document.getElementById("confirmSubject" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+           
             axios.post('{{request.get_full_path}}', {
                 status:"changeConfirmation",   
                 userId:userId, 
@@ -996,7 +983,7 @@ var app = Vue.createApp({
         //manually add subject to sessoin
         manuallyAddSubject: function manuallyAddSubject(u){
 
-            $( '#manualAdd' + u.id ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+            document.getElementById("manualAdd" + u.id).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {
                 status:"manuallyAddSubject",   
@@ -1005,7 +992,7 @@ var app = Vue.createApp({
             })
             .then(function (response) {
                 app.session.experiment_session_days=response.data.es_min.experiment_session_days;   
-                //$('#manuallyAddSubjectsModalCenter').modal('toggle');
+
                 app.searchResults=[];
                 app.searchText="";   
                 app.searchAddResult = "";
@@ -1192,7 +1179,7 @@ var app = Vue.createApp({
 
         //fire when edit trait model needs to be shown
         showEditTraits:function showEditTraits(){                       
-            $('#editTraitsModal').modal('show');
+            app.editTraitsModal.show();
         },
 
         //fire when hide edit traits
@@ -1208,10 +1195,10 @@ var app = Vue.createApp({
             app.current_trait.id = id;
             app.current_trait.min_value = tc.min_value;
             app.current_trait.max_value = tc.max_value;
-            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.trait = tc.trait;
             app.current_trait.include_if_in_range = tc.include_if_in_range;
 
-            $('#updateTraitModal').modal('show');
+            app.updateTraitModal.show();
             app.clearMainFormErrors();
         },
 
@@ -1229,7 +1216,7 @@ var app = Vue.createApp({
             app.cancelModal=true;
             app.sessionBeforeEdit = Object.assign({}, app.session);
 
-            $('#editSessionModal').modal('show');
+            app.editSessionModal.show();
         },
 
         //fire when hide edit traits
@@ -1247,7 +1234,7 @@ var app = Vue.createApp({
             app.cancelModal=false;
             axios.post('{{request.get_full_path}}', {
                     status : "updateSession", 
-                    formData : $("#mainForm1").serializeArray(),                                                                                                                                                             
+                    formData : app.session,                                                                                                                                                             
                 })
                 .then(function (response) {                                   
                     
@@ -1255,7 +1242,7 @@ var app = Vue.createApp({
                     {
                         app.session = response.data.session;  
                         app.updateDisplayLists();   
-                        $('#editSessionModal').modal('toggle');   
+                        app.editSessionModal.toggle();   
                     }
                     else
                     {
@@ -1273,7 +1260,7 @@ var app = Vue.createApp({
         showEditAllowList:function showEditAllowList(){         
             app.clearMainFormErrors();              
            
-            $('#editAllowListModal').modal('show');
+            app.editAllowListModal.show();
         },
 
         //update require all trait constraints
@@ -1379,12 +1366,9 @@ var app = Vue.createApp({
 
     //run when vue is mounted
     mounted(){
-       
-        //attach modal close events to vue
-        //$('#recruitmentModalCenter').on("hidden.bs.modal", this.hideEditRecruitment);
-        
-        this.getSession();
-        
+        Vue.nextTick(() => {
+            this.getSession(); 
+        });
     },                 
 
 }).mount('#app');

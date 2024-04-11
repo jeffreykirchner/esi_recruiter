@@ -243,7 +243,7 @@ def updateForm1(data,id):
 
         form_data_dict["institution"] = institutionList
 
-        form_data_dict["survey"] = 'True' if e.survey else 'False'
+        form_data_dict["survey"] = 1 if e.survey else 0
 
     form = experimentForm1(form_data_dict,instance=e)
 
