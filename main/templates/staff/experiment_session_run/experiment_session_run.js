@@ -45,6 +45,10 @@ var app = Vue.createApp({
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
         auto_add_users_on_upload : false,  
+
+        //modals
+        uploadEarningsModal : null,
+        noticeModal : null,
     }},
 
     methods:{
@@ -522,7 +526,7 @@ var app = Vue.createApp({
         //store the location of the file to be uploaded
         handleFileUpload:function(){
             app.upload_file = this.$refs.file.files[0];
-            //$('parameterFileUpload').val("");
+
             app.upload_file_name = app.upload_file.name;
 
             var reader = new FileReader();
@@ -534,7 +538,7 @@ var app = Vue.createApp({
         //fire when show upload earnings
         showUploadEarnings:function(){
             app.uploadEarningsMessage = "";
-            $('#uploadEarningsModal').modal('show');
+            app.uploadEarningsModal.show();
         },
 
         hideUploadEarnings:function(){
@@ -611,7 +615,7 @@ var app = Vue.createApp({
                         app.noticeBody = response.data.result;
                     }
 
-                    $('#noticeModal').modal('toggle');
+                    app.noticeModal.show();
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -633,6 +637,13 @@ var app = Vue.createApp({
     mounted(){
             this.getSession();       
             window.setTimeout(this.stripeReaderCheckin, 250);      
-            $('#hideUploadEarnings').on("hidden.bs.modal", this.hideEditSubject);       
+
+            Vue.nextTick(() => {
+                app.uploadEarningsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('uploadEarningsModal'), {keyboard: false});
+                app.noticeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('noticeModal'), {keyboard: false});
+
+                document.getElementById('uploadEarningsModal').addEventListener('hidden.bs.modal', app.hideUploadEarnings);
+            })
+    
     },
 }).mount('#app');
