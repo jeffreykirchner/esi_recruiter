@@ -29,38 +29,36 @@ var app = Vue.createApp({
     }},
 
     methods:{
+    
         //display form errors
-        displayErrors:function(errors){
-                for(var e in errors)
+        displayErrors: function displayErrors(errors){
+            for(let e in errors)
+            {
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
+                
+                for(let i in errors[e])
                 {
-                    $("#id_" + e).attr("class","form-control is-invalid")
-                    var str='<span id=id_errors_'+ e +' class="text-danger">';
-                    
-                    for(var i in errors[e])
-                    {
-                        str +=errors[e][i] + '<br>';
-                    }
-
-                    str+='</span>';
-                    $("#div_id_" + e).append(str);    
-
-                    var elmnt = document.getElementById("div_id_" + e);
-                    elmnt.scrollIntoView(); 
+                    str +=errors[e][i] + '<br>';
                 }
-            },
+
+                str+='</span>';
+
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
+            }
+        }, 
 
         //clear errors from forms
         clearMainFormErrors:function(){
                 for(var item in app.pettyCash)
                 {
-                    $("#id_" + item).attr("class","form-control");
-                    $("#id_errors_" + item).remove();
+                    let e = document.getElementById("id_errors_" + item);
+                    if(e) e.remove();
                 }  
                 
                 for(var item in app.studentReport)
                 {
-                    $("#id_" + item).attr("class","form-control");
-                    $("#id_errors_" + item).remove();
+                    let e = document.getElementById("id_errors_" + item);
+                    if(e) e.remove();
                 }
             },
 
@@ -70,7 +68,7 @@ var app = Vue.createApp({
 
             axios.post('/reports/', {
                             action :"getPettyCash" ,
-                            formData : $("#pettyCashForm").serializeArray(),                                                                                                                             
+                            formData : app.pettyCash,                                                                                                                             
                         })
                         .then(function (response) { 
                             status=response.data.status;                                                                  
@@ -110,7 +108,7 @@ var app = Vue.createApp({
 
             axios.post('/reports/', {
                             action :"getStudentReport" ,
-                            formData : $("#studentReportForm").serializeArray(),                                                                                                                             
+                            formData : app.studentReport,                                                                                                                             
                         })
                         .then(function (response) { 
                             status=response.data.status;                                                                  
