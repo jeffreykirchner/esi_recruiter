@@ -94,10 +94,10 @@ def getIrbForm(data):
     logger = logging.getLogger(__name__)
     logger.info(f"Get IRB Form: {data}")
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     form_data_dict[field["name"]] = field["value"]
     
     form = IrbReportForm(form_data_dict)
 

@@ -483,8 +483,8 @@ var app = Vue.createApp({
             tinymce.get("id_invitationRawText").setContent(app.session.invitationRawText);
         },
 
-         //display form errors
-         displayErrors(errors){
+        //display form errors
+        displayErrors: function displayErrors(errors){
             for(let e in errors)
             {
                 let str='<span id=id_errors_'+ e +' class="text-danger">';
