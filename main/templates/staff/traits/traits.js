@@ -16,6 +16,7 @@ var app = Vue.createApp({
         active_only:true,
         select_all_value:true,
         include_sign_up_metrics:false,
+        selected_traits:[],
         session_day:{{session_day|safe}},
     }},
 
@@ -61,7 +62,7 @@ var app = Vue.createApp({
 
             axios.post('/traits/', {
                         action :"getReport",  
-                        formData : $("#traitReportForm").serializeArray(),    
+                        formData : {"traits":app.selected_traits},    
                         active_only:app.active_only,       
                         include_sign_up_metrics : app.include_sign_up_metrics,   
                         session_day : app.session_day,                                                                                                             
