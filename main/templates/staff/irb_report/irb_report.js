@@ -45,8 +45,6 @@ var app = Vue.createApp({
                             {                            
                                 app.irb_report = response.data.irb_report;
                             }
-                            
-                            
                         })
                         .catch(function (error) {
                             console.log(error);                            
