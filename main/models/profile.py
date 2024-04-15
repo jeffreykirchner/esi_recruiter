@@ -424,6 +424,25 @@ class profile(models.Model):
             "email_confirmed":self.email_confirmed,  
             "blackballed":self.blackballed,         
         }
+    
+    def json_for_user_info(self):
+
+        return{
+            "id":self.user.id,                        
+            "first_name":self.user.first_name.capitalize(),   
+            "last_name":self.user.last_name.capitalize(), 
+            "email":self.user.email,
+            "studentID":self.studentID, 
+            "type":self.type.id,
+            "pi_eligible":1 if self.pi_eligible else 0,
+            "studentWorker":1 if self.studentWorker else 0,
+            "blackballed":1 if self.blackballed else 0,
+            "paused":1 if self.paused else 0,
+            "international_student":1 if self.international_student else 0,
+            "can_paypal":1 if self.can_paypal else 0,
+            "can_recruit":1 if self.can_recruit else 0,
+            "disabled":1 if self.disabled else 0,
+        }
 
 #delete associated user model when profile is deleted
 @receiver(post_delete, sender=profile)

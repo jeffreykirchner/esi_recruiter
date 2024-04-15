@@ -18,8 +18,13 @@ var app = Vue.createApp({
         noInvitationsFoundText:'',
         noTraitsFoundText:'',
         noteText:'',
-        working:'false',
+        working:true,
+        subject:{},
         su:{%if user.is_staff%}true{%else%}false{%endif%},
+
+        //modals
+        noteModalCenter:null,
+        editSubjectModal:null,
     }},
 
     methods:{
@@ -44,6 +49,7 @@ var app = Vue.createApp({
             app.session_day_upcoming = response.data.session_day_upcoming;  
             app.institutions = response.data.institutions;     
             app.notes = response.data.notes;
+            app.subject = response.data.subject;
 
             //format session data
             for(var i=0;i<app.session_day_attended.length;i++)
