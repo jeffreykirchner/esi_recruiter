@@ -29,7 +29,7 @@ var app = Vue.createApp({
 
     methods:{
         //get attended and upcoming sessions
-        getSessions:function(){
+        getSessions:function getSessions(){
             axios.post('/userInfo/{{id}}/', {
                 status :"getSessions" ,                                                                                                                             
             })
@@ -43,7 +43,7 @@ var app = Vue.createApp({
         },
 
         //process get session response
-        takeGetSessions:function(response)
+        takeGetSessions:function takeGetSessions(response)
         {
             app.session_day_attended = response.data.session_day_attended;
             app.session_day_upcoming = response.data.session_day_upcoming;  
@@ -89,7 +89,7 @@ var app = Vue.createApp({
         },
 
         // show the full invitation list
-        showInvitations: function(value){
+        showInvitations: function showInvitations(value){
             app.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
             app.working = true;
             
@@ -117,7 +117,7 @@ var app = Vue.createApp({
         },
 
         //show traits
-        showTraits:function(){
+        showTraits:function showTraits(){
             app.showTraitsButtonText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
             app.working = true;
 
@@ -137,7 +137,7 @@ var app = Vue.createApp({
         },
 
         //delete the selected note
-        deleteNote:function(id){
+        deleteNote:function deleteNote(id){
             app.working = true;
 
             axios.post('/userInfo/{{id}}/', {
@@ -154,7 +154,7 @@ var app = Vue.createApp({
         },
 
         //make a not about the subject
-        sendMakeNote:function(){
+        sendMakeNote:function sendMakeNote(){
             
             if(app.noteText == '') return;
             app.working = true;
@@ -165,7 +165,7 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {     
                     app.takeGetSessions(response);
-                    $('#noteModalCenter').modal('toggle');
+                    app.noteModalCenter.toggle();
                     app.noteText = "";
                     app.working = false;
                 })
@@ -175,32 +175,32 @@ var app = Vue.createApp({
         },
 
         // fire when edit note model is shown
-        showMakeNote:function(){
+        showMakeNote:function showMakeNote(){
             
-            $('#noteModalCenter').modal('show');
+            app.noteModalCenter.show();
             
         },
 
         //fire when note model hides
-        hideMakeNote:function(){
+        hideMakeNote:function hideMakeNote(){
             
         },
 
         // fire when edit subject model is shown
-        showEditSubject:function(){
-            $('#editSubjectModal').modal('show');  
+        showEditSubject:function showEditSubject(){
+            app.editSubjectModal.show();
         },
 
         //fire when subject model hides
-        hideEditSubject:function(){
+        hideEditSubject:function hideEditSubject(){
             
         },
 
         //make a not about the subject
-        sendEditSubject: function(){                       
+        sendEditSubject: function sendEditSubject(){                       
             axios.post('{{ request.path }}', {
                     status :"editSubject" ,                                
-                    formData : $("#EditSubjectForm").serializeArray(),                                                              
+                    formData : app.subject,                                                              
                 })
                 .then(function (response) {     
                                                                            
@@ -225,26 +225,23 @@ var app = Vue.createApp({
         },
 
         //displays to the form errors
-        displayErrors:function(errors){
-            for(var e in errors)
+        displayErrors: function displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str);  
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView();   
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
         },
 
-        formatDate: function(value, enable_time){
+        formatDate: function formatDate(value, enable_time){
                 if (value) {        
                     if(enable_time)
                     {                    
@@ -264,7 +261,10 @@ var app = Vue.createApp({
 
     mounted(){
             this.getSessions();  
-            $('#noteModalCenter').on("hidden.bs.modal", this.hideMakeNote);       
-            $('#editSubjectModal').on("hidden.bs.modal", this.hideEditSubject);           
+            
+            Vue.nextTick(() => {
+                app.noteModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('noteModalCenter'), {keyboard: false});
+                app.editSubjectModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editSubjectModal'), {keyboard: false});
+            })
     },
 }).mount('#app');

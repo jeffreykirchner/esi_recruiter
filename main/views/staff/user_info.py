@@ -165,10 +165,10 @@ def editSubject(request, data, id):
     if not request.user.is_staff:
         return JsonResponse({"status":"fail","errors":{}}, safe=False)
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     form_data_dict[field["name"]] = field["value"]
 
     edit_subject_form = EditSubjectForm(form_data_dict, instance=u.profile)
 
