@@ -19,7 +19,11 @@
           loginErrorText : "",
           form_ids : {{form_ids|safe}},    
           status:"update", 
-          human:false,                  
+          human:false,        
+          profile:{
+                    {% for i in form_ids %}{{i}}:null,{% endfor %}
+                      
+          },          
         }},
 
         methods:{

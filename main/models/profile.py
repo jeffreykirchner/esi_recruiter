@@ -3,12 +3,14 @@ from datetime import datetime, timedelta, timezone
 import logging
 import pytz
 import uuid
+import json
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F, Q, When, Case
 from django.contrib import admin
 from django.db.models import Subquery, OuterRef
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import institutions
 from main.models import parameters
@@ -443,6 +445,24 @@ class profile(models.Model):
             "can_recruit":1 if self.can_recruit else 0,
             "disabled":1 if self.disabled else 0,
         }
+
+    def json_for_profile_update(self):
+        message = {
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'chapman_id': self.user.profile.studentID,
+            'email': self.user.email,
+            'gender': self.user.profile.gender.id,
+            'phone': self.user.profile.phone,
+            'major': self.user.profile.major.id,
+            'subject_type': self.user.profile.subject_type.id,
+            'studentWorker': 1 if self.user.profile.studentWorker else 0,
+            'paused': 1 if self.user.profile.paused else 0,
+            'password1':"",
+            'password2':"",
+        }
+
+        return json.dumps(message, cls=DjangoJSONEncoder)
 
 #delete associated user model when profile is deleted
 @receiver(post_delete, sender=profile)

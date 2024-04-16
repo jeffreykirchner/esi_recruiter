@@ -6,10 +6,12 @@ import logging
 class passwordResetChangeForm(forms.Form):
 
     password1 = forms.CharField(label='New Password',
-                               widget=forms.PasswordInput(attrs={"autocomplete":"new-password"}))
+                               widget=forms.PasswordInput(attrs={"autocomplete":"new-password",
+                                                                 "v-model":"password1"}))
 
     password2 = forms.CharField(label='Repeat New Password',
-                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password"}))       
+                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password",
+                                                                  "v-model":"password2"}))       
 
 
     #check that passwords match

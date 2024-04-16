@@ -104,7 +104,13 @@ def sendInternational(request, data):
         except ValueError:
             error_message += f'Invalid ID: {v[i]}<br>'
 
-    logger.info(student_id_list)
+    logger.info(f"sendInternational list: {student_id_list}")
+
+    if len(student_id_list) == 0:
+         error_message = "No users found"
+         logger.info(f"sendInternational error: {error_message}")
+         return JsonResponse({"users" : {},
+                              "errorMessage":error_message},safe=False)
 
     clauses = (Q(studentID__icontains=p) for p in student_id_list)
     query = reduce(operator.or_, clauses)

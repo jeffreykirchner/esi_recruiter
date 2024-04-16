@@ -21,6 +21,10 @@ var app = Vue.createApp({
         uploadInternationalText : "",
         uploadInternationalButtonText : 'Upload <i class="fa fa-upload" aria-hidden="true"></i>',
         uploadInternationalMessage : "",
+
+        //modals
+        sendMessageModalCenter:null,
+        uploadInternationalModal:null,
     }},
 
     methods:{
@@ -38,11 +42,14 @@ var app = Vue.createApp({
             });
     
             // Prevent Bootstrap dialog from blocking focusin
-            $(document).on('focusin', function(e) {
-                if ($(e.target).closest(".tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root").length) {
+            document.addEventListener('focusin', (e) => {
+                if (e.target.closest(".tox-tinymce-aux, .moxman-window, .tam-assetmanager-root") !== null) {
                     e.stopImmediatePropagation();
                 }
             });
+
+            app.sendMessageModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('sendMessageModalCenter'), {keyboard: false});
+            app.uploadInternationalModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('uploadInternationalModal'), {keyboard: false});
         },
 
         //get list of users based on search
@@ -132,7 +139,7 @@ var app = Vue.createApp({
         //show international upload
         showInternational:function()
         {
-            $('#uploadInternationalModal').modal('show'); 
+            app.uploadInternationalModal.show();
         },
 
         //send international upload
@@ -149,7 +156,7 @@ var app = Vue.createApp({
             })
             .then(function (response) {
                 //status=response.data.status;
-                $('#uploadInternationalModal').modal('hide'); 
+                app.uploadInternationalModal.hide();
 
                 app.functionTakeUserList(response);
 
@@ -165,7 +172,7 @@ var app = Vue.createApp({
         // fire when invite subjects subjects model is shown
         showSendMessage:function(id){    
             tinymce.get("id_sendMessageText").setContent(this.sendMessageText);
-            $('#sendMessageModalCenter').modal('show');                        
+            app.sendMessageModalCenter.show();                       
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
@@ -239,7 +246,7 @@ var app = Vue.createApp({
     },
     
     mounted(){
-        $('#sendMessageModalCenter').on("hidden.bs.modal", this.hideSendMessage);
+       
 
         Vue.nextTick(() => {
             this.do_first_load();

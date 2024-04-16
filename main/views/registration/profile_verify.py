@@ -37,6 +37,7 @@ class ProfileVerify(View):
         return render(request, self.template_name,{'emailVerified':emailVerified,
                                                    'failed':failed,    
                                                    'token':token,
+                                                   'user':u,
                                                    'status':status}) 
 
     @method_decorator(login_required)
