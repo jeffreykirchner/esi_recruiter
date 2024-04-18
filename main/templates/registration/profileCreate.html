@@ -21,8 +21,7 @@
           status:"update", 
           human:false,        
           profile:{
-                    {% for i in form_ids %}{{i}}:null,{% endfor %}
-                      
+                    {% for i in form_ids %}{{i}}:null,{% endfor %}        
           },          
         }},
 
@@ -41,7 +40,7 @@
 
             axios.post('/profileCreate/', {
                     action :"create",
-                    formData : $("#createForm").serializeArray(), 
+                    formData : app.profile, 
                                                 
                 })
                 .then(function (response) {     
