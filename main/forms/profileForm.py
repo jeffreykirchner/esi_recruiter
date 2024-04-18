@@ -96,6 +96,11 @@ class profileForm(forms.Form):
     #check that username/email not already in use
     def clean_email(self):
         email = self.cleaned_data['email']
+
+        if email:
+            email = email.strip().lower()
+
         if User.objects.filter(username=email).exists():
             raise forms.ValidationError(u'Email "%s" is already in use.' % email)
+
         return email

@@ -172,6 +172,9 @@ var app = Vue.createApp({
 
     mounted(){
         this.getMonth();  
-        this.calendarDayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('calendarDayModal'), {keyboard: false})                     
+
+        Vue.nextTick(() => {
+            this.calendarDayModal = new bootstrap.Modal(document.getElementById('calendarDayModal'), {keyboard: false});                     
+        });                          
     },
 }).mount('#app');
