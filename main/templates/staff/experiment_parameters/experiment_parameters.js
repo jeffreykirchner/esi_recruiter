@@ -49,8 +49,7 @@ var app = Vue.createApp({
         //update recruitment parameters 
         updateRecruitmentParameters: function(){                       
             axios.post('{{ request.path }}', {
-                    status :"updateRecruitmentParameters" ,                                
-                    // formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
+                    status :"updateRecruitmentParameters" ,                                                                                       
                     formData : app.recruitment_params,
                 })
                 .then(function (response) {     

@@ -19,6 +19,9 @@ var app = Vue.createApp({
         current_invitation:null,
         account_paused : {{account_paused|safe}},
 
+        //modals
+        subject_consent_form_modal:null,
+
     }},
 
     methods:{
@@ -39,7 +42,7 @@ var app = Vue.createApp({
                             
                             if(app.requiredUmbrellaConsents.length>0)
                             {
-                              $('#subject_consent_form_modal').modal('toggle');
+                              app.subject_consent_form_modal.toggle();
                             }
 
                             //test code
@@ -51,7 +54,6 @@ var app = Vue.createApp({
         },
         
         acceptInvitation:function(id,index){
-            //$( '#acceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
 
             app.upcomingInvitations[index].waiting=true;
             app.waiting=true;
@@ -70,7 +72,7 @@ var app = Vue.createApp({
         },
 
         cancelAcceptInvitation:function(id,index){
-            //$( '#cancelAcceptInvitation' + index ).replaceWith('<i class="fas fa-spinner fa-spin"></i>');
+
             app.upcomingInvitations[index].waiting=true;
             app.waiting=true;
 
@@ -151,12 +153,6 @@ var app = Vue.createApp({
             }
         },
 
-        showInvitationText:function(index){
-            
-            app.current_invitation = index;
-            $('#subject_invitation_text_modal').modal('show');
-        },
-
         viewConsentForm:function(id, type, view_mode){
             window.open("/subjectConsent/" + id + "/" + type + "/" + view_mode +"/", '_self');
         },
@@ -200,8 +196,10 @@ var app = Vue.createApp({
 
     mounted(){
         this.getCurrentInvitations();        
-        $('#subject_consent_form_modal').on("hidden.bs.modal", this.hideConsentForm);
-        $('#subject_consent_form_modal').on("shown.bs.modal", this.openConsentForm);       
+        
+        Vue.nextTick(() => {
+            this.subject_consent_form_modal = new bootstrap.Modal(document.getElementById('subject_consent_form_modal'), {keyboard: false});                     
+        }); 
 
         window.addEventListener('resize', this.handleResize);     
     },

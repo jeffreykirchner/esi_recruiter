@@ -44,7 +44,7 @@ class profileForm(forms.Form):
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
                                          choices=(('---','---'),(1, 'Yes'), (0, 'No')),
                                          initial='---',                   
-                                         widget=forms.Select)      
+                                         widget=forms.Select(attrs={"v-model":"profile.studentWorker"}))      
 
     password1 = forms.CharField(label='Password',
                                 widget=forms.PasswordInput(attrs={"autocomplete":"new-password",

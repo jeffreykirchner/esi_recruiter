@@ -52,7 +52,7 @@ class profileFormUpdate(forms.Form):
                                       widget=forms.Select(attrs={"v-model":"profile.studentWorker"}))
     
     paused = forms.ChoiceField(label='Pause your account?  You will not receive invitations while paused.',             
-                               choices=((1, 'Yes'), (1, 'No')),                                                          
+                               choices=((1, 'Yes'), (0, 'No')),                                                          
                                widget=forms.Select(attrs={"v-model":"profile.paused"}))
     
     password1 = forms.CharField(label='Password (Leave blank for no change.)',
