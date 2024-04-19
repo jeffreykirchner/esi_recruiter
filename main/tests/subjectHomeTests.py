@@ -6,6 +6,7 @@ import logging
 import sys
 
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.contrib.auth.models import User
 
 from django.test import TestCase
 from django.test import RequestFactory
@@ -133,7 +134,7 @@ class subjectHomeTestCase(TestCase):
         self.es1.save()
         esd1 = self.es1.ESD.first()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -157,7 +158,7 @@ class subjectHomeTestCase(TestCase):
         self.es2.save()
         esd1 = self.es2.ESD.first()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_three.strftime("%Y-%m-%dT") + '16:00'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_three.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -352,7 +353,7 @@ class subjectHomeTestCase(TestCase):
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now.strftime("%Y-%m-%dT") + '23:59'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now.strftime("%Y-%m-%dT") + '23:59','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -418,7 +419,7 @@ class subjectHomeTestCase(TestCase):
 
         d_now_plus_two = self.d_now + timedelta(days=2)
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': [{'name': 'location', 'value': str(self.l1.id)}, {'name': 'date', 'value': d_now_plus_two.strftime("%Y-%m-%dT") + '13:00'}, {'name': 'length', 'value': '60'}, {'name': 'account', 'value': str(self.account1.id)}, {'name': 'auto_reminder', 'value': 'true'},{'name': 'enable_time', 'value': 'true'},{'name': 'custom_reminder_time', 'value': 'false'}, {'name': 'reminder_time', 'value': '01/05/2021 12:04 pm -0800'}], 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '13:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
@@ -548,19 +549,22 @@ class subjectHomeTestCase(TestCase):
         request = {}
         request['user'] = self.u
 
-        profile_data={'action': 'update', 'formData': [{'name': 'first_name', 'value': 'Sam'}, {'name': 'last_name', 'value': 'I Am'}, {'name': 'chapman_id', 'value': '123456789'}, {'name': 'email', 'value': 'abc@123.edu'}, {'name': 'phone', 'value': '1231239999'}, {'name': 'gender', 'value': '1'}, {'name': 'major', 'value': '1'}, {'name': 'subject_type', 'value': '2'}, {'name': 'studentWorker', 'value': 'Yes'}, {'name': 'paused', 'value': 'Yes'}, {'name': 'password1', 'value': ''}, {'name': 'password2', 'value': ''}]}
+        profile_data={'action': 'update', 'formData': {'first_name': 'Sam', 'last_name': 'I Am', 'chapman_id': '123456789', 'email': 'abc@123.edu', 'phone': '1231239999', 'gender': '1', 'major': '1', 'subject_type': '2', 'studentWorker': 1, 'paused': 1, 'password1': '', 'password2': ''}}
         r = json.loads(update_profile(self.u, profile_data).content.decode("UTF-8"))
+
+        u = User.objects.get(id=self.u.id)
+
         self.assertEqual(r['status'], "success")
 
-        self.assertEqual(self.u.first_name,"Sam")
-        self.assertEqual(self.u.last_name,"I am")
-        self.assertEqual(self.u.profile.studentID,"123456789")
-        self.assertEqual(self.u.email,"abc@123.edu")
-        self.assertEqual(self.u.profile.phone,"1231239999")
-        self.assertEqual(self.u.profile.gender.id, 1)
-        self.assertEqual(self.u.profile.major.id, 1)
-        self.assertEqual(self.u.profile.subject_type.id, 2)
-        self.assertEqual(self.u.profile.studentWorker, True)
-        self.assertEqual(self.u.profile.paused, True)
-        self.assertNotEqual(self.u.profile.email_confirmed, 'yes')
+        self.assertEqual(u.first_name,"Sam")
+        self.assertEqual(u.last_name,"I am")
+        self.assertEqual(u.profile.studentID,"123456789")
+        self.assertEqual(u.email,"abc@123.edu")
+        self.assertEqual(u.profile.phone,"1231239999")
+        self.assertEqual(u.profile.gender.id, 1)
+        self.assertEqual(u.profile.major.id, 1)
+        self.assertEqual(u.profile.subject_type.id, 2)
+        self.assertEqual(u.profile.studentWorker, True)
+        self.assertEqual(u.profile.paused, True)
+        self.assertNotEqual(u.profile.email_confirmed, 'yes')
         
