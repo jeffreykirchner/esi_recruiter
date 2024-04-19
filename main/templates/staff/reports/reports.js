@@ -87,7 +87,10 @@ var app = Vue.createApp({
                                 var blob = new Blob(["\ufeff", response.data]);
                                 var url = URL.createObjectURL(blob);
                                 downloadLink.href = url;
-                                downloadLink.download = "Petty_Cash_" + $( "#id_department option:selected" ).text() + "_"+ app.pettyCash.startDate + "_to_" + app.pettyCash.endDate + ".csv";
+                                var e = document.getElementById("id_department");
+                                var value = e.options[e.selectedIndex].value;
+                                var text = e.options[e.selectedIndex].text;
+                                downloadLink.download = "Petty_Cash_" + text + "_"+ app.pettyCash.startDate + "_to_" + app.pettyCash.endDate + ".csv";
 
                                 document.body.appendChild(downloadLink);
                                 downloadLink.click();
