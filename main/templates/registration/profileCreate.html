@@ -107,8 +107,9 @@
                   }
 
                   str+='</span>';
-
                   document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
+
+                  document.getElementById("div_id_" + e).scrollIntoView();
               }
           },
 
@@ -148,7 +149,7 @@
         </div>
       </div>
 
-      <div class="card-body">
+      <div class="card-body" v-cloak>
 
         <div v-if="status === 'update'">   
 

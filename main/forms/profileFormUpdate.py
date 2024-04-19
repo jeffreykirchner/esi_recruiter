@@ -37,14 +37,17 @@ class profileFormUpdate(forms.Form):
     
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
                                      queryset=genders.objects.all(),
+                                     empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
     
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
                                    queryset=majors.objects.all().order_by('name'),
+                                   empty_label=None,
                                    widget=forms.Select(attrs={"v-model":"profile.major"}))
     
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
                                           queryset=subject_types.objects.all(),
+                                          empty_label=None,
                                           widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
     
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
