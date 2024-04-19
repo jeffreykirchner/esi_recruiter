@@ -6,4 +6,4 @@ import logging
 class passwordResetForm(forms.Form):
 
     username =  forms.EmailField(label='Email address (lower case)',
-                                 widget=forms.TextInput(attrs={}) )      
+                                 widget=forms.TextInput(attrs={"v-model":"username"}) )      

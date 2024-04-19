@@ -59,10 +59,10 @@ def send_reset(request, data):
     params = parameters.objects.first()
 
     #convert form into dictionary
-    form_data_dict = {}             
+    form_data_dict = data["formData"]             
 
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     form_data_dict[field["name"]] = field["value"]
     
     form = passwordResetForm(form_data_dict)
 

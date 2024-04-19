@@ -12,8 +12,11 @@ var app = Vue.createApp({
         working:false,
         irb_report:null,
         form_ids:{{form_ids|safe}},
-        start_range:"{{d_fisical_start}}",
-        end_range:"{{d_today}}",
+        
+        irb_report_form:{start_range:"{{d_fisical_start}}",
+                         end_range:"{{d_today}}",
+                         irb_study:null,
+        },
 
     }},
 
@@ -22,17 +25,17 @@ var app = Vue.createApp({
         //get list of open experiments
         getIrbForm:function(){       
 
-            app.$data.working=true;
+            app.working=true;
             app.clearMainFormErrors();
 
             axios.post('{{ request.path }}', {
                         action :"getIrbForm" ,   
-                        formData : $("#irbReportForm").serializeArray(),                                                                                                                          
+                        formData : app.irb_report_form,                                                                                                                          
                         })
                         .then(function (response) {     
 
                             status=response.data.status;                                                                  
-                            app.$data.working=false;
+                            app.working=false;
 
                             if(status=="fail")
                             {                         
@@ -40,44 +43,39 @@ var app = Vue.createApp({
                             }
                             else
                             {                            
-                                app.$data.irb_report = response.data.irb_report;
+                                app.irb_report = response.data.irb_report;
                             }
-                            
-                            
                         })
                         .catch(function (error) {
                             console.log(error);                            
                         });                        
         },
 
-        //display form errors
-        displayErrors:function(errors){
-            for(var e in errors)
+         //display form errors
+         displayErrors: function displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str);    
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView(); 
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
-        },
+        }, 
 
         //clear errors from forms
         clearMainFormErrors:function(){
                 
-                s = app.$data.form_ids;
+                s = app.form_ids;
                 for(var i in s)
                 {
-                    $("#id_" + s[i]).attr("class","form-control");
-                    $("#id_errors_" + s[i]).remove();
+                    let e = document.getElementById("id_errors_" + s[i]);
+                    if(e) e.remove();
                 }
             },
 

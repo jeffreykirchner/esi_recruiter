@@ -38,19 +38,19 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            s = app.$data.recruitment_parameters_form_ids;
+            s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
-                $("#id_" + s[i]).attr("class","form-control");
-                $("#id_errors_" + s[i]).remove();
+                let e = document.getElementById("id_errors_" + s[i]);
+                if(e) e.remove();
             }
         },
 
         //update recruitment parameters 
         updateRecruitmentParameters: function(){                       
             axios.post('{{ request.path }}', {
-                    status :"updateRecruitmentParameters" ,                                
-                    formData : $("#updateRecruitmentParametersForm").serializeArray(),                                                              
+                    status :"updateRecruitmentParameters" ,                                                                                       
+                    formData : app.recruitment_params,
                 })
                 .then(function (response) {     
                                                                            
@@ -66,11 +66,11 @@ var app = Vue.createApp({
                         app.displayErrors(response.data.errors);
                     }          
 
-                    app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i>';                      
+                    app.buttonText1='Update <i class="fas fa-sign-in-alt"></i>';                      
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });                        
             },
 
@@ -82,40 +82,37 @@ var app = Vue.createApp({
                 })
                 .then(function (response) {                                                                   
                    
-                    app.$data.recruitment_params = response.data.recruitment_params;    
-                    app.$data.experiment = response.data.experiment;                            
-                    app.$data.loading = false;
+                    app.recruitment_params = response.data.recruitment_params;    
+                    app.experiment = response.data.experiment;                            
+                    app.loading = false;
                 })
                 .catch(function (error) {
                     console.log(error);
-                    //app.$data.searching=false;                                                              
+                    //app.searching=false;                                                              
                 });                        
         },
 
         //if form is changed add * to button
         recruitmentFormChange:function(){
-            app.$data.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
+            app.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
         },
 
-        //displays to the form errors
-        displayErrors:function(errors){
-            for(var e in errors)
+        //display form errors
+        displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str);  
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView();   
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
-        },
+        },    
         
     },
 

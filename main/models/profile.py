@@ -3,12 +3,14 @@ from datetime import datetime, timedelta, timezone
 import logging
 import pytz
 import uuid
+import json
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F, Q, When, Case
 from django.contrib import admin
 from django.db.models import Subquery, OuterRef
+from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import institutions
 from main.models import parameters
@@ -83,6 +85,8 @@ class profile(models.Model):
     #return the last login time in the server's time zone
     def last_login_tz(self):
         p = parameters.objects.first()
+        if not self.user.last_login:
+            return "Never"
         return self.user.last_login.astimezone(pytz.timezone(p.subjectTimeZone)).strftime("%m/%d/%Y %I:%M %p %Z")
 
     #find which email filter, if any applies to user
@@ -424,6 +428,43 @@ class profile(models.Model):
             "email_confirmed":self.email_confirmed,  
             "blackballed":self.blackballed,         
         }
+    
+    def json_for_user_info(self):
+
+        return{
+            "id":self.user.id,                        
+            "first_name":self.user.first_name.capitalize(),   
+            "last_name":self.user.last_name.capitalize(), 
+            "email":self.user.email,
+            "studentID":self.studentID, 
+            "type":self.type.id,
+            "pi_eligible":1 if self.pi_eligible else 0,
+            "studentWorker":1 if self.studentWorker else 0,
+            "blackballed":1 if self.blackballed else 0,
+            "paused":1 if self.paused else 0,
+            "international_student":1 if self.international_student else 0,
+            "can_paypal":1 if self.can_paypal else 0,
+            "can_recruit":1 if self.can_recruit else 0,
+            "disabled":1 if self.disabled else 0,
+        }
+
+    def json_for_profile_update(self):
+        message = {
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'chapman_id': self.user.profile.studentID,
+            'email': self.user.email,
+            'gender': self.user.profile.gender.id,
+            'phone': self.user.profile.phone,
+            'major': self.user.profile.major.id,
+            'subject_type': self.user.profile.subject_type.id,
+            'studentWorker': 1 if self.user.profile.studentWorker else 0,
+            'paused': 1 if self.user.profile.paused else 0,
+            'password1':"",
+            'password2':"",
+        }
+
+        return json.dumps(message, cls=DjangoJSONEncoder)
 
 #delete associated user model when profile is deleted
 @receiver(post_delete, sender=profile)

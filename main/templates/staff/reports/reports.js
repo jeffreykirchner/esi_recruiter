@@ -29,48 +29,46 @@ var app = Vue.createApp({
     }},
 
     methods:{
+    
         //display form errors
-        displayErrors:function(errors){
-                for(var e in errors)
+        displayErrors: function displayErrors(errors){
+            for(let e in errors)
+            {
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
+                
+                for(let i in errors[e])
                 {
-                    $("#id_" + e).attr("class","form-control is-invalid")
-                    var str='<span id=id_errors_'+ e +' class="text-danger">';
-                    
-                    for(var i in errors[e])
-                    {
-                        str +=errors[e][i] + '<br>';
-                    }
-
-                    str+='</span>';
-                    $("#div_id_" + e).append(str);    
-
-                    var elmnt = document.getElementById("div_id_" + e);
-                    elmnt.scrollIntoView(); 
+                    str +=errors[e][i] + '<br>';
                 }
-            },
+
+                str+='</span>';
+
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
+            }
+        }, 
 
         //clear errors from forms
         clearMainFormErrors:function(){
-                for(var item in app.$data.pettyCash)
+                for(var item in app.pettyCash)
                 {
-                    $("#id_" + item).attr("class","form-control");
-                    $("#id_errors_" + item).remove();
+                    let e = document.getElementById("id_errors_" + item);
+                    if(e) e.remove();
                 }  
                 
-                for(var item in app.$data.studentReport)
+                for(var item in app.studentReport)
                 {
-                    $("#id_" + item).attr("class","form-control");
-                    $("#id_errors_" + item).remove();
+                    let e = document.getElementById("id_errors_" + item);
+                    if(e) e.remove();
                 }
             },
 
         //get the petty chash csv
         getPettyCash:function(){
-            app.$data.pettyCashButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            app.pettyCashButtonText='<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/reports/', {
                             action :"getPettyCash" ,
-                            formData : $("#pettyCashForm").serializeArray(),                                                                                                                             
+                            formData : app.pettyCash,                                                                                                                             
                         })
                         .then(function (response) { 
                             status=response.data.status;                                                                  
@@ -89,28 +87,31 @@ var app = Vue.createApp({
                                 var blob = new Blob(["\ufeff", response.data]);
                                 var url = URL.createObjectURL(blob);
                                 downloadLink.href = url;
-                                downloadLink.download = "Petty_Cash_" + $( "#id_department option:selected" ).text() + "_"+ app.$data.pettyCash.startDate + "_to_" + app.$data.pettyCash.endDate + ".csv";
+                                var e = document.getElementById("id_department");
+                                var value = e.options[e.selectedIndex].value;
+                                var text = e.options[e.selectedIndex].text;
+                                downloadLink.download = "Petty_Cash_" + text + "_"+ app.pettyCash.startDate + "_to_" + app.pettyCash.endDate + ".csv";
 
                                 document.body.appendChild(downloadLink);
                                 downloadLink.click();
                                 document.body.removeChild(downloadLink);
                             }    
                             
-                            app.$data.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
+                            app.pettyCashButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
                     },
 
         //get the petty chash csv
         getStudentReport:function(){
-            app.$data.studentReportButtonText='<i class="fas fa-spinner fa-spin"></i>';
+            app.studentReportButtonText='<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/reports/', {
                             action :"getStudentReport" ,
-                            formData : $("#studentReportForm").serializeArray(),                                                                                                                             
+                            formData : app.studentReport,                                                                                                                             
                         })
                         .then(function (response) { 
                             status=response.data.status;                                                                  
@@ -129,18 +130,18 @@ var app = Vue.createApp({
                                 var blob = new Blob(["\ufeff", response.data]);
                                 var url = URL.createObjectURL(blob);
                                 downloadLink.href = url;
-                                downloadLink.download = "Student_Report_" + app.$data.studentReport.studentReport_startDate + "_to_"+ app.$data.studentReport.studentReport_endDate + ".csv";
+                                downloadLink.download = "Student_Report_" + app.studentReport.studentReport_startDate + "_to_"+ app.studentReport.studentReport_endDate + ".csv";
 
                                 document.body.appendChild(downloadLink);
                                 downloadLink.click();
                                 document.body.removeChild(downloadLink);
                             }    
                             
-                            app.$data.studentReportButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
+                            app.studentReportButtonText = 'Generate <i class="fas fa-scroll fa-xs"></i>';
                         })
                         .catch(function (error) {
                             console.log(error);
-                            app.$data.searching=false;
+                            app.searching=false;
                         });                        
                     },
     },

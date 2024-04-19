@@ -58,6 +58,9 @@ class ReportsView(View):
         d_fisical_start = d_today
         d_fisical_start = d_fisical_start.replace(month=6, day=1)
 
+        if d_today.month<6:
+            d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
+
         return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
                                                     "studentReportForm" : studentReportForm(),
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
@@ -88,10 +91,10 @@ def studentReport(data):
     logger = logging.getLogger(__name__)
     logger.info(f"Get Student Report CSV: {data}")
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     form_data_dict[field["name"]] = field["value"]
     
     form = studentReportForm(form_data_dict)
 
@@ -248,10 +251,10 @@ def pettyCash(data):
     logger = logging.getLogger(__name__)
     logger.info(f"Get Petty Cash CSV: {data}")
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     form_data_dict[field["name"]] = field["value"]
     
     form = pettyCashForm(form_data_dict)
 

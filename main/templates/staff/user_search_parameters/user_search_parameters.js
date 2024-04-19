@@ -22,9 +22,13 @@ var app = Vue.createApp({
             trait_id:0,
             min_value:0,
             max_vaue:0,
-            include_if_in_range:true,
+            include_if_in_range:1,
         },  
         loginLast90Days:false,
+
+        //modals
+        editTraitsModal:null,
+        updateTraitModal:null,
     }},
 
     methods:{     
@@ -32,11 +36,11 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function(){
 
-            s = app.$data.recruitment_parameters_form_ids;
+            s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
-                $("#id_" + s[i]).attr("class","form-control");
-                $("#id_errors_" + s[i]).remove();
+                let e = document.getElementById("id_errors_" + s[i]);
+                if(e) e.remove();
             }
         },
 
@@ -70,7 +74,7 @@ var app = Vue.createApp({
                 })
                 .catch(function (error) {
                     console.log(error);
-                    app.$data.searching=false;
+                    app.searching=false;
                 });                        
             },
 
@@ -80,25 +84,22 @@ var app = Vue.createApp({
            
         },
 
-        //displays to the form errors
-        displayErrors:function(errors){
-            for(var e in errors)
+        //display form errors
+        displayErrors: function displayErrors(errors){
+            for(let e in errors)
             {
-                $("#id_" + e).attr("class","form-control is-invalid")
-                var str='<span id=id_errors_'+ e +' class="text-danger">';
+                let str='<span id=id_errors_'+ e +' class="text-danger">';
                 
-                for(var i in errors[e])
+                for(let i in errors[e])
                 {
                     str +=errors[e][i] + '<br>';
                 }
 
                 str+='</span>';
-                $("#div_id_" + e).append(str);  
 
-                var elmnt = document.getElementById("div_id_" + e);
-                elmnt.scrollIntoView();   
+                document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
             }
-        },
+        },  
 
         //add trait
         addTrait:function(){
@@ -123,7 +124,7 @@ var app = Vue.createApp({
                      "min_value":"0.00",
                      "max_value":"10.00",
                      "recruitment_parameter_id":0,
-                     "include_if_in_range":true};
+                     "include_if_in_range":1};
             
             app.recruitment_params.trait_constraints.push(trait);
         },
@@ -147,7 +148,7 @@ var app = Vue.createApp({
             let mode = trait.include_if_in_range ? "Inc." : "Exc.";
             trait.name = trait.trait_name + " " + mode + " " + trait.min_value + "-" + trait.max_value;
 
-            $('#updateTraitModal').modal('toggle');
+            app.updateTraitModal.toggle();
         },
 
         //delete trait
@@ -164,7 +165,7 @@ var app = Vue.createApp({
         //fire when edit trait model needs to be shown
         showEditTraits:function(){
             
-            $('#editTraitsModal').modal('show');
+            app.editTraitsModal.show();
             //app.clearMainFormErrors();
         },
 
@@ -185,7 +186,7 @@ var app = Vue.createApp({
             app.current_trait.trait_id = tc.trait_id;
             app.current_trait.include_if_in_range = tc.include_if_in_range;
 
-            $('#updateTraitModal').modal('show');
+            app.updateTraitModal.show();
             app.clearMainFormErrors();
         },
 
@@ -202,7 +203,7 @@ var app = Vue.createApp({
 
         //fire when edit experiment model hides, cancel action if nessicary
         hideUpdateTrait:function(){
-            if(app.$data.cancelModal)
+            if(app.cancelModal)
             {
                
             }
@@ -212,12 +213,13 @@ var app = Vue.createApp({
 
     //run when vue is mounted
     mounted(){
-        this.$nextTick(() => {
-            app.$data.loading = false;
+        Vue.nextTick(() => {
+            app.loading = false;
+
+            app.editTraitsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editTraitsModal'), {keyboard: false});
+            app.updateTraitModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('updateTraitModal'), {keyboard: false});
         });
-        
-        $('#editTraitsModal').on("hidden.bs.modal", this.hideEditTraits);
-        $('#updateTraitModal').on("hidden.bs.modal", this.hideUpdateTrait);
+    
     },                 
 
 }).mount('#app');

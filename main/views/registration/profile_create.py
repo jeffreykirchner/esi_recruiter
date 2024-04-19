@@ -82,33 +82,32 @@ def createUser(request, data):
     logger = logging.getLogger(__name__) 
     logger.info("Create User")
 
-    form_data_dict = {}             
+    form_data_dict = data["formData"]      
 
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     form_data_dict[field["name"]] = field["value"]
 
-        #remove caps from email form
-        if field["name"] == "email":
-            form_data_dict["email"] = form_data_dict["email"].strip().lower()
+    #remove caps from email form
+    # if field["name"] == "email":
+    #     form_data_dict["email"] = form_data_dict["email"].strip().lower()
 
-    
     f = profileForm(form_data_dict)
 
     if f.is_valid():
         
         u = profileCreateUser(f.cleaned_data['email'].strip().lower(),
-                                    f.cleaned_data['email'].strip().lower(),
-                                    f.cleaned_data['password1'],
-                                    f.cleaned_data['first_name'].strip().capitalize(),
-                                    f.cleaned_data['last_name'].strip().capitalize(),
-                                    f.cleaned_data['chapman_id'].strip(),
-                                    f.cleaned_data['gender'],
-                                    f.cleaned_data['phone'].strip(),
-                                    f.cleaned_data['major'],
-                                    f.cleaned_data['subject_type'],
-                                    f.cleaned_data['studentWorker'],
-                                    True,
-                                    account_types.objects.get(id=2))
+                                f.cleaned_data['email'].strip().lower(),
+                                f.cleaned_data['password1'],
+                                f.cleaned_data['first_name'].strip().capitalize(),
+                                f.cleaned_data['last_name'].strip().capitalize(),
+                                f.cleaned_data['chapman_id'].strip(),
+                                f.cleaned_data['gender'],
+                                f.cleaned_data['phone'].strip(),
+                                f.cleaned_data['major'],
+                                f.cleaned_data['subject_type'],
+                                f.cleaned_data['studentWorker'],
+                                True,
+                                account_types.objects.get(id=2))
 
         profile_create_send_email(u)
 

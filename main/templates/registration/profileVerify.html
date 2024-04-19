@@ -4,7 +4,7 @@
 {%block head%}
 
     <script type="text/javascript">
-        $(document).ready(function(){                         
+        document.addEventListener("DOMContentLoaded", function(){                         
           axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
           axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -25,15 +25,15 @@
                 //get list of users based on search
                 verifyEmail: function(){
                     
-                  app.$data.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
+                  app.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
 
                   axios.post('/profileVerify/{{token}}/', {                            
                       action:"verifyEmail",                             
                   })
                   .then(function (response) {                         
-                    app.$data.emailVerified = response.data.emailVerified;
-                    app.$data.failed = response.data.failed;
-                    app.$data.buttonText ='Click to Verify <i class="fas fa-sign-in-alt"></i>';
+                    app.emailVerified = response.data.emailVerified;
+                    app.failed = response.data.failed;
+                    app.buttonText ='Click to Verify <i class="fas fa-sign-in-alt"></i>';
                   })
                   .catch(function (error) {
                       console.log(error);                               

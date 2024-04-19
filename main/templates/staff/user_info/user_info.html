@@ -6,6 +6,8 @@
         (Staff)
         {%endif%}
 
+        <span v-show="working"><i class="fas fa-spinner fa-spin"></i></span>
+
         <span class="float-md-end">
             <div class="row">
                 {%if user.is_staff%}
@@ -16,14 +18,20 @@
                     </div>
                     
                     <div class="col-md-auto p-0 me-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showEditSubject()">
+                        <button type="button" 
+                                v-bind:disabled="working"
+                                class="btn btn-outline-primary btn-sm" 
+                                v-on:click = "showEditSubject()">
                             Edit User <i class="fas fa-edit fa-xs"></i>
                         </button>
                     </div>                
                 {%endif%}
                 {%if u.profile.type.name == "subject"%}
                 <div class="col-md-auto p-0">
-                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "showMakeNote()">
+                    <button type="button" 
+                            v-bind:disabled="working"
+                            class="btn btn-outline-primary btn-sm" 
+                            v-on:click = "showMakeNote()">
                         Make Note <i class="fas fa-sticky-note fa-xs"></i>
                     </button>
                 </div>

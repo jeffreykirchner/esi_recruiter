@@ -225,14 +225,14 @@ def updateForm1(data,id):
 
     e = experiments.objects.get(id=id)
 
-    form_data_dict = {} 
-    institutionList=[]               
+    form_data_dict = data["formData"]
+    #institutionList=[]               
 
-    for field in data["formData"]:            
-        if field["name"] == "institution":
-            institutionList.append(field["value"])                
-        else:
-            form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:            
+    #     if field["name"] == "institution":
+    #         institutionList.append(field["value"])                
+    #     else:
+    #         form_data_dict[field["name"]] = field["value"]
     
     #if a subject has confirmed cannot change insitutions
     if e.checkForConfirmation():
@@ -241,10 +241,9 @@ def updateForm1(data,id):
         for i in e.institution.all():
             institutionList.append(str(i.id))  
 
-        form_data_dict["survey"] = 'true' if e.survey else 'false'
-            
+        form_data_dict["institution"] = institutionList
 
-    form_data_dict["institution"] = institutionList                 
+        form_data_dict["survey"] = 1 if e.survey else 0
 
     form = experimentForm1(form_data_dict,instance=e)
 
@@ -359,10 +358,10 @@ def updateTrait(data,id):
 
     tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
 
-    form_data_dict = {} 
+    form_data_dict = data["formData"] 
 
-    for field in data["formData"]:
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     form_data_dict[field["name"]] = field["value"]
 
     form = TraitConstraintForm(form_data_dict,instance=tc)
 

@@ -44,12 +44,12 @@ class experimentSessionForm2(forms.ModelForm):
                                                                 "v-on:change":"mainFormChange2"}))
 
     auto_reminder = forms.ChoiceField(label="Send Reminder Email",
-                                      choices=(('true', "Yes"), ('false', "No")),
+                                      choices=((1, "Yes"), (0, "No")),
                                       widget=forms.RadioSelect(attrs={"v-model":"currentSessionDay.auto_reminder",
                                                                       "v-on:change":"mainFormChange2"}))
 
     enable_time = forms.ChoiceField(label="Enable Meeting Time",
-                                    choices=(('true', "Yes"), ('false', "No")),
+                                    choices=((1, "Yes"), (0, "No")),
                                     widget=forms.RadioSelect(attrs={"v-model":"currentSessionDay.enable_time",
                                                                     "v-on:change":"mainFormChange2",
                                                                     "v-bind:disabled":"session.confirmedCount > 0"}))
@@ -63,7 +63,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                                           "v-on:change":"mainFormChange2"}))
 
     custom_reminder_time = forms.ChoiceField(label="Set Custom Reminder Time",
-                                             choices=(('true', "Yes"), ('false', "No")),
+                                             choices=((1, "Yes"), (0, "No")),
                                              widget=forms.RadioSelect(attrs={"v-model":"currentSessionDay.custom_reminder_time",
                                                                              "v-on:change":"mainFormChange2"}))
 
@@ -71,56 +71,56 @@ class experimentSessionForm2(forms.ModelForm):
         model = experiment_session_days
         fields = ['location', 'date', 'length', 'account', 'auto_reminder', 'enable_time', 'reminder_time', 'custom_reminder_time']
 
-    def clean_enable_time(self):
-        '''
-        clean enable time boolean
-        '''
-        logger = logging.getLogger(__name__)
-        logger.info("Clean enable time")
+    # def clean_enable_time(self):
+    #     '''
+    #     clean enable time boolean
+    #     '''
+    #     logger = logging.getLogger(__name__)
+    #     logger.info("Clean enable time")
 
-        val = self.data['enable_time']
+    #     val = self.data['enable_time']
 
-        if val == 'true':
-            return True
+    #     if val == 'true':
+    #         return True
 
-        if val == 'false':
-            return False
+    #     if val == 'false':
+    #         return False
 
-        raise forms.ValidationError('Invalid Entry')
+    #     raise forms.ValidationError('Invalid Entry')
 
-    def clean_custom_reminder_time(self):
-        '''
-        clean custom reminder time
-        '''
-        logger = logging.getLogger(__name__)
-        logger.info("Clean custom_reminder_time")
+    # def clean_custom_reminder_time(self):
+    #     '''
+    #     clean custom reminder time
+    #     '''
+    #     logger = logging.getLogger(__name__)
+    #     logger.info("Clean custom_reminder_time")
 
-        val = self.data['custom_reminder_time']
+    #     val = self.data['custom_reminder_time']
 
-        if val == 'true':
-            return True
+    #     if val == 'true':
+    #         return True
 
-        if val == 'false':
-            return False
+    #     if val == 'false':
+    #         return False
 
-        raise forms.ValidationError('Invalid Entry')
+    #     raise forms.ValidationError('Invalid Entry')
 
-    def clean_auto_reminder(self):
-        '''
-        clean auto reminder
-        '''
-        logger = logging.getLogger(__name__)
-        logger.info("Clean auto reminder")
+    # def clean_auto_reminder(self):
+    #     '''
+    #     clean auto reminder
+    #     '''
+    #     logger = logging.getLogger(__name__)
+    #     logger.info("Clean auto reminder")
 
-        val = self.data['auto_reminder']
+    #     val = self.data['auto_reminder']
 
-        if val == 'true':
-            return True
+    #     if val == 'true':
+    #         return True
 
-        if val == 'false':
-            return False
+    #     if val == 'false':
+    #         return False
 
-        raise forms.ValidationError('Invalid Entry')
+    #     raise forms.ValidationError('Invalid Entry')
 
     #convert to date to utc time zone
     def clean_date(self):

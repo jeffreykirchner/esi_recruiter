@@ -50,7 +50,7 @@ class experiment_session_days(models.Model):
 
     complete = models.BooleanField(default=False)                       #locks the session day once the user has pressed the complete button
     paypal_api = models.BooleanField(default=False)                     #true if the pay pal direct payment is used 
-    paypal_api_batch_id = models.CharField(verbose_name="PayPal Batch Payout ID", max_length = 100, default="") 
+    paypal_api_batch_id = models.CharField(verbose_name="PayPal Batch Payout ID", max_length = 100, default="", blank=True, null=True) 
     paypal_response = models.JSONField(encoder=DjangoJSONEncoder, null=True, blank=True)   #response from paypal after payment
 
     user_who_paypal_api = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiment_session_days_a', blank=True, null=True)       #user that pressed paypal api button
@@ -674,13 +674,13 @@ class experiment_session_days(models.Model):
             "date_raw":self.date,
             "reminder_time":self.getReminderTimeString(),
             "reminder_time_raw":self.reminder_time,
-            "custom_reminder_time":self.custom_reminder_time,
+            "custom_reminder_time":1 if self.custom_reminder_time else 0,
             "reminder_email_sent":self.reminder_email_sent,
             "reminder_email_sent_count":self.reminder_email_sent_count,
             "length":self.length,
             "account":self.account.id,
-            "auto_reminder":self.auto_reminder,
-            "enable_time":self.enable_time,
+            "auto_reminder":1 if self.auto_reminder else 0,
+            "enable_time": 1 if self.enable_time else 0,
             "experiment_session_days_user" : [{"id":i.id,
                                                "confirmed":i.bumped,
                                                "user":{"id" : i.user.id,
