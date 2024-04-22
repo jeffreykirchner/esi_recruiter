@@ -22,7 +22,7 @@
 
             methods:{
               //get list of users based on search
-              sendVerificationEmail: function(){
+              sendVerificationEmail: function sendVerificationEmail(){
                   
                   app.buttonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -38,7 +38,7 @@
                   }); 
               }, 
 
-              getUser:function(){
+              getUser:function getUser(){
                 axios.post('/profileVerifyResend/', {                            
                       action:"getUser",                                                            
                   })
