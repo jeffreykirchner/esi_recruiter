@@ -57,54 +57,56 @@
                 </div>                               
                 <div class="row">
                     <div class = "col">
-                        <table class="table table-hover table-condensed table-responsive-xl">                            
-                            <thead>
-                                <th width="25%">
-                                    Name 
-                                </th>  
-                                <th width="25%" class="text-center text-nowrap">
-                                    ID 
-                                </th> 
-                                <th width="25%" class="text-center text-nowrap">
-                                    Email 
-                                </th>                                                                                
-                                <th width="25%" class="text-center text-nowrap">
-                                    Control
-                                </th>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
-                                    <td class="text-start text-nowrap">
-                                        <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
-                                            <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
-                                        </a>
-                                    </td>
-                                    <td class="text-center text-nowrap">
-                                        <span v-html="u.profile__studentID"></span>                                 
-                                    </td>
-                                    <td class="text-center text-nowrap">
-                                        <span v-html="u.email"></span>                                   
-                                    </td>                               
-                                    <td class="text-center text-nowrap">
-                                        <div v-if="session.canceled">
-                                            <div class="text-center" style="color: red;">Session Canceled</div>
-                                        </div>
-                                        <div v-else-if="u.alreadyIn == 1">
-                                            <div  class="text-center" style="color: red;">Aready Added</div>
-                                        </div>
-                                        <div v-else>
-                                            <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)" v-bind:disabled = "u.valid == 0">
-                                                Add <i class="fas fa-plus-square fa-xs"></i>  
-                                            </button>   
-                                            <div v-if="u.valid == 0"  class="text-center" style="color: red;">Rec. Violation</div>
-                                            <div v-if="u.profile__blackballed == 1" class="text-center" style="color: red;">Blackballed</div>
-                                        </div>                                                                             
-                                    </td>                                
-                                </tr>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-condensed">                            
+                                <thead>
+                                    <th width="25%">
+                                        Name 
+                                    </th>  
+                                    <th width="25%" class="text-center text-nowrap">
+                                        ID 
+                                    </th> 
+                                    <th width="25%" class="text-center text-nowrap">
+                                        Email 
+                                    </th>                                                                                
+                                    <th width="25%" class="text-center text-nowrap">
+                                        Control
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
+                                        <td class="text-start text-nowrap">
+                                            <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
+                                                <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
+                                            </a>
+                                        </td>
+                                        <td class="text-center text-nowrap">
+                                            <span v-html="u.profile__studentID"></span>                                 
+                                        </td>
+                                        <td class="text-center text-nowrap">
+                                            <span v-html="u.email"></span>                                   
+                                        </td>                               
+                                        <td class="text-center text-nowrap">
+                                            <div v-if="session.canceled">
+                                                <div class="text-center" style="color: red;">Session Canceled</div>
+                                            </div>
+                                            <div v-else-if="u.alreadyIn == 1">
+                                                <div  class="text-center" style="color: red;">Aready Added</div>
+                                            </div>
+                                            <div v-else>
+                                                <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)" v-bind:disabled = "u.valid == 0">
+                                                    Add <i class="fas fa-plus-square fa-xs"></i>  
+                                                </button>   
+                                                <div v-if="u.valid == 0"  class="text-center" style="color: red;">Rec. Violation</div>
+                                                <div v-if="u.profile__blackballed == 1" class="text-center" style="color: red;">Blackballed</div>
+                                            </div>                                                                             
+                                        </td>                                
+                                    </tr>
+                                    
+                                </tbody>                                                                      
                                 
-                            </tbody>                                                                      
-                            
-                        </table>
+                            </table>
+                        </div>
                         <div v-html = "searchAddResult">
                         </div>
                     </div>

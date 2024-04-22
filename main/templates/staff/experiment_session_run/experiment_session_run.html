@@ -67,286 +67,288 @@
         <!-- subject table     -->
         <div class="row">
             <div class = "col">
-                <table class="table table-hover table-condensed table-responsive-xl">
-                    <caption style="caption-side: top;" class="caption text-center">Subjects Confirmed: [[sessionDay.confirmedCount]] | 
-                                                                                    Attending: [[sessionDay.attendingCount]] | 
-                                                                                    Needed: [[sessionDay.requiredCount]] | 
-                                                                                    Bumped: [[sessionDay.bumpCount]]
-                    </caption>
-                    <thead>
-                        <th scope="col-auto">
-                            Name 
-                        </th>
-                        <th scope="col-auto" class="text-center text-nowrap">
-                            ID Number 
-                        </th>
-                        <th scope="col-auto" class="text-center text-nowrap">  
-                            Earnings ($)
-                        </th> 
-                        <th scope="col-auto" class="text-center text-nowrap">  
-                            On-Time Bonus ($)
-                        </th>   
-                        <th scope="col-auto" class="text-center text-nowrap">  
-                            Status
-                        </th>                                                                             
-                        <th scope="col-auto" class="text-center text-nowrap">
-                            Control
-                        </th>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">
-                                                       
-                            <td class="align-middle m-1 p-1 text-nowrap">
-                                ([[esdu.user.id]]) 
-                                <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
-                                    <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
-                                </a>
-                                <span v-if="esdu.user.international_student" title="International Student" class="ms-1"><i class="fas fa-globe-europe"></i></span>                              
-                            </td>
-                            <td  class="align-middle text-center m-1 p-1 text-nowrap">                                       
-                                <span v-html="esdu.user.studentID"></span>                                    
-                            </td> 
-                            <td class="align-middle m-1 p-1 text-center text-nowrap">
-                                <div v-if='esdu.attended'>
-                                    <div v-if='sessionDay.complete'>
-                                        $<span v-html="esdu.earnings"></span>
-                                    </div>
-                                    <div v-else>
-                                        <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.earnings"
-                                            v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter experiment earnings here.">
-                                    </div>
-                                </div>                                                                                                                  
-                            </td>                                    
-                            <td class="align-middle m-1 p-1 text-center text-nowrap">
-                                <div v-if='esdu.attended || esdu.bumped'>
-                                    <div v-if='sessionDay.complete'>
-                                        $<span v-html="esdu.show_up_fee"></span>
-                                    </div>
-                                    <div v-else>
-                                        <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
-                                           v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter on-time bonus here.">
-                                    </div>                                           
-                                </div>                                        
-                            </td>
-                            <td class="align-middle m-1 p-1 text-center text-nowrap">                                       
-                                <span v-if="esdu.attended">Attended</span>
-                                <span v-else-if="esdu.bumped">Bumped</span>
-                                <span v-else-if="sessionDay.canceled">Canceled</span>
-                                <span v-else>No Show</span>
-                                
-                                <span v-if="sessionDay.complete && 
-                                            sessionDay.paypalAPI && 
-                                            esdu.paypal_response && 
-                                            esdu.paypal_response.transaction_status !='SUCCESS'"
-                                      v-bind:title="esdu.paypal_response && esdu.paypal_response.hasOwnProperty('errors') ? 
-                                                    esdu.paypal_response.errors.name + ': ' + esdu.paypal_response.errors.message : ''"  
-                                    >
-                                     (PayPal: <a v-bind:href="'https://www.paypal.com/activity/payment/' + esdu.paypal_response.transaction_id" target="_blank">[[esdu.paypal_response.transaction_status]]</a>)
-                                </span>
-                            </td>
-                            <td class="align-middle m-1 p-1 text-center text-nowrap">
-                                <div v-show="sessionDay.complete === false">  
-                                    <div v-if = "esdu.waiting">
-                                        <span v-html='waitButtonText'></span>
-                                    </div>
-                                    <div v-else-if="esdu.attended">
-                                        <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
-                                                v-on:click = "bumpSubject(esdu.id,index)" title="Change subject's status to 'Bumped'.">
-                                            <span v-html='bumpButtonText'></span>
-                                        </button>
-                                        <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div> 
-                                    </div>
-                                    <div v-else-if="esdu.bumped">
-                                        <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
-                                                v-on:click = "noShowSubject(esdu.id,index)" title="Change subject's status to 'No Show'.">
-                                            <span v-html='noShowButtonText'></span>
-                                        </button>
-                                        <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div>
-                                    </div>
-                                    <div v-else-if="isAdmin">
-                                        <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
-                                                v-on:click = "attendSubject(esdu.id,index)" title="Change subject's status to 'Attended'.">
-                                            <span v-html='attendButtonText'></span>
-                                        </button>
-                                    </div>
-                                </div>                                                                               
-                            </td>                                
-                        </tr>
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">
+                        <caption style="caption-side: top;" class="caption text-center">Subjects Confirmed: [[sessionDay.confirmedCount]] | 
+                                                                                        Attending: [[sessionDay.attendingCount]] | 
+                                                                                        Needed: [[sessionDay.requiredCount]] | 
+                                                                                        Bumped: [[sessionDay.bumpCount]]
+                        </caption>
+                        <thead>
+                            <th scope="col-auto">
+                                Name 
+                            </th>
+                            <th scope="col-auto" class="text-center text-nowrap">
+                                ID Number 
+                            </th>
+                            <th scope="col-auto" class="text-center text-nowrap">  
+                                Earnings ($)
+                            </th> 
+                            <th scope="col-auto" class="text-center text-nowrap">  
+                                On-Time Bonus ($)
+                            </th>   
+                            <th scope="col-auto" class="text-center text-nowrap">  
+                                Status
+                            </th>                                                                             
+                            <th scope="col-auto" class="text-center text-nowrap">
+                                Control
+                            </th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(esdu,index) in sessionDay.experiment_session_days_user" v-bind:key="esdu.id">
+                                                        
+                                <td class="align-middle m-1 p-1 text-nowrap">
+                                    ([[esdu.user.id]]) 
+                                    <a  v-bind:href='"/userInfo/" + esdu.user.id' target="_blank">
+                                        <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
+                                    </a>
+                                    <span v-if="esdu.user.international_student" title="International Student" class="ms-1"><i class="fas fa-globe-europe"></i></span>                              
+                                </td>
+                                <td  class="align-middle text-center m-1 p-1 text-nowrap">                                       
+                                    <span v-html="esdu.user.studentID"></span>                                    
+                                </td> 
+                                <td class="align-middle m-1 p-1 text-center text-nowrap">
+                                    <div v-if='esdu.attended'>
+                                        <div v-if='sessionDay.complete'>
+                                            $<span v-html="esdu.earnings"></span>
+                                        </div>
+                                        <div v-else>
+                                            <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.earnings"
+                                                v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter experiment earnings here.">
+                                        </div>
+                                    </div>                                                                                                                  
+                                </td>                                    
+                                <td class="align-middle m-1 p-1 text-center text-nowrap">
+                                    <div v-if='esdu.attended || esdu.bumped'>
+                                        <div v-if='sessionDay.complete'>
+                                            $<span v-html="esdu.show_up_fee"></span>
+                                        </div>
+                                        <div v-else>
+                                            <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
+                                            v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter on-time bonus here.">
+                                        </div>                                           
+                                    </div>                                        
+                                </td>
+                                <td class="align-middle m-1 p-1 text-center text-nowrap">                                       
+                                    <span v-if="esdu.attended">Attended</span>
+                                    <span v-else-if="esdu.bumped">Bumped</span>
+                                    <span v-else-if="sessionDay.canceled">Canceled</span>
+                                    <span v-else>No Show</span>
+                                    
+                                    <span v-if="sessionDay.complete && 
+                                                sessionDay.paypalAPI && 
+                                                esdu.paypal_response && 
+                                                esdu.paypal_response.transaction_status !='SUCCESS'"
+                                        v-bind:title="esdu.paypal_response && esdu.paypal_response.hasOwnProperty('errors') ? 
+                                                        esdu.paypal_response.errors.name + ': ' + esdu.paypal_response.errors.message : ''"  
+                                        >
+                                        (PayPal: <a v-bind:href="'https://www.paypal.com/activity/payment/' + esdu.paypal_response.transaction_id" target="_blank">[[esdu.paypal_response.transaction_status]]</a>)
+                                    </span>
+                                </td>
+                                <td class="align-middle m-1 p-1 text-center text-nowrap">
+                                    <div v-show="sessionDay.complete === false">  
+                                        <div v-if = "esdu.waiting">
+                                            <span v-html='waitButtonText'></span>
+                                        </div>
+                                        <div v-else-if="esdu.attended">
+                                            <button v-bind:id="'bumpSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
+                                                    v-on:click = "bumpSubject(esdu.id,index)" title="Change subject's status to 'Bumped'.">
+                                                <span v-html='bumpButtonText'></span>
+                                            </button>
+                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div> 
+                                        </div>
+                                        <div v-else-if="esdu.bumped">
+                                            <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
+                                                    v-on:click = "noShowSubject(esdu.id,index)" title="Change subject's status to 'No Show'.">
+                                                <span v-html='noShowButtonText'></span>
+                                            </button>
+                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div>
+                                        </div>
+                                        <div v-else-if="isAdmin">
+                                            <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
+                                                    v-on:click = "attendSubject(esdu.id,index)" title="Change subject's status to 'Attended'.">
+                                                <span v-html='attendButtonText'></span>
+                                            </button>
+                                        </div>
+                                    </div>                                                                               
+                                </td>                                
+                            </tr>
 
-                        <tr v-if="sessionDay.experiment_session_days_user.length == 0">
-                            <td>No confirmed users</td>
-                        </tr>
-                    </tbody>                                                                      
-                    <tfoot>
-                        <!-- first button row -->
-                        <tr>
-                            <td class="text-nowrap">
-                                <div class="row">
-                                    <div class="col">
-                                        Payout Total: $[[payoutTotal]] 
-                                        <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Payouts">
-                                            ($[[sessionDay.paypal_realized_totals.realized_payouts]])
-                                        </span>
+                            <tr v-if="sessionDay.experiment_session_days_user.length == 0">
+                                <td>No confirmed users</td>
+                            </tr>
+                        </tbody>                                                                      
+                        <tfoot>
+                            <!-- first button row -->
+                            <tr>
+                                <td class="text-nowrap">
+                                    <div class="row">
+                                        <div class="col">
+                                            Payout Total: $[[payoutTotal]] 
+                                            <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Payouts">
+                                                ($[[sessionDay.paypal_realized_totals.realized_payouts]])
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row" v-if="sessionDay && 
-                                                       sessionDay.complete && 
-                                                       sessionDay.paypalAPI && 
-                                                       sessionDay.paypal_response && 
-                                                       sessionDay.paypal_response.hasOwnProperty('batch_status')">
-                                    <div class="col">
-                                        <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+sessionDay.paypal_response.payout_batch_id" target='_blank'>
-                                            PayPal Fees: 
-                                            <span v-if="sessionDay.paypal_response.fees">
-                                                $[[sessionDay.paypal_response.fees.value]]
-                                            </span>
-                                            <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Fees">
-                                                ($[[sessionDay.paypal_realized_totals.realized_fees]])
-                                            </span>
-                                            <span v-if="sessionDay.paypal_response.hasOwnProperty('batch_status') && 
-                                                        sessionDay.paypal_response.batch_status != 'SUCCESS'">
-                                                 ***[[sessionDay.paypal_response.batch_status]]***
-                                            </span>
-                                        </a>
-                                    </div>
-                                </div>                                     
-                            </td>
+                                    <div class="row" v-if="sessionDay && 
+                                                        sessionDay.complete && 
+                                                        sessionDay.paypalAPI && 
+                                                        sessionDay.paypal_response && 
+                                                        sessionDay.paypal_response.hasOwnProperty('batch_status')">
+                                        <div class="col">
+                                            <a v-bind:href="'https://www.paypal.com/activity/masspay/MPA-'+sessionDay.paypal_response.payout_batch_id" target='_blank'>
+                                                PayPal Fees: 
+                                                <span v-if="sessionDay.paypal_response.fees">
+                                                    $[[sessionDay.paypal_response.fees.value]]
+                                                </span>
+                                                <span v-if="sessionDay && sessionDay.complete && sessionDay.paypalAPI" title="Realized Fees">
+                                                    ($[[sessionDay.paypal_realized_totals.realized_fees]])
+                                                </span>
+                                                <span v-if="sessionDay.paypal_response.hasOwnProperty('batch_status') && 
+                                                            sessionDay.paypal_response.batch_status != 'SUCCESS'">
+                                                    ***[[sessionDay.paypal_response.batch_status]]***
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </div>                                     
+                                </td>
+                                
+                                <td  class="text-nowrap text-center"><!-- save button -->                                        
+                                    <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
+                                            title="Save payouts to the database.">
+                                        <span v-html='saveButtonText'></span> 
+                                    </button>                                                                                
+                                </td>
+                                <td class="text-nowrap text-center">                                      
+                                    <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
+                                        <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
+                                                aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
+                                        
+                                        <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
+                                            <span v-html="fillEarningsWithFixedButtonText"></span>
+                                        </button>
+                                        
+                                    </div>                                                                                                                    
+                                </td>
+                                <td class="text-nowrap text-center">                                        
+                                    <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
+                                            title="Fill all present subject's on-time bonuses with the specified amount." >
+                                        <span v-html='fillShowUpFeeButtonText'></span> 
+                                    </button>                                                                                                                        
+                                </td>
+                                <td class="text-nowrap text-center">                                        
+                                    <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
+                                            title = "Randomly bump extra subjects.">
+                                        <span v-html='autoBumpButtonText'></span> 
+                                    </button>                                        
+                                </td>
+                                <td class="text-nowrap text-center">        
+                                    <button v-show="sessionDay.complete === false"
+                                            type="button"
+                                            class="btn btn-outline-primary btn-sm"
+                                            v-on:click = "bumpAll()"
+                                            title = "Bump all subjects.">
+                                        <span v-html='bumpAllButtonText'></span> 
+                                    </button>
+                                </td>
+                            </tr>
                             
-                            <td  class="text-nowrap text-center"><!-- save button -->                                        
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "savePayouts()"
-                                        title="Save payouts to the database.">
-                                    <span v-html='saveButtonText'></span> 
-                                </button>                                                                                
-                            </td>
-                            <td class="text-nowrap text-center">                                      
-                                <div v-show="sessionDay.complete === false" class="input-group input-group-sm">
-                                    <input type="number" class="form-control" placeholder="All Earnings" aria-label="Earnings fill"
-                                            aria-describedby="basic-addon2" v-model="fillEarningsWithValue" title="Fill all attending subject's earnings with the specified amount.">
-                                    
-                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "fillEarningsWithFixed()">
-                                        <span v-html="fillEarningsWithFixedButtonText"></span>
-                                    </button>
-                                    
-                                </div>                                                                                                                    
-                            </td>
-                            <td class="text-nowrap text-center">                                        
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "fillWithDefaultShowUpFee()"
-                                        title="Fill all present subject's on-time bonuses with the specified amount." >
-                                    <span v-html='fillShowUpFeeButtonText'></span> 
-                                </button>                                                                                                                        
-                            </td>
-                            <td class="text-nowrap text-center">                                        
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "autobump()"
-                                        title = "Randomly bump extra subjects.">
-                                    <span v-html='autoBumpButtonText'></span> 
-                                </button>                                        
-                            </td>
-                            <td class="text-nowrap text-center">        
-                                <button v-show="sessionDay.complete === false"
-                                        type="button"
-                                        class="btn btn-outline-primary btn-sm"
-                                        v-on:click = "bumpAll()"
-                                        title = "Bump all subjects.">
-                                    <span v-html='bumpAllButtonText'></span> 
-                                </button>
-                            </td>
-                        </tr>
-                        
-                        <!-- second button row -->
-                        <tr>
-                            <td class="text-nowrap"> 
+                            <!-- second button row -->
+                            <tr>
+                                <td class="text-nowrap"> 
 
-                                <button type="button"
-                                        class="btn btn-outline-primary btn-sm"
-                                        v-on:click = "completeSession()"
-                                        v-bind:disabled = "sessionDay.reopenAllowed === false">
-                                    <div v-if="sessionDay.complete">
-                                        <span v-html='openSessionButtonText'></span>
-                                    </div>
-                                    <div v-else>
-                                        <span v-html='completeSessionButtonText'></span>
-                                    </div>                                            
-                                </button>                                     
-                            </td>
-                            <td class="text-nowrap text-center">     
-                                <button v-if="sessionDay.complete === false"
-                                        type="button"
-                                        class="btn btn-outline-primary btn-sm"
-                                        v-on:click="showUploadEarnings()"
-                                        title ="Upload an earnings formatted file.">
-                                    Upload Earnings <i class="fas fa-upload"></i>
-                                </button>
-                            </td>
-                            <td class="text-nowrap text-center">                                        
-                                <button type="button"
-                                        class="btn btn-link btn-sm"
-                                        v-on:click="printPayouts()">
-                                    <span v-html='printPayoutsButtonText'></span> 
-                                </button>                                                                               
-                            </td>
-                            <td class="text-nowrap text-center">
-                                <button type="button" class="btn btn-link btn-sm" v-on:click = "printBumps()">
-                                    <span v-html='printBumpsButtonText'></span> 
-                                </button>                                        
-                            </td>
-                            <td class="text-nowrap text-center">
-                                <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
-                                        title="Round earnings up to nearest 25 cents."  >
-                                    <span v-html='roundUpButtonText'></span> 
-                                </button>                                       
-                            </td>
-                            <td class="text-nowrap text-center">   
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
-                                        title="Export a PayPal mass payment file."  >
-                                    <span v-html='paypalExportButtonText'></span> 
-                                </button>                                     
-                            </td>
-                        </tr>                               
-                        
-                        <!-- third button row -->
-                        <tr>
-                            <td>
-                            </td>
-                            <td class="text-nowrap text-center">
-                            </td>
-                            <td class="text-nowrap text-center">
-                            </td>
-                            <td class="text-nowrap text-center">
-                                {%if user.profile.can_paypal%} 
-                                <button type="button" 
-                                        class="btn btn-link btn-sm" 
-                                        v-on:click="openTraits(sessionDay.id)"
-                                        title="Get traits for subjects attending this session."  >
-                                    Get Traits <i class="fas fa-cubes"></i> 
-                                </button>
-                                
-                                {%endif%} 
-                            </td>
-                            <td class="text-nowrap text-center">
-                                <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
-                                        title="Export a CSV file with a list of attending subjects."  >
-                                    <span v-html='earningsExportButtonText'></span> 
-                                </button>
-                            </td>
-                            <td class="text-nowrap text-center">        
-                                {%if user.profile.can_paypal%}                        
-                                <div v-show="sessionDay.complete === false">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
-                                        title="Pay subjects directly using PayPal's API" 
-                                        v-bind:disabled = "sessionDay.paypalAPI">
-                                        <span v-html='paypalDirectButtonText'></span> 
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm"
+                                            v-on:click = "completeSession()"
+                                            v-bind:disabled = "sessionDay.reopenAllowed === false">
+                                        <div v-if="sessionDay.complete">
+                                            <span v-html='openSessionButtonText'></span>
+                                        </div>
+                                        <div v-else>
+                                            <span v-html='completeSessionButtonText'></span>
+                                        </div>                                            
+                                    </button>                                     
+                                </td>
+                                <td class="text-nowrap text-center">     
+                                    <button v-if="sessionDay.complete === false"
+                                            type="button"
+                                            class="btn btn-outline-primary btn-sm"
+                                            v-on:click="showUploadEarnings()"
+                                            title ="Upload an earnings formatted file.">
+                                        Upload Earnings <i class="fas fa-upload"></i>
                                     </button>
-                                </div>   
-                                <div v-show="sessionDay.complete === false && 
-                                             !sessionDay.is_during_session &&
-                                             !sessionDay.paypalAPI">
-                                    (Warning: session not active)
-                                </div>  
-                                {%endif%}                          
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                </td>
+                                <td class="text-nowrap text-center">                                        
+                                    <button type="button"
+                                            class="btn btn-link btn-sm"
+                                            v-on:click="printPayouts()">
+                                        <span v-html='printPayoutsButtonText'></span> 
+                                    </button>                                                                               
+                                </td>
+                                <td class="text-nowrap text-center">
+                                    <button type="button" class="btn btn-link btn-sm" v-on:click = "printBumps()">
+                                        <span v-html='printBumpsButtonText'></span> 
+                                    </button>                                        
+                                </td>
+                                <td class="text-nowrap text-center">
+                                    <button v-show="sessionDay.complete === false" type="button" class="btn btn-outline-primary btn-sm" v-on:click = "roundEarningsUp()"
+                                            title="Round earnings up to nearest 25 cents."  >
+                                        <span v-html='roundUpButtonText'></span> 
+                                    </button>                                       
+                                </td>
+                                <td class="text-nowrap text-center">   
+                                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalExport()"
+                                            title="Export a PayPal mass payment file."  >
+                                        <span v-html='paypalExportButtonText'></span> 
+                                    </button>                                     
+                                </td>
+                            </tr>                               
+                            
+                            <!-- third button row -->
+                            <tr>
+                                <td>
+                                </td>
+                                <td class="text-nowrap text-center">
+                                </td>
+                                <td class="text-nowrap text-center">
+                                </td>
+                                <td class="text-nowrap text-center">
+                                    {%if user.profile.can_paypal%} 
+                                    <button type="button" 
+                                            class="btn btn-link btn-sm" 
+                                            v-on:click="openTraits(sessionDay.id)"
+                                            title="Get traits for subjects attending this session."  >
+                                        Get Traits <i class="fas fa-cubes"></i> 
+                                    </button>
+                                    
+                                    {%endif%} 
+                                </td>
+                                <td class="text-nowrap text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "earningsExport()"
+                                            title="Export a CSV file with a list of attending subjects."  >
+                                        <span v-html='earningsExportButtonText'></span> 
+                                    </button>
+                                </td>
+                                <td class="text-nowrap text-center">        
+                                    {%if user.profile.can_paypal%}                        
+                                    <div v-show="sessionDay.complete === false">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" v-on:click = "payPalAPI()"
+                                            title="Pay subjects directly using PayPal's API" 
+                                            v-bind:disabled = "sessionDay.paypalAPI">
+                                            <span v-html='paypalDirectButtonText'></span> 
+                                        </button>
+                                    </div>   
+                                    <div v-show="sessionDay.complete === false && 
+                                                !sessionDay.is_during_session &&
+                                                !sessionDay.paypalAPI">
+                                        (Warning: session not active)
+                                    </div>  
+                                    {%endif%}                          
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>    
 

@@ -51,55 +51,57 @@
         </div>           
                         
         <!-- search results table -->
-        <table class="table table-hover table-condensed table-responsive-xl">                            
+        <div class="table-responsive">
+            <table class="table table-hover table-condensed">                            
 
-            <caption style="caption-side:top;text-align: center;">Experiments ([[experiments.length]])</caption>
+                <caption style="caption-side:top;text-align: center;">Experiments ([[experiments.length]])</caption>
 
-            <thead> 
-                <th scope="col"  class="text-nowrap">
-                    <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
-                        <span v-html="titleSortButtonText" class="table_header"></span>
-                    </button>
-                </th> 
-                <th scope="col" class="text-center text-nowrap">
-                    <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByDate()">
-                        <span v-html="dateSortButtonText" class="table_header"></span>
-                    </button>                            
-                </th>
-                <th scope="col" class="text-center text-nowrap">
-                    <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByManager()">
-                        <span v-html="managerSortButtonText" class="table_header"></span>
-                    </button>
-                </th>                                                      
-                <th scope="col" class="text-center">
-                    Control
-                </th>
-            </thead>
-
-            <tbody id="experimentList">                                                  
-                <tr v-for="(e,index) in experiments" v-bind:key="e.id">                                                                          
-                    <td class="text-nowrap"> 
-                        <a :href="'/experiment/' + e.id + '/' "><span v-html="e.title"></span></a>                                        
-                    </td>
-                    <td class="text-center text-nowrap"> 
-                        <span v-html="e.date"></span>                                   
-                    </td>
-                    <td class="text-center text-nowrap">                                        
-                        <span v-html="e.experiment_manager"></span>                                       
-                    </td>                               
-                    <td class="text-center text-nowrap">
-                        <button v-bind:id="'deleteExperiment' + e.id" 
-                                type="button" 
-                                class="btn btn-outline-danger btn-sm" 
-                                v-on:click = "deleteExperiment(e.id)" 
-                                v-bind:disabled="e.allowDelete === false">
-                            Delete <i class="fas fa-user-minus fa-xs"></i>  
+                <thead> 
+                    <th scope="col"  class="text-nowrap">
+                        <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByTitle()">
+                            <span v-html="titleSortButtonText" class="table_header"></span>
                         </button>
-                    </td>                            
-                </tr>                                                    
-            </tbody>
-            
-        </table>                 
+                    </th> 
+                    <th scope="col" class="text-center text-nowrap">
+                        <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByDate()">
+                            <span v-html="dateSortButtonText" class="table_header"></span>
+                        </button>                            
+                    </th>
+                    <th scope="col" class="text-center text-nowrap">
+                        <button type="button" class="btn btn-outline-link btn-sm" v-on:click = "sortByManager()">
+                            <span v-html="managerSortButtonText" class="table_header"></span>
+                        </button>
+                    </th>                                                      
+                    <th scope="col" class="text-center">
+                        Control
+                    </th>
+                </thead>
+
+                <tbody id="experimentList">                                                  
+                    <tr v-for="(e,index) in experiments" v-bind:key="e.id">                                                                          
+                        <td class="text-nowrap"> 
+                            <a :href="'/experiment/' + e.id + '/' "><span v-html="e.title"></span></a>                                        
+                        </td>
+                        <td class="text-center text-nowrap"> 
+                            <span v-html="e.date"></span>                                   
+                        </td>
+                        <td class="text-center text-nowrap">                                        
+                            <span v-html="e.experiment_manager"></span>                                       
+                        </td>                               
+                        <td class="text-center text-nowrap">
+                            <button v-bind:id="'deleteExperiment' + e.id" 
+                                    type="button" 
+                                    class="btn btn-outline-danger btn-sm" 
+                                    v-on:click = "deleteExperiment(e.id)" 
+                                    v-bind:disabled="e.allowDelete === false">
+                                Delete <i class="fas fa-user-minus fa-xs"></i>  
+                            </button>
+                        </td>                            
+                    </tr>                                                    
+                </tbody>
+                
+            </table>  
+        </div>               
         
     </div>   
 </div>

@@ -22,92 +22,94 @@
     <div class="card-body">               
         
         <!-- open sessions table -->
-        <table class="table table-hover table-condensed table-responsive-xl">                            
+        <div class="table-responsive">
+            <table class="table table-hover table-condensed">                            
 
-            <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>
+                <caption style="caption-side:top;text-align: center;">Sessions ([[sessions.length]])</caption>
 
-            <thead>
-                <th scope="col" >
-                    Title
-                </th> 
-                <th scope="col" style="text-align: center;">
-                    Date                            
-                </th>
-                <th scope="col" style="text-align: center;">
-                    Creator                            
-                </th>
-                <th scope="col" style="text-align: center;">
-                    Budget                            
-                </th>
-                <th scope="col" style="text-align: center;">
-                    Subjects Confirmed                            
-                </th>
-                <th scope="col" style="text-align: center;">
-                    Subjects Invited                            
-                </th>
-                <th scope="col"style="text-align: center;">
-                    Run
-                </th>                                                      
-                <th scope="col" style="text-align: center;">
-                    Session
-                </th>
-                <th scope="col" style="text-align: center;">
-                    Experiment
-                </th>
-            </thead>
+                <thead>
+                    <th scope="col" >
+                        Title
+                    </th> 
+                    <th scope="col" style="text-align: center;">
+                        Date                            
+                    </th>
+                    <th scope="col" style="text-align: center;">
+                        Creator                            
+                    </th>
+                    <th scope="col" style="text-align: center;">
+                        Budget                            
+                    </th>
+                    <th scope="col" style="text-align: center;">
+                        Subjects Confirmed                            
+                    </th>
+                    <th scope="col" style="text-align: center;">
+                        Subjects Invited                            
+                    </th>
+                    <th scope="col"style="text-align: center;">
+                        Run
+                    </th>                                                      
+                    <th scope="col" style="text-align: center;">
+                        Session
+                    </th>
+                    <th scope="col" style="text-align: center;">
+                        Experiment
+                    </th>
+                </thead>
 
-            <tbody id="sessionList">                                                  
-                <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
-                    <td class="text-nowrap"> 
-                        [[s.experiment_session__experiment__title]]                                        
-                    </td>
-                    <td class="text-nowrap text-center"> 
-                        <span v-if="s.experiment_session__canceled" title="This session has been canceled.">
-                            <del>[[s.date_str]]</del>
-                        </span>
-                        <span v-else>
-                            [[s.date_str]]  
-                        </span>                                                         
-                    </td>
-                    <td class="text-nowrap text-center"> 
-                        <span v-if="s.experiment_session__creator__id">
-                           <a v-bind:href="'/userInfo/'+s.experiment_session__creator__id">
-                              [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]]
-                           </a> 
-                        </span >      
-                        <span v-else>
-                            ---
-                        </span>                            
-                    </td>
-                    <td class="text-nowrap text-center"> 
-                        <span v-if="s.experiment_session__budget__id">
-                            <a v-bind:href="'/userInfo/'+s.experiment_session__budget__id">
-                                [[s.experiment_session__budget__last_name]], [[s.experiment_session__budget__first_name]] 
-                            </a>
-                        </span >      
-                        <span v-else>
-                            ---
-                        </span>                            
-                    </td>
-                    <td class="text-nowrap text-center"> 
-                        [[s.accepted_count]] / [[s.experiment_session__recruitment_params__registration_cutoff]]                              
-                    </td>
-                    <td class="text-nowrap text-center"> 
-                        [[s.invitation_count]]                                
-                    </td>
-                    <td class="text-nowrap text-center">                                        
-                        <a :href="'/experimentSessionRun/' + s.id + '/' " target="_self">Run <i class='fas fa-running fa-sm'></i></span></a>                                       
-                    </td>                               
-                    <td class="text-nowrap text-center">
-                        <a :href="'/experimentSession/' + s.experiment_session__id + '/' " target="_self">Session <i class='far fa-edit fa-sm'></i></span></a>
-                    </td>   
-                    <td class="text-nowrap text-center">
-                        <a :href="'/experiment/' + s.experiment_session__experiment__id + '/' " target="_self">Experiment <i class='fas fa-flask'></i></span></a>
-                    </td>                         
-                </tr>                                                    
-            </tbody>
-            
-        </table>                 
+                <tbody id="sessionList">                                                  
+                    <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
+                        <td class="text-nowrap"> 
+                            [[s.experiment_session__experiment__title]]                                        
+                        </td>
+                        <td class="text-nowrap text-center"> 
+                            <span v-if="s.experiment_session__canceled" title="This session has been canceled.">
+                                <del>[[s.date_str]]</del>
+                            </span>
+                            <span v-else>
+                                [[s.date_str]]  
+                            </span>                                                         
+                        </td>
+                        <td class="text-nowrap text-center"> 
+                            <span v-if="s.experiment_session__creator__id">
+                            <a v-bind:href="'/userInfo/'+s.experiment_session__creator__id">
+                                [[s.experiment_session__creator__last_name]], [[s.experiment_session__creator__first_name]]
+                            </a> 
+                            </span >      
+                            <span v-else>
+                                ---
+                            </span>                            
+                        </td>
+                        <td class="text-nowrap text-center"> 
+                            <span v-if="s.experiment_session__budget__id">
+                                <a v-bind:href="'/userInfo/'+s.experiment_session__budget__id">
+                                    [[s.experiment_session__budget__last_name]], [[s.experiment_session__budget__first_name]] 
+                                </a>
+                            </span >      
+                            <span v-else>
+                                ---
+                            </span>                            
+                        </td>
+                        <td class="text-nowrap text-center"> 
+                            [[s.accepted_count]] / [[s.experiment_session__recruitment_params__registration_cutoff]]                              
+                        </td>
+                        <td class="text-nowrap text-center"> 
+                            [[s.invitation_count]]                                
+                        </td>
+                        <td class="text-nowrap text-center">                                        
+                            <a :href="'/experimentSessionRun/' + s.id + '/' " target="_self">Run <i class='fas fa-running fa-sm'></i></span></a>                                       
+                        </td>                               
+                        <td class="text-nowrap text-center">
+                            <a :href="'/experimentSession/' + s.experiment_session__id + '/' " target="_self">Session <i class='far fa-edit fa-sm'></i></span></a>
+                        </td>   
+                        <td class="text-nowrap text-center">
+                            <a :href="'/experiment/' + s.experiment_session__experiment__id + '/' " target="_self">Experiment <i class='fas fa-flask'></i></span></a>
+                        </td>                         
+                    </tr>                                                    
+                </tbody>
+                
+            </table>     
+         </div>           
         
     </div>   
 </div>  

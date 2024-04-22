@@ -97,119 +97,121 @@
         <!-- session day table -->
         <div class="row mt-1 mt-md-4 mb-4">                   
             <div class="col text-center">
-                <table class="table table-hover table-condensed table-responsive-xl">
-                    <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
-                    <thead>
-                        <th scope="col">
-                            <div class = "row" class="text-center text-nowrap">
-                                <div class="col-5 text-start text-nowrap">
-                                    <div class="input-group">
-                                        <input type="number" 
-                                               id="multiDayCount"
-                                               min="1" 
-                                               class="form-control text-center" 
-                                               placeholder="Count" 
-                                               aria-label="Multi day count additions" 
-                                               autocomplete="off"
-                                               v-model="multiDayCount">
-                                        
-                                        <button class="btn btn-outline-success" 
-                                                type="button" 
-                                                v-on:click = "addSessionDay()" 
-                                                v-bind:disabled="session.confirmedCount > 0">
-                                            <span v-html="multiDayButtonText"></span>
-                                        </button>
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">
+                        <caption style="caption-side:top;text-align: center;">Session Days ([[session.experiment_session_days.length]])</caption>
+                        <thead>
+                            <th scope="col">
+                                <div class = "row" class="text-center text-nowrap">
+                                    <div class="col-5 text-start text-nowrap">
+                                        <div class="input-group">
+                                            <input type="number" 
+                                                id="multiDayCount"
+                                                min="1" 
+                                                class="form-control text-center" 
+                                                placeholder="Count" 
+                                                aria-label="Multi day count additions" 
+                                                autocomplete="off"
+                                                v-model="multiDayCount">
+                                            
+                                            <button class="btn btn-outline-success" 
+                                                    type="button" 
+                                                    v-on:click = "addSessionDay()" 
+                                                    v-bind:disabled="session.confirmedCount > 0">
+                                                <span v-html="multiDayButtonText"></span>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col">
-                                    <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
-                                </div>
-                            </div>      
+                                    <div class="col">
+                                        <span v-if="showLoadingSpinner"><i class="fas fa-spinner fa-spin"></i></span>
+                                    </div>
+                                </div>      
 
-                        </th> 
-                        <th scope="col" class="text-center text-nowrap">
-                            Reminders Sent
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Invited
-                        </th> 
-                        <th scope="col" class="text-center text-nowrap">
-                            Confirmed
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Attended
-                        </th>                                                     
-                        <th scope="col" class="text-center text-nowrap">
-                            Setup
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Subjects
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Run
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Remove
-                        </th>
-                        
-                    </thead>
-                    <tbody id="sessionList">                       
-                        <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
-                            <td class="text-start text-nowrap">
-                                <span v-if="sd.enable_time">
-                                    [[formatDate(sd.date_raw,false,false)]]
-                                </span>
-                                <span v-else>
-                                    [[formatDate(sd.date_raw,true,false)]] Anytime
-                                </span>
-                                <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
-
-                                <!-- room date time overlap -->
-                                <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
-                                    <a  v-bind:href='"/experimentSession/" + i.session_id' target="_self">
-                                       <span style="color: red;">Overlaping Session: [[i.name]]</span><br>
-                                    </a>
-                                </div>                                   
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <div v-if="sd.reminder_email_sent">
-                                    Yes&nbsp;
-                                    <span v-if="sd.reminder_email_sent_count != null">
-                                        ([[sd.reminder_email_sent_count]])
+                            </th> 
+                            <th scope="col" class="text-center text-nowrap">
+                                Reminders Sent
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Invited
+                            </th> 
+                            <th scope="col" class="text-center text-nowrap">
+                                Confirmed
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Attended
+                            </th>                                                     
+                            <th scope="col" class="text-center text-nowrap">
+                                Setup
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Subjects
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Run
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Remove
+                            </th>
+                            
+                        </thead>
+                        <tbody id="sessionList">                       
+                            <tr v-for="(sd,index) in session.experiment_session_days" v-bind:key="sd.id">                                                                          
+                                <td class="text-start text-nowrap">
+                                    <span v-if="sd.enable_time">
+                                        [[formatDate(sd.date_raw,false,false)]]
                                     </span>
-                                </div>
-                                <div v-else>
-                                    No
-                                </div>
-                            </td>
-                            <td class="text-center text-nowrap">                                        
-                               [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
-                            </td>  
-                            <td class="text-center text-nowrap">                                        
-                                [[sd.confirmedCount]]                                                                              
-                            </td>
-                            <td class="text-center text-nowrap">                                        
-                                [[sd.attendedCount]]                                                                              
-                            </td>                             
-                            <td class="text-center text-nowrap">                                      
-                                <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
-                            </td>
-                            <td class="text-center text-nowrap">                                      
-                                <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
-                            </td>    
-                            <td class="text-center text-nowrap">      
-                                <a  v-bind:href='"/experimentSessionRun/" + sd.id'>
-                                    Run <i class="fas fa-running fa-xs"></i>
-                                </a>                                   
-                            </td> 
-                            <td class="text-center text-nowrap">                                        
-                                <div v-show="session.experiment_session_days.length > 1">                                        
-                                    <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
-                                </div>
-                            </td>                      
-                        </tr>                        
-                    </tbody>
-                </table>
+                                    <span v-else>
+                                        [[formatDate(sd.date_raw,true,false)]] Anytime
+                                    </span>
+                                    <span v-if="checkToday(sd.date_raw)"> (Today)</span> 
+
+                                    <!-- room date time overlap -->
+                                    <div v-for="(i,index) in sd.roomOverlap" v-bind:key="i.id">
+                                        <a  v-bind:href='"/experimentSession/" + i.session_id' target="_self">
+                                        <span style="color: red;">Overlaping Session: [[i.name]]</span><br>
+                                        </a>
+                                    </div>                                   
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <div v-if="sd.reminder_email_sent">
+                                        Yes&nbsp;
+                                        <span v-if="sd.reminder_email_sent_count != null">
+                                            ([[sd.reminder_email_sent_count]])
+                                        </span>
+                                    </div>
+                                    <div v-else>
+                                        No
+                                    </div>
+                                </td>
+                                <td class="text-center text-nowrap">                                        
+                                [[sd.confirmedCount + sd.unConfirmedCount]]                                                                               
+                                </td>  
+                                <td class="text-center text-nowrap">                                        
+                                    [[sd.confirmedCount]]                                                                              
+                                </td>
+                                <td class="text-center text-nowrap">                                        
+                                    [[sd.attendedCount]]                                                                              
+                                </td>                             
+                                <td class="text-center text-nowrap">                                      
+                                    <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
+                                </td>
+                                <td class="text-center text-nowrap">                                      
+                                    <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
+                                </td>    
+                                <td class="text-center text-nowrap">      
+                                    <a  v-bind:href='"/experimentSessionRun/" + sd.id'>
+                                        Run <i class="fas fa-running fa-xs"></i>
+                                    </a>                                   
+                                </td> 
+                                <td class="text-center text-nowrap">                                        
+                                    <div v-show="session.experiment_session_days.length > 1">                                        
+                                        <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                    </div>
+                                </td>                      
+                            </tr>                        
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>      

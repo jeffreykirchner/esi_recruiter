@@ -96,56 +96,58 @@
         <!-- search results table -->
         <div class="row justify-content-center">
             <div class="col">
-                <table class="table table-hover table-condensed table-responsive-xl">                            
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">                            
 
-                    <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
+                        <caption style="caption-side:top;text-align: center;">Users ([[searchCount]])</caption>
 
-                    <thead>
-                        <th scope="col">
-                            Name
-                        </th> 
-                        <th scope="col" style="text-align: center;">
-                            Email
-                        </th> 
-                        <th scope="col" style="text-align: center;">
-                            Student ID
-                        </th>
-                        <th scope="col" style="text-align: center;">
-                            Public ID
-                        </th>
-                        <th scope="col" style="text-align: center;">
-                            Year
-                        </th>
-                        <th scope="col" style="text-align: center;">
-                            Type
-                        </th>                                                     
+                        <thead>
+                            <th scope="col">
+                                Name
+                            </th> 
+                            <th scope="col" style="text-align: center;">
+                                Email
+                            </th> 
+                            <th scope="col" style="text-align: center;">
+                                Student ID
+                            </th>
+                            <th scope="col" style="text-align: center;">
+                                Public ID
+                            </th>
+                            <th scope="col" style="text-align: center;">
+                                Year
+                            </th>
+                            <th scope="col" style="text-align: center;">
+                                Type
+                            </th>                                                     
+                            
+                        </thead>
+
+                        <tbody id="userList">                                                  
+                            <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
+                                <td class="text-nowrap"> 
+                                    <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a> ([[u.id]])                                      
+                                </td>
+                                <td class="text-nowrap text-center">                                        
+                                    [[u.email]]
+                                </td>  
+                                <td class="text-nowrap text-center">  
+                                    [[u.profile__studentID]]
+                                </td>
+                                <td class="text-nowrap text-center">  
+                                    [[u.profile__public_id]]
+                                </td>
+                                <td class="text-nowrap text-center">  
+                                    [[u.profile__subject_type__name]]
+                                </td>
+                                <td class="text-nowrap text-center">  
+                                    [[u.profile__type__name.toUpperCase()]]
+                                </td>                                                         
+                            </tr>                                                    
+                        </tbody>
                         
-                    </thead>
-
-                    <tbody id="userList">                                                  
-                        <tr v-for="(u,index) in users" v-bind:key="u.id">                                                                          
-                            <td class="text-nowrap"> 
-                                <a :href="'/userInfo/' + u.id + '/' "><span v-html="u.last_name + ', ' + u.first_name"></span></a> ([[u.id]])                                      
-                            </td>
-                            <td class="text-nowrap text-center">                                        
-                                [[u.email]]
-                            </td>  
-                            <td class="text-nowrap text-center">  
-                                [[u.profile__studentID]]
-                            </td>
-                            <td class="text-nowrap text-center">  
-                                [[u.profile__public_id]]
-                            </td>
-                            <td class="text-nowrap text-center">  
-                                [[u.profile__subject_type__name]]
-                            </td>
-                            <td class="text-nowrap text-center">  
-                                [[u.profile__type__name.toUpperCase()]]
-                            </td>                                                         
-                        </tr>                                                    
-                    </tbody>
-                    
-                </table>  
+                    </table>  
+                </div>
             </div>
 
         </div>         

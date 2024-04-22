@@ -83,39 +83,41 @@
     </div>
 </div>
 
-<table class="table table-condensed table-responsive-md mt-4" v-show="consent_form">                            
+<div class="table-responsive">
+    <table class="table table-condensed mt-4" v-show="consent_form">                            
 
-    <thead>
-        <th scope="col">
-            Name
-        </th> 
-        <th scope="col" class="text-center">
-            Agreement                            
-        </th>
-        <th scope="col" class="text-center">
-            Date                            
-        </th>
-    </thead>
+        <thead>
+            <th scope="col">
+                Name
+            </th> 
+            <th scope="col" class="text-center">
+                Agreement                            
+            </th>
+            <th scope="col" class="text-center">
+                Date                            
+            </th>
+        </thead>
 
-    <tbody id="sessionList">                                                  
-        <tr v-for="(s,index) in subject_list" v-bind:key="s.id">                                                                          
-            <td class="text-nowrap w-auto"> 
-                [[s.name]]                                        
-            </td>
-            <td class="text-nowrap text-center w-auto"> 
-                <span v-if="consent_form && consent_form.signature_required">
-                    <canvas class="signature m-0 mt-1 p-0" 
-                            key="signature_canvas" 
-                            v-bind:id="'signature_canvas_id_'+s.id"></canvas>
-                </span>
-                <span v-if="consent_form && !consent_form.signature_required">
-                    <i class="fas fa-check fa-2x"></i>
-                </span>                                                           
-            </td>
-            <td class="text-nowrap text-center w-auto"> 
-               [[s.date_string]]                             
-            </td>                                    
-        </tr>                                                    
-    </tbody>
-    
-</table>  
+        <tbody id="sessionList">                                                  
+            <tr v-for="(s,index) in subject_list" v-bind:key="s.id">                                                                          
+                <td class="text-nowrap w-auto"> 
+                    [[s.name]]                                        
+                </td>
+                <td class="text-nowrap text-center w-auto"> 
+                    <span v-if="consent_form && consent_form.signature_required">
+                        <canvas class="signature m-0 mt-1 p-0" 
+                                key="signature_canvas" 
+                                v-bind:id="'signature_canvas_id_'+s.id"></canvas>
+                    </span>
+                    <span v-if="consent_form && !consent_form.signature_required">
+                        <i class="fas fa-check fa-2x"></i>
+                    </span>                                                           
+                </td>
+                <td class="text-nowrap text-center w-auto"> 
+                [[s.date_string]]                             
+                </td>                                    
+            </tr>                                                    
+        </tbody>
+        
+    </table>
+</div>  
