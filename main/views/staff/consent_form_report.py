@@ -67,16 +67,15 @@ def getConsentForm(data):
     logger = logging.getLogger(__name__)
     logger.info(f"Get Consent Form: {data}")
 
-    form_data_dict = {}
-
-    for field in data["formData"]:            
-        form_data_dict[field["name"]] = field["value"]
+    form_data_dict = data["formData"]
     
     form = ConsentFormReportForm(form_data_dict)
 
     subject_list=[]
     experiment_list=[]
     consent_form=None
+    consent_form_json=None
+    experiment_list_json=None
 
     if form.is_valid():
         consent_form = form.cleaned_data['consent_form']

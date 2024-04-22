@@ -23,8 +23,8 @@ resetPixiApp(){
     
     pixi_signature_texture = PIXI.Texture.from('{% static "signature_4.png" %}');
 
-    app.$data.canvas_width = canvas.width;
-    app.$data.canvas_height = canvas.height;
+    app.canvas_width = canvas.width;
+    app.canvas_height = canvas.height;
 
     //add background rectangle
     let background = new PIXI.Graphics();
@@ -87,12 +87,12 @@ loadSignature(){
 
     if(!s)
     {
-         s={width:app.$data.canvas_width,height:app.$data.canvas_height};
+         s={width:app.canvas_width,height:app.canvas_height};
     }
     // else
     // {
-    //     s.width=app.$data.canvas_width/s.width;
-    //     s.height=app.$data.canvas_height/s.height;
+    //     s.width=app.canvas_width/s.width;
+    //     s.height=app.canvas_height/s.height;
     // }
 
     for (let i in app.consent_form_subject.signature_points) {
@@ -103,8 +103,8 @@ loadSignature(){
 
         for(let j=0;j<t.length;j++)
         {
-            points.push(new PIXI.Point(t[j].x * app.$data.canvas_width / s.width,
-                                       t[j].y * app.$data.canvas_height / s.height))
+            points.push(new PIXI.Point(t[j].x * app.canvas_width / s.width,
+                                       t[j].y * app.canvas_height / s.height))
         }
 
         v = {points:points, rope:new PIXI.SimpleRope(pixi_signature_texture, new PIXI.Point(0, 0))};

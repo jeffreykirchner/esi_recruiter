@@ -45,7 +45,7 @@ class UserInfo(SingleObjectMixin, View):
 
         u = self.get_object()
 
-        edit_subject_form = EditSubjectForm(instance=u.profile)
+        edit_subject_form = EditSubjectForm()
 
         return render(request, self.template_name, {"u":u,
                                                     "id":u.id,
@@ -134,6 +134,7 @@ def getSessions(data, id):
     return JsonResponse({"session_day_attended" :  u.profile.sorted_session_day_list_earningsOnly(),
                          "session_day_upcoming" :  u.profile.sorted_session_day_list_upcoming(True),
                          "institutions" : u.profile.get_institution_list(),
+                         "subject" : u.profile.json_for_user_info(),
                          "notes" : u.profile.get_notes(),
                             },safe=False,
                         )
@@ -164,10 +165,10 @@ def editSubject(request, data, id):
     if not request.user.is_staff:
         return JsonResponse({"status":"fail","errors":{}}, safe=False)
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     form_data_dict[field["name"]] = field["value"]
 
     edit_subject_form = EditSubjectForm(form_data_dict, instance=u.profile)
 

@@ -33,18 +33,7 @@ class UpdateProfile(View):
         logger = logging.getLogger(__name__)
         logger.info("show profile")
 
-        form = profileFormUpdate(
-            initial={'first_name': request.user.first_name,
-                     'last_name': request.user.last_name,
-                     'chapman_id': request.user.profile.studentID,
-                     'email':request.user.email,
-                     'gender':request.user.profile.gender.id,
-                     'phone':request.user.profile.phone,
-                     'major':request.user.profile.major.id,
-                     'subject_type':request.user.profile.subject_type.id,
-                     'studentWorker':"Yes" if request.user.profile.studentWorker else "No",
-                     'paused':"Yes" if request.user.profile.paused else "No"}
-        )
+        form = profileFormUpdate()
 
         try:
             helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
@@ -87,10 +76,10 @@ def update_profile(u, data):
     logger.info(f"Update Profile: {u}")
     #logger.info(data)
 
-    form_data_dict = {}
+    form_data_dict = data["formData"]
 
-    for field in data["formData"]:
-        form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     form_data_dict[field["name"]] = field["value"]
 
     form = profileFormUpdate(form_data_dict, user=u)
 

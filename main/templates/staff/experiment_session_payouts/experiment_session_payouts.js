@@ -18,19 +18,19 @@ var app = Vue.createApp({
         getSession:function(payGroup){           
             if(app)
             {                
-                for(let i=0;i<app.$data.sessionDayUsers.length;i++)
+                for(let i=0;i<app.sessionDayUsers.length;i++)
                 {
-                    if(app.$data.sessionDayUsers[i].pixi_app)
+                    if(app.sessionDayUsers[i].pixi_app)
                     {
-                        // app.clearPixi(app.$data.sessionDayUsers[i].pixi_app, 
-                        //               "signature_canvas_id_" + app.$data.sessionDayUsers[i].id );
+                        // app.clearPixi(app.sessionDayUsers[i].pixi_app, 
+                        //               "signature_canvas_id_" + app.sessionDayUsers[i].id );
                         
-                        app.$data.sessionDayUsers[i].pixi_app.stage.removeChildren();
-                        app.$data.sessionDayUsers[i].pixi_app.destroy(true,true);
+                        app.sessionDayUsers[i].pixi_app.stage.removeChildren();
+                        app.sessionDayUsers[i].pixi_app.destroy(true,true);
                     }
                 }
 
-                app.$data.sessionDayUsers =[];
+                app.sessionDayUsers =[];
             }
 
             axios.post('/experimentSessionPayouts/{{id}}/'+payGroup+'/', {
@@ -38,9 +38,9 @@ var app = Vue.createApp({
                 payGroup : payGroup,                                                                                                                           
             })
             .then(function (response) {     
-                app.$data.sessionDayUsers = response.data.sessionDayUsers;   
-                app.$data.payGroup = payGroup;
-                app.$data.experiment_session_day = response.data.experiment_session_day;
+                app.sessionDayUsers = response.data.sessionDayUsers;   
+                app.payGroup = payGroup;
+                app.experiment_session_day = response.data.experiment_session_day;
                 
                 app.calcPayoutTotal();
 
@@ -53,7 +53,7 @@ var app = Vue.createApp({
 
         //hide subject from list and payout total
         hideSubject:function(id, localIndex){
-            u = app.$data.sessionDayUsers.splice(localIndex,1);
+            u = app.sessionDayUsers.splice(localIndex,1);
            
             app.calcPayoutTotal();
         },
@@ -62,9 +62,9 @@ var app = Vue.createApp({
         calcPayoutTotal:function(){
             var s = 0;
 
-            for(i=0;i<app.$data.sessionDayUsers.length;i++)
+            for(i=0;i<app.sessionDayUsers.length;i++)
             {
-                u = app.$data.sessionDayUsers[i];
+                u = app.sessionDayUsers[i];
 
                 if(u.show)
                 {
@@ -72,7 +72,7 @@ var app = Vue.createApp({
                 }
             }
 
-            app.$data.payoutTotal = s.toFixed(2);
+            app.payoutTotal = s.toFixed(2);
         },
 
         //format date to human readable

@@ -37,19 +37,19 @@ var app = Vue.createApp({
         //get history of payments made to paypal api
         getHistory: function(){
 
-            app.$data.working = true;
+            app.working = true;
 
             axios.post('{{request.get_full_path}}', {                            
                 action: "getHistory",
-                startDate: app.$data.startDate,
-                endDate: app.$data.endDate,
+                startDate: app.startDate,
+                endDate: app.endDate,
                             
             })
             .then(function (response) {                         
-                app.$data.history = response.data.history;
-                app.$data.errorMessage = response.data.errorMessage;
-                app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
-                app.$data.working = false;
+                app.history = response.data.history;
+                app.errorMessage = response.data.errorMessage;
+                app.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               
@@ -57,26 +57,26 @@ var app = Vue.createApp({
         }, 
 
         getHistoryButton : function(){
-            app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             this.getHistory();
         },
 
         //get history of payments from recruiter
         getHistoryRecruiter: function(){
-            app.$data.working = true;
-            app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.working = true;
+            app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {                            
                 action: "getHistoryRecruiter",
-                startDate: app.$data.startDateRecruiter,
-                endDate: app.$data.endDateRecruiter,
+                startDate: app.startDateRecruiter,
+                endDate: app.endDateRecruiter,
                             
             })
             .then(function (response) {                         
-                app.$data.historyRecruiter = response.data.history;
-                app.$data.errorMessageRecruiter = response.data.errorMessage;
-                app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
-                app.$data.working = false;
+                app.historyRecruiter = response.data.history;
+                app.errorMessageRecruiter = response.data.errorMessage;
+                app.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               
@@ -85,22 +85,22 @@ var app = Vue.createApp({
 
         //get budget expenditures
         getHistoryBudget: function(){
-            app.$data.working = true;
-            app.$data.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.working = true;
+            app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('{{request.get_full_path}}', {                            
                 action: "getHistoryBudget",
-                startDate: app.$data.startDateBudget,
-                endDate: app.$data.endDateBudget,
-                expenditure_report : app.$data.expenditure_report,
+                startDate: app.startDateBudget,
+                endDate: app.endDateBudget,
+                expenditure_report : app.expenditure_report,
                             
             })
             .then(function (response) {                         
-                app.$data.historyBudget = response.data.history;
-                app.$data.historyBudgetCSV = response.data.history_csv;
-                app.$data.errorMessageBudget = response.data.errorMessage;
-                app.$data.searchButtonText = 'Search <i class="fas fa-search"></i>';
-                app.$data.working = false;
+                app.historyBudget = response.data.history;
+                app.historyBudgetCSV = response.data.history_csv;
+                app.errorMessageBudget = response.data.errorMessage;
+                app.searchButtonText = 'Search <i class="fas fa-search"></i>';
+                app.working = false;
             })
             .catch(function (error) {
                 console.log(error);                               
@@ -109,15 +109,15 @@ var app = Vue.createApp({
 
         //get budget expenditures
         downloadHistoryBudget: function(){
-            app.$data.working = true;         
+            app.working = true;         
             
-            app.$data.working = false;
+            app.working = false;
 
             var downloadLink = document.createElement("a");
-            var blob = new Blob(["\ufeff", app.$data.historyBudgetCSV]);
+            var blob = new Blob(["\ufeff", app.historyBudgetCSV]);
             var url = URL.createObjectURL(blob);
             downloadLink.href = url;
-            downloadLink.download = "Budget_Report_" + app.$data.startDateBudget + "_to_"+ app.$data.endDateBudget + ".csv";
+            downloadLink.download = "Budget_Report_" + app.startDateBudget + "_to_"+ app.endDateBudget + ".csv";
 
             document.body.appendChild(downloadLink);
             downloadLink.click();

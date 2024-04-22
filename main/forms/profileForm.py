@@ -8,39 +8,66 @@ import re
 
 #form
 class profileForm(forms.Form):
-    first_name = forms.CharField(label='First Name', max_length=100)
-    last_name = forms.CharField(label='Last Name', max_length=100)
-    chapman_id = forms.CharField(label='Student ID (Leave blank if non-student)', max_length=25,required=False)
-    email = forms.EmailField(label='Email Address (.edu preferred)')
-    phone = forms.CharField(label = "Phone Number (ex: 5556667777)",max_length = 15)
+    first_name = forms.CharField(label='First Name', 
+                                 max_length=100,
+                                 widget=forms.TextInput(attrs={"v-model":"profile.first_name"}))
+    
+    last_name = forms.CharField(label='Last Name', 
+                                max_length=100,
+                                widget=forms.TextInput(attrs={"v-model":"profile.last_name"}))
+    
+    chapman_id = forms.CharField(label='Student ID (Leave blank if non-student)', 
+                                 max_length=25,
+                                 required=False,
+                                 widget=forms.TextInput(attrs={"v-model":"profile.chapman_id"}))
+    
+    email = forms.EmailField(label='Email Address (.edu preferred)',
+                             widget=forms.TextInput(attrs={"autocomplete":"off",
+                                                           "v-model":"profile.email"}))
+    
+    phone = forms.CharField(label = "Phone Number (ex: 5556667777)",
+                            max_length = 15,
+                            widget=forms.TextInput(attrs={"v-model":"profile.phone"}))
+
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
                                      queryset=genders.objects.all(),
-                                     widget=forms.Select(attrs={}))
+                                     empty_label=None,
+                                     widget=forms.Select(attrs={"v-model":"profile.gender"}))
+    
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
                                      queryset=majors.objects.all().order_by('name'),
-                                     widget=forms.Select(attrs={})) 
+                                     empty_label=None,
+                                     widget=forms.Select(attrs={"v-model":"profile.major"}))
+
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
-                                     queryset=subject_types.objects.all(),
-                                     widget=forms.Select(attrs={}))
+                                        queryset=subject_types.objects.all(),
+                                        empty_label=None,
+                                        widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
+
     studentWorker = forms.ChoiceField(label='Are you a student worker?',             
-                                         choices=(('---','---'),('Yes', 'Yes'), ('No', 'No')),
-                                         initial='---',                   
-                                         widget=forms.Select)                
-    password1 = forms.CharField(label='Password',widget=forms.PasswordInput())
-    password2 = forms.CharField(label='Repeat Password',widget=forms.PasswordInput())
+                                      choices=((1, 'Yes'), (0, 'No')),                  
+                                      widget=forms.Select(attrs={"v-model":"profile.studentWorker"}))      
 
-    def clean_studentWorker(self):
-        logger = logging.getLogger(__name__) 
-        logger.info("Clean studentWorker")
+    password1 = forms.CharField(label='Password',
+                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password",
+                                                                  "v-model":"profile.password1"}))  
 
-        studentWorker = self.cleaned_data['studentWorker']
+    password2 = forms.CharField(label='Repeat Password',
+                                widget=forms.PasswordInput(attrs={"autocomplete":"new-password",
+                                                                  "v-model":"profile.password2"}))
 
-        if studentWorker == "Yes":
-            return True
-        elif studentWorker == "No":
-            return False
-        else:
-            raise forms.ValidationError("Please answer the question.")
+    # def clean_studentWorker(self):
+    #     logger = logging.getLogger(__name__) 
+    #     logger.info("Clean studentWorker")
+
+    #     studentWorker = self.cleaned_data['studentWorker']
+
+    #     if studentWorker == "Yes":
+    #         return True
+    #     elif studentWorker == "No":
+    #         return False
+    #     else:
+    #         raise forms.ValidationError("Please answer the question.")
 
     def clean_phone(self):
         logger = logging.getLogger(__name__) 
@@ -71,6 +98,11 @@ class profileForm(forms.Form):
     #check that username/email not already in use
     def clean_email(self):
         email = self.cleaned_data['email']
+
+        if email:
+            email = email.strip().lower()
+
         if User.objects.filter(username=email).exists():
             raise forms.ValidationError(u'Email "%s" is already in use.' % email)
+
         return email

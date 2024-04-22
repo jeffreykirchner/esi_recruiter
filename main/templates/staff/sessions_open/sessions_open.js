@@ -25,14 +25,14 @@ var app = Vue.createApp({
                         })
                         .then(function (response) {     
                             
-                            app.$data.sessions=response.data.sessions;
+                            app.sessions=response.data.sessions;
 
-                            app.$data.autoRefreshButtonText='Auto Refresh: ' + app.$data.auto_refresh + ' <i class="fas fa-sync"></i>';
-                            app.$data.last_refresh = moment(new Date).local().format('MM/DD/YYYY hh:mm:ss a'); 
+                            app.autoRefreshButtonText='Auto Refresh: ' + app.auto_refresh + ' <i class="fas fa-sync"></i>';
+                            app.last_refresh = moment(new Date).local().format('MM/DD/YYYY hh:mm:ss a'); 
 
-                            if(app.$data.auto_refresh=="On")
+                            if(app.auto_refresh=="On")
                             {
-                                app.$data.timeouts.push(setTimeout(app.getOpenSessions, 60000));            
+                                app.timeouts.push(setTimeout(app.getOpenSessions, 60000));            
                             }
                             
                         })
@@ -43,23 +43,23 @@ var app = Vue.createApp({
         },
 
         autoRefreshButton:function(){
-            if(app.$data.auto_refresh == "Off")
+            if(app.auto_refresh == "Off")
             {
-                app.$data.auto_refresh = "On";
+                app.auto_refresh = "On";
                 this.getOpenSessions()
             }
             else
             {
-                app.$data.auto_refresh = "Off";        
+                app.auto_refresh = "Off";        
                 
-                for (var i = 0; i < app.$data.timeouts.length; i++) {
-                    clearTimeout(app.$data.timeouts[i]);
+                for (var i = 0; i < app.timeouts.length; i++) {
+                    clearTimeout(app.timeouts[i]);
                 }
 
-                app.$data.timeouts=[];
+                app.timeouts=[];
             }
 
-            app.$data.autoRefreshButtonText = 'Auto Refresh: ' + app.$data.auto_refresh + ' <i class="fas fa-sync"></i>';
+            app.autoRefreshButtonText = 'Auto Refresh: ' + app.auto_refresh + ' <i class="fas fa-sync"></i>';
         },
 
         //get list of open experiments
@@ -70,15 +70,15 @@ var app = Vue.createApp({
                 return;
             }
             
-            app.$data.closeAllButtonText= '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+            app.closeAllButtonText= '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 
             axios.post('/sessionsOpen/', {
                 action :"closeAllSessions" ,                                                                                                                             
             })
             .then(function (response) {     
                 
-                app.$data.sessions=response.data.sessions;
-                app.$data.closeAllButtonText='Complete All Sessions <i class="fas fa-check"></i>';   
+                app.sessions=response.data.sessions;
+                app.closeAllButtonText='Complete All Sessions <i class="fas fa-check"></i>';   
 
             })
             .catch(function (error) {

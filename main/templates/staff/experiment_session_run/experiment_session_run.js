@@ -45,6 +45,10 @@ var app = Vue.createApp({
         noticeHeader : "PayPal Direct Payments",
         noticeBody : "",
         auto_add_users_on_upload : false,  
+
+        //modals
+        uploadEarningsModal : null,
+        noticeModal : null,
     }},
 
     methods:{
@@ -54,14 +58,14 @@ var app = Vue.createApp({
                     action :"getSession" ,                                                                                                                             
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay= response.data.sessionDay; 
+                    app.sessionDay= response.data.sessionDay; 
                     app.calcPayoutTotal();      
 
-                    app.$data.dateText = app.$data.sessionDay.date;      
-                    app.$data.dateText += ", " + app.$data.sessionDay.length + " Minutes";
-                    app.$data.dateText += ", " + app.$data.sessionDay.location.name;    
+                    app.dateText = app.sessionDay.date;      
+                    app.dateText += ", " + app.sessionDay.length + " Minutes";
+                    app.dateText += ", " + app.sessionDay.location.name;    
                     
-                    app.$data.fillShowUpFeeButtonText += app.$data.sessionDay.defaultShowUpFee;
+                    app.fillShowUpFeeButtonText += app.sessionDay.defaultShowUpFee;
 
                 })
                 .catch(function (error) {
@@ -73,29 +77,29 @@ var app = Vue.createApp({
         stripeReaderCheckin:function(){
             window.setTimeout(this.stripeReaderCheckin, 250);
             
-            if(app.$data.stripeReaderValue == "") return;
-            if(app.$data.stripeReaderSpinner != "") return;
-            if(!app.$data.stripeReaderValue.includes("=")) return;
+            if(app.stripeReaderValue == "") return;
+            if(app.stripeReaderSpinner != "") return;
+            if(!app.stripeReaderValue.includes("=")) return;
 
-            app.$data.stripeReaderSpinner = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.stripeReaderStatus="";
+            app.stripeReaderSpinner = '<i class="fas fa-spinner fa-spin"></i>';
+            app.stripeReaderStatus="";
 
             axios.post('/experimentSessionRun/{{id}}/', {
                         action :"stripeReaderCheckin" ,
-                        value:app.$data.stripeReaderValue,    
-                        autoAddUsers:app.$data.autoAddUsers,   
-                        ignoreConstraints:app.$data.ignoreConstraints,                                                                                                                        
+                        value:app.stripeReaderValue,    
+                        autoAddUsers:app.autoAddUsers,   
+                        ignoreConstraints:app.ignoreConstraints,                                                                                                                        
                     })
                     .then(function (response) {                                
-                    app.$data.sessionDay = response.data.sessionDay;   
-                    app.$data.stripeReaderSpinner = "";   
-                    app.$data.stripeReaderValue = "";    
-                    app.$data.stripeReaderStatus = response.data.status.message;
+                    app.sessionDay = response.data.sessionDay;   
+                    app.stripeReaderSpinner = "";   
+                    app.stripeReaderValue = "";    
+                    app.stripeReaderStatus = response.data.status.message;
 
                     ids =  response.data.status.info;
                     for(i=0;i<ids.length;i++)
                     {
-                        app.$data.stripeReaderStatus += " <a href='/userInfo/" + ids[i] + "/' target='_blank' >view</a>";
+                        app.stripeReaderStatus += " <a href='/userInfo/" + ids[i] + "/' target='_blank' >view</a>";
                     }
 
                     })
@@ -106,13 +110,13 @@ var app = Vue.createApp({
 
         //export a csv file for paypal mass payment
         payPalExport:function(){
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
                 return;                        
             }
             
-            app.$data.paypalExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.paypalExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             
             axios.post('/experimentSessionRun/{{id}}/', {
                         action :"payPalExport" ,                                                                                                                                                      
@@ -128,13 +132,13 @@ var app = Vue.createApp({
                     var blob = new Blob(["\ufeff", response.data]);
                     var url = URL.createObjectURL(blob);
                     downloadLink.href = url;
-                    downloadLink.download = "PayPal_Mass_Pay_" + app.$data.sessionDay.id + ".csv";
+                    downloadLink.download = "PayPal_Mass_Pay_" + app.sessionDay.id + ".csv";
 
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);
 
-                    app.$data.paypalExportButtonText = 'Paypal Export <i class="fab fa-paypal"></i>';                  
+                    app.paypalExportButtonText = 'Paypal Export <i class="fab fa-paypal"></i>';                  
                     })
                     .catch(function (error) {
                         console.log(error);                                   
@@ -143,13 +147,13 @@ var app = Vue.createApp({
 
         //export an earnings csv file 
         earningsExport:function(){
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 confirm("Save payouts before continuing.") ;                    
                 return;                        
             }
             
-            app.$data.earningsExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.earningsExportButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             
             axios.post('/experimentSessionRun/{{id}}/', {
                         action :"getEarningsExport" ,                                                                                                                                                      
@@ -165,13 +169,13 @@ var app = Vue.createApp({
                     var blob = new Blob(["\ufeff", response.data]);
                     var url = URL.createObjectURL(blob);
                     downloadLink.href = url;
-                    downloadLink.download = "Attending_Export_" + app.$data.sessionDay.id + ".csv";
+                    downloadLink.download = "Attending_Export_" + app.sessionDay.id + ".csv";
 
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);
 
-                    app.$data.earningsExportButtonText = 'Attended Export <i class="fas fa-download"></i>';                  
+                    app.earningsExportButtonText = 'Attended Export <i class="fas fa-download"></i>';                  
                     })
                     .catch(function (error) {
                         console.log(error);                                   
@@ -180,7 +184,7 @@ var app = Vue.createApp({
 
         //randomly bump excess subjects
         autobump:function(){
-            app.$data.autoBumpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.autoBumpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             
             // esdu.buttonText = '<i class="fas fa-spinner fa-spin"></i>'
                 axios.post('/experimentSessionRun/{{id}}/', {
@@ -188,9 +192,9 @@ var app = Vue.createApp({
                                                                                                                                             
                     })
                     .then(function (response) {                                
-                    app.$data.sessionDay = response.data.sessionDay;    
+                    app.sessionDay = response.data.sessionDay;    
 
-                    app.$data.autoBumpButtonText = 'Auto Bump <i class="fa fa-random" aria-hidden="true"></i>';                    
+                    app.autoBumpButtonText = 'Auto Bump <i class="fa fa-random" aria-hidden="true"></i>';                    
                     })
                     .catch(function (error) {
                         console.log(error);                                   
@@ -199,7 +203,7 @@ var app = Vue.createApp({
         
         //set subject to attended
         attendSubject:function(esduID,id){
-            app.$data.sessionDay.experiment_session_days_user[id].waiting = true;
+            app.sessionDay.experiment_session_days_user[id].waiting = true;
             
             // esdu.buttonText = '<i class="fas fa-spinner fa-spin"></i>'
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -208,8 +212,8 @@ var app = Vue.createApp({
                     localId:id,                                                                                                                         
                 })
                 .then(function (response) {                                
-                    app.$data.sessionDay = response.data.sessionDay;     
-                    app.$data.stripeReaderStatus= response.data.status;                   
+                    app.sessionDay = response.data.sessionDay;     
+                    app.stripeReaderStatus= response.data.status;                   
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -218,15 +222,15 @@ var app = Vue.createApp({
 
         //set subject to bumped
         bumpSubject:function(esduID,id){
-            app.$data.sessionDay.experiment_session_days_user[id].waiting = true;
+            app.sessionDay.experiment_session_days_user[id].waiting = true;
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"bumpSubject" ,   
                     id:esduID,                                                                                                            
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;  
-                    app.$data.stripeReaderStatus= response.data.statusMessage;                                                               
+                    app.sessionDay = response.data.sessionDay;  
+                    app.stripeReaderStatus= response.data.statusMessage;                                                               
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -235,15 +239,15 @@ var app = Vue.createApp({
         
         //set subject to no show
         noShowSubject:function(esduID,id){
-            app.$data.sessionDay.experiment_session_days_user[id].waiting = true;
+            app.sessionDay.experiment_session_days_user[id].waiting = true;
             
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"noShowSubject" , 
                     id:esduID,                                                                                                                            
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;    
-                    app.$data.stripeReaderStatus = "";                                                                  
+                    app.sessionDay = response.data.sessionDay;    
+                    app.stripeReaderStatus = "";                                                                  
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -252,15 +256,15 @@ var app = Vue.createApp({
         
         //save the current payouts
         savePayouts:function(){
-            app.$data.saveButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.saveButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"savePayouts" ,  
                     payoutList : app.getPayoutlist(),                                                                                                                           
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay= response.data.sessionDay;      
-                    app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>';
+                    app.sessionDay= response.data.sessionDay;      
+                    app.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i>';
                     app.calcPayoutTotal();
                 })
                 .catch(function (error) {
@@ -271,23 +275,23 @@ var app = Vue.createApp({
         //finsh session, prevents further editing
         completeSession:function(){
 
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 confirm("Save payouts before continuing.") ;                    
                 return;                        
             }
 
-            app.$data.completeSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            app.$data.openSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.completeSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.openSessionButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"completeSession" ,                                                                                                                             
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;     
+                    app.sessionDay = response.data.sessionDay;     
                     
-                    app.$data.completeSessionButtonText = 'Complete Session <i class="fas fa-check"></i>';
-                    app.$data.openSessionButtonText = 'Re-Open Session <i class="fas fa-book-open"></i>';
+                    app.completeSessionButtonText = 'Complete Session <i class="fas fa-check"></i>';
+                    app.openSessionButtonText = 'Re-Open Session <i class="fas fa-book-open"></i>';
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -298,9 +302,9 @@ var app = Vue.createApp({
         calcPayoutTotal:function(){
             var s = 0;
 
-            for(i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+            for(i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
-                u = app.$data.sessionDay.experiment_session_days_user[i];
+                u = app.sessionDay.experiment_session_days_user[i];
 
                 if(u.show)
                 {
@@ -308,19 +312,19 @@ var app = Vue.createApp({
                 }
             }
 
-            app.$data.payoutTotal = s.toFixed(2);
+            app.payoutTotal = s.toFixed(2);
         },
 
         //fill subjects with default show up fee from experiments model
         fillWithDefaultShowUpFee:function(){
-            app.$data.fillShowUpFeeButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.fillShowUpFeeButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"fillDefaultShowUpFee" ,                                                                                                                             
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;   
-                    app.$data.fillShowUpFeeButtonText = "Fill Bonus: $" + app.$data.sessionDay.defaultShowUpFee; 
+                    app.sessionDay = response.data.sessionDay;   
+                    app.fillShowUpFeeButtonText = "Fill Bonus: $" + app.sessionDay.defaultShowUpFee; 
                     app.calcPayoutTotal();                     
                 })
                 .catch(function (error) {
@@ -331,18 +335,18 @@ var app = Vue.createApp({
         //fill subjects with default show up fee from experiments model
         fillEarningsWithFixed:function(){
 
-            if(app.$data.fillEarningsWithValue=="") return;
+            if(app.fillEarningsWithValue=="") return;
 
-            app.$data.fillEarningsWithFixedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.fillEarningsWithFixedButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"fillEarningsWithFixed" ,
-                    amount: app.$data.fillEarningsWithValue,                                                                                                                             
+                    amount: app.fillEarningsWithValue,                                                                                                                             
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;    
-                    app.$data.fillEarningsWithFixedButtonText = "Fill";
-                    app.$data.fillEarningsWithValue="";    
+                    app.sessionDay = response.data.sessionDay;    
+                    app.fillEarningsWithFixedButtonText = "Fill";
+                    app.fillEarningsWithValue="";    
                     app.calcPayoutTotal();                          
                 })
                 .catch(function (error) {
@@ -352,22 +356,22 @@ var app = Vue.createApp({
 
         //run when key pressed in payouts box
         payoutsKeyUp:function(userId,localId){
-            app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
+            app.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
         },
 
         //when user changes the payouts, auto save
         payoutsChange:function(userId,localId){
-            app.$data.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
+            app.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
             
-            if(app.$data.updatingPayoutsInProgress)
+            if(app.updatingPayoutsInProgress)
             {
-                app.$data.updatePayoutsRequired = true;
+                app.updatePayoutsRequired = true;
                 return;
             }
             else
             {
-                app.$data.updatePayoutsRequired = false;
-                app.$data.updatingPayoutsInProgress = true;
+                app.updatePayoutsRequired = false;
+                app.updatingPayoutsInProgress = true;
             }                  
             
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -379,14 +383,14 @@ var app = Vue.createApp({
 
                     if(status == "success")
                     {
-                        app.$data.updatingPayoutsInProgress = false;
+                        app.updatingPayoutsInProgress = false;
                     }
                     else
                     {
 
                     }
 
-                    if(app.$data.updatePayoutsRequired){
+                    if(app.updatePayoutsRequired){
                         app.payoutsChange(userId,localId); 
                     }
                 })
@@ -399,9 +403,9 @@ var app = Vue.createApp({
         getPayoutlist:function(){
             payoutList=[];
 
-            for(var i=0;i<app.$data.sessionDay.experiment_session_days_user.length;i++)
+            for(var i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
-                tempU = app.$data.sessionDay.experiment_session_days_user[i];
+                tempU = app.sessionDay.experiment_session_days_user[i];
                 tempV = {"id":tempU.id,
                         "earnings":tempU.earnings,
                         "showUpFee":tempU.show_up_fee,
@@ -414,14 +418,14 @@ var app = Vue.createApp({
 
         //bump all present users
         bumpAll:function(){
-            app.$data.bumpAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.bumpAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"bumpAll"                                                                                                                            
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay= response.data.sessionDay;      
-                    app.$data.bumpAllButtonText = 'Bump All <i class="fas fa-user-slash"></i>';
+                    app.sessionDay= response.data.sessionDay;      
+                    app.bumpAllButtonText = 'Bump All <i class="fas fa-user-slash"></i>';
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -430,24 +434,24 @@ var app = Vue.createApp({
 
         //print payouts
         printPayouts:function(){
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
                 return;                        
             }
 
-            window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/payouts/', '_blank');
+            window.open('/experimentSessionPayouts/' + app.sessionDay.id +'/payouts/', '_blank');
         },
 
         //print bumps
         printBumps:function(){
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {  
                 alert("Save payouts before continuing.") ;                      
                 return;                        
             }
 
-            window.open('/experimentSessionPayouts/' + app.$data.sessionDay.id +'/bumps/', '_blank');
+            window.open('/experimentSessionPayouts/' + app.sessionDay.id +'/bumps/', '_blank');
         },
 
         //open traits for attended subjects
@@ -458,15 +462,15 @@ var app = Vue.createApp({
         //upload earings file csv
         uploadEarnings:function(){
 
-            if(app.$data.upload_file == null)
+            if(app.upload_file == null)
                 return;
 
-            app.$data.uploadEarningsMessage = "";
-            app.$data.uploadEarningsButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.uploadEarningsMessage = "";
+            app.uploadEarningsButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             let formData = new FormData();
-            formData.append('file', app.$data.upload_file);
-            formData.append('auto_add', app.$data.auto_add_users_on_upload);
+            formData.append('file', app.upload_file);
+            formData.append('auto_add', app.auto_add_users_on_upload);
 
             axios.post('/experimentSessionRun/{{id}}/', formData,
                     {
@@ -477,64 +481,64 @@ var app = Vue.createApp({
                     )
                     .then(function (response) {     
 
-                        app.$data.uploadEarningsMessage = response.data.message;
+                        app.uploadEarningsMessage = response.data.message;
 
-                        app.$data.uploadEarningsButtonText= 'Upload File <i class="fas fa-upload"></i>';
-                        app.$data.sessionDay = response.data.sessionDay;   
+                        app.uploadEarningsButtonText= 'Upload File <i class="fas fa-upload"></i>';
+                        app.sessionDay = response.data.sessionDay;   
                         app.calcPayoutTotal();                                                                             
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 },
         
         //upload earings text csv format
         uploadEarningsTextJS:function(){
 
-            if(app.$data.uploadEarningsText == "")
+            if(app.uploadEarningsText == "")
                 return;
 
-            app.$data.uploadEarningsMessage = "";
-            app.$data.uploadEarningsTextBoxButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.uploadEarningsMessage = "";
+            app.uploadEarningsTextBoxButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                         action : "uploadEarningsText",
-                        text : app.$data.uploadEarningsText,         
-                        autoAddUsers : app.$data.auto_add_users_on_upload, 
-                        uploadIdType : app.$data.uploadIdType,                                                                                                            
+                        text : app.uploadEarningsText,         
+                        autoAddUsers : app.auto_add_users_on_upload, 
+                        uploadIdType : app.uploadIdType,                                                                                                            
                     })
                     .then(function (response) {     
 
-                        app.$data.uploadEarningsMessage = response.data.message;
+                        app.uploadEarningsMessage = response.data.message;
 
-                        app.$data.uploadEarningsTextBoxButtonText= 'Upload Earnings <i class="fas fa-upload"></i>';
-                        app.$data.sessionDay = response.data.sessionDay;   
+                        app.uploadEarningsTextBoxButtonText= 'Upload Earnings <i class="fas fa-upload"></i>';
+                        app.sessionDay = response.data.sessionDay;   
                         app.calcPayoutTotal();     
 
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 },
 
         //store the location of the file to be uploaded
         handleFileUpload:function(){
-            app.$data.upload_file = this.$refs.file.files[0];
-            //$('parameterFileUpload').val("");
-            app.$data.upload_file_name = app.$data.upload_file.name;
+            app.upload_file = this.$refs.file.files[0];
+
+            app.upload_file_name = app.upload_file.name;
 
             var reader = new FileReader();
-            reader.onload = e => app.$data.uploadEarningsText = e.target.result;
-            reader.readAsText(app.$data.upload_file);
+            reader.onload = e => app.uploadEarningsText = e.target.result;
+            reader.readAsText(app.upload_file);
 
         },
 
         //fire when show upload earnings
         showUploadEarnings:function(){
-            app.$data.uploadEarningsMessage = "";
-            $('#uploadEarningsModal').modal('show');
+            app.uploadEarningsMessage = "";
+            app.uploadEarningsModal.show();
         },
 
         hideUploadEarnings:function(){
@@ -543,20 +547,20 @@ var app = Vue.createApp({
         //fill subjects with default show up fee from experiments model
         roundEarningsUp:function(){
 
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
                 return;                        
             }
 
-            app.$data.roundUpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.roundUpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"roundEarningsUp",                                                                                                                           
                 })
                 .then(function (response) {     
-                    app.$data.sessionDay = response.data.sessionDay;    
-                    app.$data.roundUpButtonText = 'Round Earnings <i class="fas fa-circle-notch"></i>';   
+                    app.sessionDay = response.data.sessionDay;    
+                    app.roundUpButtonText = 'Round Earnings <i class="fas fa-circle-notch"></i>';   
                     app.calcPayoutTotal();                       
                 })
                 .catch(function (error) {
@@ -566,19 +570,19 @@ var app = Vue.createApp({
 
         //pay subjects with PayPal API
         payPalAPI:function(){
-            if(app.$data.sessionDay.experiment_session_days_user.length == 0)
+            if(app.sessionDay.experiment_session_days_user.length == 0)
             {
                 alert("No subjects in session.") ; 
                 return;
             }
 
-            if(app.$data.payoutTotal == "0.00")
+            if(app.payoutTotal == "0.00")
             {
                 alert("No payouts entered.") ; 
                 return;
             }
 
-            if(app.$data.saveButtonText.indexOf("*") >= 0)
+            if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
                 return;                        
@@ -592,26 +596,26 @@ var app = Vue.createApp({
             }           
 
 
-            app.$data.paypalDirectButtonText = '<i class="fas fa-spinner fa-spin"></i>';
+            app.paypalDirectButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"payPalAPI",                                                                                                                           
                 })
                 .then(function (response) {     
                     
-                    app.$data.sessionDay = response.data.sessionDay;
-                    app.$data.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';           
+                    app.sessionDay = response.data.sessionDay;
+                    app.paypalDirectButtonText = 'Paypal Direct <i class="fab fa-paypal"></i>';           
                     
                     if( response.data.error_message != "")
                     {
-                        app.$data.noticeBody = response.data.error_message;
+                        app.noticeBody = response.data.error_message;
                     }
                     else
                     {
-                        app.$data.noticeBody = response.data.result;
+                        app.noticeBody = response.data.result;
                     }
 
-                    $('#noticeModal').modal('toggle');
+                    app.noticeModal.show();
                 })
                 .catch(function (error) {
                     console.log(error);                                   
@@ -633,6 +637,13 @@ var app = Vue.createApp({
     mounted(){
             this.getSession();       
             window.setTimeout(this.stripeReaderCheckin, 250);      
-            $('#hideUploadEarnings').on("hidden.bs.modal", this.hideEditSubject);       
+
+            Vue.nextTick(() => {
+                app.uploadEarningsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('uploadEarningsModal'), {keyboard: false});
+                app.noticeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('noticeModal'), {keyboard: false});
+
+                document.getElementById('uploadEarningsModal').addEventListener('hidden.bs.modal', app.hideUploadEarnings);
+            })
+    
     },
 }).mount('#app');

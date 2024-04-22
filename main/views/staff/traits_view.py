@@ -104,16 +104,16 @@ def getReport(data, u, session_day_id):
     logger.info("Get Trait Report CSV")
     logger.info(data)
 
-    form_data_dict = {}
-    traitsList=[]
+    form_data_dict =  data["formData"]
+    # traitsList=[]
 
-    for field in data["formData"]:
-        if field["name"] == "traits":
-            traitsList.append(field["value"])
-        else:
-            form_data_dict[field["name"]] = field["value"]
+    # for field in data["formData"]:
+    #     if field["name"] == "traits":
+    #         traitsList.append(field["value"])
+    #     else:
+    #         form_data_dict[field["name"]] = field["value"]
     
-    form_data_dict["traits"] = traitsList
+    # form_data_dict["traits"] = traitsList
 
     logger.info(form_data_dict)
     

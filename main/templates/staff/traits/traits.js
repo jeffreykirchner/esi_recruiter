@@ -16,20 +16,21 @@ var app = Vue.createApp({
         active_only:true,
         select_all_value:true,
         include_sign_up_metrics:false,
+        selected_traits:[],
         session_day:{{session_day|safe}},
     }},
 
     methods:{
         uploadCSV:function(){
 
-            if(app.$data.file == "")
+            if(app.file == "")
                 return;
 
-            app.$data.upload_messaage = "";
-            app.$data.upload_button_text = '<i class="fas fa-spinner fa-spin"></i>';
+            app.upload_messaage = "";
+            app.upload_button_text = '<i class="fas fa-spinner fa-spin"></i>';
 
             let formData = new FormData();
-            formData.append('file', app.$data.file);
+            formData.append('file', app.file);
 
             axios.post('/traits/', formData,
                     {
@@ -40,31 +41,31 @@ var app = Vue.createApp({
                     )
                     .then(function (response) {     
 
-                        app.$data.upload_messaage = response.data.message;
-                        app.$data.upload_button_text= 'Upload <i class="fas fa-upload"></i>'
+                        app.upload_messaage = response.data.message;
+                        app.upload_button_text= 'Upload <i class="fas fa-upload"></i>'
                                                                         
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 },
         
         handleFileUpload:function(){
-            app.$data.file = this.$refs.file.files[0];
-            app.$data.file_name = app.$data.file.name;
+            app.file = this.$refs.file.files[0];
+            app.file_name = app.file.name;
         },
         
         getReport:function(){
-            app.$data.download_messaage = "";
-            app.$data.download_button_text = '<i class="fas fa-spinner fa-spin"></i>';
+            app.download_messaage = "";
+            app.download_button_text = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/traits/', {
                         action :"getReport",  
-                        formData : $("#traitReportForm").serializeArray(),    
-                        active_only:app.$data.active_only,       
-                        include_sign_up_metrics : app.$data.include_sign_up_metrics,   
-                        session_day : app.$data.session_day,                                                                                                             
+                        formData : {"traits":app.selected_traits},    
+                        active_only:app.active_only,       
+                        include_sign_up_metrics : app.include_sign_up_metrics,   
+                        session_day : app.session_day,                                                                                                             
                     })
                     .then(function (response) {    
                         
@@ -91,11 +92,11 @@ var app = Vue.createApp({
                             document.body.removeChild(downloadLink);
                         }
                      
-                        app.$data.download_button_text = 'Generate <i class="fas fa-scroll fa-xs"></i>';
+                        app.download_button_text = 'Generate <i class="fas fa-scroll fa-xs"></i>';
                     })
                     .catch(function (error) {
                         console.log(error);
-                        app.$data.searching=false;
+                        app.searching=false;
                     });                        
                 },
         
@@ -104,10 +105,10 @@ var app = Vue.createApp({
             checkboxes = document.getElementsByName('traits');
 
             for(var i=0, n=checkboxes.length;i<n;i++) {
-                checkboxes[i].checked = app.$data.select_all_value;
+                checkboxes[i].checked = app.select_all_value;
             }
 
-            app.$data.select_all_value = !app.$data.select_all_value;
+            app.select_all_value = !app.select_all_value;
         },
     },
 
