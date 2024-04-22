@@ -175,114 +175,116 @@
         <!-- session table -->
         <div class="row">                   
             <div class="col">
-                <table class="table table-hover table-condensed table-responsive-xl">
-                    <caption style="caption-side:top;text-align: center;">
-                        <span v-if="sessions_count<=25">
-                            Sessions ([[sessions.length]])
-                        </span> 
-                        <span v-else-if="sessions.length ==sessions_count">
-                            Sessions ([[sessions_count]])
-                        </span>
-                        <span v-else>
-                            Sessions (1-25 of [[sessions_count]])
-                        </span>
-                    </caption>
-                    <thead>
-                        <th scope="col" class="text-nowrap">
-                            Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
-                            <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Creator
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Status
-                        </th> 
-                        <th scope="col" class="text-center text-nowrap">
-                            Invited
-                        </th> 
-                        <th scope="col" class="text-center text-nowrap">
-                           Confirmed
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Attended
-                        </th>                                                     
-                        <th scope="col" class="text-center text-nowrap">
-                            Edit
-                        </th>
-                        <th scope="col" class="text-center text-nowrap">
-                            Remove
-                        </th>
-                    </thead>
-                    <tbody id="sessionList">                                
-                        <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
-                            <td class="text-nowrap">
-                                <span v-for="(d,index) in s.experiment_session_days">
-                                    <div>
-                                        <span v-if="d.enable_time">
-                                            <span v-html="formatDate(d.date,false)"></span>
-                                        </span>
-                                        <span v-else>
-                                            <span v-html="formatDate(d.date,true)"></span> Anytime
-                                        </span>
-                                            
-                                        <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
-                                    </div>                                                                                                                                                                             
-                                </span>
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <span v-if="s.creator"><a v-bind:href="'/userInfo/' + s.creator.id">[[s.creator.last_name]], [[s.creator.first_name]]</a></span>
-                                <span v-else>---</span>
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <div v-if="s.complete">
-                                    <span v-html="'Complete'"></span>
-                                </div>
-                                <div v-else>
-                                    <span v-html="'Open'"></span>
-                                </div>
-                                <div v-if="s.canceled">
-                                    <span v-html="'Canceled'" style="color: red;"></span>
-                                </div>
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <div v-for="(d,index) in s.experiment_session_days">
-                                    [[d.totalCount]]                                                                  
-                                </div>                                        
-                            </td>   
-                            <td class="text-center text-nowrap">
-                                <div v-for="(d,index) in s.experiment_session_days">
-                                    [[d.confirmedCount]]                                                                
-                                </div>                                        
-                            </td>
-                            <td class="text-center text-nowrap">
-                                <div v-for="(d,index) in s.experiment_session_days">
-                                    [[d.attendedCount]]                                                                  
-                                </div>                                        
-                            </td>                            
-                            <td class="text-center text-nowrap">                                       
-                                <a  v-bind:href='"/experimentSession/" + s.id'>
-                                    Edit <i class="fas fa-edit fa-xs"></i>
-                                </a>                                                                                                                                                            
-                            </td>
-                            <td class="text-center text-nowrap">                                        
-                                <button class="btn btn-outline-danger btn-sm" 
-                                        type="button" v-on:click = "removeSession(s.id)" 
-                                        v-bind:disabled="s.allow_delete == false || working">
-                                    Delete <i class="fas fa-trash fa-xs"></i>
-                                </button>                                                                                                                                                                    
-                            </td>                            
-                        </tr>                                                  
-                    </tbody>
-                    <tfoot>
-                        <tr v-if="sessions.length === 0">
-                            <td><span v-html="'No Sessions'"></span></td>
-                            <td class="text-center"><span v-html="'---'"></span></td>
-                            <td class="text-center"><span v-html="'---'"></span></td>
-                            <td class="text-center"><span v-html="'---'"></span></td>
-                        </tr>                                   
-                    </tfoot>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">
+                        <caption style="caption-side:top;text-align: center;">
+                            <span v-if="sessions_count<=25">
+                                Sessions ([[sessions.length]])
+                            </span> 
+                            <span v-else-if="sessions.length ==sessions_count">
+                                Sessions ([[sessions_count]])
+                            </span>
+                            <span v-else>
+                                Sessions (1-25 of [[sessions_count]])
+                            </span>
+                        </caption>
+                        <thead>
+                            <th scope="col" class="text-nowrap">
+                                Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
+                                <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Creator
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Status
+                            </th> 
+                            <th scope="col" class="text-center text-nowrap">
+                                Invited
+                            </th> 
+                            <th scope="col" class="text-center text-nowrap">
+                            Confirmed
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Attended
+                            </th>                                                     
+                            <th scope="col" class="text-center text-nowrap">
+                                Edit
+                            </th>
+                            <th scope="col" class="text-center text-nowrap">
+                                Remove
+                            </th>
+                        </thead>
+                        <tbody id="sessionList">                                
+                            <tr v-for="(s,index) in sessions" v-bind:key="s.id">                                                                          
+                                <td class="text-nowrap">
+                                    <span v-for="(d,index) in s.experiment_session_days">
+                                        <div>
+                                            <span v-if="d.enable_time">
+                                                <span v-html="formatDate(d.date,false)"></span>
+                                            </span>
+                                            <span v-else>
+                                                <span v-html="formatDate(d.date,true)"></span> Anytime
+                                            </span>
+                                                
+                                            <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
+                                        </div>                                                                                                                                                                             
+                                    </span>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <span v-if="s.creator"><a v-bind:href="'/userInfo/' + s.creator.id">[[s.creator.last_name]], [[s.creator.first_name]]</a></span>
+                                    <span v-else>---</span>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <div v-if="s.complete">
+                                        <span v-html="'Complete'"></span>
+                                    </div>
+                                    <div v-else>
+                                        <span v-html="'Open'"></span>
+                                    </div>
+                                    <div v-if="s.canceled">
+                                        <span v-html="'Canceled'" style="color: red;"></span>
+                                    </div>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <div v-for="(d,index) in s.experiment_session_days">
+                                        [[d.totalCount]]                                                                  
+                                    </div>                                        
+                                </td>   
+                                <td class="text-center text-nowrap">
+                                    <div v-for="(d,index) in s.experiment_session_days">
+                                        [[d.confirmedCount]]                                                                
+                                    </div>                                        
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <div v-for="(d,index) in s.experiment_session_days">
+                                        [[d.attendedCount]]                                                                  
+                                    </div>                                        
+                                </td>                            
+                                <td class="text-center text-nowrap">                                       
+                                    <a  v-bind:href='"/experimentSession/" + s.id'>
+                                        Edit <i class="fas fa-edit fa-xs"></i>
+                                    </a>                                                                                                                                                            
+                                </td>
+                                <td class="text-center text-nowrap">                                        
+                                    <button class="btn btn-outline-danger btn-sm" 
+                                            type="button" v-on:click = "removeSession(s.id)" 
+                                            v-bind:disabled="s.allow_delete == false || working">
+                                        Delete <i class="fas fa-trash fa-xs"></i>
+                                    </button>                                                                                                                                                                    
+                                </td>                            
+                            </tr>                                                  
+                        </tbody>
+                        <tfoot>
+                            <tr v-if="sessions.length === 0">
+                                <td><span v-html="'No Sessions'"></span></td>
+                                <td class="text-center"><span v-html="'---'"></span></td>
+                                <td class="text-center"><span v-html="'---'"></span></td>
+                                <td class="text-center"><span v-html="'---'"></span></td>
+                            </tr>                                   
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>  
         

@@ -64,87 +64,89 @@
         <!-- search results table -->
         <div class="row justify-content-center mt-4" v-show="historyBudget.length>0">
             <div class="col-md">
-                <table class="table table-hover table-condensed table-responsive-md">                            
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">                            
 
-                    <caption style="caption-side:top;text-align: center;">Expenditures ([[historyBudget.length]])</caption>
+                        <caption style="caption-side:top;text-align: center;">Expenditures ([[historyBudget.length]])</caption>
 
-                    <thead>
-                        <th scope="col w-auto">
-                            Budget
-                        </th> 
-                        <th scope="col w-auto">
-                            Account Name
-                        </th>
-                        <th scope="col w-auto">
-                            Account Number
-                        </th>
-                        <th scope="col w-auto">
-                            Department
-                        </th>
-                        <th scope="col w-auto">
-                            Amount
-                        </th>
-                        <th scope="col w-auto">
-                            International Tax
-                        </th>
-                        <th scope="col w-auto">
-                            Unclaimed
-                        </th>
-                        <th scope="col w-auto">
-                            Sessions
-                        </th> 
-                                                                                                                          
-                    </thead>
+                        <thead>
+                            <th scope="col w-auto">
+                                Budget
+                            </th> 
+                            <th scope="col w-auto">
+                                Account Name
+                            </th>
+                            <th scope="col w-auto">
+                                Account Number
+                            </th>
+                            <th scope="col w-auto">
+                                Department
+                            </th>
+                            <th scope="col w-auto">
+                                Amount
+                            </th>
+                            <th scope="col w-auto">
+                                International Tax
+                            </th>
+                            <th scope="col w-auto">
+                                Unclaimed
+                            </th>
+                            <th scope="col w-auto">
+                                Sessions
+                            </th> 
+                                                                                                                            
+                        </thead>
 
-                    <tbody id="userListBudget">                                                  
-                        <tr v-for="(h,index) in historyBudget">                                                                          
-                            <td class="w-auto">
-                                <span v-if="h.id != -1">
-                                    <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>
-                                </span> 
-                                <span v-else>
-                                    [[h.name]]
-                                </span>                                     
-                            </td>
-                            <td class="w-auto">                                                    
-                                [[h.account_name]]                                 
-                            </td>
-                            <td class="w-auto">                                       
-                                [[h.account_number]]                          
-                            </td>
-                            <td class="w-auto">                                       
-                                [[h.department]]                                
-                            </td>
-                            <td class="w-auto">                                       
-                                $[[h.total]]                              
-                            </td>
-                            <td class="w-auto">                                       
-                                $[[h.total_international]]                              
-                            </td>
-                            <td class="w-auto">                                       
-                                $[[h.total_unclaimed]]                              
-                            </td>
-                            <td class="w-auto">                                       
-                               <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
-                                    <div class="row">
-                                        <div class="col">
-                                            <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                        <tbody id="userListBudget">                                                  
+                            <tr v-for="(h,index) in historyBudget">                                                                          
+                                <td class="w-auto">
+                                    <span v-if="h.id != -1">
+                                        <a v-bind:href="'/userInfo/'+h.id">[[h.name]]</a>
+                                    </span> 
+                                    <span v-else>
+                                        [[h.name]]
+                                    </span>                                     
+                                </td>
+                                <td class="w-auto">                                                    
+                                    [[h.account_name]]                                 
+                                </td>
+                                <td class="w-auto">                                       
+                                    [[h.account_number]]                          
+                                </td>
+                                <td class="w-auto">                                       
+                                    [[h.department]]                                
+                                </td>
+                                <td class="w-auto">                                       
+                                    $[[h.total]]                              
+                                </td>
+                                <td class="w-auto">                                       
+                                    $[[h.total_international]]                              
+                                </td>
+                                <td class="w-auto">                                       
+                                    $[[h.total_unclaimed]]                              
+                                </td>
+                                <td class="w-auto">                                       
+                                <div v-for="(s, index) in h.sessions" v-bind:key="s.id">
+                                        <div class="row">
+                                            <div class="col">
+                                                <a v-bind:href="'/experimentSessionRun/'+s.id">[[s.title]]</a>
+                                            </div>
+                                            <div class="col">
+                                                $[[s.session_total]]
+                                            </div>
+                                            <!-- <div class="col">
+                                                <span v-if="s.paypal_api">pp</span>
+                                                <span v-else>c</span>
+                                            </div> -->
                                         </div>
-                                        <div class="col">
-                                            $[[s.session_total]]
-                                        </div>
-                                        <!-- <div class="col">
-                                            <span v-if="s.paypal_api">pp</span>
-                                            <span v-else>c</span>
-                                        </div> -->
-                                    </div>
-                               </div>                       
-                            </td>                          
-                                                                                                               
-                        </tr>                                                    
-                    </tbody>
-                    
-                </table>  
+                                </div>                       
+                                </td>                          
+                                                                                                                
+                            </tr>                                                    
+                        </tbody>
+                        
+                    </table>  
+                </div>
             </div>
 
         </div>         

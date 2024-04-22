@@ -44,33 +44,34 @@
 <!-- consent form report -->
 
 <div class="row" v-show="irb_report">
-    <div class="col-md-2">
+    <div class="col-3">
         IRB ID:
     </div>
-    <div class = "col-md float-start">
+    <div class="col">
         [[irb_report ? irb_report.irb_study.number : '---']]
     </div>
 </div>
 
 <div class="row" v-show="irb_report">
-    <div class="col-md-2">
+    <div class="col-3">
         Date Range:
     </div>
-    <div class = "col-md float-start">
+    <div class = "col">
         [[irb_report ? irb_report.start_range + " to " + irb_report.end_range : '---']]
     </div>
 </div>
 
 <div class="row" v-show="irb_report">
-    <div class="col-md-2">
+    <div class="col-3">
         Total Participants:
     </div>
-    <div class = "col-md float-start">
+    <div class = "col">
         [[irb_report ? irb_report.total_subject_count : '---']]
     </div>
 </div>
 
-<table class="table table-condensed table-responsive-md mt-4" v-if="irb_report">                            
+
+<table class="table table-condensed mt-4" v-if="irb_report">                            
 
     <thead>
         <th scope="col">
@@ -103,7 +104,7 @@
                     <div class="row">
                         <div class="col w-auto text-start">
                             <a v-bind:href="'/experiment/'+e.id">
-                               [[e.title]]                                                    
+                            [[e.title]]                                                    
                             </a>
                         </div>                        
                     </div>
@@ -129,5 +130,4 @@
             </td>                                             
         </tr>                                                    
     </tbody>
-    
-</table>  
+</table>

@@ -44,50 +44,52 @@
         <!-- search results table -->
         <div class="row justify-content-center mt-4" v-show="history.length>0">
             <div class="col-md">
-                <table class="table table-hover table-condensed table-responsive-md">                            
+                <div class="table-responsive">
+                    <table class="table table-hover table-condensed">                            
 
-                    <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
+                        <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
 
-                    <thead>
-                        <th scope="col">
-                            Email Address
-                        </th> 
-                        <th scope="col" style="text-align: center;">
-                            Amount
-                        </th> 
-                        <th scope="col" style="text-align: center;">
-                            Date
-                        </th>
-                        <th scope="col" style="text-align: center;">
-                            Memo
-                        </th>
-                        <th scope="col" style="text-align: center;">
-                            App
-                        </th>                                                     
+                        <thead>
+                            <th scope="col">
+                                Email Address
+                            </th> 
+                            <th scope="col" style="text-align: center;">
+                                Amount
+                            </th> 
+                            <th scope="col" style="text-align: center;">
+                                Date
+                            </th>
+                            <th scope="col" style="text-align: center;">
+                                Memo
+                            </th>
+                            <th scope="col" style="text-align: center;">
+                                App
+                            </th>                                                     
+                            
+                        </thead>
+
+                        <tbody id="userList">                                                  
+                            <tr v-for="(h,index) in history" v-bind:key="h.id">                                                                          
+                                <td> 
+                                [[h.email]]                                        
+                                </td>
+                                <td style="text-align: center;">                                        
+                                [[h.amount]]                                        
+                                </td>  
+                                <td style="text-align: center;">  
+                                [[h.timestamp]]
+                                </td>
+                                <td style="text-align: center;">  
+                                [[h.memo]]
+                                </td>
+                                <td style="text-align: center;">  
+                                [[h.app]]
+                                </td>                                                         
+                            </tr>                                                    
+                        </tbody>
                         
-                    </thead>
-
-                    <tbody id="userList">                                                  
-                        <tr v-for="(h,index) in history" v-bind:key="h.id">                                                                          
-                            <td> 
-                               [[h.email]]                                        
-                            </td>
-                            <td style="text-align: center;">                                        
-                               [[h.amount]]                                        
-                            </td>  
-                            <td style="text-align: center;">  
-                               [[h.timestamp]]
-                            </td>
-                            <td style="text-align: center;">  
-                               [[h.memo]]
-                            </td>
-                            <td style="text-align: center;">  
-                               [[h.app]]
-                             </td>                                                         
-                        </tr>                                                    
-                    </tbody>
-                    
-                </table>  
+                    </table>  
+                </div>
             </div>
 
         </div>         
