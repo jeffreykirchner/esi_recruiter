@@ -96,7 +96,7 @@
           },
           
           //display form errors
-          displayErrors(errors){
+          displayErrors: function displayErrors(errors){
               for(let e in errors)
               {
                   let str='<span id=id_errors_'+ e +' class="text-danger">';

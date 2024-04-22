@@ -98,7 +98,7 @@ var app = Vue.createApp({
         },
 
         //display form errors
-        displayErrors(errors){
+        displayErrors: function displayErrors(errors){
             for(let e in errors)
             {
                 let str='<span id=id_errors_'+ e +' class="text-danger">';
@@ -111,6 +111,7 @@ var app = Vue.createApp({
                 str+='</span>';
 
                 document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
+                document.getElementById("div_id_" + e).scrollIntoView();
             }
         },    
         
