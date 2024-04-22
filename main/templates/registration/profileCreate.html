@@ -31,7 +31,7 @@
         methods:{
           //get current, last or next month
 
-          create:function(){
+          create:function create(){
             if(!app.human)
             {
               alert("Please confirm you are a person.");
@@ -79,17 +79,17 @@
             app.helpModal.show();
           },
 
-          humanChecker:function(){
+          humanChecker:function humanChecker(){
             app.humanButtonText = 'Press if human <i class="fas fa-spinner fa-spin"></i>';
             setTimeout(app.humanConfirm, 1000); 
           },
 
-          humanConfirm:function(){
+          humanConfirm:function humanConfirm(){
             app.humanButtonText = 'Thanks human <i class="fas fa-user-check"></i>';
             app.human=true;
           },
 
-          clearMainFormErrors:function(){
+          clearMainFormErrors:function clearMainFormErrors(){
 
             s = app.form_ids;                    
             for(var i in s)
