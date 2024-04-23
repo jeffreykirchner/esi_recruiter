@@ -497,6 +497,10 @@ var app = Vue.createApp({
                 str+='</span>';
 
                 document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
+
+                //scroll to the last error
+                var elmnt =  document.getElementById("div_id_" + e);
+                if(elmnt) elmnt.scrollIntoView();
             }
         },  
 

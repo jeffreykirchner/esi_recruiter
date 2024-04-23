@@ -60,6 +60,11 @@
                   else
                   {
                     app.status="done";
+
+                    Vue.nextTick(() => {
+                      document.getElementById("idcreated").scrollIntoView();
+                    });
+                   
                   }                        
 
                   app.buttonText = 'Submit <i class="fas fa-sign-in-alt"></i>';
@@ -96,7 +101,7 @@
           },
           
           //display form errors
-          displayErrors(errors){
+          displayErrors: function displayErrors(errors){
               for(let e in errors)
               {
                   let str='<span id=id_errors_'+ e +' class="text-danger">';
@@ -108,8 +113,10 @@
 
                   str+='</span>';
                   document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
-
-                  document.getElementById("div_id_" + e).scrollIntoView();
+                  
+                  Vue.nextTick(() => {
+                    document.getElementById("div_id_" + e).scrollIntoView();
+                  });
               }
           },
 
@@ -135,13 +142,13 @@
 
 <div class="row justify-content-lg-center">
   <div class="col col-lg-6">
-    <div class="card">
+    <div class="card" id="idcreated">
       <div class="card-header">
         <div class="row">
           <div class = "col">
             Sign up
           </div>        
-          <div class="col" style="text-align: right;">
+          <div class="col text-end">
             <button type="button" class="btn btn-link" v-on:click="showHelp()" data-placement="bottom" title="Show Help Doc">
                 <i class="far fa-question-circle"></i> 
             </button>
@@ -158,7 +165,7 @@
             
             {% for i in form %}
               <div class="row">
-                <div class = "col col-lg-10 offset-lg-1">  
+                <div class = "col offset-lg-1">  
                   {{ i|as_crispy_field }}         
                 </div>            
               </div> 
@@ -192,7 +199,7 @@
         <div v-else>
 
           <div class="row">
-            <div class = "col col-lg-12 text-center">  
+            <div class = "col text-center">  
                               
                 Your profile has been created, check your email for a confirmation link.<br>
                 <a href="{% url 'profileVerifyResend' %}">Send link again</a>                
