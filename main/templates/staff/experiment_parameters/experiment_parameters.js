@@ -36,7 +36,7 @@ var app = Vue.createApp({
     methods:{     
 
         //remove all the form errors
-        clearMainFormErrors:function(){
+        clearMainFormErrors:function clearMainFormErrors(){
 
             s = app.recruitment_parameters_form_ids;
             for(var i in s)
@@ -47,7 +47,7 @@ var app = Vue.createApp({
         },
 
         //update recruitment parameters 
-        updateRecruitmentParameters: function(){                       
+        updateRecruitmentParameters: function updateRecruitmentParameters(){                       
             axios.post('{{ request.path }}', {
                     status :"updateRecruitmentParameters" ,                                                                                       
                     formData : app.recruitment_params,
@@ -76,7 +76,7 @@ var app = Vue.createApp({
 
         
         //gets experiment info from the server
-        getExperiment: function(){
+        getExperiment: function getExperiment(){
             axios.post('{{ request.path }}', {
                     status:"get",                                                              
                 })
@@ -93,7 +93,7 @@ var app = Vue.createApp({
         },
 
         //if form is changed add * to button
-        recruitmentFormChange:function(){
+        recruitmentFormChange:function recruitmentFormChange(){
             app.buttonText1='Update <i class="fas fa-sign-in-alt"></i> *';
         },
 

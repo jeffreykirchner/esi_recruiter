@@ -18,7 +18,7 @@ var app = Vue.createApp({
     methods:{
         
         //get list of open experiments
-        getOpenSessions:function(){       
+        getOpenSessions:function getOpenSessions(){       
             
             axios.post('/sessionsOpen/', {
                             action :"getOpenSessions" ,                                                                                                                             
@@ -42,7 +42,7 @@ var app = Vue.createApp({
                         });                        
         },
 
-        autoRefreshButton:function(){
+        autoRefreshButton:function autoRefreshButton(){
             if(app.auto_refresh == "Off")
             {
                 app.auto_refresh = "On";
@@ -63,7 +63,7 @@ var app = Vue.createApp({
         },
 
         //get list of open experiments
-        closeAllSessions:function(){        
+        closeAllSessions:function closeAllSessions(){        
             
             var r = confirm("Are you sure you want to complete all sessions?");
             if (r == false) {

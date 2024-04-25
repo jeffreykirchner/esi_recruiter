@@ -35,7 +35,7 @@ var app = Vue.createApp({
 
     methods:{
         //get history of payments made to paypal api
-        getHistory: function(){
+        getHistory: function getHistory(){
 
             app.working = true;
 
@@ -56,13 +56,13 @@ var app = Vue.createApp({
             }); 
         }, 
 
-        getHistoryButton : function(){
+        getHistoryButton : function getHistoryButton(){
             app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             this.getHistory();
         },
 
         //get history of payments from recruiter
-        getHistoryRecruiter: function(){
+        getHistoryRecruiter: function getHistoryRecruiter(){
             app.working = true;
             app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -84,7 +84,7 @@ var app = Vue.createApp({
         },
 
         //get budget expenditures
-        getHistoryBudget: function(){
+        getHistoryBudget: function getHistoryBudget(){
             app.working = true;
             app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -108,7 +108,7 @@ var app = Vue.createApp({
         },
 
         //get budget expenditures
-        downloadHistoryBudget: function(){
+        downloadHistoryBudget: function downloadHistoryBudget(){
             app.working = true;         
             
             app.working = false;

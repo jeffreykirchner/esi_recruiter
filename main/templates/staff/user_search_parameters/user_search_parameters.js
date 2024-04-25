@@ -19,7 +19,7 @@ var app = Vue.createApp({
         updateTraitButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
         current_trait:{
             id:0,
-            trait_id:0,
+            trait:0,
             min_value:0,
             max_vaue:0,
             include_if_in_range:1,
@@ -34,7 +34,7 @@ var app = Vue.createApp({
     methods:{     
 
         //remove all the form errors
-        clearMainFormErrors:function(){
+        clearMainFormErrors:function clearMainFormErrors(){
 
             s = app.recruitment_parameters_form_ids;
             for(var i in s)
@@ -45,7 +45,7 @@ var app = Vue.createApp({
         },
 
         //update recruitment parameters 
-        search: function(){           
+        search: function search(){           
             app.working = true;
             app.searchResults = [];
             document.getElementById("id_search_results").scrollIntoView();
@@ -80,7 +80,7 @@ var app = Vue.createApp({
 
 
         //if form is changed add * to button
-        recruitmentFormChange:function(){
+        recruitmentFormChange:function recruitmentFormChange(){
            
         },
 
@@ -106,7 +106,7 @@ var app = Vue.createApp({
         },  
 
         //add trait
-        addTrait:function(){
+        addTrait:function addTrait(){
 
             var id = 0;
             
@@ -124,7 +124,7 @@ var app = Vue.createApp({
             trait = {"id":id+1,
                      "name": e.options[e.selectedIndex].text + " Inc. 0.00-10.00",
                      "trait_name":e.options[e.selectedIndex].text,
-                     "trait_id":e.value,
+                     "trait":e.value,
                      "min_value":"0.00",
                      "max_value":"10.00",
                      "recruitment_parameter_id":0,
@@ -134,21 +134,28 @@ var app = Vue.createApp({
         },
 
         //no action when changed
-        updateRequireAllTraitContraints:function(){
+        updateRequireAllTraitContraints:function updateRequireAllTraitContraints(){
         },
 
         //update trait
-        updateTrait:function(){
+        updateTrait:function updateTrait(){
 
             trait = app.getTraitById(app.current_trait.id);
             trait.min_value = Number(app.current_trait.min_value).toFixed(2);
             trait.max_value = Number(app.current_trait.max_value).toFixed(2);
-            trait.trait_id = app.current_trait.trait_id;
+            trait.trait = app.current_trait.trait;
             trait.include_if_in_range = app.current_trait.include_if_in_range;
 
             e = document.getElementById('id_trait');            
-            trait.trait_name = e.options[e.selectedIndex].text;
-
+            if(e.selectedIndex == -1)
+            {
+                trait.trait_name = null;
+            }
+            else
+            {
+                trait.trait_name = e.options[e.selectedIndex].text;
+            }
+           
             let mode = trait.include_if_in_range ? "Inc." : "Exc.";
             trait.name = trait.trait_name + " " + mode + " " + trait.min_value + "-" + trait.max_value;
 
@@ -156,7 +163,7 @@ var app = Vue.createApp({
         },
 
         //delete trait
-        deleteTrait:function(id){
+        deleteTrait:function deleteTrait(id){
             for(let i=0; i<app.recruitment_params.trait_constraints.length; i++)
             {
                 if(app.recruitment_params.trait_constraints[i].id == id){
@@ -167,19 +174,19 @@ var app = Vue.createApp({
         },  
         
         //fire when edit trait model needs to be shown
-        showEditTraits:function(){
+        showEditTraits:function showEditTraits(){
             
             app.editTraitsModal.show();
             //app.clearMainFormErrors();
         },
 
         //fire when hide edit traits
-        hideEditTraits:function(){
+        hideEditTraits:function hideEditTraits(){
             
         },
 
         // fire when edit trait model is shown
-        showUpdateTrait:function(id, index){
+        showUpdateTrait:function showUpdateTrait(id, index){
 
             tc = app.recruitment_params.trait_constraints[index];
 
@@ -187,14 +194,14 @@ var app = Vue.createApp({
             app.current_trait.id = id;
             app.current_trait.min_value = tc.min_value;
             app.current_trait.max_value = tc.max_value;
-            app.current_trait.trait_id = tc.trait_id;
+            app.current_trait.trait = tc.trait;
             app.current_trait.include_if_in_range = tc.include_if_in_range;
 
             app.updateTraitModal.show();
             app.clearMainFormErrors();
         },
 
-        getTraitById(id){
+        getTraitById: function getTraitById(id){
             for(let i=0; i<app.recruitment_params.trait_constraints.length; i++)
             {
                 if(app.recruitment_params.trait_constraints[i].id == id){
@@ -206,7 +213,7 @@ var app = Vue.createApp({
         },
 
         //fire when edit experiment model hides, cancel action if nessicary
-        hideUpdateTrait:function(){
+        hideUpdateTrait:function hideUpdateTrait(){
             if(app.cancelModal)
             {
                
