@@ -23,7 +23,7 @@ var app = Vue.createApp({
     methods:{
         
         //get list of open experiments
-        getIrbForm:function(){       
+        getIrbForm:function getIrbForm(){       
 
             app.working=true;
             app.clearMainFormErrors();
@@ -51,8 +51,8 @@ var app = Vue.createApp({
                         });                        
         },
 
-         //display form errors
-         displayErrors: function displayErrors(errors){
+        //display form errors
+        displayErrors: function displayErrors(errors){
             for(let e in errors)
             {
                 let str='<span id=id_errors_'+ e +' class="text-danger">';
@@ -73,7 +73,7 @@ var app = Vue.createApp({
         }, 
 
         //clear errors from forms
-        clearMainFormErrors:function(){
+        clearMainFormErrors:function clearMainFormErrors(){
                 
                 s = app.form_ids;
                 for(var i in s)

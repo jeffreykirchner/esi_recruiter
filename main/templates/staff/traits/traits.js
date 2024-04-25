@@ -21,7 +21,7 @@ var app = Vue.createApp({
     }},
 
     methods:{
-        uploadCSV:function(){
+        uploadCSV:function uploadCSV(){
 
             if(app.file == "")
                 return;
@@ -51,12 +51,12 @@ var app = Vue.createApp({
                     });                        
                 },
         
-        handleFileUpload:function(){
+        handleFileUpload:function handleFileUpload(){
             app.file = this.$refs.file.files[0];
             app.file_name = app.file.name;
         },
         
-        getReport:function(){
+        getReport:function getReport(){
             app.download_messaage = "";
             app.download_button_text = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -101,7 +101,7 @@ var app = Vue.createApp({
                 },
         
         //select all traits
-        selectAll:function(){
+        selectAll:function selectAll(){
             checkboxes = document.getElementsByName('traits');
 
             for(var i=0, n=checkboxes.length;i<n;i++) {

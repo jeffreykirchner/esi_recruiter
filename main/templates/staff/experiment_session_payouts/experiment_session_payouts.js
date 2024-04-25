@@ -15,7 +15,7 @@ var app = Vue.createApp({
 
     methods:{
         //get the session day json info
-        getSession:function(payGroup){           
+        getSession:function getSession(payGroup){           
             if(app)
             {                
                 for(let i=0;i<app.sessionDayUsers.length;i++)
@@ -52,14 +52,14 @@ var app = Vue.createApp({
         },  
 
         //hide subject from list and payout total
-        hideSubject:function(id, localIndex){
+        hideSubject:function hideSubject(id, localIndex){
             u = app.sessionDayUsers.splice(localIndex,1);
            
             app.calcPayoutTotal();
         },
 
         //calc payout total of visible subjects
-        calcPayoutTotal:function(){
+        calcPayoutTotal:function calcPayoutTotal(){
             var s = 0;
 
             for(i=0;i<app.sessionDayUsers.length;i++)
@@ -76,7 +76,7 @@ var app = Vue.createApp({
         },
 
         //format date to human readable
-        formatDate: function(value){
+        formatDate: function formatDate(value){
             if (value) {        
                 //console.log(value);                    
                 return moment(String(value)).local().format('MM/DD/YYYY hh:mm a');
