@@ -3,7 +3,7 @@
 /**
  * update the pixi players with new info
  */
-setupPixi(){    
+setupPixi: function setupPixi(){    
     if(app.payGroup!="consent") return;
     if(!app.consentForm) return;
     if(!app.consentForm.signature_required) return;
@@ -73,7 +73,7 @@ setupPixi(){
     }
 },
 
-resetPixiApp(canvas_id, signature_points, signature_scale){
+resetPixiApp: function resetPixiApp(canvas_id, signature_points, signature_scale){
     
     app.pixi_app.stage.removeChildren()
     
@@ -99,7 +99,7 @@ resetPixiApp(canvas_id, signature_points, signature_scale){
 },
 
 //load past signature
-clearPixi(pixi_app,canvas_id){
+clearPixi: function clearPixi(pixi_app,canvas_id){
 
     // let canvas = document.getElementById(canvas_id);
 

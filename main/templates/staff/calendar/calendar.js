@@ -18,8 +18,6 @@ var app = Vue.createApp({
                     no_experiments:true,
                     sessionLocations:[],
                     },
-        // forwardButtonText:">>",
-        // backButtonText:"<<",
         jump_to_month : "",
         working : true,
         load_url_month : true,
@@ -29,7 +27,7 @@ var app = Vue.createApp({
     methods:{
         //get current, last or next month
 
-        getMonth:function(){
+        getMonth:function getMonth(){
 
             if( typeof app == 'undefined')
             {
@@ -64,7 +62,7 @@ var app = Vue.createApp({
             },
 
         //get new month's data
-        changeMonth:function(direction){
+        changeMonth:function changeMonth(direction){
             app.working = true;
 
             // if(direction == "next")
@@ -96,7 +94,7 @@ var app = Vue.createApp({
             },
         
         //show day modal
-        showDayModal:function(weekIndex, dayIndex, dayString){
+        showDayModal:function showDayModal(weekIndex, dayIndex, dayString){
             currentSessions = app.calendar[weekIndex][dayIndex].sessions;
 
             displayDayLocations=[];
@@ -130,7 +128,7 @@ var app = Vue.createApp({
         },
 
         //jump to new month
-        jump_to_new_month:function()
+        jump_to_new_month:function jump_to_new_month()
         {
             app.working = true;
 
@@ -149,7 +147,7 @@ var app = Vue.createApp({
         },
 
         //update the current month's da
-        updateMonth:function(response){
+        updateMonth:function updateMonth(response){
             app.currentMonth = response.data.currentMonth;
             app.currentYear = response.data.currentYear;       
             app.calendar = response.data.calendar;          
@@ -162,7 +160,7 @@ var app = Vue.createApp({
         },
 
         //scroll to today's cell
-        scollToToday(){
+        scollToToday: function scollToToday(){
             v = "id_" + app.todayDay + "_" + app.todayMonth + "_" + app.todayYear;
             var elmnt = document.getElementById(v);
 

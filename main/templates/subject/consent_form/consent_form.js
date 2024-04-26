@@ -23,7 +23,7 @@ var app = Vue.createApp({
 
     methods:{
 
-        acceptConsentForm:function(){
+        acceptConsentForm:function acceptConsentForm(){
 
             if(app.consent_form_subject)
             {
@@ -91,7 +91,7 @@ var app = Vue.createApp({
         /**
          * clear signature
          */
-        clearSignature(event){
+        clearSignature: function clearSignature(event){
             if(app.consent_form_subject) return;
 
             for(i=0;i<pixi_signatures_rope_array.length;i++)
@@ -104,14 +104,14 @@ var app = Vue.createApp({
             app.consent_form_error = "";
         },
 
-        getDistance:function(x1, y1, x2, y2){
+        getDistance:function getDistance(x1, y1, x2, y2){
             let y = x2 - x1;
             let x = y2 - y1;
             
             return Math.sqrt(x * x + y * y);
         },
         
-        handleResize:function(){      
+        handleResize:function handleResize(){      
             if(app.consent_form_subject)
             {
                 app.resetPixiApp();

@@ -21,7 +21,7 @@ var app = Vue.createApp({
     methods:{
         
         //get list of open experiments
-        getConsentForm:function(){       
+        getConsentForm:function getConsentForm(){       
 
             app.working=true;
             app.subject_list=[];
@@ -49,7 +49,7 @@ var app = Vue.createApp({
                         });                        
         },
 
-        setupPixi(){    
+        setupPixi: function setupPixi(){    
             if(!app.consent_form) return;
             if(!app.consent_form.signature_required) return;
         
@@ -119,7 +119,7 @@ var app = Vue.createApp({
             // }
         },
         
-        resetPixiApp(canvas_id, signature_points, signature_scale){
+        resetPixiApp: function resetPixiApp(canvas_id, signature_points, signature_scale){
             
             app.pixi_app.stage.removeChildren()
 
@@ -174,7 +174,7 @@ var app = Vue.createApp({
         },
         
         //load past signature
-        clearPixi(pixi_app,canvas_id){
+        clearPixi: function clearPixi(pixi_app,canvas_id){
         
             // let canvas = document.getElementById(canvas_id);
         

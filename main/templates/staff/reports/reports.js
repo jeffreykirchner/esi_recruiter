@@ -51,7 +51,7 @@ var app = Vue.createApp({
         }, 
 
         //clear errors from forms
-        clearMainFormErrors:function(){
+        clearMainFormErrors:function clearMainFormErrors(){
                 for(var item in app.pettyCash)
                 {
                     let e = document.getElementById("id_errors_" + item);
@@ -66,7 +66,7 @@ var app = Vue.createApp({
             },
 
         //get the petty chash csv
-        getPettyCash:function(){
+        getPettyCash:function getPettyCash(){
             app.pettyCashButtonText='<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/reports/', {
@@ -109,7 +109,7 @@ var app = Vue.createApp({
                     },
 
         //get the petty chash csv
-        getStudentReport:function(){
+        getStudentReport:function getStudentReport(){
             app.studentReportButtonText='<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/reports/', {

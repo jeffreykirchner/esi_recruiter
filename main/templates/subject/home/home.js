@@ -25,7 +25,7 @@ var app = Vue.createApp({
     }},
 
     methods:{
-        getCurrentInvitations:function (){
+        getCurrentInvitations:function getCurrentInvitations(){
             
             axios.post('/subjectHome/', {
                             action :"getCurrentInvitations" ,                                                                                                                             
@@ -53,7 +53,7 @@ var app = Vue.createApp({
                         });                        
         },
         
-        acceptInvitation:function(id,index){
+        acceptInvitation:function acceptInvitation(id,index){
 
             app.upcomingInvitations[index].waiting=true;
             app.waiting=true;
@@ -71,7 +71,7 @@ var app = Vue.createApp({
                         });                        
         },
 
-        cancelAcceptInvitation:function(id,index){
+        cancelAcceptInvitation:function cancelAcceptInvitation(id,index){
 
             app.upcomingInvitations[index].waiting=true;
             app.waiting=true;
@@ -89,7 +89,7 @@ var app = Vue.createApp({
                         });                        
         },
         
-        showAllInvitations:function(index){
+        showAllInvitations:function showAllInvitations(index){
             app.showInvitationsText='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
             app.waiting=true;
 
@@ -117,7 +117,7 @@ var app = Vue.createApp({
                         });                        
         },
         
-        takeUpcomingInvitations:function(response){            
+        takeUpcomingInvitations:function takeUpcomingInvitations(response){            
              
             app.upcomingInvitations=response.data.upcomingInvitations;                   
 
@@ -137,7 +137,7 @@ var app = Vue.createApp({
             app.lastActionFailed = response.data.failed;
         },
 
-        takePastAcceptedInvitations:function(response){
+        takePastAcceptedInvitations:function takePastAcceptedInvitations(response){
             app.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                         
             for(var i=0;i<app.pastAcceptedInvitations.length;i++)
@@ -153,11 +153,11 @@ var app = Vue.createApp({
             }
         },
 
-        viewConsentForm:function(id, type, view_mode){
+        viewConsentForm:function viewConsentForm(id, type, view_mode){
             window.open("/subjectConsent/" + id + "/" + type + "/" + view_mode +"/", '_self');
         },
 
-        formatDate: function(value,value2,enable_time,length){
+        formatDate: function formatDate(value,value2,enable_time,length){
                 if (value) {
                     return value;
 

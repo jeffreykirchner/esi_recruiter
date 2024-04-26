@@ -28,7 +28,7 @@ var app = Vue.createApp({
     }},
 
     methods:{
-        do_first_load:function(){
+        do_first_load:function do_first_load(){
             tinyMCE.init({
                 target: document.getElementById('id_sendMessageText'),
                 height : "400",
@@ -53,7 +53,7 @@ var app = Vue.createApp({
         },
 
         //get list of users based on search
-        getUsers: function(){
+        getUsers: function getUsers(){
             if(app.searchButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
             app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -73,7 +73,7 @@ var app = Vue.createApp({
         }, 
 
         //get all active black balls
-        getBlackballs: function(){
+        getBlackballs: function getBlackballs(){
             if(app.blackBallButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
             app.blackBallButtonText = '<i class="fas fa-spinner fa-spin"></i>';
@@ -92,7 +92,7 @@ var app = Vue.createApp({
         },
 
         //get all no show violators    
-        getNoShowBlocks: function(){
+        getNoShowBlocks: function getNoShowBlocks(){
             if(app.noShowButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
             app.users = []
@@ -113,7 +113,7 @@ var app = Vue.createApp({
         },    
 
         //process incoming user list
-        functionTakeUserList:function(response){
+        functionTakeUserList:function functionTakeUserList(response){
             if(response.data.errorMessage != "")
             {
                 app.warningText = "Error: " + response.data.errorMessage;
@@ -137,13 +137,13 @@ var app = Vue.createApp({
         },      
         
         //show international upload
-        showInternational:function()
+        showInternational:function showInternational()
         {
             app.uploadInternationalModal.show();
         },
 
         //send international upload
-        sendInternational:function()
+        sendInternational:function sendInternational()
         {
             if(app.uploadInternationalButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
@@ -170,13 +170,13 @@ var app = Vue.createApp({
         },
 
         // fire when invite subjects subjects model is shown
-        showSendMessage:function(id){    
+        showSendMessage:function showSendMessage(id){    
             tinymce.get("id_sendMessageText").setContent(this.sendMessageText);
             app.sendMessageModalCenter.show();                       
         },
 
         //fire when hide invite subjects  model, cancel action if nessicary
-        hideSendMessage:function(){ 
+        hideSendMessage:function hideSendMessage(){ 
             if(app.sendMessageButtonText == "Send Message <i class='fas fa-envelope fa-xs'></i>")
             {
                 app.sendMessageText="";      
@@ -187,7 +187,7 @@ var app = Vue.createApp({
         },
 
         //send an email to all of the confirmed subjects
-        sendEmailMessage:function(){
+        sendEmailMessage:function sendEmailMessage(){
 
             if(app.sendMessageSubject == "" )
             {
@@ -233,7 +233,7 @@ var app = Vue.createApp({
                 });
             },
 
-        formatDate: function(value){
+        formatDate: function formatDate(value){
                 if (value) {
                     //return value;
                     return moment(String(value)).local().format('M/D/YYYY, h:mm a')

@@ -23,7 +23,7 @@ var app = Vue.createApp({
 
     methods:{
         //sort experiments by date
-        sortByDate:function(){
+        sortByDate:function sortByDate(){
 
             app.dateSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -47,7 +47,7 @@ var app = Vue.createApp({
         },
 
         //sort by title
-        sortByTitle:function(){
+        sortByTitle:function sortByTitle(){
 
             app.titleSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -61,7 +61,7 @@ var app = Vue.createApp({
         },
 
         //sort by manager
-        sortByManager:function(){
+        sortByManager:function sortByManager(){
 
             app.managerSortButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -75,7 +75,7 @@ var app = Vue.createApp({
             },
 
         //get list of experiments based on search
-        searchExperiments:function(){
+        searchExperiments:function searchExperiments(){
             if(app.searchInfo == "")
                 return;
 
@@ -98,7 +98,7 @@ var app = Vue.createApp({
         },
         
         //create new experient
-        createExperiment:function(){                    
+        createExperiment:function createExperiment(){                    
             app.experiments = [];
             app.warningText = '';
             app.createExperimentButtonText ='<i class="fas fa-spinner fa-spin"></i>';
@@ -116,7 +116,7 @@ var app = Vue.createApp({
         },
         
         //get list of all experiments
-        getAllExperiments:function(){
+        getAllExperiments:function getAllExperiments(){
             app.showAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             app.experiments = [];
             app.warningText = "";
@@ -137,7 +137,7 @@ var app = Vue.createApp({
                     },
         
         //get list of open experiments
-        getOpenExperiments:function(){
+        getOpenExperiments:function getOpenExperiments(){
             app.showOpenButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             app.experiments = [];
             app.warningText = "";
@@ -158,7 +158,7 @@ var app = Vue.createApp({
                     },
         
         //get recent experiments
-        getRecentExperiments:function(){
+        getRecentExperiments:function getRecentExperiments(){
             
             axios.post('/experimentSearch/', {
                             action :"getRecentExperiments" ,                                                                                                                             
@@ -175,7 +175,7 @@ var app = Vue.createApp({
                     },
         
         //update the experiment list from server
-        updateExperiments:function(response){
+        updateExperiments:function updateExperiments(response){
             app.experiments = response.data.experiments;       
                             
             if(app.experiments.length == 0)
@@ -191,7 +191,7 @@ var app = Vue.createApp({
         },
 
         //delete the selected experiment
-        deleteExperiment:function(id){
+        deleteExperiment:function deleteExperiment(id){
             if(confirm("Delete Experiment?"))
             {
                 app.experiments=[];

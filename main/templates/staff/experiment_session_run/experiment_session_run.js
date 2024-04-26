@@ -53,7 +53,7 @@ var app = Vue.createApp({
 
     methods:{
         //get the session day json info
-        getSession:function(){
+        getSession:function getSession(){
             axios.post('/experimentSessionRun/{{id}}/', {
                     action :"getSession" ,                                                                                                                             
                 })
@@ -74,7 +74,7 @@ var app = Vue.createApp({
             },
 
         //stripe reader checkin
-        stripeReaderCheckin:function(){
+        stripeReaderCheckin:function stripeReaderCheckin(){
             window.setTimeout(this.stripeReaderCheckin, 250);
             
             if(app.stripeReaderValue == "") return;
@@ -109,7 +109,7 @@ var app = Vue.createApp({
         },
 
         //export a csv file for paypal mass payment
-        payPalExport:function(){
+        payPalExport:function payPalExport(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
@@ -146,7 +146,7 @@ var app = Vue.createApp({
         },
 
         //export an earnings csv file 
-        earningsExport:function(){
+        earningsExport:function earningsExport(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 confirm("Save payouts before continuing.") ;                    
@@ -183,7 +183,7 @@ var app = Vue.createApp({
         },
 
         //randomly bump excess subjects
-        autobump:function(){
+        autobump:function autobump(){
             app.autoBumpButtonText = '<i class="fas fa-spinner fa-spin"></i>';
             
             // esdu.buttonText = '<i class="fas fa-spinner fa-spin"></i>'
@@ -202,7 +202,7 @@ var app = Vue.createApp({
         },
         
         //set subject to attended
-        attendSubject:function(esduID,id){
+        attendSubject:function attendSubject(esduID,id){
             app.sessionDay.experiment_session_days_user[id].waiting = true;
             
             // esdu.buttonText = '<i class="fas fa-spinner fa-spin"></i>'
@@ -221,7 +221,7 @@ var app = Vue.createApp({
             },
 
         //set subject to bumped
-        bumpSubject:function(esduID,id){
+        bumpSubject:function bumpSubject(esduID,id){
             app.sessionDay.experiment_session_days_user[id].waiting = true;
 
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -238,7 +238,7 @@ var app = Vue.createApp({
             },
         
         //set subject to no show
-        noShowSubject:function(esduID,id){
+        noShowSubject:function noShowSubject(esduID,id){
             app.sessionDay.experiment_session_days_user[id].waiting = true;
             
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -255,7 +255,7 @@ var app = Vue.createApp({
             },
         
         //save the current payouts
-        savePayouts:function(){
+        savePayouts:function savePayouts(){
             app.saveButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -273,7 +273,7 @@ var app = Vue.createApp({
         },
 
         //finsh session, prevents further editing
-        completeSession:function(){
+        completeSession:function completeSession(){
 
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
@@ -299,7 +299,7 @@ var app = Vue.createApp({
         },
 
         //calc payout total of visible subjects
-        calcPayoutTotal:function(){
+        calcPayoutTotal:function calcPayoutTotal(){
             var s = 0;
 
             for(i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
@@ -316,7 +316,7 @@ var app = Vue.createApp({
         },
 
         //fill subjects with default show up fee from experiments model
-        fillWithDefaultShowUpFee:function(){
+        fillWithDefaultShowUpFee:function fillWithDefaultShowUpFee(){
             app.fillShowUpFeeButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -333,7 +333,7 @@ var app = Vue.createApp({
         },
 
         //fill subjects with default show up fee from experiments model
-        fillEarningsWithFixed:function(){
+        fillEarningsWithFixed:function fillEarningsWithFixed(){
 
             if(app.fillEarningsWithValue=="") return;
 
@@ -355,12 +355,12 @@ var app = Vue.createApp({
         },
 
         //run when key pressed in payouts box
-        payoutsKeyUp:function(userId,localId){
+        payoutsKeyUp:function payoutsKeyUp(userId,localId){
             app.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
         },
 
         //when user changes the payouts, auto save
-        payoutsChange:function(userId,localId){
+        payoutsChange:function payoutsChange(userId,localId){
             app.saveButtonText = 'Save Payouts <i class="far fa-save" aria-hidden="true"></i> *';
             
             if(app.updatingPayoutsInProgress)
@@ -400,7 +400,7 @@ var app = Vue.createApp({
         },   
 
         //return a list of the payouts entered by the user
-        getPayoutlist:function(){
+        getPayoutlist:function getPayoutlist(){
             payoutList=[];
 
             for(var i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
@@ -417,7 +417,7 @@ var app = Vue.createApp({
         },             
 
         //bump all present users
-        bumpAll:function(){
+        bumpAll:function bumpAll(){
             app.bumpAllButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
             axios.post('/experimentSessionRun/{{id}}/', {
@@ -433,7 +433,7 @@ var app = Vue.createApp({
         },
 
         //print payouts
-        printPayouts:function(){
+        printPayouts:function printPayouts(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
                 alert("Save payouts before continuing.") ;                    
@@ -444,7 +444,7 @@ var app = Vue.createApp({
         },
 
         //print bumps
-        printBumps:function(){
+        printBumps:function printBumps(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {  
                 alert("Save payouts before continuing.") ;                      
@@ -455,12 +455,12 @@ var app = Vue.createApp({
         },
 
         //open traits for attended subjects
-        openTraits:function(id){
+        openTraits:function openTraits(id){
             window.open('/traits/?SESSION_DAY_ID=' + id, '_blank')
         },
 
         //upload earings file csv
-        uploadEarnings:function(){
+        uploadEarnings:function uploadEarnings(){
 
             if(app.upload_file == null)
                 return;
@@ -494,7 +494,7 @@ var app = Vue.createApp({
                 },
         
         //upload earings text csv format
-        uploadEarningsTextJS:function(){
+        uploadEarningsTextJS:function uploadEarningsTextJS(){
 
             if(app.uploadEarningsText == "")
                 return;
@@ -524,7 +524,7 @@ var app = Vue.createApp({
                 },
 
         //store the location of the file to be uploaded
-        handleFileUpload:function(){
+        handleFileUpload:function handleFileUpload(){
             app.upload_file = this.$refs.file.files[0];
 
             app.upload_file_name = app.upload_file.name;
@@ -536,16 +536,16 @@ var app = Vue.createApp({
         },
 
         //fire when show upload earnings
-        showUploadEarnings:function(){
+        showUploadEarnings:function showUploadEarnings(){
             app.uploadEarningsMessage = "";
             app.uploadEarningsModal.show();
         },
 
-        hideUploadEarnings:function(){
+        hideUploadEarnings:function hideUploadEarnings(){
         },
         
         //fill subjects with default show up fee from experiments model
-        roundEarningsUp:function(){
+        roundEarningsUp:function roundEarningsUp(){
 
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
@@ -569,7 +569,7 @@ var app = Vue.createApp({
         },
 
         //pay subjects with PayPal API
-        payPalAPI:function(){
+        payPalAPI:function payPalAPI(){
             if(app.sessionDay.experiment_session_days_user.length == 0)
             {
                 alert("No subjects in session.") ; 
@@ -623,7 +623,7 @@ var app = Vue.createApp({
         },
 
         //format date to human readable
-        formatDate: function(value){
+        formatDate: function formatDate(value){
             if (value) {        
                 //console.log(value);                    
                 return moment(String(value)).local().format('MM/DD/YYYY hh:mm a');

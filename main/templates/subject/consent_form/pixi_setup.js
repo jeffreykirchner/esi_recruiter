@@ -3,11 +3,11 @@
 /**
  * update the pixi players with new info
  */
-setupPixi(){    
+setupPixi: function setupPixi(){    
     app.resetPixiApp();
 },
 
-resetPixiApp(){
+resetPixiApp: function resetPixiApp(){
     
     let canvas = document.getElementById('signature_canvas_id');
 
@@ -74,7 +74,7 @@ resetPixiApp(){
 },
 
 //load past signature
-loadSignature(){
+loadSignature: function loadSignature(){
 
     pixi_signatures_rope_array = [];
 
@@ -114,7 +114,7 @@ loadSignature(){
     }
 },
 
-pixiTicker(delta){
+pixiTicker: function pixiTicker(delta){
     for(i=0;i<pixi_signatures_rope_array.length;i++)
     {
         if(pixi_signatures_rope_array[i].points.length > 0)
@@ -134,7 +134,7 @@ pixiTicker(delta){
 /**
  *pointer up on stage
 */
-handleStagePointerDown(event){
+handleStagePointerDown: function handleStagePointerDown(event){
 
     if(app.consent_form_subject) return;
     if(app.waiting) return;
@@ -149,14 +149,14 @@ handleStagePointerDown(event){
 /**
  *pointer up on stage
  */
-handleStagePointerUp(){
+handleStagePointerUp: function handleStagePointerUp(){
     pixi_pointer_down=false;    
 },
 
 /**
  * pointer move over stage
  */
-handleStagePointerMove(event){
+handleStagePointerMove: function handleStagePointerMove(event){
     if(app.waiting) return;
     if(!pixi_pointer_down) return;
 
