@@ -221,8 +221,11 @@ var app = Vue.createApp({
 
             app.cancelModal=false;  
 
-            document.getElementById('id_invitationText').value = tinymce.get("id_invitationText").getContent();
-            document.getElementById('id_reminderText').value = tinymce.get("id_reminderText").getContent();
+            // document.getElementById('id_invitationText').value = tinymce.get("id_invitationText").getContent();
+            // document.getElementById('id_reminderText').value = tinymce.get("id_reminderText").getContent();
+
+            app.experiment.invitationText = tinymce.get("id_invitationText").getContent();
+            app.experiment.reminderText = tinymce.get("id_reminderText").getContent();
             
             axios.post('/experiment/{{id}}/', {
                     status :"update1" ,                                
