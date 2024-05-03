@@ -1152,8 +1152,10 @@ class experiment_sessions(models.Model):
         user_institution_dict = {}
         exclude_institutions = set(self.recruitment_params.institutions_exclude.values_list("id", flat=True))
 
-        q1 = Q(attended = True)
-        q2 = (Q(confirmed = True) & Q(experiment_session_day__date_end__lte = self.getFirstDate()))
+        q1 = (Q(attended = True) & Q(experiment_session_day__date_end__lte = self.getFirstDate()))
+        q2 = (Q(confirmed = True) &
+              Q(experiment_session_day__date_end__lte = self.getFirstDate()) &
+              Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)))
 
         #create dictionary with user id and institution id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
@@ -1253,8 +1255,10 @@ class experiment_sessions(models.Model):
         user_experiment_dict = {}
         exclude_experiments = set(self.recruitment_params.experiments_exclude.values_list("id", flat=True))
 
-        q1 = Q(attended = True)
-        q2 = (Q(confirmed = True) & Q(experiment_session_day__date_end__lte = self.getFirstDate()))
+        q1 = (Q(attended = True) & Q(experiment_session_day__date_end__lte = self.getFirstDate()))
+        q2 = (Q(confirmed = True) &
+              Q(experiment_session_day__date_end__lte = self.getFirstDate()) &
+              Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)))
 
         #create dictionary with user id and experiment id
         esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
