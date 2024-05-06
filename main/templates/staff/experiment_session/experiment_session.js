@@ -218,8 +218,12 @@ var app = Vue.createApp({
 
                     if(!app.first_load)
                     {   
-                        setTimeout(app.do_first_load, 250);
-                        app.first_load = true;
+                        Vue.nextTick(function () {
+                        // setTimeout(app.do_first_load, 250);
+                        // 
+                            app.do_first_load();
+                            app.first_load = true;
+                        });
                     }
                 })
                 .catch(function (error) {
@@ -438,7 +442,8 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {
-                        app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                
+                        app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;   
+                        app.session.invitationText = response.data.invitationText;                         
                         app.cancelModal=false;
                         app.sessionModal.toggle();
                     }
@@ -1244,7 +1249,7 @@ var app = Vue.createApp({
                     
                     if(response.data.status=="success")
                     {
-                        app.session = response.data.session;  
+                        app.session = response.data.session;                         
                         app.updateDisplayLists();   
                         app.editSessionModal.toggle();   
                     }
