@@ -258,7 +258,7 @@ class ProfileTraitsInline(admin.TabularInline):
       show_view_link = True
       fields=('trait','value')
 
-#consent form inline
+#profile login attempt inline
 class ProfileLoginAttemptInline(admin.TabularInline):
       '''
       profile login attempt inline
