@@ -1,7 +1,5 @@
 from django import forms
 
-import logging
-
 #form
 class loginForm(forms.Form):
 

@@ -2,13 +2,14 @@ import logging
 import json
 import pyotp
 
+from datetime import timedelta
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import timedelta
 
 from main.forms import loginForm
 

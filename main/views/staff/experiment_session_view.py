@@ -861,7 +861,9 @@ def updateSessionDay(data,id):
 
         print("valid session form")
 
-        return JsonResponse({"sessionDays" :es.json(),"status":status}, safe=False)
+        return JsonResponse({"sessionDays" :es.json(),
+                             "invitationText" : es.getInvitationEmail(),
+                             "status":status}, safe=False)
     else:
         print("invalid session form")
         print(dict(form.errors.items()))

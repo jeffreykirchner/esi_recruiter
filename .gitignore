@@ -8,5 +8,4 @@ esi_recruiter_env
 Notes.txt
 *.sql
 database_dumps
-setup.sh
 media
