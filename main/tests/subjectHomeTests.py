@@ -348,12 +348,14 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         d_now = self.d_now
+        tz = pytz.timezone(self.p.subjectTimeZone)
+        d_now_plus_one = datetime.now(tz) + timedelta(minutes=1439)
     
         #add consent form
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
 
-        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now.strftime("%Y-%m-%dT") + '23:59','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT%H:%M") ,'length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
