@@ -4,6 +4,8 @@
 {%block head%}
 
     <script>
+      "use strict;"
+      
         document.addEventListener("DOMContentLoaded", function(){                         
           axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
           axios.defaults.xsrfCookieName = "csrftoken";
