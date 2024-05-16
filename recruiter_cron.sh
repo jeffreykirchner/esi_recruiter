@@ -1,0 +1,1 @@
+curl https://chapman-experiments.azurewebsites.net/runCrons/
