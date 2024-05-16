@@ -36,7 +36,7 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function clearMainFormErrors(){
 
-            s = app.recruitment_parameters_form_ids;
+            let s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
                 let e = document.getElementById("id_errors_" + s[i]);
@@ -188,7 +188,7 @@ var app = Vue.createApp({
         // fire when edit trait model is shown
         showUpdateTrait:function showUpdateTrait(id, index){
 
-            tc = app.recruitment_params.trait_constraints[index];
+            let tc = app.recruitment_params.trait_constraints[index];
 
             app.cancelModal=true;
             app.current_trait.id = id;
