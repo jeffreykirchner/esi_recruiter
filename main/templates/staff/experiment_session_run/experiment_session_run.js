@@ -1,3 +1,4 @@
+"use strict";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -90,22 +91,22 @@ var app = Vue.createApp({
                         autoAddUsers:app.autoAddUsers,   
                         ignoreConstraints:app.ignoreConstraints,                                                                                                                        
                     })
-                    .then(function (response) {                                
+                .then(function (response) {                                
                     app.sessionDay = response.data.sessionDay;   
                     app.stripeReaderSpinner = "";   
                     app.stripeReaderValue = "";    
                     app.stripeReaderStatus = response.data.status.message;
 
-                    ids =  response.data.status.info;
-                    for(i=0;i<ids.length;i++)
+                    let ids = response.data.status.info;
+                    for(let i=0;i<ids.length;i++)
                     {
                         app.stripeReaderStatus += " <a href='/userInfo/" + ids[i] + "/' target='_blank' >view</a>";
                     }
 
                     })
-                    .catch(function (error) {
-                        console.log(error);                                   
-                    });
+                .catch(function (error) {
+                    console.log(error);                                   
+                });
         },
 
         //export a csv file for paypal mass payment
@@ -302,9 +303,9 @@ var app = Vue.createApp({
         calcPayoutTotal:function calcPayoutTotal(){
             var s = 0;
 
-            for(i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
+            for(let i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
-                u = app.sessionDay.experiment_session_days_user[i];
+                let u = app.sessionDay.experiment_session_days_user[i];
 
                 if(u.show)
                 {
@@ -401,12 +402,13 @@ var app = Vue.createApp({
 
         //return a list of the payouts entered by the user
         getPayoutlist:function getPayoutlist(){
-            payoutList=[];
+            let payoutList=[];
 
             for(var i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
-                tempU = app.sessionDay.experiment_session_days_user[i];
-                tempV = {"id":tempU.id,
+                let tempU = app.sessionDay.experiment_session_days_user[i];
+
+                let tempV = {"id":tempU.id,
                         "earnings":tempU.earnings,
                         "showUpFee":tempU.show_up_fee,
                         }

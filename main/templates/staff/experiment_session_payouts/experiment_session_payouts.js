@@ -1,3 +1,4 @@
+"use strict";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -44,7 +45,10 @@ var app = Vue.createApp({
                 
                 app.calcPayoutTotal();
 
-                setTimeout(app.setupPixi, 500);
+                Vue.nextTick(function () {
+                    app.setupPixi();
+                });
+                // setTimeout(app.setupPixi, 500);
             })
             .catch(function (error) {
                 console.log(error);                                   
@@ -53,7 +57,7 @@ var app = Vue.createApp({
 
         //hide subject from list and payout total
         hideSubject:function hideSubject(id, localIndex){
-            u = app.sessionDayUsers.splice(localIndex,1);
+            let u = app.sessionDayUsers.splice(localIndex,1);
            
             app.calcPayoutTotal();
         },
@@ -62,9 +66,9 @@ var app = Vue.createApp({
         calcPayoutTotal:function calcPayoutTotal(){
             var s = 0;
 
-            for(i=0;i<app.sessionDayUsers.length;i++)
+            for(let i=0;i<app.sessionDayUsers.length;i++)
             {
-                u = app.sessionDayUsers[i];
+                let u = app.sessionDayUsers[i];
 
                 if(u.show)
                 {
