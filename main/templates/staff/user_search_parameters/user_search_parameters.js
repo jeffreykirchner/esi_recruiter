@@ -1,6 +1,6 @@
+"use strict";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
-
 
 var app = Vue.createApp({
 
@@ -36,7 +36,7 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function clearMainFormErrors(){
 
-            s = app.recruitment_parameters_form_ids;
+            let s = app.recruitment_parameters_form_ids;
             for(var i in s)
             {
                 let e = document.getElementById("id_errors_" + s[i]);
@@ -118,17 +118,17 @@ var app = Vue.createApp({
                 }
             }
 
-            e = document.getElementById('id_trait');            
+            let e = document.getElementById('id_trait');            
             e.selectedIndex = 1;
 
-            trait = {"id":id+1,
-                     "name": e.options[e.selectedIndex].text + " Inc. 0.00-10.00",
-                     "trait_name":e.options[e.selectedIndex].text,
-                     "trait":e.value,
-                     "min_value":"0.00",
-                     "max_value":"10.00",
-                     "recruitment_parameter_id":0,
-                     "include_if_in_range":1};
+            let trait = {"id":id+1,
+                        "name": e.options[e.selectedIndex].text + " Inc. 0.00-10.00",
+                        "trait_name":e.options[e.selectedIndex].text,
+                        "trait":e.value,
+                        "min_value":"0.00",
+                        "max_value":"10.00",
+                        "recruitment_parameter_id":0,
+                        "include_if_in_range":1};
             
             app.recruitment_params.trait_constraints.push(trait);
         },
@@ -140,13 +140,13 @@ var app = Vue.createApp({
         //update trait
         updateTrait:function updateTrait(){
 
-            trait = app.getTraitById(app.current_trait.id);
+            let trait = app.getTraitById(app.current_trait.id);
             trait.min_value = Number(app.current_trait.min_value).toFixed(2);
             trait.max_value = Number(app.current_trait.max_value).toFixed(2);
             trait.trait = app.current_trait.trait;
             trait.include_if_in_range = app.current_trait.include_if_in_range;
 
-            e = document.getElementById('id_trait');            
+            let e = document.getElementById('id_trait');            
             if(e.selectedIndex == -1)
             {
                 trait.trait_name = null;
@@ -188,7 +188,7 @@ var app = Vue.createApp({
         // fire when edit trait model is shown
         showUpdateTrait:function showUpdateTrait(id, index){
 
-            tc = app.recruitment_params.trait_constraints[index];
+            let tc = app.recruitment_params.trait_constraints[index];
 
             app.cancelModal=true;
             app.current_trait.id = id;

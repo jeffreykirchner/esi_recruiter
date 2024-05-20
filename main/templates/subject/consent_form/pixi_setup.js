@@ -107,7 +107,7 @@ loadSignature: function loadSignature(){
                                        t[j].y * app.canvas_height / s.height))
         }
 
-        v = {points:points, rope:new PIXI.SimpleRope(pixi_signature_texture, new PIXI.Point(0, 0))};
+        let v = {points:points, rope:new PIXI.SimpleRope(pixi_signature_texture, new PIXI.Point(0, 0))};
             
        //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
        pixi_signatures_rope_array.push(v);
@@ -115,7 +115,7 @@ loadSignature: function loadSignature(){
 },
 
 pixiTicker: function pixiTicker(delta){
-    for(i=0;i<pixi_signatures_rope_array.length;i++)
+    for(let i=0;i<pixi_signatures_rope_array.length;i++)
     {
         if(pixi_signatures_rope_array[i].points.length > 0)
         {
@@ -123,7 +123,7 @@ pixiTicker: function pixiTicker(delta){
             
             pixi_signatures_rope_array[i].rope = new PIXI.SimpleRope(pixi_signature_texture,
                                                                      pixi_signatures_rope_array[i].points,
-                                                                     start=0,
+                                                                     0,
                                                                             );
                                                                             
             pixi_app.stage.addChild(pixi_signatures_rope_array[i].rope);
@@ -140,7 +140,7 @@ handleStagePointerDown: function handleStagePointerDown(event){
     if(app.waiting) return;
 
     pixi_pointer_down=true;
-    v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)], rope: null};
+    let v = {points:[new PIXI.Point(event.data.global.x, event.data.global.y)], rope: null};
         
     //v.rope.blendmode = PIXI.BLEND_MODES.ADD;    
     pixi_signatures_rope_array.push(v);

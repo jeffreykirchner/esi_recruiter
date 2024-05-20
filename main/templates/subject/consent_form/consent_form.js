@@ -1,3 +1,4 @@
+"use strict";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -33,8 +34,8 @@ var app = Vue.createApp({
 
             app.consent_form_error = "";
 
-            consent_form_signature = {};
-            consent_form_signature_resolution = {};
+            let consent_form_signature = {};
+            let consent_form_signature_resolution = {};
 
             if(app.consent_form.signature_required)
             {
@@ -44,7 +45,7 @@ var app = Vue.createApp({
                     return;
                 } 
                 
-                total_length=0;
+                let total_length=0;
                 for(let i=0;i<pixi_signatures_rope_array.length;i++)
                 {
                     consent_form_signature[i]=pixi_signatures_rope_array[i].points;
@@ -94,7 +95,7 @@ var app = Vue.createApp({
         clearSignature: function clearSignature(event){
             if(app.consent_form_subject) return;
 
-            for(i=0;i<pixi_signatures_rope_array.length;i++)
+            for(let i=0;i<pixi_signatures_rope_array.length;i++)
             {
                 if(pixi_signatures_rope_array[i].rope) pixi_signatures_rope_array[i].rope.destroy();
                 

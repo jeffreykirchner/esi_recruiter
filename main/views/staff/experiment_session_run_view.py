@@ -269,7 +269,7 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
 
     elif len(p_list) == 0:
         #no subject found
-        status = "Error: No subject found with ID: " + str(studentID)
+        status = f'<span style="color:red;font-weight: bold;">Error: No subject found with ID: {str(studentID)}</span>'
     else:
         #one subject found
         p = p_list.first()
@@ -281,14 +281,14 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
                                              ignoreConstraints,
                                              min_mode=True).content.decode("UTF-8"))
         if not "success" in r['status']:
-            status = f"Error: Could not add {p.user.last_name}, {p.user.first_name}: Recruitment Violation"
+            status = f'<span style="color:red;font-weight: bold;">Error: Could not add {p.user.last_name}, {p.user.first_name}: Recruitment Violation</span>'
             info.append(p.user.id)
         else:
             #confirm newly added user
             temp_esdu = esd.ESDU_b.filter(user__id=p.user.id).first()
 
             if not temp_esdu:
-                status = f"{p.user.last_name}, {p.user.first_name} could not be added to the session, try manual add."
+                status = f'<span style="color:red;font-weight: bold;">{p.user.last_name}, {p.user.first_name} could not be added to the session, try manual add.</span>'
                 info.append(p.user.id)
             else:
                 r = json.loads(changeConfirmationStatus({"userId":p.user.id,

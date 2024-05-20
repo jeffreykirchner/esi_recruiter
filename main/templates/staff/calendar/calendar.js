@@ -1,3 +1,5 @@
+"use strict";
+
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -29,19 +31,21 @@ var app = Vue.createApp({
 
         getMonth:function getMonth(){
 
+            let load_url_month_local = false;
+
             if( typeof app == 'undefined')
             {
-                load_url_month = true;
+                load_url_month_local = true;
             }
             else
             {
-                load_url_month = app.load_url_month;
+                load_url_month_local = app.load_url_month;
                 app.working = true;
             }
                
             axios.post('{{request.path}}', {
                     action :"getMonth" , 
-                    load_url_month : load_url_month,                            
+                    load_url_month : load_url_month_local,                            
                 })
                 .then(function (response) {     
                     app.updateMonth(response);  
@@ -54,7 +58,9 @@ var app = Vue.createApp({
                     app.working = false;
                     app.load_url_month = false;
 
-                    setTimeout(app.scollToToday, 250);
+                    Vue.nextTick(() => {
+                        app.scollToToday();
+                    });
                 })
                 .catch(function (error) {
                     console.log(error);                            
@@ -95,18 +101,18 @@ var app = Vue.createApp({
         
         //show day modal
         showDayModal:function showDayModal(weekIndex, dayIndex, dayString){
-            currentSessions = app.calendar[weekIndex][dayIndex].sessions;
+            let currentSessions = app.calendar[weekIndex][dayIndex].sessions;
 
-            displayDayLocations=[];
+            let displayDayLocations=[];
 
             app.displayDay.no_experiments = true;
 
-            for(i=0;i<app.locations.length;i++)
+            for(let i=0;i<app.locations.length;i++)
             {
-                l = app.locations[i];
-                sessionList = [];
+                let l = app.locations[i];
+                let sessionList = [];
 
-                for(j=0;j<currentSessions.length;j++)
+                for(let j=0;j<currentSessions.length;j++)
                 {
                     if(currentSessions[j].location.id == l.id)
                     {
@@ -161,8 +167,8 @@ var app = Vue.createApp({
 
         //scroll to today's cell
         scollToToday: function scollToToday(){
-            v = "id_" + app.todayDay + "_" + app.todayMonth + "_" + app.todayYear;
-            var elmnt = document.getElementById(v);
+            let v = "id_" + app.todayDay + "_" + app.todayMonth + "_" + app.todayYear;
+            let elmnt = document.getElementById(v);
 
             if(elmnt) elmnt.scrollIntoView(); 
         },

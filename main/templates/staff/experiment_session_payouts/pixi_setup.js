@@ -47,7 +47,7 @@ setupPixi: function setupPixi(){
                 app.tick_tock=0;
 
                 let canvas = document.getElementById("signature_canvas_id_" + app.sessionDayUsers[app.counter].id);
-                temp_c=app.pixi_app.renderer.extract.canvas(app.pixi_app.stage);
+                let temp_c=app.pixi_app.renderer.plugins.extract.canvas(app.pixi_app.stage);
                 canvas.getContext("2d").drawImage(temp_c, 0, 0);
 
                 app.counter++;
@@ -90,7 +90,7 @@ resetPixiApp: function resetPixiApp(canvas_id, signature_points, signature_scale
                                        t[j].y))
         }
             
-        r = new PIXI.SimpleRope(app.pixi_signature_texture, points);
+        let r = new PIXI.SimpleRope(app.pixi_signature_texture, points);
 
         //r.scale.x = r.scale.y = app.c_height / signature_scale.height;
 

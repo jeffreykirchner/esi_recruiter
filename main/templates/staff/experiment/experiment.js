@@ -1,3 +1,5 @@
+"use strict";
+
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -119,7 +121,7 @@ var app = Vue.createApp({
 
         //update recruitment display lists
         updateDisplayLists:function updateDisplayLists(errors){
-            var e = app.recruitment_params;
+            let e = app.recruitment_params;
 
             app.institutions_list=app.updateDisplayLists2(app.experiment.institution_full);
             app.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
@@ -136,7 +138,7 @@ var app = Vue.createApp({
 
         //update recruitment display lists
         updateDisplayLists2:function updateDisplayLists2(list){
-            str="";
+            let str="";
 
             if(list.length == 0)
             {
@@ -171,7 +173,10 @@ var app = Vue.createApp({
 
                     if(!app.first_load)
                     {   
-                        setTimeout(app.do_first_load, 250);
+                        Vue.nextTick(() => {
+                            app.do_first_load();
+                        });
+                        // setTimeout(app.do_first_load, 250);
                         app.first_load = true;
                     }
                 })
@@ -468,7 +473,7 @@ var app = Vue.createApp({
         // fire when edit trait model is shown
         showUpdateTrait:function showUpdateTrait(id,index){
 
-            tc = app.recruitment_params.trait_constraints[index];
+            let tc = app.recruitment_params.trait_constraints[index];
 
             app.cancelModal=true;
             app.current_trait.id = id;

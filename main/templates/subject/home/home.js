@@ -1,3 +1,4 @@
+"use strict";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -123,7 +124,7 @@ var app = Vue.createApp({
 
             for(var i=0;i<app.upcomingInvitations.length;i++)
             {
-                temp_s = app.upcomingInvitations[i];
+                let temp_s = app.upcomingInvitations[i];
 
                 // for(var j=0;j<temp_s.experiment_session_days.length;j++)
                 // {
@@ -162,29 +163,29 @@ var app = Vue.createApp({
                     return value;
 
                     //console.log(value);       
-                    rValue =   moment(String(value)).local().format('dddd');
-                    rValue +=   "<br>";
-                    rValue +=   moment(String(value)).local().format('M/D/YYYY');   
-                    rValue += "<br>";
+                    // rValue =   moment(String(value)).local().format('dddd');
+                    // rValue +=   "<br>";
+                    // rValue +=   moment(String(value)).local().format('M/D/YYYY');   
+                    // rValue += "<br>";
 
-                    if(enable_time)
-                    {
-                        rValue += moment(String(value)).local().format('h:mma'); 
-                        if(value2 != null)
-                        {
-                            rValue += "-" + moment(String(value2)).local().format('h:mma'); 
-                        }  
-                    }
-                    else
-                    {
-                        rValue += "Anytime";
+                    // if(enable_time)
+                    // {
+                    //     rValue += moment(String(value)).local().format('h:mma'); 
+                    //     if(value2 != null)
+                    //     {
+                    //         rValue += "-" + moment(String(value2)).local().format('h:mma'); 
+                    //     }  
+                    // }
+                    // else
+                    // {
+                    //     rValue += "Anytime";
                         
-                        if(length != null)
-                        {
-                            rValue += ", " + length + " min";
-                        }
-                    }    
-                    return rValue;
+                    //     if(length != null)
+                    //     {
+                    //         rValue += ", " + length + " min";
+                    //     }
+                    // }    
+                    // return rValue;
                 }
                 else{
                     return "date format error";

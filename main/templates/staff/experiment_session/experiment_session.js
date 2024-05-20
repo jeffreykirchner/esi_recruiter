@@ -1,3 +1,5 @@
+"use strict";
+
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
@@ -165,7 +167,7 @@ var app = Vue.createApp({
 
         //creates lists  of recruitment parameters
         updateDisplayLists:function updateDisplayLists(errors){
-            var e = app.recruitment_params;
+            let e = app.recruitment_params;
             
             app.include_institutions_list=app.updateDisplayLists2(e.institutions_include_full);
             app.exclude_institutions_list=app.updateDisplayLists2(e.institutions_exclude_full);
@@ -180,7 +182,7 @@ var app = Vue.createApp({
         },
 
         updateDisplayLists2:function updateDisplayLists2(list){
-            str="";
+            let str="";
 
             if(list.length == 0)
             {
@@ -673,12 +675,12 @@ var app = Vue.createApp({
 
             app.subjectCancelationList = "";
 
-            l="";
-            s="Emails will be sent to the subjects that have confirmed: <br><br>"
-            c1=app.session.experiment_session_days.length;
-            u1 = app.session.confirmedEmailList
+            let l="";
+            let s="Emails will be sent to the subjects that have confirmed: <br><br>"
+            let c1=app.session.experiment_session_days.length;
+            let u1 = app.session.confirmedEmailList
 
-            for(i=0;i<u1.length;i++)
+            for(let i=0;i<u1.length;i++)
             {
                 //u2 = u1[i].user;
 
@@ -748,9 +750,9 @@ var app = Vue.createApp({
             app.emailMessageList="";
             tinymce.get("sendMessageText").setContent(app.sendMessageText);
 
-            for(i=0;i<app.session.confirmedEmailList.length;i++)
+            for(let i=0;i<app.session.confirmedEmailList.length;i++)
             {
-                v = app.session.confirmedEmailList[i];
+                let v = app.session.confirmedEmailList[i];
 
                 if(app.emailMessageList != "")
                 {
@@ -838,7 +840,7 @@ var app = Vue.createApp({
                     if(response.data.status == "success")
                     {
 
-                        for(i=0;i<app.invitationList.length;i++)
+                        for(let i=0;i<app.invitationList.length;i++)
                         {
                             if(app.invitationList[i].id == id)
                             {
@@ -1074,14 +1076,14 @@ var app = Vue.createApp({
             .then(function (response) {
                 app.messageList = response.data.messageList;     
 
-                for(i=0;i<app.messageList.length;i++)
+                for(let i=0;i<app.messageList.length;i++)
                 {
-                    m=app.messageList[i];
+                    let m=app.messageList[i];
                     m.date_raw=app.formatDate(m.date_raw,false,false);
 
-                    emailMessageList="";
+                    let emailMessageList="";
 
-                    for(j=0;j<m.users.length;j++)
+                    for(let j=0;j<m.users.length;j++)
                     {                                            
                             if (j >= 1)
                             {
@@ -1159,14 +1161,14 @@ var app = Vue.createApp({
 
         //format inivation messages for display
         formatInvitations:function formatInvitations(){
-            for(i=0;i<app.invitationList.length;i++)
+            for(let i=0;i<app.invitationList.length;i++)
             {
-                m=app.invitationList[i];
+                let m=app.invitationList[i];
                 m.date_raw=app.formatDate(m.date_raw,false,false);
 
-                emailMessageList="";
+                let emailMessageList="";
 
-                for(j=0;j<m.users.length;j++)
+                for(let j=0;j<m.users.length;j++)
                 {                                            
                         if (j >= 1)
                         {
@@ -1198,7 +1200,7 @@ var app = Vue.createApp({
         // fire when edit trait model is shown
         showUpdateTrait:function showUpdateTrait(id,index){
 
-            tc = app.recruitment_params.trait_constraints[index];
+            let tc = app.recruitment_params.trait_constraints[index];
 
             app.cancelModal=true;
             app.current_trait.id = id;
