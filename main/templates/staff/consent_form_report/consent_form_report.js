@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
        
@@ -93,7 +93,7 @@ var app = Vue.createApp({
                         app.tick_tock=0;
         
                         let canvas = document.getElementById("signature_canvas_id_" + app.subject_list[app.counter].id);
-                        temp_c=app.pixi_app.renderer.extract.canvas(app.pixi_app.stage);
+                        let temp_c=app.pixi_app.renderer.extract.canvas(app.pixi_app.stage);
                         canvas.getContext("2d").drawImage(temp_c, 0, 0);
         
                         app.counter++;
@@ -161,7 +161,7 @@ var app = Vue.createApp({
                                                t[j].y))
                 }
                 
-                r = new PIXI.SimpleRope(app.pixi_signature_texture, points);
+                let r = new PIXI.SimpleRope(app.pixi_signature_texture, points);
                 let container = new PIXI.Container();
 
                 container.addChild(r);

@@ -2,12 +2,12 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var pixi_app = null;
-var pixi_pointer_down = false;        
-var pixi_signatures_rope_array = [];
-var pixi_signature_texture = null;
+let pixi_app = null;
+let pixi_pointer_down = false;        
+let pixi_signatures_rope_array = [];
+let pixi_signature_texture = null;
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
      
@@ -125,7 +125,11 @@ var app = Vue.createApp({
 
 
     mounted(){
-        setTimeout(this.resetPixiApp, 500);
-        window.addEventListener('resize', this.handleResize);     
+        Vue.nextTick(()=>{
+            app.resetPixiApp();
+            window.addEventListener('resize', app.handleResize);  
+        });
+        // setTimeout(app.resetPixiApp, 500);
+           
     },
 }).mount('#app');

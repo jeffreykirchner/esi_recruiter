@@ -8,7 +8,7 @@
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
 
-        var app = new Vue({
+        let app = new Vue({
         
             delimiters: ['[[', ']]'],
             el: '#root',        
@@ -32,7 +32,9 @@
             },
 
             mounted: function(){
-                    this.getUser();                    
+                Vue.NextTick(() => {
+                    app.getUser();  
+                });                  
             },
         });
 

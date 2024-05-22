@@ -4,7 +4,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
        
@@ -41,7 +41,7 @@ var app = Vue.createApp({
         clearMainFormErrors:function clearMainFormErrors(){
 
             let s = app.recruitment_parameters_form_ids;
-            for(var i in s)
+            for(let i in s)
             {
                 let e = document.getElementById("id_errors_" + s[i]);
                 if(e) e.remove();
@@ -121,7 +121,9 @@ var app = Vue.createApp({
 
     //run when vue is mounted
     mounted(){
-        this.getExperiment();
+        Vue.nextTick(() => {
+            app.getExperiment();
+        });
     },                 
 
 }).mount('#app');

@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
     delimiters: ['[[', ']]'],
    
     data(){return{
@@ -60,7 +60,7 @@ var app = Vue.createApp({
 
         getHistoryButton : function getHistoryButton(){
             app.searchButtonText = '<i class="fas fa-spinner fa-spin"></i>';
-            this.getHistory();
+            app.getHistory();
         },
 
         //get history of payments from recruiter
@@ -115,9 +115,9 @@ var app = Vue.createApp({
             
             app.working = false;
 
-            var downloadLink = document.createElement("a");
-            var blob = new Blob(["\ufeff", app.historyBudgetCSV]);
-            var url = URL.createObjectURL(blob);
+            let downloadLink = document.createElement("a");
+            let blob = new Blob(["\ufeff", app.historyBudgetCSV]);
+            let url = URL.createObjectURL(blob);
             downloadLink.href = url;
             downloadLink.download = "Budget_Report_" + app.startDateBudget + "_to_"+ app.endDateBudget + ".csv";
 
@@ -129,6 +129,6 @@ var app = Vue.createApp({
     },
     
     mounted(){
-        //this.getHistory();
+        //app.getHistory();
     },
 }).mount('#app');

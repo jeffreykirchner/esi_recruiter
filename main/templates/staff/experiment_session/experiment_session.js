@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
       
@@ -146,19 +146,19 @@ var app = Vue.createApp({
         //remove all the form errors
         clearMainFormErrors:function clearMainFormErrors(){
 
-            for(var item in app.currentSessionDay)
+            for(let item in app.currentSessionDay)
             {
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
             }
 
-            for(var item in app.session)
+            for(let item in app.session)
             {
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
             }
 
-            for(var item in app.current_trait)
+            for(let item in app.current_trait)
             {
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
@@ -190,7 +190,7 @@ var app = Vue.createApp({
             }   
             else
             {
-                for(var i=0;i<list.length;i++)
+                for(let i=0;i<list.length;i++)
                 {
                     if(i>=1) str += " | ";
                     str += list[i].name;
@@ -220,7 +220,7 @@ var app = Vue.createApp({
 
                     if(!app.first_load)
                     {   
-                        Vue.nextTick(function () {
+                        Vue.nextTick(() => {
                         // setTimeout(app.do_first_load, 250);
                         // 
                             app.do_first_load();
@@ -299,7 +299,7 @@ var app = Vue.createApp({
                 {
                     userFails = response.data.userFails;
 
-                    for (var i = 0; i < userFails.length; i++)
+                    for (let i = 0; i < userFails.length; i++)
                     {
                         app.subjectInvitationList += 'Failed to add user to session: ';
                         app.subjectInvitationList += '<a href = "/userInfo/' + userFails[i].id + '" target="_blank" >'; 
@@ -342,12 +342,12 @@ var app = Vue.createApp({
             .then(function (response) {                                   
                 app.subjectInvitations = response.data.subjectInvitations;   
                 
-                var totalValid = response.data.totalValid;
+                let totalValid = response.data.totalValid;
 
-                var s ="";
-                var l = app.subjectInvitations.length
+                let s ="";
+                let l = app.subjectInvitations.length
 
-                for (var i = 0; i < l; i++) {
+                for (let i = 0; i < l; i++) {
                     if (l > 1)
                     {
                         if(i  > 0 && i != l-1)
@@ -421,13 +421,13 @@ var app = Vue.createApp({
         //update the session day parameters
         updateSessionDay: function updateSessionDay(){
 
-            var sessionCanceledChangedMessage=false;
+            let sessionCanceledChangedMessage=false;
 
             if(app.currentSessionDay.canceled != 
                 app.session.experiment_session_days[app.currentSessionDayIndex].canceled)
             {
                 if(confirm("Send email about cancellation update?")){
-                    var sessionCanceledChangedMessage=true;
+                    let sessionCanceledChangedMessage=true;
                 }
             }
 
@@ -506,7 +506,7 @@ var app = Vue.createApp({
                 document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
 
                 //scroll to the last error
-                var elmnt =  document.getElementById("div_id_" + e);
+                let elmnt =  document.getElementById("div_id_" + e);
                 if(elmnt) elmnt.scrollIntoView();
             }
         },  
@@ -1141,9 +1141,9 @@ var app = Vue.createApp({
             })
             .then(function (response) {             
                 
-                var downloadLink = document.createElement("a");
-                var blob = new Blob(["\ufeff", response.data]);
-                var url = URL.createObjectURL(blob);
+                let downloadLink = document.createElement("a");
+                let blob = new Blob(["\ufeff", response.data]);
+                let url = URL.createObjectURL(blob);
                 downloadLink.href = url;
                 downloadLink.download = "Invited_Export_Session_" + app.session.id + ".csv";
 
@@ -1378,7 +1378,7 @@ var app = Vue.createApp({
     //run when vue is mounted
     mounted(){
         Vue.nextTick(() => {
-            this.getSession(); 
+            app.getSession(); 
         });
     },                 
 

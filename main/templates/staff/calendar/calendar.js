@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],       
 
@@ -175,10 +175,10 @@ var app = Vue.createApp({
     },            
 
     mounted(){
-        this.getMonth();  
-
+        
         Vue.nextTick(() => {
-            this.calendarDayModal = new bootstrap.Modal(document.getElementById('calendarDayModal'), {keyboard: false});                     
+            app.getMonth();  
+            app.calendarDayModal = new bootstrap.Modal(document.getElementById('calendarDayModal'), {keyboard: false});                     
         });                          
     },
 }).mount('#app');

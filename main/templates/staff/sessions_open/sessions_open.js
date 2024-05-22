@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
   
@@ -48,13 +48,13 @@ var app = Vue.createApp({
             if(app.auto_refresh == "Off")
             {
                 app.auto_refresh = "On";
-                this.getOpenSessions()
+                app.getOpenSessions()
             }
             else
             {
                 app.auto_refresh = "Off";        
                 
-                for (var i = 0; i < app.timeouts.length; i++) {
+                for (let i = 0; i < app.timeouts.length; i++) {
                     clearTimeout(app.timeouts[i]);
                 }
 
@@ -67,7 +67,7 @@ var app = Vue.createApp({
         //get list of open experiments
         closeAllSessions:function closeAllSessions(){        
             
-            var r = confirm("Are you sure you want to complete all sessions?");
+            let r = confirm("Are you sure you want to complete all sessions?");
             if (r == false) {
                 return;
             }
@@ -93,7 +93,9 @@ var app = Vue.createApp({
     },
         
     mounted(){
-        this.getOpenSessions();                  
+        Vue.nextTick(() => {
+            app.getOpenSessions();
+        });                
     },
     
 }).mount('#app');

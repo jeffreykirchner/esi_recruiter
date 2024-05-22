@@ -2,7 +2,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
        
@@ -76,7 +76,7 @@ var app = Vue.createApp({
 
         //stripe reader checkin
         stripeReaderCheckin:function stripeReaderCheckin(){
-            window.setTimeout(this.stripeReaderCheckin, 250);
+            window.setTimeout(app.stripeReaderCheckin, 250);
             
             if(app.stripeReaderValue == "") return;
             if(app.stripeReaderSpinner != "") return;
@@ -129,9 +129,9 @@ var app = Vue.createApp({
 
                     console.log(response)
 
-                    var downloadLink = document.createElement("a");
-                    var blob = new Blob(["\ufeff", response.data]);
-                    var url = URL.createObjectURL(blob);
+                    let downloadLink = document.createElement("a");
+                    let blob = new Blob(["\ufeff", response.data]);
+                    let url = URL.createObjectURL(blob);
                     downloadLink.href = url;
                     downloadLink.download = "PayPal_Mass_Pay_" + app.sessionDay.id + ".csv";
 
@@ -166,9 +166,9 @@ var app = Vue.createApp({
 
                     console.log(response)
 
-                    var downloadLink = document.createElement("a");
-                    var blob = new Blob(["\ufeff", response.data]);
-                    var url = URL.createObjectURL(blob);
+                    let downloadLink = document.createElement("a");
+                    let blob = new Blob(["\ufeff", response.data]);
+                    let url = URL.createObjectURL(blob);
                     downloadLink.href = url;
                     downloadLink.download = "Attending_Export_" + app.sessionDay.id + ".csv";
 
@@ -301,7 +301,7 @@ var app = Vue.createApp({
 
         //calc payout total of visible subjects
         calcPayoutTotal:function calcPayoutTotal(){
-            var s = 0;
+            let s = 0;
 
             for(let i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
@@ -404,7 +404,7 @@ var app = Vue.createApp({
         getPayoutlist:function getPayoutlist(){
             let payoutList=[];
 
-            for(var i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
+            for(let i=0;i<app.sessionDay.experiment_session_days_user.length;i++)
             {
                 let tempU = app.sessionDay.experiment_session_days_user[i];
 
@@ -527,11 +527,11 @@ var app = Vue.createApp({
 
         //store the location of the file to be uploaded
         handleFileUpload:function handleFileUpload(){
-            app.upload_file = this.$refs.file.files[0];
+            app.upload_file = app.$refs.file.files[0];
 
             app.upload_file_name = app.upload_file.name;
 
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = e => app.uploadEarningsText = e.target.result;
             reader.readAsText(app.upload_file);
 
@@ -590,7 +590,7 @@ var app = Vue.createApp({
                 return;                        
             }
 
-            var r = confirm("Pay subjects directly with PayPal's API?");
+            let r = confirm("Pay subjects directly with PayPal's API?");
 
             if (r == false)
             {
@@ -637,15 +637,15 @@ var app = Vue.createApp({
     },
 
     mounted(){
-            this.getSession();       
-            window.setTimeout(this.stripeReaderCheckin, 250);      
+                  
+        Vue.nextTick(() => {
+            app.getSession();       
+            window.setTimeout(app.stripeReaderCheckin, 250);
+            app.uploadEarningsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('uploadEarningsModal'), {keyboard: false});
+            app.noticeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('noticeModal'), {keyboard: false});
 
-            Vue.nextTick(() => {
-                app.uploadEarningsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('uploadEarningsModal'), {keyboard: false});
-                app.noticeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('noticeModal'), {keyboard: false});
-
-                document.getElementById('uploadEarningsModal').addEventListener('hidden.bs.modal', app.hideUploadEarnings);
-            })
+            document.getElementById('uploadEarningsModal').addEventListener('hidden.bs.modal', app.hideUploadEarnings);
+        })
     
     },
 }).mount('#app');

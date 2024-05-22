@@ -2,7 +2,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
       
@@ -45,7 +45,7 @@ var app = Vue.createApp({
                 
                 app.calcPayoutTotal();
 
-                Vue.nextTick(function () {
+                Vue.nextTick(()=> {
                     app.setupPixi();
                 });
                 // setTimeout(app.setupPixi, 500);
@@ -64,7 +64,7 @@ var app = Vue.createApp({
 
         //calc payout total of visible subjects
         calcPayoutTotal:function calcPayoutTotal(){
-            var s = 0;
+            let s = 0;
 
             for(let i=0;i<app.sessionDayUsers.length;i++)
             {
@@ -94,6 +94,8 @@ var app = Vue.createApp({
     },
 
     mounted(){
-            this.getSession("{{payGroup}}");                    
+        Vue.nextTick(()=> {
+            app.getSession("{{payGroup}}");
+        });                    
     },
 }).mount('#app');

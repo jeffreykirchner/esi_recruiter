@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
        
@@ -54,7 +54,7 @@ var app = Vue.createApp({
                 },
         
         handleFileUpload:function handleFileUpload(){
-            app.file = this.$refs.file.files[0];
+            app.file = app.$refs.file.files[0];
             app.file_name = app.file.name;
         },
         
@@ -83,9 +83,9 @@ var app = Vue.createApp({
                         {                                                                       
                             // console.log(response.data);
 
-                            var downloadLink = document.createElement("a");
-                            var blob = new Blob(["\ufeff", response.data]);
-                            var url = URL.createObjectURL(blob);
+                            let downloadLink = document.createElement("a");
+                            let blob = new Blob(["\ufeff", response.data]);
+                            let url = URL.createObjectURL(blob);
                             downloadLink.href = url;
                             downloadLink.download = "Traits_Report.csv";
 
@@ -106,7 +106,7 @@ var app = Vue.createApp({
         selectAll:function selectAll(){
             checkboxes = document.getElementsByName('traits');
 
-            for(var i=0, n=checkboxes.length;i<n;i++) {
+            for(let i=0, n=checkboxes.length;i<n;i++) {
                 checkboxes[i].checked = app.select_all_value;
             }
 
@@ -116,6 +116,6 @@ var app = Vue.createApp({
 
 
     mounted(){
-            //this.getUser();                    
+            //app.getUser();                    
     },
 }).mount('#app');

@@ -2,7 +2,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
   
@@ -102,7 +102,7 @@ var app = Vue.createApp({
                             
                             app.noInvitationsFoundText = "No invitations found"
 
-                            for(var i=0;i<app.allInvitations.length;i++)
+                            for(let i=0;i<app.allInvitations.length;i++)
                             {
                                 app.allInvitations[i].date = app.formatDate(app.allInvitations[i].date,
                                                                                     null,
@@ -122,11 +122,11 @@ var app = Vue.createApp({
              
             app.upcomingInvitations=response.data.upcomingInvitations;                   
 
-            for(var i=0;i<app.upcomingInvitations.length;i++)
+            for(let i=0;i<app.upcomingInvitations.length;i++)
             {
                 let temp_s = app.upcomingInvitations[i];
 
-                // for(var j=0;j<temp_s.experiment_session_days.length;j++)
+                // for(let j=0;j<temp_s.experiment_session_days.length;j++)
                 // {
                 //     temp_s.experiment_session_days[j].date = app.formatDate(temp_s.experiment_session_days[j].date,
                 //                                                             temp_s.experiment_session_days[j].date_end,
@@ -141,7 +141,7 @@ var app = Vue.createApp({
         takePastAcceptedInvitations:function takePastAcceptedInvitations(response){
             app.pastAcceptedInvitations=response.data.pastAcceptedInvitations;  
                         
-            for(var i=0;i<app.pastAcceptedInvitations.length;i++)
+            for(let i=0;i<app.pastAcceptedInvitations.length;i++)
             {
                 app.pastAcceptedInvitations[i].date = app.formatDate(app.pastAcceptedInvitations[i].date,
                                                                             null,
@@ -196,12 +196,13 @@ var app = Vue.createApp({
 
 
     mounted(){
-        this.getCurrentInvitations();        
-        
+             
         Vue.nextTick(() => {
-            this.subject_consent_form_modal = new bootstrap.Modal(document.getElementById('subject_consent_form_modal'), {keyboard: false});                     
+            app.getCurrentInvitations();  
+            app.subject_consent_form_modal = new bootstrap.Modal(document.getElementById('subject_consent_form_modal'), {keyboard: false});                     
+            window.addEventListener('resize', app.handleResize);  
         }); 
 
-        window.addEventListener('resize', this.handleResize);     
+           
     },
 }).mount('#app');

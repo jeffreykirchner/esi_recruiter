@@ -2,7 +2,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ["[[", "]]"],
        
@@ -53,7 +53,7 @@ var app = Vue.createApp({
             app.subject = response.data.subject;
 
             //format session data
-            for(var i=0;i<app.session_day_attended.length;i++)
+            for(let i=0;i<app.session_day_attended.length;i++)
             {
                 app.session_day_attended[i].date = app.formatDate(app.session_day_attended[i].date,
                                                                         app.session_day_attended[i].enable_time);
@@ -61,7 +61,7 @@ var app = Vue.createApp({
                 app.session_day_attended[i].show_up_fee = parseFloat(app.session_day_attended[i].show_up_fee).toFixed(2);
             } 
 
-            for(var i=0;i<app.session_day_upcoming.length;i++)
+            for(let i=0;i<app.session_day_upcoming.length;i++)
             {
                 app.session_day_upcoming[i].date = app.formatDate(app.session_day_upcoming[i].date,
                                                                         app.session_day_upcoming[i].enable_time);
@@ -69,14 +69,14 @@ var app = Vue.createApp({
                 app.session_day_upcoming[i].show_up_fee = parseFloat(app.session_day_upcoming[i].show_up_fee).toFixed(2);
             }
 
-            for(var i=0;i<app.notes.length;i++)
+            for(let i=0;i<app.notes.length;i++)
             {
                 app.notes[i].date = app.formatDate(app.notes[i].date, true);
             }
 
             app.institutionsList="";
             //create institution list
-            for(var i=0;i<app.institutions.length;i++)
+            for(let i=0;i<app.institutions.length;i++)
             {
                 if(i>0)
                 {
@@ -101,7 +101,7 @@ var app = Vue.createApp({
                     app.invitations = response.data.invitations;
                     app.noInvitationsFoundText = "No invitations found"
 
-                    for(var i=0;i<app.invitations.length;i++)
+                    for(let i=0;i<app.invitations.length;i++)
                     {
                         app.invitations[i].date = app.formatDate(app.invitations[i].date,
                                                                         app.invitations[i].enable_time );
@@ -241,7 +241,7 @@ var app = Vue.createApp({
                 document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
 
                 //scroll to the last error
-                var elmnt =  document.getElementById("div_id_" + e);
+                let elmnt =  document.getElementById("div_id_" + e);
                 if(elmnt) elmnt.scrollIntoView();
             }
         },
@@ -265,11 +265,11 @@ var app = Vue.createApp({
     },
 
     mounted(){
-            this.getSessions();  
-            
-            Vue.nextTick(() => {
-                app.noteModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('noteModalCenter'), {keyboard: false});
-                app.editSubjectModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editSubjectModal'), {keyboard: false});
-            })
+             
+        Vue.nextTick(() => {
+            app.getSessions();
+            app.noteModalCenter = bootstrap.Modal.getOrCreateInstance(document.getElementById('noteModalCenter'), {keyboard: false});
+            app.editSubjectModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editSubjectModal'), {keyboard: false});
+        })
     },
 }).mount('#app');
