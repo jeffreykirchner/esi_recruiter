@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
    
@@ -47,20 +47,20 @@ var app = Vue.createApp({
 
                 document.getElementById("div_id_" + e).insertAdjacentHTML('beforeend', str);
                 //scroll to the last error
-                var elmnt =  document.getElementById("div_id_" + e);
+                let elmnt =  document.getElementById("div_id_" + e);
                 if(elmnt) elmnt.scrollIntoView();
             }
         }, 
 
         //clear errors from forms
         clearMainFormErrors:function clearMainFormErrors(){
-                for(var item in app.pettyCash)
+                for(let item in app.pettyCash)
                 {
                     let e = document.getElementById("id_errors_" + item);
                     if(e) e.remove();
                 }  
                 
-                for(var item in app.studentReport)
+                for(let item in app.studentReport)
                 {
                     let e = document.getElementById("id_errors_" + item);
                     if(e) e.remove();
@@ -88,13 +88,13 @@ var app = Vue.createApp({
                             {                                                                       
                                 console.log(response.data);
 
-                                var downloadLink = document.createElement("a");
-                                var blob = new Blob(["\ufeff", response.data]);
-                                var url = URL.createObjectURL(blob);
+                                let downloadLink = document.createElement("a");
+                                let blob = new Blob(["\ufeff", response.data]);
+                                let url = URL.createObjectURL(blob);
                                 downloadLink.href = url;
-                                var e = document.getElementById("id_department");
-                                var value = e.options[e.selectedIndex].value;
-                                var text = e.options[e.selectedIndex].text;
+                                let e = document.getElementById("id_department");
+                                let value = e.options[e.selectedIndex].value;
+                                let text = e.options[e.selectedIndex].text;
                                 downloadLink.download = "Petty_Cash_" + text + "_"+ app.pettyCash.startDate + "_to_" + app.pettyCash.endDate + ".csv";
 
                                 document.body.appendChild(downloadLink);
@@ -131,9 +131,9 @@ var app = Vue.createApp({
                             {                                                                       
                                 console.log(response.data);
 
-                                var downloadLink = document.createElement("a");
-                                var blob = new Blob(["\ufeff", response.data]);
-                                var url = URL.createObjectURL(blob);
+                                let downloadLink = document.createElement("a");
+                                let blob = new Blob(["\ufeff", response.data]);
+                                let url = URL.createObjectURL(blob);
                                 downloadLink.href = url;
                                 downloadLink.download = "Student_Report_" + app.studentReport.studentReport_startDate + "_to_"+ app.studentReport.studentReport_endDate + ".csv";
 

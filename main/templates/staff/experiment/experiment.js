@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
         
     delimiters: ['[[', ']]'],
        
@@ -100,19 +100,19 @@ var app = Vue.createApp({
         },
 
         clearMainFormErrors:function clearMainFormErrors(){
-            for(var item in app.experiment)
+            for(let item in app.experiment)
             {
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
             }
 
-            for(var item in app.recruitment_params)
+            for(let item in app.recruitment_params)
             {                
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
             }
 
-            for(var item in app.current_trait)
+            for(let item in app.current_trait)
             {               
                 let e = document.getElementById("id_errors_" + item);
                 if(e) e.remove();
@@ -146,7 +146,7 @@ var app = Vue.createApp({
             }   
             else
             {
-                for(var i=0;i<list.length;i++)
+                for(let i=0;i<list.length;i++)
                 {
                     if(i>=1) str += " | ";
                     str += list[i].name;
@@ -453,8 +453,8 @@ var app = Vue.createApp({
             app.cancelModal=true;
             app.experimentBeforeEdit = Object.assign({}, app.experiment);
 
-            tinymce.get("id_reminderText").setContent(this.experiment.reminderText);
-            tinymce.get("id_invitationText").setContent(this.experiment.invitationText);
+            tinymce.get("id_reminderText").setContent(app.experiment.reminderText);
+            tinymce.get("id_invitationText").setContent(app.experiment.invitationText);
 
             app.setupModalCenter.show();
             app.clearMainFormErrors();
@@ -615,7 +615,9 @@ var app = Vue.createApp({
     },
 
     mounted(){
-        this.getExperiment();
+        Vue.nextTick(() => {
+            app.getExperiment();
+        });
     },                 
 
 }).mount('#app');

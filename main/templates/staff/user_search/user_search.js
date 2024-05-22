@@ -2,7 +2,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-var app = Vue.createApp({
+let app = Vue.createApp({
     delimiters: ['[[', ']]'],
    
     data() {return{
@@ -172,7 +172,7 @@ var app = Vue.createApp({
 
         // fire when invite subjects subjects model is shown
         showSendMessage:function showSendMessage(id){    
-            tinymce.get("id_sendMessageText").setContent(this.sendMessageText);
+            tinymce.get("id_sendMessageText").setContent(app.sendMessageText);
             app.sendMessageModalCenter.show();                       
         },
 
@@ -250,7 +250,7 @@ var app = Vue.createApp({
        
 
         Vue.nextTick(() => {
-            this.do_first_load();
+            app.do_first_load();
         });
 
         setTimeout(() => {
