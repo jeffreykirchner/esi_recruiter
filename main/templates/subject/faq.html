@@ -46,7 +46,9 @@
             },
 
             mounted(){
-                    app.getFaqs();                    
+                Vue.nextTick(() => {
+                    app.getFaqs();                   
+                });                      
             },
         }).mount('#app');
 
