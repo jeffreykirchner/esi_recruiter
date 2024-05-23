@@ -58,7 +58,7 @@
             },
             
             mounted(){
-                Vue.NextTick(()=>{
+                Vue.nextTick(()=>{
                   app.getUser();
                 });
             },
@@ -86,13 +86,13 @@
 
         <div v-if="status === 'update'"> 
             <div class="row" v-if="emailVerified === false">
-              <div class="col col-lg-8 offset-lg-2" style="text-align: center;">
+              <div class="col col-lg-8 offset-lg-2 text-center">
                   Your email account is not verified.<br>
                   Your email can be edited in your <a href="/profile/">Profile</a>.
               </div>
             </div>                         
             <div class="row mt-2">
-              <div class="col col-lg-8 offset-lg-2" style="text-align: center;">
+              <div class="col col-lg-8 offset-lg-2 text-center">
                   <button type="submit" class="btn btn-outline-primary" v-on:click="sendVerificationEmail()">
                     <span v-html="buttonText"></span>
                   </button>
@@ -101,14 +101,14 @@
         </div>  
         <div v-if="status === 'done'">
           <div class="row">
-              <div class = "col" style="text-align: center;">              
+              <div class = "col text-center">              
                   Email Sent.         
               </div>            
           </div>
         </div>
         <div v-if="status === 'fail'">        
           <div class="row">
-              <div class = "col" style="text-align: center;">  
+              <div class = "col text-center">  
                 There was an error sending the email please contact<br>
                 [[admainName]] at <a v-bind:href= "'mailto:' + adminEmail">[[adminEmail]]</a>     
               </div>            
