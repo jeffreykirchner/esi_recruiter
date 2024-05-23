@@ -33,7 +33,7 @@
                                 <th width="50%">
                                     Name 
                                 </th>                                                                                   
-                                <th width="50%" style="text-align: center;">
+                                <th width="50%" class="text-center">
                                     Control
                                 </th>
                             </thead>
@@ -45,7 +45,7 @@
                                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                         </a>                                    
                                     </td>                                                                   
-                                    <td style="text-align: center;">   
+                                    <td class="text-center">   
                                         {%if user.is_staff%}                                     
                                             <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm me-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)" v-bind:disabled="esdu.allowDelete === false">
                                                 Remove <i class="fas fa-user-minus fa-xs"></i>  
@@ -75,7 +75,7 @@
                                         <span v-html="showUnconfirmedButtonText"></span>
                                     </button>                                 
                                 </th>                                                                                   
-                                <th width="50%" style="text-align: center;">
+                                <th width="50%" class="text-center">
                                     Control
                                 </th>
                             </thead>
@@ -87,7 +87,7 @@
                                             <span v-html="esdu.user.last_name"></span>, <span v-html="esdu.user.first_name"></span>
                                         </a>                                                                           
                                     </td>                               
-                                    <td style="text-align: center;">
+                                    <td class="text-center">
                                         <button v-bind:id="'removeSubject' + esdu.id" type="button" class="btn btn-outline-danger btn-sm me-2" v-on:click = "removeSubject(esdu.user.id,esdu.id)">
                                             Remove <i class="fas fa-user-minus fa-xs"></i>  
                                         </button>
@@ -96,7 +96,7 @@
                                             Confirm <i class="fas fa-arrow-up fa-xs"></i> 
                                         </button>
                                         {%endif%}
-                                        <div v-if="esdu.valid == 0" style="text-align: center;color: red;">Rec. Violation</div>
+                                        <div v-if="esdu.valid == 0" class="text-center text-danger">Rec. Violation</div>
                                     </td>
                                 </tr>
                             </tbody>
