@@ -60,10 +60,10 @@
             </div>
             <div class="modal-footer">
                 <div v-if="session.canceled">
-                    <div class = "text-center" style="color: red;">Session Canceled</div>
+                    <div class = "text-center text-danger">Session Canceled</div>
                 </div>
                 <div v-else>
-                    <span v-if="invite_to_all" style="color: red;" class="me-4">
+                    <span v-if="invite_to_all" class="me-4 text-danger">
                         Warning: This will invite subjects to all future sessions.
                     </span>
 
