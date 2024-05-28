@@ -177,7 +177,7 @@
             <div class="col">
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed">
-                        <caption style="caption-side:top;" class="text-center">
+                        <caption class="caption-top text-center">
                             <span v-if="sessions_count<=25">
                                 Sessions ([[sessions.length]])
                             </span> 
@@ -191,7 +191,7 @@
                         <thead>
                             <th scope="col" class="text-nowrap">
                                 Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
-                                <span v-html="'<br>' + addSessionErrorText" class="text-danger" style="font-size: 14px;"></span> 
+                                <span v-html="'<br>' + addSessionErrorText" class="text-danger fw-bold"></span> 
                             </th>
                             <th scope="col" class="text-center text-nowrap">
                                 Creator

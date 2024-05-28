@@ -193,10 +193,10 @@
                                     [[sd.attendedCount]]                                                                              
                                 </td>                             
                                 <td class="text-center text-nowrap">                                      
-                                    <button style="width:80px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
+                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSetup(index)" v-bind:disabled="sd.complete === true"> Setup <i class="fas fa-info-circle fa-xs"></i></button>                                                                                                                                                                              
                                 </td>
                                 <td class="text-center text-nowrap">                                      
-                                    <button style="width:90px;" class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
+                                    <button class="btn btn-outline-primary btn-sm" type="button" v-on:click = "showSubjects(index)"> Subjects <i class="fas fa-users fa-xs"></i></button>                                                                                                                                                                                                                                           
                                 </td>    
                                 <td class="text-center text-nowrap">      
                                     <a  v-bind:href='"/experimentSessionRun/" + sd.id'>
@@ -205,7 +205,7 @@
                                 </td> 
                                 <td class="text-center text-nowrap">                                        
                                     <div v-show="session.experiment_session_days.length > 1">                                        
-                                        <button style="width:80px;" class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
+                                        <button class="btn btn-outline-danger btn-sm" type="button" v-on:click = "removeSessionDay(sd.id)" v-bind:disabled="sd.allowDelete === false"> Remove <i class="fas fa-times fa-xs"></i></button>
                                     </div>
                                 </td>                      
                             </tr>                        

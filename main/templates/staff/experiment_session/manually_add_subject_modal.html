@@ -35,7 +35,7 @@
                             </button>
                         </div>  
 
-                        <div v-html="searchResultsEmptyText" class="text-center" style="color: red;"></div>                                            
+                        <div v-html="searchResultsEmptyText" class="text-center text-danger"></div>                                            
                     </div>
                     <div class = "col-md-3">
                         <div class="form-check float-end">
@@ -88,17 +88,17 @@
                                         </td>                               
                                         <td class="text-center text-nowrap">
                                             <div v-if="session.canceled">
-                                                <div class="text-center" style="color: red;">Session Canceled</div>
+                                                <div class="text-center text-danger">Session Canceled</div>
                                             </div>
                                             <div v-else-if="u.alreadyIn == 1">
-                                                <div  class="text-center" style="color: red;">Aready Added</div>
+                                                <div  class="text-center text-danger">Aready Added</div>
                                             </div>
                                             <div v-else>
                                                 <button v-bind:id="'manualAdd' + u.id" type="button" class="btn btn-outline-success btn-sm" v-on:click = "manuallyAddSubject(u)" v-bind:disabled = "u.valid == 0">
                                                     Add <i class="fas fa-plus-square fa-xs"></i>  
                                                 </button>   
-                                                <div v-if="u.valid == 0"  class="text-center" style="color: red;">Rec. Violation</div>
-                                                <div v-if="u.profile__blackballed == 1" class="text-center" style="color: red;">Blackballed</div>
+                                                <div v-if="u.valid == 0"  class="text-center text-danger">Rec. Violation</div>
+                                                <div v-if="u.profile__blackballed == 1" class="text-center text-danger">Blackballed</div>
                                             </div>                                                                             
                                         </td>                                
                                     </tr>
