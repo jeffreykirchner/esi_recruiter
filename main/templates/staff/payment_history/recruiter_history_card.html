@@ -24,7 +24,7 @@
         </div>
 
         <div class = "row justify-content-center mt-3">
-            <div class="col-md" style="text-align: center;">
+            <div class="col-md text-center">
                 <button type="button" 
                         v-on:click="getHistoryRecruiter()" 
                         v-bind:disabled="working"
@@ -36,7 +36,7 @@
 
         
         <div class="row justify-content-center mt-4">
-            <div class="col-md" style="text-align: center;color: red;">
+            <div class="col-md text-center text-danger">
                 <span v-show = "errorMessageRecruiter != ''" >[[errorMessageRecruiter]]</span>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed">                            
 
-                        <caption style="caption-side:top;text-align: center;">Payouts ([[historyRecruiter.length]])</caption>
+                        <caption class="caption-top text-center">Payouts ([[historyRecruiter.length]])</caption>
 
                         <thead>
                             <th scope="col w-auto">
@@ -82,7 +82,7 @@
                                 <span v-if="h.paypal_response">
                                         [[h.paypal_response.batch_status]] 
                                 </span>               
-                                <span v-else style="color: red;font-weight:bold">
+                                <span v-else class="text-danger fw-bold">
                                         Status update failed
                                 </span>                         
                                                                     
@@ -100,7 +100,7 @@
                                         [[h.paypal_response.payout_batch_id]]
                                         </a> 
                                     </span>
-                                    <span v-else style="color: red;font-weight:bold">
+                                    <span v-else class="text-danger fw-bold">
                                         Status update failed
                                 </span>                                     
                                 </td>  
@@ -126,7 +126,7 @@
                                             </div>
                                         </div>
                                     </span>
-                                    <span v-else style="color: red;font-weight:bold">
+                                    <span v-else class="text-danger fw-bold">
                                         Status update failed
                                 </span>
 

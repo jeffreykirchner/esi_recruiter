@@ -46,7 +46,7 @@
 
         <div v-if="warningText != ''" class = "row justify-content-center mb-3">
             <div class = "col-md text-center mt-3 mt-md-1">
-                <span v-html="warningText" style="color:red;"></span>
+                <span v-html="warningText" class="text-danger"></span>
             </div>
         </div>           
                         
@@ -54,7 +54,7 @@
         <div class="table-responsive">
             <table class="table table-hover table-condensed">                            
 
-                <caption style="caption-side:top;text-align: center;">Experiments ([[experiments.length]])</caption>
+                <caption class="caption-top text-center">Experiments ([[experiments.length]])</caption>
 
                 <thead> 
                     <th scope="col"  class="text-nowrap">

@@ -69,7 +69,7 @@
             <div class = "col">
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed">
-                        <caption style="caption-side: top;" class="caption text-center">Subjects Confirmed: [[sessionDay.confirmedCount]] | 
+                        <caption class="caption-top text-center">Subjects Confirmed: [[sessionDay.confirmedCount]] | 
                                                                                         Attending: [[sessionDay.attendingCount]] | 
                                                                                         Needed: [[sessionDay.requiredCount]] | 
                                                                                         Bumped: [[sessionDay.bumpCount]]
@@ -113,7 +113,7 @@
                                             $<span v-html="esdu.earnings"></span>
                                         </div>
                                         <div v-else>
-                                            <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.earnings"
+                                            <input type="number" step="0.01" class="form-control text-center" v-model="esdu.earnings"
                                                 v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter experiment earnings here.">
                                         </div>
                                     </div>                                                                                                                  
@@ -124,7 +124,7 @@
                                             $<span v-html="esdu.show_up_fee"></span>
                                         </div>
                                         <div v-else>
-                                            <input type="number" step="0.01" class="form-control" style="text-align: center;" v-model="esdu.show_up_fee"
+                                            <input type="number" step="0.01" class="form-control text-center" v-model="esdu.show_up_fee"
                                             v-on:change="payoutsChange(esdu.id,index)" v-on:keyup= "payoutsKeyUp(esdu.id,index)" title="Enter on-time bonus here.">
                                         </div>                                           
                                     </div>                                        
@@ -155,14 +155,14 @@
                                                     v-on:click = "bumpSubject(esdu.id,index)" title="Change subject's status to 'Bumped'.">
                                                 <span v-html='bumpButtonText'></span>
                                             </button>
-                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div> 
+                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"'></div> 
                                         </div>
                                         <div v-else-if="esdu.bumped">
                                             <button v-bind:id="'nowSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"
                                                     v-on:click = "noShowSubject(esdu.id,index)" title="Change subject's status to 'No Show'.">
                                                 <span v-html='noShowButtonText'></span>
                                             </button>
-                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"' style="font-size: 14px;"></div>
+                                            <div v-if='esdu.user.bumpedFromLast' v-html='"(Bumped last session)"'></div>
                                         </div>
                                         <div v-else-if="isAdmin">
                                             <button v-bind:id="'attendSubject' + esdu.id" type="button" class="btn btn-outline-primary btn-sm"

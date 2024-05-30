@@ -36,7 +36,7 @@
 
         
         <div class="row justify-content-center mt-4">
-            <div class="col-md" style="text-align: center;color: red;">
+            <div class="col-md text-center text-danger">
                 <span v-show = "errorMessage != ''" >[[errorMessage]]</span>
             </div>
         </div>
@@ -47,22 +47,22 @@
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed">                            
 
-                        <caption style="caption-side:top;text-align: center;">Payments ([[history.length]])</caption>
+                        <caption class="text-center caption-top">Payments ([[history.length]])</caption>
 
                         <thead>
                             <th scope="col">
                                 Email Address
                             </th> 
-                            <th scope="col" style="text-align: center;">
+                            <th scope="col" class="text-center">
                                 Amount
                             </th> 
-                            <th scope="col" style="text-align: center;">
+                            <th scope="col" class="text-center">
                                 Date
                             </th>
-                            <th scope="col" style="text-align: center;">
+                            <th scope="col" class="text-center">
                                 Memo
                             </th>
-                            <th scope="col" style="text-align: center;">
+                            <th scope="col" class="text-center">
                                 App
                             </th>                                                     
                             
@@ -71,19 +71,19 @@
                         <tbody id="userList">                                                  
                             <tr v-for="(h,index) in history" v-bind:key="h.id">                                                                          
                                 <td> 
-                                [[h.email]]                                        
+                                    [[h.email]]                                        
                                 </td>
-                                <td style="text-align: center;">                                        
-                                [[h.amount]]                                        
+                                <td class="text-center">                                        
+                                    [[h.amount]]                                        
                                 </td>  
-                                <td style="text-align: center;">  
-                                [[h.timestamp]]
+                                <td class="text-center">  
+                                    [[h.timestamp]]
                                 </td>
-                                <td style="text-align: center;">  
-                                [[h.memo]]
+                                <td class="text-center">  
+                                    [[h.memo]]
                                 </td>
-                                <td style="text-align: center;">  
-                                [[h.app]]
+                                <td class="text-center">  
+                                    [[h.app]]
                                 </td>                                                         
                             </tr>                                                    
                         </tbody>

@@ -232,7 +232,7 @@
                 <button type="button" v-on:click='login()' class="btn btn-outline-primary">
                   <span v-html ="loginButtonText"></span>
                 </button> 
-                <span class="ms-2" style="color: red;" v-html="loginErrorText">
+                <span class="ms-2 text-danger" v-html="loginErrorText">
                 </span>
             </div>
         </div>
@@ -245,7 +245,7 @@
             
       </div>
 
-      <div class="card-footer" style="text-align: center;">
+      <div class="card-footer text-center">
         Need Help? <a href = 'mailto:{{labManager.email}}'>{{labManager.email}}</a>
       </div>
 

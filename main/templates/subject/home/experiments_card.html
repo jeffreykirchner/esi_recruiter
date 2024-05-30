@@ -7,17 +7,17 @@
         </div>                                                  
     </div>
     <div class="card-body">    
-        <div class="text-center mb-4" style="color: red;font-weight: bold;" v-show="account_paused">
+        <div class="text-center mb-4 text-danger fw-bold" v-show="account_paused">
             Your account is paused.<br>
             To participate in experiments, update your <a href="{%url 'profile'%}">profile</a>. 
         </div>
-        <div class="text-center mb-4" style="color: dimgray" v-show="!account_paused">
+        <div class="text-center mb-4 text-secondary" v-show="!account_paused">
             <!-- You cannot leave an experiment if it starts within 24 hours.  -->
             You cannot cancel appointments online within 24 hours of the scheduled time. 
             We will not invite you to participate in future studies if you repeatedly fail to attend appointments for which you have confirmed.
             Please contact the esiresearchteam@chapman.edu for questions.
         </div>
-        <div class="text-center mb-4" v-if="lastActionFailed"  style="color:red">
+        <div class="text-center mb-4 text-danger" v-if="lastActionFailed">
             <span v-html ="'***There was error processing your last request***'"></span>
         </div>           
         <!-- upcoming table -->
@@ -40,24 +40,24 @@
                             <span v-html=sd.date_html></span>
                             <div v-if="sd.hours_until_start <= 24 && sd.hours_until_start > 0">
                                 <div v-if="sd.enable_time">
-                                    <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                    <span v-html = "'Starts in:<br>' +  sd.hours_until_start_str " class="text-danger"></span>
                                 </div>
                                 <div v-else>
-                                    <span v-html = "'Ends in:<br>' +  sd.hours_until_start_str " style="color:red;"></span>
+                                    <span v-html = "'Ends in:<br>' +  sd.hours_until_start_str " class="text-danger"></span>
                                 </div>                                        
                             </div>
                             <div v-else-if="sd.hours_until_start <= 0 && sd.hours_until_start >= -0.25 && sd.enable_time">
-                                <span v-html = "'Starts Now'" style="color:red;"></span>
+                                <span v-html = "'Starts Now'"  class="text-danger"></span>
                             </div>  
                         </div>                                                       
                         <div v-if="s.experiment_session_days.length > 1">
-                            <span v-html = "'You must be able to attend all days.'" style="color:red;"></span>
+                            <span v-html = "'You must be able to attend all days.'" class="text-danger"></span>
                         </div>                                    
                     </td>
                     <td  class="text-center">
 
                             <div v-if="s.canceled">
-                                <span v-html="'*** Canceled ***'" style="color: red;"></span>
+                                <span v-html="'*** Canceled ***'"  class="text-danger"></span>
                             </div>
                             <div v-else-if="s.survey">
                                 <div class="mb-2">
@@ -85,14 +85,14 @@
                                     You are not attending.
                                 </div>
                                 <div v-if ="s.hours_until_first_start <= -0.25">
-                                    <span v-html = "'The experiment has started.'" style="color:red;"></span>
+                                    <span v-html = "'The experiment has started.'"  class="text-danger"></span>
                                 </div>
                                 <div v-else>
                                     <div v-if = "s.full">
-                                        <span v-html="'The session is already full but a spot may open later.'" style="color: red;"></span>
+                                        <span v-html="'The session is already full but a spot may open later.'"  class="text-danger"></span>
                                     </div>
                                     <div v-else-if = "s.valid === false">
-                                        <span v-html="'You are not eligible for this experiment.'" style="color: red;"></span>
+                                        <span v-html="'You are not eligible for this experiment.'"  class="text-danger"></span>
                                     </div>
                                     <div v-else>
                                         <div v-show="waiting===false">

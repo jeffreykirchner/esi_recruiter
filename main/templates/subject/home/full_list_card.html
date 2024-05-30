@@ -13,23 +13,23 @@
         <!-- invitation table -->
         <table class="table table-hover table-condensed">
             <thead>
-                <th width="30%" style="text-align: center;">
+                <th width="30%" class="text-center">
                     Date
                     
                 </th>                                                      
-                <th width="35%" style="text-align: center;">
+                <th width="35%" class="text-center">
                     Status
                 </th>
             </thead>
             <tbody>                        
                 <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
-                    <td  style="text-align: center;">                                                                
+                    <td  class="text-center">                                                                
                         <span v-html="s.date_html"></span>
                         <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
                     </td>
-                    <td  style="text-align: center;">  
-                        <div v-if="s.noShow" style="color: red;"><span v-html="'No Show'"></span></div> 
-                        <div v-else-if="s.canceled" style="color: red;"><span v-html="'Canceled'"></span></div>  
+                    <td  class="text-center">  
+                        <div v-if="s.noShow" class="text-danger"><span v-html="'No Show'"></span></div> 
+                        <div v-else-if="s.canceled" class="text-danger"><span v-html="'Canceled'"></span></div>  
                         <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
                         <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
                         <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               

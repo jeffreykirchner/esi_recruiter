@@ -40,7 +40,7 @@
                                     Clear <i class="fas fa-eraser"></i>
                                 </button>
                         </div>
-                        <div v-html="inviteResultsEmptyText" style="text-align: center;color: red;"></div>                        
+                        <div v-html="inviteResultsEmptyText" class="text-center text-danger"></div>                        
                     </div>
                     <div class = "mb-3 mb-md-0 col-md-2 text-end">
                         <button v-on:click="showEditInvitation()" class="btn btn-outline-primary" type="button">Edit <i class="fas fa-pen"></i></button>
@@ -60,10 +60,10 @@
             </div>
             <div class="modal-footer">
                 <div v-if="session.canceled">
-                    <div class = "text-center" style="color: red;">Session Canceled</div>
+                    <div class = "text-center text-danger">Session Canceled</div>
                 </div>
                 <div v-else>
-                    <span v-if="invite_to_all" style="color: red;" class="me-4">
+                    <span v-if="invite_to_all" class="me-4 text-danger">
                         Warning: This will invite subjects to all future sessions.
                     </span>
 

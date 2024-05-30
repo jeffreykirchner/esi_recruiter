@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.consent_form_default_full"><a v-bind:href="experiment.consent_form_default_full.pdf_file_url">[[experiment.consent_form_default_full.name]]</a></span>
-                <span v-else style="color: red;font-weight:bold">---</span>
+                <span v-else class="fw-bold text-danger">---</span>
             </div>               
         </div>
         
@@ -81,7 +81,7 @@
             </div>
             <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.budget_default_full"><a v-bind:href="'/userInfo/' + experiment.budget_default_full.id">[[experiment.budget_default_full.last_name]], [[experiment.budget_default_full.first_name]]</a></span>
-                <span v-else style="color: red;font-weight:bold">---</span>
+                <span v-else class="fw-bold text-danger">---</span>
             </div>               
         </div>
         <div class = "row">
@@ -90,7 +90,7 @@
             </div>
             <div class="col-md-8 text-end text-md-start">
                 <span v-if="experiment.experiment_pi_full"><a v-bind:href="'/userInfo/' + experiment.experiment_pi_full.id">[[experiment.experiment_pi_full.last_name]], [[experiment.experiment_pi_full.first_name]]</a></span>
-                <span v-else style="color: red;font-weight:bold">---</span>
+                <span v-else class="fw-bold text-danger">---</span>
             </div>               
         </div>
         <div class = "row">
@@ -177,7 +177,7 @@
             <div class="col">
                 <div class="table-responsive">
                     <table class="table table-hover table-condensed">
-                        <caption style="caption-side:top;text-align: center;">
+                        <caption class="caption-top text-center">
                             <span v-if="sessions_count<=25">
                                 Sessions ([[sessions.length]])
                             </span> 
@@ -191,7 +191,7 @@
                         <thead>
                             <th scope="col" class="text-nowrap">
                                 Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
-                                <span v-html="'<br>' + addSessionErrorText" style="color: red;font-size: 14px;font-weight: normal;"></span> 
+                                <span v-html="'<br>' + addSessionErrorText" class="text-danger fw-bold"></span> 
                             </th>
                             <th scope="col" class="text-center text-nowrap">
                                 Creator
@@ -243,7 +243,7 @@
                                         <span v-html="'Open'"></span>
                                     </div>
                                     <div v-if="s.canceled">
-                                        <span v-html="'Canceled'" style="color: red;"></span>
+                                        <span v-html="'Canceled'" class="text-danger"></span>
                                     </div>
                                 </td>
                                 <td class="text-center text-nowrap">

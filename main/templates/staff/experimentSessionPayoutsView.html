@@ -43,22 +43,16 @@
         </script>        
         
         <style>
-            .signature {
-                height: 50px;
-                background-color: white; 
-                width: 100%;
-                max-width: 200px;
-                border-style: none;
-            }
-
             [v-cloak] {
                 display: none;
             }
+
+            {%include "css/base.css"%}
         
         </style>
         
     </head>
-    <body style="font-size:16px">
+    <body class="main_body">
         <div id="app" v-cloak>
             {%include "staff/experiment_session_payouts/experiment_session_payouts.html"%}    
         </div>         
