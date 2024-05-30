@@ -18,7 +18,7 @@ class PasswordResetView(View):
     password reset view
     '''
 
-    template_name = "registration/passwordReset.html"
+    template_name = "registration/password_reset.html"
 
     def get(self, request, *args, **kwargs):
         '''
