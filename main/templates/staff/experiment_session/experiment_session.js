@@ -363,7 +363,7 @@ let app = Vue.createApp({
                 }
 
                 s += "<br><br>";
-                s += "<center><span style='color:gray;'>Total Found: " + totalValid + "<span><center>";
+                s += "<center><span class='text-secondary'>Total Found: " + totalValid + "<span><center>";
 
                 app.subjectInvitationList = s;  
                 app.inviteButtonText="Invite <i class='fa fa-users'></i>";    

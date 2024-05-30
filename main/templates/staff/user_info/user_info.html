@@ -54,7 +54,7 @@
                 <span class="float-md-end">Email Confirmed:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span style="color: red;">No</span>{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.email_confirmed == "yes"%}Yes{%else%}<span class="text-danger">No</span>{%endif%}</span>
             </div>                
         </div>
         <div class = "row">
@@ -68,7 +68,7 @@
                 <span class="float-md-end">Disabled (cannot login):</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if u.profile.disabled%}<span style="color: red;">Yes</span>{%else%}No{%endif%}</span>
+                <span class="float-end float-md-start">{%if u.profile.disabled%}<span class="text-danger">Yes</span>{%else%}No{%endif%}</span>
             </div>              
         </div>
         <div class = "row">
@@ -82,7 +82,7 @@
                 <span class="float-md-end">Active:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if u.is_active%}<span>Yes</span>{%else%}<span style="color: red;">No</span>{%endif%} 
+                <span class="float-end float-md-start">{%if u.is_active%}<span>Yes</span>{%else%}<span class="text-danger">No</span>{%endif%} 
             </div>              
         </div>
         <div class = "row">
@@ -140,7 +140,7 @@
                 <span class="float-md-end">Blackballed:</span>                            
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if u.profile.blackballed%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                <span class="float-end float-md-start">{%if u.profile.blackballed%}<span class="text-danger">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>               
         </div>      
         <div class = "row">
@@ -154,7 +154,7 @@
                 <span class="float-md-end">Paused:</span>                        
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if u.profile.paused%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%}
+                <span class="float-end float-md-start">{%if u.profile.paused%}<span class="text-danger">Yes</span>{%else%}<span>No</span>{%endif%}
             </div>             
         </div>
         <div class = "row">
@@ -168,7 +168,7 @@
                 <span class="float-md-end">No-show block:</span>                             
             </div>
             <div class = "col-md"> 
-                <span class="float-end float-md-start">{%if now_show_block%}<span style="color: red;">Yes</span>{%else%}<span>No</span>{%endif%} 
+                <span class="float-end float-md-start">{%if now_show_block%}<span class="text-danger">Yes</span>{%else%}<span>No</span>{%endif%} 
             </div>
         </div>
         <div class = "row">
@@ -206,7 +206,7 @@
         <!-- notes table -->
         <div class="table-responsive">
             <table class="table table-hover table-condensed mb-4">
-                <caption style="caption-side:top;text-align: center;">Notes</caption>
+                <caption class="text-center caption-top">Notes</caption>
 
                 <thead>
                     <th width="25%" class="text-nowrap">                            
@@ -251,7 +251,7 @@
         <!-- upcoming table -->
         <div class="table-responsive">
             <table class="table table-hover table-condensed mb-4">
-                <caption style="caption-side:top;text-align: center;">Upcoming Experiments</caption>
+                <caption class="caption-top text-center">Upcoming Experiments</caption>
 
                 <thead>
                     <th width="35%" class="text-nowrap">
@@ -295,7 +295,7 @@
         <!-- attended table -->
         <div class="table-responsive">
             <table class="table table-hover table-condensed mb-4">
-                <caption style="caption-side:top;text-align: center;">Experiments Attended</caption>
+                <caption class="caption-top text-center">Experiments Attended</caption>
 
                 <thead>
                     <th width="35%" class="text-nowrap">
@@ -339,7 +339,7 @@
         <!-- invitation table -->
         <div class="table-responsive">
             <table class="table table-hover table-condensed mb-4">
-                <caption style="caption-side:top;text-align: center;">Full Invitation List</caption>
+                <caption class="caption-top text-center">Full Invitation List</caption>
 
                 <thead>
                     <th width="35%" class="text-nowrap">
@@ -370,7 +370,7 @@
                             <div v-if="s.multiDay">(Multi-day)</div>                                    
                         </td>
                         <td  class="text-nowrap text-center">  
-                            <div v-if="s.noShow" style="color: red;">No Show</div>   
+                            <div v-if="s.noShow" class="text-danger">No Show</div>   
                             <div v-else-if="s.canceled">Canceled</div>
                             <div v-else-if="s.bumped">Bumped</div>
                             <div v-else-if="s.attended">Attended</div>
@@ -390,7 +390,7 @@
         {%if user.is_staff%}
         <div class="table-responsive">
             <table class="table table-hover table-condensed">
-                <caption style="caption-side:top;text-align: center;">Traits</caption>
+                <caption class="caption-top text-center">Traits</caption>
 
                 <thead>
                     <th width="35%" class="text-nowrap">
