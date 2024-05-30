@@ -1,0 +1,50 @@
+a{
+    text-decoration: none;                
+}
+
+.main_body{
+    font-size:16px;
+}
+
+.calendar_cell{
+    font-size: 13px;
+}
+
+.parameters_h600{
+    height: 600px;
+    overflow: auto;
+}
+
+.parameters_h300{
+    height: 300px;
+    overflow: auto;
+}
+
+.parameters_h150{
+    height: 150px;
+    overflow: auto;
+}
+
+.help_text{
+    width: 100%;
+    height: 400px;
+    overflow:scroll;
+    overflow-x: hidden;
+}
+
+.cards {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.user_note{
+    white-space: pre-line;
+}
+
+.signature {
+    height: 50px;
+    background-color: white; 
+    width: 100%;
+    max-width: 200px;
+    border-style: none;
+}
