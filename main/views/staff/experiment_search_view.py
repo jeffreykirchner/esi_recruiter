@@ -29,7 +29,7 @@ class ExperimentSearch(View):
     experiment search view
     '''
 
-    template_name = "staff/experimentSearch.html"
+    template_name = "staff/experiment_search.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)

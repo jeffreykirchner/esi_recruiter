@@ -33,7 +33,7 @@ class UserSearch(View):
     user search view
     '''
 
-    template_name = "staff/userSearch.html"
+    template_name = "staff/user_search.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)

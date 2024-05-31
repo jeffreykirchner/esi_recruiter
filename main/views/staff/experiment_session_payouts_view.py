@@ -21,7 +21,7 @@ class ExperimentSessionPayoutsView(SingleObjectMixin, View):
     Experiment session day paysheet view
     '''
 
-    template_name = "staff/experimentSessionPayoutsView.html"
+    template_name = "staff/experiment_session_payouts.html"
     model = experiment_session_days
 
     @method_decorator(login_required)

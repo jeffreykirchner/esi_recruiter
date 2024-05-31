@@ -23,7 +23,7 @@ class ExperimentSessionParametersView(SingleObjectMixin, View):
     edit experiment session recruitment parameters
     '''
 
-    template_name = "staff/experimentSessionParameters.html"
+    template_name = "staff/experiment_session_parameters.html"
     model = experiment_sessions
 
     @method_decorator(login_required)

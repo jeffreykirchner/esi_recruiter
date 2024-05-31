@@ -24,7 +24,7 @@ class ExperimentParametersView(SingleObjectMixin, View):
     Experiment default recruitment parameters setup
     '''
 
-    template_name = "staff/experimentParameters.html"
+    template_name = "staff/experiment_parameters.html"
     model = experiments
 
     @method_decorator(login_required)

@@ -24,7 +24,7 @@ class UserInfo(SingleObjectMixin, View):
     user information view
     '''
 
-    template_name = "staff/userInfo.html"
+    template_name = "staff/user_info.html"
     model = User
 
     @method_decorator(login_required)

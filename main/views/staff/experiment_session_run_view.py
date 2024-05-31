@@ -38,7 +38,7 @@ class ExperimentSessionRunView(SingleObjectMixin, View):
     Experiment Session Run View
     '''
 
-    template_name = "staff/experimentSessionRun.html"
+    template_name = "staff/experiment_session_run.html"
     model = experiment_session_days
 
     @method_decorator(login_required)

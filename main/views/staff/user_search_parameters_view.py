@@ -38,7 +38,7 @@ class UserSearchParametersView(View):
     search for users that match recruitment paramters
     '''
 
-    template_name = "staff/userSearchParameters.html"
+    template_name = "staff/user_search_parameters.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
