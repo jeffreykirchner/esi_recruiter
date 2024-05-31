@@ -14,7 +14,7 @@ class ProfileVerify(View):
     verify email address
     '''
 
-    template_name = "registration/profileVerify.html"
+    template_name = "registration/profile_verify.html"
 
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):

@@ -24,7 +24,7 @@ class ProfileCreate(View):
     create new profile
     '''
 
-    template_name = "registration/profileCreate.html"
+    template_name = "registration/profile_create.html"
 
     def get(self, request, *args, **kwargs):
         '''
