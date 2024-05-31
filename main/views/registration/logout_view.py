@@ -9,7 +9,7 @@ class LogoutView(View):
     Log out view
     '''
 
-    template_name = "registration/loggedOut.html"
+    template_name = "registration/logged_out.html"
 
     def get(self, request, *args, **kwargs):
         '''

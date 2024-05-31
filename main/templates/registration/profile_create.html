@@ -2,23 +2,26 @@
 {% load crispy_forms_tags %}
 
 {%block head%}
+<meta name="description" content="Economic Science Institute's account creation.">
+
 <script>
+
   document.addEventListener("DOMContentLoaded", function(){  
-    {%include "registration/profile/profile.js"%}
+      {%include "registration/profile_create/profile_create.js"%} 
   });
 
 </script>
 
 <style>
- 
+
 </style>
 {%endblock head%}
 
 {% block content %}
 
-<div class="row justify-content-md-center mb-4" v-cloak>
+<div class="row justify-content-lg-center">
   <div class="col col-lg-6">
-    {%include "registration/profile/profile_card.html"%}
+    {%include "registration/profile_create/profile_create_card.html"%}
   </div>
 </div>
 

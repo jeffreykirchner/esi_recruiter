@@ -15,7 +15,7 @@ class ProfileVerifyResend(View):
     resend verification email
     '''
 
-    template_name = "registration/profileVerifyResend.html"
+    template_name = "registration/profile_verify_resend.html"
 
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):

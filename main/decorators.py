@@ -34,7 +34,7 @@ def email_confirmed(function):
         else:
             #email not verified redirect to verifiction resend          
 
-            return render(request, 'registration/profileVerifyResend.html',{})
+            return render(request, 'registration/profile_verify_resend.html',{})
 
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__

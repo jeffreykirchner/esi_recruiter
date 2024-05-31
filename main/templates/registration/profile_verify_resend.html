@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{%block head%}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){                         
+    {%include "registration/profile_verify_resend/profile_verify_resend.js"%}
+  
+  });
+</script>
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+{%endblock head%}
+
+{% block content %}
+
+<div class="row justify-content-lg-center">
+  <div class="col col-lg-6">
+    {%include "registration/profile_verify_resend/profile_verify_resend_card.html"%}
+  </div>
+</div>
+
+{% endblock %}
