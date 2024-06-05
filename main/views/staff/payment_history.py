@@ -28,7 +28,7 @@ from main.models import parameters
 from main.models import help_docs
 from main.models import experiment_session_days
 from main.models import profile
-from main.models import accounts
+from main.models import Accounts
 
 from main.forms import ExpenditureReportForm
 
@@ -297,7 +297,7 @@ def get_budget_history(request, data):
     
     #paypal
     budget_list = profile.objects.filter(type=1)
-    account_list = accounts.objects.filter(archived=False)
+    account_list = Accounts.objects.filter(archived=False)
 
     if expenditure_report["budget"] != "":
         budget_list = budget_list.filter(id=expenditure_report["budget"])

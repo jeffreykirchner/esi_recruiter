@@ -9,7 +9,7 @@ import pytz
 from django import forms
 
 from main.models import locations
-from main.models import accounts
+from main.models import Accounts
 from main.models import experiment_session_days
 from main.models import parameters
 
@@ -39,7 +39,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                                 "v-bind:disabled":"session.confirmedCount > 0"}))
 
     account = forms.ModelChoiceField(label="Account",
-                                     queryset=accounts.objects.filter(archived=False),
+                                     queryset=Accounts.objects.filter(archived=False),
                                      widget=forms.Select(attrs={"v-model":"currentSessionDay.account",
                                                                 "v-on:change":"mainFormChange2"}))
 

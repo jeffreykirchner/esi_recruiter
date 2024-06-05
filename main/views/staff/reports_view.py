@@ -21,7 +21,7 @@ from main.forms import pettyCashForm
 from main.forms import studentReportForm
 from main.models import departments
 from main.models import experiment_session_days
-from main.models import accounts
+from main.models import Accounts
 from main.models import parameters 
 from main.models import experiment_session_day_users
 from main.models import help_docs
@@ -146,7 +146,7 @@ def studentReport(data):
                                                                    'user',
                                                                    'user__profile',
                                                                    'experiment_session_day__account')
-        acnts = accounts.objects.all()
+        acnts = Accounts.objects.all()
         depts = departments.objects.all().prefetch_related('accounts_set')
 
         #outside funding
@@ -312,7 +312,7 @@ def pettyCash(data):
                                                      date__lte=e_date)\
                                               .values_list('account_id',flat=True).distinct()                                            
 
-        ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)\
+        ESD_accounts = Accounts.objects.filter(id__in=ESD_accounts_ids)\
                                        .filter(outside_funding=False)
 
         logger.info(ESD_accounts) 

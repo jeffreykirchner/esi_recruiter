@@ -18,7 +18,7 @@ from datetime import timedelta
 
 from main.models import institutions,\
                                 departments,\
-                                accounts,\
+                                Accounts,\
                                 experiments,\
                                 experiment_sessions,\
                                 experiment_session_days,\

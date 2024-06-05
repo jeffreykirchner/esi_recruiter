@@ -3,7 +3,7 @@ from django.db import models
 from . import departments
 
 #billing account number
-class accounts(models.Model):
+class Accounts(models.Model):
     name = models.CharField(max_length = 300,default="")
     number = models.CharField(max_length = 100)
     department = models.ForeignKey(departments, on_delete=models.CASCADE)

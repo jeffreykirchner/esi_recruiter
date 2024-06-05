@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from main.models import schools
-from main.models import accounts
+from main.models import Accounts
 from main.models import institutions
 from main.models import experiments
 from main.models import ConsentForm
@@ -62,7 +62,7 @@ class experimentForm1(forms.ModelForm):
                                                                "v-on:change":"mainFormChange1"}))
     
     account_default = forms.ModelChoiceField(label="Account (default)",
-                                            queryset=accounts.objects.filter(archived=False),
+                                            queryset=Accounts.objects.filter(archived=False),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
                                                                        "v-on:change":"mainFormChange1"}))
 

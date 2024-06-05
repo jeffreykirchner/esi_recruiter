@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db.models import Max
 
 from main.models import schools
-from main.models import accounts
+from main.models import Accounts
 from main.models import institutions 
 from main.models import recruitment_parameters
 from main.models import parameters
@@ -30,7 +30,7 @@ class experiments(models.Model):
     '''
 
     school = models.ForeignKey(schools, on_delete=models.CASCADE)
-    account_default = models.ForeignKey(accounts, on_delete=models.CASCADE)
+    account_default = models.ForeignKey(Accounts, on_delete=models.CASCADE)
     recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
     consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True)                   #default consent form used for new sessions
     institution = models.ManyToManyField(institutions, through="experiments_institutions")                       #institutions to which this experiment belongs  

@@ -16,7 +16,7 @@ from main.decorators import user_is_staff
 from main.models import experiments
 from main.models import experiment_session_days
 from main.models import schools
-from main.models import accounts
+from main.models import Accounts
 from main.models import recruitment_parameters
 from main.models import parameters
 from main.models import genders
@@ -106,7 +106,7 @@ def createExperimentBlank():
 
     e = experiments()
     e.school = schools.objects.first()
-    e.account_default = accounts.objects.first()
+    e.account_default = Accounts.objects.first()
     e.recruitment_params_default = rp
     e.showUpFee = p.defaultShowUpFee
     e.invitationText = invitationText

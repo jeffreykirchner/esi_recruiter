@@ -65,7 +65,7 @@ class ExperimentSessionDayInline(admin.TabularInline):
       show_change_link = True
       fields=('date','length', 'complete')
 
-@admin.register(accounts)
+@admin.register(Accounts)
 class AccountsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'number']
     list_display = [ 'number', 'name', 'department', 'archived', 'outside_funding']
@@ -80,7 +80,7 @@ class AccountsInline(admin.TabularInline):
         return False
 
     extra = 0  
-    model = accounts
+    model = Accounts
     can_delete = True   
     show_change_link = True
     readonly_fields = ['number', 'name', 'archived', 'outside_funding']

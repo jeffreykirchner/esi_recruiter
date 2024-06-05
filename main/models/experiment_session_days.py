@@ -23,7 +23,7 @@ import main
 
 from main.models import experiment_sessions
 from main.models import locations
-from main.models import accounts
+from main.models import Accounts
 from main.models import parameters
 from main.globals import send_mass_email_service
 
@@ -34,7 +34,7 @@ class experiment_session_days(models.Model):
     '''
     experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='ESD')
     location = models.ForeignKey(locations, on_delete=models.CASCADE)
-    account = models.ForeignKey(accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
+    account = models.ForeignKey(Accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
 
     date = models.DateTimeField(default=now)                            #date and time of session
     length = models.IntegerField(default=60)                            #length of session in minutes
