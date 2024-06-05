@@ -39,7 +39,7 @@ class PaymentHistory(View):
     show history of payments overs specified time range
     '''
 
-    template_name = "staff/paymentHistory.html"
+    template_name = "staff/payment_history.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)

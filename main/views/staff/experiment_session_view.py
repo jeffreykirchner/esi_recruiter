@@ -52,7 +52,7 @@ class ExperimentSessionView(SingleObjectMixin, View):
     experiment session view
     '''
 
-    template_name = "staff/experimentSession.html"
+    template_name = "staff/experiment_session.html"
     model = experiment_sessions
 
     @method_decorator(login_required)

@@ -21,7 +21,7 @@ class SessionsOpen(View):
     Open sessions view
     '''
 
-    template_name = "staff/sessionsOpen.html"
+    template_name = "staff/sessions_open.html"
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
