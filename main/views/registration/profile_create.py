@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 
-from main.models import account_types
+from main.models import AccountTypes
 from main.models import profile
 from main.models import help_docs
 
@@ -107,7 +107,7 @@ def createUser(request, data):
                                 f.cleaned_data['subject_type'],
                                 f.cleaned_data['studentWorker'],
                                 True,
-                                account_types.objects.get(id=2))
+                                AccountTypes.objects.get(id=2))
 
         profile_create_send_email(u)
 

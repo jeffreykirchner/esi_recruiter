@@ -3,7 +3,7 @@ from .parameters import parameters
 from .email_filters import email_filters
 from .schools import schools
 from .genders import genders
-from .account_types import account_types
+from .account_types import AccountTypes
 from .majors import majors
 from .subject_types import subject_types
 from .institutions import institutions
