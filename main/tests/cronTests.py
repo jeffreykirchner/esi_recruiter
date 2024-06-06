@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,AccountTypes,majors,\
-                        parameters,Accounts,Departments,locations,institutions,schools,email_filters,\
+                        parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
                         experiment_session_day_users,experiment_session_days
 
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -68,7 +68,7 @@ class cronTests(TestCase):
         i3.save()
 
         s=schools.objects.first()
-        s.email_filter.set(email_filters.objects.all())
+        s.email_filter.set(EmailFilters.objects.all())
 
          #staff user
         user_name = "s1@chapman.edu"

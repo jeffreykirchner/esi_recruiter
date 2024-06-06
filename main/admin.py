@@ -96,7 +96,7 @@ admin.site.register(genders)
 admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)
-admin.site.register(email_filters)
+admin.site.register(EmailFilters)
 admin.site.register(subject_types)
 admin.site.register(IrbStudy)
 

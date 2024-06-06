@@ -21,8 +21,7 @@ from main.models import schools
 from main.models import majors
 from main.models import genders
 from main.models import subject_types
-
-from . import email_filters
+from main.models import EmailFilters
 
 import main
 
@@ -38,7 +37,7 @@ class profile(models.Model):
     major = models.ForeignKey(majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
     subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
-    email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
+    email_filter = models.ForeignKey(EmailFilters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
     
     studentID = models.CharField(verbose_name="ID Number", max_length=100, default="00000000", null=True, blank=True) #student ID number
     email_confirmed =  models.CharField(verbose_name="Email Confirmed", max_length = 100, default="no")               #yes/code/no
@@ -105,7 +104,7 @@ class profile(models.Model):
         #logger.info(email_split)
 
         #domain__regex = r'.+@' + email_regx
-        ef = email_filters.objects.filter(domain = email_split[1]).first()
+        ef = EmailFilters.objects.filter(domain = email_split[1]).first()
 
         if ef:
             self.email_filter = ef

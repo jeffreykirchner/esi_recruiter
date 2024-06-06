@@ -1,7 +1,7 @@
 from django.db import models
 
 #email domain a user must have for recruitment ie @ abc.edu
-class email_filters(models.Model):
+class EmailFilters(models.Model):
     name = models.CharField(max_length=300, verbose_name="Name")
     domain = models.CharField(max_length=300, verbose_name="Domain, ex: abc.edu")
 

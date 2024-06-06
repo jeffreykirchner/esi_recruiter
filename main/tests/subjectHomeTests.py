@@ -22,7 +22,7 @@ from main.models import Departments
 from main.models import locations
 from main.models import institutions
 from main.models import schools
-from main.models import email_filters
+from main.models import EmailFilters
 from main.models import ConsentForm         
 from main.models import ProfileConsentForm           
 from main.models import UmbrellaConsentForm
@@ -87,7 +87,7 @@ class subjectHomeTestCase(TestCase):
         i3.save()
 
         s=schools.objects.first()
-        s.email_filter.set(email_filters.objects.all())
+        s.email_filter.set(EmailFilters.objects.all())
 
          #staff user
         user_name = "s1@chapman.edu"

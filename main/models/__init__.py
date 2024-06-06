@@ -1,6 +1,6 @@
 # from .models import *
 from .parameters import parameters
-from .email_filters import email_filters
+from .email_filters import EmailFilters
 from .schools import schools
 from .genders import genders
 from .account_types import AccountTypes
