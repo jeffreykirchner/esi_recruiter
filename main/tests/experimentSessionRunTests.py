@@ -14,7 +14,7 @@ from main.models import AccountTypes
 from main.models import majors
 from main.models import parameters
 from main.models import Accounts
-from main.models import departments
+from main.models import Departments
 from main.models import locations
 from main.models import institutions 
 from main.models import schools 
@@ -60,7 +60,7 @@ class sessionRunTestCase(TestCase):
         self.p = parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         self.account1 = Accounts(name="a",number="1.0",department=d)

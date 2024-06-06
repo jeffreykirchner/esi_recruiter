@@ -8,7 +8,7 @@ from .majors import majors
 from .subject_types import subject_types
 from .institutions import institutions
 from .locations import locations
-from .departments import departments
+from .departments import Departments
 from .accounts import Accounts
 from .irb_study import IrbStudy
 from .consent_form import ConsentForm

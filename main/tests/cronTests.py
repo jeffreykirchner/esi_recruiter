@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,AccountTypes,majors,\
-                        parameters,Accounts,departments,locations,institutions,schools,email_filters,\
+                        parameters,Accounts,Departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users,experiment_session_days
 
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -49,7 +49,7 @@ class cronTests(TestCase):
         self.p = parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         self.account1 = Accounts(name="a",number="1.0",department=d)

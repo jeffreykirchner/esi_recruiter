@@ -86,7 +86,7 @@ class AccountsInline(admin.TabularInline):
     readonly_fields = ['number', 'name', 'archived', 'outside_funding']
     fields = ['number', 'name', 'archived', 'outside_funding']
 
-@admin.register(departments)
+@admin.register(Departments)
 class AccountsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'charge_account']
     list_display = [ 'name', 'charge_account', 'petty_cash']

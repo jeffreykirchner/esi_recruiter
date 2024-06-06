@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelChoiceField
 
 from main.models import profile
-from main.models import departments
+from main.models import Departments
 
 class UserModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
@@ -14,7 +14,7 @@ class ExpenditureReportForm(forms.Form):
     department = forms.ModelChoiceField(label="Department",
                                            required=False,
                                            empty_label="All Departments",
-                                           queryset=departments.objects.all(),
+                                           queryset=Departments.objects.all(),
                                            widget=forms.Select(attrs={"v-model":"expenditure_report.department"}))
 
     budget = UserModelChoiceField(label="Budget",

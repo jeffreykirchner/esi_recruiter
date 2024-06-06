@@ -17,7 +17,7 @@ from django.utils.crypto import get_random_string
 from datetime import timedelta
 
 from main.models import institutions,\
-                                departments,\
+                                Departments,\
                                 Accounts,\
                                 experiments,\
                                 experiment_sessions,\

@@ -19,7 +19,7 @@ from main.decorators import user_is_staff
 
 from main.forms import pettyCashForm
 from main.forms import studentReportForm
-from main.models import departments
+from main.models import Departments
 from main.models import experiment_session_days
 from main.models import Accounts
 from main.models import parameters 
@@ -147,7 +147,7 @@ def studentReport(data):
                                                                    'user__profile',
                                                                    'experiment_session_day__account')
         acnts = Accounts.objects.all()
-        depts = departments.objects.all().prefetch_related('accounts_set')
+        depts = Departments.objects.all().prefetch_related('accounts_set')
 
         #outside funding
         if studentReport_outside_funding == "1":

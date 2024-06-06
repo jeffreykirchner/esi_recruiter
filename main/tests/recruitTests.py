@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,AccountTypes,majors,\
-                        parameters,Accounts,departments,locations,institutions,schools,email_filters,\
+                        parameters,Accounts,Departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
@@ -36,7 +36,7 @@ class GenderTestCase(TestCase):
         self.p = parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         self.account1 = Accounts(name="a",number="1.0",department=d)
@@ -135,7 +135,7 @@ class subjectTypeTestCase(TestCase):
         p = parameters()
         p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         a = Accounts(name="a",number="1.0",department=d)
@@ -238,7 +238,7 @@ class recruitTestCase(TestCase):
         self.p = parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         self.account1 = Accounts(name="a",number="1.0",department=d)
@@ -2297,7 +2297,7 @@ class traitConstraintTestCase(TestCase):
         p = parameters()
         p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         a = Accounts(name="a",number="1.0",department=d)
@@ -2694,7 +2694,7 @@ class schoolTestCase(TestCase):
         p = parameters()
         p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
         a = Accounts(name="a",number="1.0",department=d)

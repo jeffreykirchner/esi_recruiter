@@ -1,7 +1,7 @@
 from django.db import models
 
 #ESI,ASBE, etc
-class departments(models.Model):
+class Departments(models.Model):
     name = models.CharField(max_length=300)
     charge_account = models.CharField(max_length=100)
     petty_cash = models.IntegerField()
