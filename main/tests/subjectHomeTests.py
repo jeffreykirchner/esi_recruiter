@@ -14,10 +14,10 @@ from django.test import Client
 
 from main.models import genders
 from main.models import subject_types
-from main.models import account_types
+from main.models import AccountTypes
 from main.models import majors
 from main.models import parameters
-from main.models import accounts
+from main.models import Accounts
 from main.models import departments
 from main.models import locations
 from main.models import institutions
@@ -71,7 +71,7 @@ class subjectHomeTestCase(TestCase):
         d = departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
-        self.account1 = accounts(name="a",number="1.0",department=d)
+        self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
         self.l1=locations(name="room1",address="room1")
@@ -94,7 +94,7 @@ class subjectHomeTestCase(TestCase):
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
+                          temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
         
@@ -103,7 +103,7 @@ class subjectHomeTestCase(TestCase):
 
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
 
@@ -454,7 +454,7 @@ class subjectHomeTestCase(TestCase):
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
 
@@ -505,7 +505,7 @@ class subjectHomeTestCase(TestCase):
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
 

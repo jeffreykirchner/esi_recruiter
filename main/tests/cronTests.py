@@ -4,8 +4,8 @@ import unittest
 from django.contrib.auth.models import User
 
 from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,account_types,majors,\
-                        parameters,accounts,departments,locations,institutions,schools,email_filters,\
+from main.models import genders,experiments,subject_types,AccountTypes,majors,\
+                        parameters,Accounts,departments,locations,institutions,schools,email_filters,\
                         experiment_session_day_users,experiment_session_days
 
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -52,7 +52,7 @@ class cronTests(TestCase):
         d = departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
-        self.account1 = accounts(name="a",number="1.0",department=d)
+        self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
         self.l1=locations(name="room1",address="room1")
@@ -75,7 +75,7 @@ class cronTests(TestCase):
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
+                          temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
         
@@ -85,7 +85,7 @@ class cronTests(TestCase):
         #subject 1
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","00123456",\
                           genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
 
@@ -100,7 +100,7 @@ class cronTests(TestCase):
         #subject 2
         self.u2 = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","001234",\
                     genders.objects.first(),"7145551234",majors.objects.first(),\
-                    subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                    subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
 
