@@ -1,4 +1,6 @@
 
+import pytz
+
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.contrib.auth.models import User
@@ -6,6 +8,7 @@ from django.db import models
 
 from main.models import experiment_sessions
 from main.models import recruitment_parameters
+from main.models import parameters
 
 from main.globals import send_mass_email_service
 
@@ -67,6 +70,12 @@ class ExperimentSessionInvitations(models.Model):
 
         return mail_result
     
+    def getDateString(self):
+        p = parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+      
+        return  self.timestamp.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") 
+
     def get_message_text_filled(self, u):
         '''
         return message text filled with variables from u (User)
@@ -96,6 +105,7 @@ class ExperimentSessionInvitations(models.Model):
             "messageText":self.messageText,
             "users":[u.profile.json_min() for u in self.users.all()],
             "date_raw":self.timestamp,
+            "date_string":self.getDateString(),
             "mailResultSentCount":self.mailResultSentCount,
             "mailResultErrorText":self.mailResultErrorText,
             "recruitment_params":self.recruitment_params.json_displayString(),
