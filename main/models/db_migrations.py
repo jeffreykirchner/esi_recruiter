@@ -21,7 +21,7 @@ from main.models import institutions,\
                                 Accounts,\
                                 experiments,\
                                 experiment_sessions,\
-                                experiment_session_days,\
+                                ExperimentSessionDays,\
                                 locations,\
                                 ExperimentSessionDayUsers,\
                                 experiments_institutions, \
@@ -213,7 +213,7 @@ def migrate_experiments():
                       ''')
 
         # experiment_session_users.objects.all().delete()  
-        # experiment_session_days.objects.all().delete()
+        # ExperimentSessionDays.objects.all().delete()
         # experiment_sessions.objects.all().delete()        
 
 
@@ -683,7 +683,7 @@ def migrate_sessions():
                                         FROM experiments 
                                         WHERE experiment_id=id)''')
 
-        objs = (experiment_session_days(experiment_session_id = c[0],
+        objs = (ExperimentSessionDays(experiment_session_id = c[0],
                                         location_id = c[2],
                                         date = make_aware(c[3],pytz.timezone("america/los_angeles")),
                                         length = c[4],
@@ -700,7 +700,7 @@ def migrate_sessions():
                 if not batch:
                         break
 
-                experiment_session_days.objects.bulk_create(batch, batch_size)
+                ExperimentSessionDays.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
@@ -731,7 +731,7 @@ def migrate_sessions():
                                         WHERE experiment_id=id) AND
                         additional_day != "0000-00-00 00:00:00"''')
 
-        objs = (experiment_session_days(experiment_session_id=c[0],
+        objs = (ExperimentSessionDays(experiment_session_id=c[0],
                                         location_id=c[2],
                                         date=make_aware(c[8],pytz.timezone("america/los_angeles")),
                                         length=c[4],        
@@ -748,12 +748,12 @@ def migrate_sessions():
                 if not batch:
                         break
 
-                experiment_session_days.objects.bulk_create(batch, batch_size)
+                ExperimentSessionDays.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)        
 
                 
-        # experiment_session_days.objects.all().delete()
+        # ExperimentSessionDays.objects.all().delete()
 
 
         # for c in cursor.fetchall():               
@@ -772,7 +772,7 @@ def migrate_sessions():
                 
         #         e.account_default_id=account_number
 
-        #         session_day=experiment_session_days(experiment_session_id=id,
+        #         session_day=ExperimentSessionDays(experiment_session_id=id,
         #                                                 location_id=location_id,
         #                                                 registration_cutoff=e.registration_cutoff_default,
         #                                                 actual_participants=e.actual_participants_default,
@@ -785,7 +785,7 @@ def migrate_sessions():
         #         session_day.save()
 
         #         if not additional_day is None:
-        #                 session_day2=experiment_session_days(experiment_session_id=id,
+        #                 session_day2=ExperimentSessionDays(experiment_session_id=id,
         #                                                         location_id=location_id,
         #                                                         registration_cutoff=e.registration_cutoff_default,
         #                                                         actual_participants=e.actual_participants_default,
@@ -970,22 +970,22 @@ def migrate_session_users3():
                           UPDATE main_experiment_session_day_users		    		                
                                 SET experiment_session_day_id = 
                                         (SELECT id 
-                                                FROM main_experiment_session_days                                                        
+                                                FROM main_ExperimentSessionDays                                                        
                                                 WHERE experiment_session_legacy_id = experiment_session_id        
                                                 ORDER BY date
                                                 LIMIT 1)                                
                         ''')
         cursorMSU31.close()
-        #experiment_session_users_day.objects.all().update(experiment_session_day= F('experiment_session_user.experiment_session.experiment_session_days_set.first()'))
+        #experiment_session_users_day.objects.all().update(experiment_session_day= F('experiment_session_user.experiment_session.ExperimentSessionDays_set.first()'))
 
         # for sud in experiment_session_users_day.objects.all():                
-        #         sud.experiment_session_day=sud.experiment_session_user.experiment_session.experiment_session_days_set.order_by('date').all()[0]
+        #         sud.experiment_session_day=sud.experiment_session_user.experiment_session.ExperimentSessionDays_set.order_by('date').all()[0]
 
         #         if sud.multi_day_legacy:
         #                 sudNew=deepcopy(sud)
         #                 sudNew.id=None
         #                 sudNew.multi_day_legacy=False
-        #                 sud.experiment_session_day=sud.experiment_session_user.experiment_session.experiment_session_days_set.order_by('date').all()[1]
+        #                 sud.experiment_session_day=sud.experiment_session_user.experiment_session.ExperimentSessionDays_set.order_by('date').all()[1]
         #                 sudNew.save()
 
         #         sud.save()

@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from main.decorators import user_is_staff
 
 from main.models import experiments
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import experiment_sessions
 from main.models import parameters
 from main.models import help_docs
@@ -209,7 +209,7 @@ def addSessionBlank(e):
     es.save()    
 
     #create experiment session day, attach to session
-    esd=experiment_session_days()
+    esd=ExperimentSessionDays()
     esd.setup(es,[])
     esd.save()
 

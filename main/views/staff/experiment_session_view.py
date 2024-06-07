@@ -24,7 +24,7 @@ from django.http import HttpResponse
 
 from main.decorators import user_is_staff
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import ExperimentSessionDayUsers
 from main.models import experiment_sessions
 from main.models import parameters
@@ -757,7 +757,7 @@ def addSessionDay(data,id):
 
         #add specified number of session days
         for i in range(count):
-            esd = experiment_session_days()
+            esd = ExperimentSessionDays()
             
             u_list = es.ESD.first().getListOfUserIDs()
 
@@ -817,7 +817,7 @@ def updateSessionDay(data,id):
     status = "success"
 
     es = experiment_sessions.objects.get(id=id)
-    esd = experiment_session_days.objects.get(id = data["id"])           
+    esd = ExperimentSessionDays.objects.get(id = data["id"])           
 
     form_data_dict = data["formData"]           
 
@@ -838,7 +838,7 @@ def updateSessionDay(data,id):
 
     if form.is_valid():       
         esd.save()
-        esd = experiment_session_days.objects.get(id = data["id"])
+        esd = ExperimentSessionDays.objects.get(id = data["id"])
 
         #anytime experiment
         if not esd.enable_time:

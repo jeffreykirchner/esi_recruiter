@@ -23,7 +23,7 @@ from main.models import profile_trait
 from main.models import profile
 from main.models import help_docs
 from main.models import ExperimentSessionDayUsers
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 
 class TraitsView(View):
     '''
@@ -44,7 +44,7 @@ class TraitsView(View):
         session_day = None
 
         if session_day_id:
-            result = experiment_session_days.objects.filter(id=session_day_id).values('id','experiment_session__experiment__title')
+            result = ExperimentSessionDays.objects.filter(id=session_day_id).values('id','experiment_session__experiment__title')
             if result:
                 session_day = result.first()
 
@@ -125,7 +125,7 @@ def getReport(data, u, session_day_id):
         session_day = None
 
         if session_day_id:
-            result = experiment_session_days.objects.filter(id=session_day_id)
+            result = ExperimentSessionDays.objects.filter(id=session_day_id)
             if result:
                 session_day = result.first()
 

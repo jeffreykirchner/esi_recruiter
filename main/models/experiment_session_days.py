@@ -28,7 +28,7 @@ from main.models import parameters
 from main.globals import send_mass_email_service
 
 #one day of a session
-class experiment_session_days(models.Model):
+class ExperimentSessionDays(models.Model):
     '''
     Experiment Session Day Model
     '''
@@ -251,7 +251,7 @@ class experiment_session_days(models.Model):
         get any room overlaps for this session day
         '''
         if self.enable_time:
-            esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+            esd = main.models.ExperimentSessionDays.objects.filter(location=self.location)\
                                                          .filter(date__lte=self.date_end)\
                                                          .filter(date_end__gte=self.date)\
                                                          .exclude(enable_time=False)\

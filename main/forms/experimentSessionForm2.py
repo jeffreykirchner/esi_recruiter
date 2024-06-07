@@ -10,7 +10,7 @@ from django import forms
 
 from main.models import locations
 from main.models import Accounts
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import parameters
 
 class experimentSessionForm2(forms.ModelForm):
@@ -68,7 +68,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                                              "v-on:change":"mainFormChange2"}))
 
     class Meta:
-        model = experiment_session_days
+        model = ExperimentSessionDays
         fields = ['location', 'date', 'length', 'account', 'auto_reminder', 'enable_time', 'reminder_time', 'custom_reminder_time']
 
     # def clean_enable_time(self):

@@ -26,7 +26,7 @@ from main.decorators import user_is_staff
 
 from main.models import parameters
 from main.models import help_docs
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import profile
 from main.models import Accounts
 
@@ -220,7 +220,7 @@ def get_paypal_history_recruiter(request, data):
     logger.info(e_date) 
 
     esd_list=[]
-    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+    esd_qs = ExperimentSessionDays.objects.filter(date__gte=s_date) \
                                                 .filter(date__lte=e_date) \
                                                 .filter(paypal_api=True) \
                                                 .filter(complete=True)
@@ -228,7 +228,7 @@ def get_paypal_history_recruiter(request, data):
     for i in esd_qs:
         i.pullPayPalResult(False)   
 
-    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+    esd_qs = ExperimentSessionDays.objects.filter(date__gte=s_date) \
                                             .filter(date__lte=e_date) \
                                             .filter(paypal_api=True) \
                                             .filter(complete=True) \
@@ -283,7 +283,7 @@ def get_budget_history(request, data):
     logger.info(e_date) 
 
     #pull current paypal history
-    esd_qs = experiment_session_days.objects.filter(date__gte=s_date) \
+    esd_qs = ExperimentSessionDays.objects.filter(date__gte=s_date) \
                                                 .filter(date__lte=e_date) \
                                                 .filter(paypal_api=True) \
                                                 .filter(complete=True)
@@ -308,7 +308,7 @@ def get_budget_history(request, data):
     for b in budget_list:        
 
         for a in account_list:
-            session_list = experiment_session_days.objects.filter(experiment_session__budget=b.user) \
+            session_list = ExperimentSessionDays.objects.filter(experiment_session__budget=b.user) \
                                                           .filter(complete=True) \
                                                           .filter(account=a) \
                                                           .filter(date__gte=s_date) \
@@ -366,7 +366,7 @@ def get_budget_history(request, data):
                 history.append(result)
     
     #no budget defined
-    session_list = experiment_session_days.objects.filter(experiment_session__budget=None) \
+    session_list = ExperimentSessionDays.objects.filter(experiment_session__budget=None) \
                                                   .filter(complete=True) \
                                                   .filter(date__gte=s_date) \
                                                   .filter(date__lte=e_date) \

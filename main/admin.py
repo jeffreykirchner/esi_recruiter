@@ -60,7 +60,7 @@ class ExperimentSessionDayInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_session_days
+      model = ExperimentSessionDays
       can_delete = False
       show_change_link = True
       fields=('date','length', 'complete')
@@ -584,7 +584,7 @@ class ExperimentSessionDayUserInline(admin.TabularInline):
       fields=('user','attended', 'bumped','show_up_fee','earnings')
 
 #Experiment session day admin
-@admin.register(experiment_session_days)
+@admin.register(ExperimentSessionDays)
 class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -707,7 +707,7 @@ class ExperimentsAdmin(admin.ModelAdmin):
 
       @admin.display(description='Last Run Date')
       def last_date_run(self, obj):
-            experiment_session_day = main.models.experiment_session_days.objects.filter(experiment_session__experiment=obj).order_by('-date').first()
+            experiment_session_day = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=obj).order_by('-date').first()
 
             return experiment_session_day.date if experiment_session_day else None
       

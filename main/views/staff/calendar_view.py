@@ -16,7 +16,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import locations
 from main.models import parameters
 from main.models import help_docs
@@ -228,7 +228,7 @@ def get_calendar_json(month, year):
     #logger.info(first_day)
     #logger.info(last_day)
 
-    s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
+    s_list = list(ExperimentSessionDays.objects.filter(date__gte = first_day,
                                                          date__lte = last_day)\
                                                  .order_by("date")\
                                                  .select_related('experiment_session','experiment_session__experiment','location','experiment_session__experiment'))

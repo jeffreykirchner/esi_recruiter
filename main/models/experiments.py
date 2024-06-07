@@ -101,7 +101,7 @@ class experiments(models.Model):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
-        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('date')
+        esd = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('date')
 
         if len(esd) == 1:
             return  esd.first().date.astimezone(tz).strftime("%-m/%#d/%Y")
@@ -113,7 +113,7 @@ class experiments(models.Model):
     
     #return any sessions that take place in the future
     def getFutureSessions(self):
-        esd_list = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).filter(date__gte=datetime.now()).values_list('experiment_session__id', flat=True)
+        esd_list = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).filter(date__gte=datetime.now()).values_list('experiment_session__id', flat=True)
         return self.ES.filter(id__in=esd_list).annotate(last_date=Max('ESD__date')).order_by('last_date')
 
     #return date of first session
@@ -121,7 +121,7 @@ class experiments(models.Model):
         p = parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
-        esd = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('date').first()
+        esd = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('date').first()
 
         if esd:
             return  esd.date.astimezone(tz).strftime("%-m/%#d/%Y")
@@ -130,11 +130,11 @@ class experiments(models.Model):
     
     #get last session day
     def getLastSessionDay(self):
-        return main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('-date').first()
+        return main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('-date').first()
 
         #get last session day
     def getLastSessionDayDate(self):
-        experiment_session_day = main.models.experiment_session_days.objects.filter(experiment_session__experiment=self).order_by('-date').first()
+        experiment_session_day = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('-date').first()
 
         return experiment_session_day.date if experiment_session_day else None
 

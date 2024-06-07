@@ -369,8 +369,8 @@ class experiment_sessions(models.Model):
         #                                         main_ExperimentSessionDayUsers.user_id as user_id
         #                         FROM main_experiments
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
         #                               main_ExperimentSessionDayUsers.attended = TRUE
         #                         '''
@@ -390,12 +390,12 @@ class experiment_sessions(models.Model):
         #                                     main_ExperimentSessionDayUsers.user_id as user_id
         #                     FROM main_experiments
         #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                     INNER JOIN main_ExperimentSessionDayUsersn.models.ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
+        #                     INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                     INNER JOIN main_ExperimentSessionDayUsersn.models.ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
         #                     WHERE main_experiment_sessions.canceled = FALSE AND
         #                           (main_ExperimentSessionDayUsers.attended = TRUE OR
         #                             (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
-        #                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
+        #                              main_ExperimentSessionDays.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
         #                     '''
 
         # if len(u_list) > 0:
@@ -426,8 +426,8 @@ class experiment_sessions(models.Model):
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
         #                               main_ExperimentSessionDayUsers.attended = TRUE AND            
         #                               main_institutions.id = main_experiments_institutions.institution_id
@@ -451,12 +451,12 @@ class experiment_sessions(models.Model):
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
         #                                (main_ExperimentSessionDayUsers.attended = TRUE OR
         #                                  (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
-        #                                 main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
+        #                                 main_ExperimentSessionDays.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
         #                                 main_institutions.id = main_experiments_institutions.institution_id)
         #     '''
 
@@ -747,7 +747,7 @@ class experiment_sessions(models.Model):
             return u_list
         
         #find overlaping session days with this session's days
-        session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
+        session_overlap = main.models.ExperimentSessionDays.objects.filter(experiment_session__canceled=False)\
                                                                     .exclude(experiment_session__id = self.id)\
                                                                     .filter(enable_time = True)\
                                                                     .filter(reduce(or_,d_query))
@@ -756,7 +756,7 @@ class experiment_sessions(models.Model):
 
         #add test session days in
         if testSession>0:
-            test_session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__id = testSession)\
+            test_session_overlap = main.models.ExperimentSessionDays.objects.filter(experiment_session__id = testSession)\
                                                                               .exclude(experiment_session__id = self.id)\
                                                                               .filter(reduce(or_,d_query))\
                                                                               .filter(enable_time = True)
@@ -942,7 +942,7 @@ class experiment_sessions(models.Model):
             return u_list
         
         #find overlaping session days with this session's days
-        session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__canceled=False)\
+        session_overlap = main.models.ExperimentSessionDays.objects.filter(experiment_session__canceled=False)\
                                                                      .exclude(experiment_session__id = self.id)\
                                                                      .filter(enable_time = True)\
                                                                      .filter(reduce(or_,d_query))
@@ -951,7 +951,7 @@ class experiment_sessions(models.Model):
 
         #add test session days in
         if testSession>0:
-            test_session_overlap = main.models.experiment_session_days.objects.filter(experiment_session__id = testSession)\
+            test_session_overlap = main.models.ExperimentSessionDays.objects.filter(experiment_session__id = testSession)\
                                                                               .exclude(experiment_session__id = self.id)\
                                                                               .filter(reduce(or_,d_query))\
                                                                               .filter(enable_time = True)

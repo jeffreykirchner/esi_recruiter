@@ -4,9 +4,20 @@ import unittest
 from django.contrib.auth.models import User
 
 from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,AccountTypes,majors,\
-                        parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
-                        ExperimentSessionDayUsers,experiment_session_days
+from main.models import genders
+from main.models import experiments
+from main.models import subject_types
+from main.models import AccountTypes
+from main.models import majors
+from main.models import parameters
+from main.models import Accounts
+from main.models import Departments
+from main.models import locations
+from main.models import institutions
+from main.models import schools
+from main.models import EmailFilters
+from main.models import ExperimentSessionDayUsers
+from main.models import ExperimentSessionDays
 
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank

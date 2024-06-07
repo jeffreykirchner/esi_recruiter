@@ -10,7 +10,7 @@ from django.db.models import Count
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import help_docs
 from main.models import parameters
 
@@ -65,7 +65,7 @@ def getOpenSessions(data):
     logger.info("Get Open Sessions")
     logger.info(data)
 
-    s_dict = experiment_session_days.objects.filter(complete = False).values('id',
+    s_dict = ExperimentSessionDays.objects.filter(complete = False).values('id',
                                                                              'date',
                                                                              'experiment_session__recruitment_params__registration_cutoff',
                                                                              'experiment_session__experiment__title',
@@ -103,6 +103,6 @@ def closeAllSessions(data):
     logger.info("Close All Sessions")
     logger.info(data)
 
-    experiment_session_days.objects.all().update(complete = True)
+    ExperimentSessionDays.objects.all().update(complete = True)
 
     return getOpenSessions(data)

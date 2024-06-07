@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 from main.models import experiments
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import schools
 from main.models import Accounts
 from main.models import recruitment_parameters
@@ -175,7 +175,7 @@ def getOpenExperiments(data):
     logger.info("Get Open Experiments")
     logger.info(data)
 
-    esd_open = experiment_session_days.objects.annotate(user_count = Count('ESDU_b'))\
+    esd_open = ExperimentSessionDays.objects.annotate(user_count = Count('ESDU_b'))\
                                       .filter(complete=False)\
                                       .values_list('experiment_session__experiment__id',flat=True)
 

@@ -8,14 +8,14 @@ from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 
 import main
 
 #user results from a session day
 class ExperimentSessionDayUsers(models.Model):        
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ESDU')    
-    experiment_session_day = models.ForeignKey(experiment_session_days, on_delete=models.CASCADE, null = True, related_name='ESDU_b')                                                                                               
+    experiment_session_day = models.ForeignKey(ExperimentSessionDays, on_delete=models.CASCADE, null = True, related_name='ESDU_b')                                                                                               
     addedByUser = models.ForeignKey(User,on_delete=models.CASCADE, null=True)              #staff user who added to session
 
     attended = models.BooleanField(default=False)                                    #true once a subject has been marked as attended

@@ -19,7 +19,7 @@ from .experiments_institutions import experiments_institutions
 from .experiment_sessions import experiment_sessions
 from .profile import profile
 from .profile_note import profile_note
-from .experiment_session_days import experiment_session_days
+from .experiment_session_days import ExperimentSessionDays
 from .experiment_session_day_users import ExperimentSessionDayUsers
 from .experiment_session_messages import experiment_session_messages
 from .experiment_session_invitations import experiment_session_invitations

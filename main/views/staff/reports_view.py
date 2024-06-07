@@ -20,7 +20,7 @@ from main.decorators import user_is_staff
 from main.forms import pettyCashForm
 from main.forms import studentReportForm
 from main.models import Departments
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import Accounts
 from main.models import parameters 
 from main.models import ExperimentSessionDayUsers
@@ -289,7 +289,7 @@ def pettyCash(data):
 
         writer = csv.writer(csv_response)   
 
-        ESD = experiment_session_days.objects.annotate(totalEarnings=Sum(Case(When(ESDU_b__attended = 1,
+        ESD = ExperimentSessionDays.objects.annotate(totalEarnings=Sum(Case(When(ESDU_b__attended = 1,
                                                                                  then = 'ESDU_b__earnings'),
                                                                                  default = Decimal("0")),
                                                                         output_field=DecimalField()))\
@@ -307,7 +307,7 @@ def pettyCash(data):
                                              .select_related('experiment_session__experiment','account')\
                                              .order_by('date')
         
-        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = dpt.accounts_set.filter(outside_funding=False),
+        ESD_accounts_ids = ExperimentSessionDays.objects.filter(account__in = dpt.accounts_set.filter(outside_funding=False),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                               .values_list('account_id',flat=True).distinct()                                            

@@ -8,7 +8,7 @@ from django.utils.html import strip_tags
 from django.template.loader import get_template
 from django.template import Context
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 from main.models import DailyEmailReport
 
 from main.globals import send_daily_report
@@ -27,7 +27,7 @@ class checkForReminderEmails():
         t_now_plus_24 = datetime.now(pytz.UTC) + timedelta(hours=24)
         t_now_plus_20 = datetime.now(pytz.UTC) + timedelta(hours=20)
 
-        esd_list = experiment_session_days.objects.filter(date__lte = t_now_plus_24,
+        esd_list = ExperimentSessionDays.objects.filter(date__lte = t_now_plus_24,
                                                           date__gte = t_now_plus_20,
                                                           reminder_email_sent = False,
                                                           experiment_session__canceled = False,
@@ -47,7 +47,7 @@ class checkForReminderEmails():
         t_now = datetime.now(pytz.UTC)
         t_minus_4 = datetime.now(pytz.UTC) - timedelta(hours=4)
 
-        esd_list2 = experiment_session_days.objects.filter(reminder_time__lte = t_now,
+        esd_list2 = ExperimentSessionDays.objects.filter(reminder_time__lte = t_now,
                                                           reminder_time__gte = t_minus_4,
                                                           reminder_email_sent = False,
                                                           experiment_session__canceled = False,
