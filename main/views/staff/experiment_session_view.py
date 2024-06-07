@@ -28,7 +28,7 @@ from main.models import ExperimentSessionDays
 from main.models import ExperimentSessionDayUsers
 from main.models import experiment_sessions
 from main.models import parameters
-from main.models import experiment_session_messages
+from main.models import ExperimentSessionMessages
 from main.models import ExperimentSessionInvitations
 from main.models import recruitment_parameters
 from main.models import help_docs
@@ -225,7 +225,7 @@ def showMessages(data, id):
 
     es = experiment_sessions.objects.get(id=id)
 
-    messageList = [i.json() for i in es.experiment_session_messages_set.all()]
+    messageList = [i.json() for i in es.experiment_session_messages.all()]
 
     return JsonResponse({"messageList" : messageList }, safe=False)
 
@@ -260,7 +260,7 @@ def sendMessage(data, id):
     #logger.info(userPkList)
 
     #store message result
-    m = experiment_session_messages()
+    m = ExperimentSessionMessages()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
@@ -270,7 +270,7 @@ def sendMessage(data, id):
     m.users.add(*userPkList)
     m.save()
 
-    message_count = es.experiment_session_messages_set.count()
+    message_count = es.experiment_session_messages.count()
 
     return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 

@@ -1531,7 +1531,7 @@ class experiment_sessions(models.Model):
             "invitationRawText" : self.invitation_text,
             "cancelationText" : self.getCancelationEmail(),
             "confirmedEmailList" : self.getConfirmedEmailList(),
-            "messageCount" : self.experiment_session_messages_set.count(),
+            "messageCount" : self.experiment_session_messages.count(),
             "invitationCount" : self.experiment_session_invitations.count(),
             "allowDelete" : self.allowDelete(),
             "allowEdit" : self.allowEdit(),

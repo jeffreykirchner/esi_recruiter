@@ -21,7 +21,7 @@ from .profile import profile
 from .profile_note import profile_note
 from .experiment_session_days import ExperimentSessionDays
 from .experiment_session_day_users import ExperimentSessionDayUsers
-from .experiment_session_messages import experiment_session_messages
+from .experiment_session_messages import ExperimentSessionMessages
 from .experiment_session_invitations import ExperimentSessionInvitations
 from .faq import faq
 from .help_docs import help_docs
