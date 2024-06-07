@@ -275,14 +275,14 @@ class profile(models.Model):
         #replace with non aware info
         s_date = s_date.replace(day=1,month=1, hour=0,minute=0,second=0,microsecond=1)
 
-        r1 = main.models.experiment_session_day_users.objects.filter(attended = True)\
+        r1 = main.models.ExperimentSessionDayUsers.objects.filter(attended = True)\
                                                              .filter(experiment_session_day__date__gte = s_date)\
                                                              .filter(user = self.user)
                                                                   
-                                            #  .annotate(totalBumps = Sum(Case(When(experiment_session_day_users__bumped = 1,
-                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
-                                            #                                  When(experiment_session_day_users__attended = 1,
-                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
+                                            #  .annotate(totalBumps = Sum(Case(When(main.models.ExperimentSessionDayUsers__bumped = 1,
+                                            #                                    then = 'main.models.ExperimentSessionDayUsers__show_up_fee'),
+                                            #                                  When(main.models.ExperimentSessionDayUsers__attended = 1,
+                                            #                                    then = 'main.models.ExperimentSessionDayUsers__show_up_fee'),
                                             #                                  default=Value(0)  )))\
                                             #  .filter(account__in = dpt.accounts_set.all(),
                                             #          date__gte=s_date,
@@ -291,7 +291,7 @@ class profile(models.Model):
                                             #          Q(totalBumps__gt = 0))\
                                             #  .select_related('experiment_session__experiment','account')\
                                             #  .order_by('date')
-        r2 = main.models.experiment_session_day_users.objects.filter(bumped = True)\
+        r2 = main.models.ExperimentSessionDayUsers.objects.filter(bumped = True)\
                                                              .filter(experiment_session_day__date__gte = s_date)\
                                                              .filter(user = self.user)
 
@@ -360,7 +360,7 @@ class profile(models.Model):
         #consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
 
         #if only bumped from consent form, require resign
-        attended_consents = main.models.experiment_session_day_users.objects.filter(
+        attended_consents = main.models.ExperimentSessionDayUsers.objects.filter(
                                                 user__profile=self, 
                                                 attended=True, 
                                                 experiment_session_day__experiment_session__consent_form__id=consent_form.id)

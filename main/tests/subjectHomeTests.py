@@ -26,7 +26,7 @@ from main.models import EmailFilters
 from main.models import ConsentForm         
 from main.models import ProfileConsentForm           
 from main.models import UmbrellaConsentForm
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 
 from main.views import profileCreateUser
 from main.views import update_profile
@@ -208,7 +208,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #test no consent form required by session
         profile_consent_form.delete()
@@ -225,7 +225,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #test no agreement required
         self.es1.consent_form=ConsentForm.objects.first()
@@ -258,7 +258,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #enable umbrella consent
         umbrella_consent = UmbrellaConsentForm.objects.first()
@@ -317,7 +317,7 @@ class subjectHomeTestCase(TestCase):
 
         #attend subject check that consent now exists
         esd1 = self.es1.ESD.first()
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
@@ -330,7 +330,7 @@ class subjectHomeTestCase(TestCase):
         #bump subject, check that consent no longer exists
         #attend subject check that consent now exists
         esd1 = self.es1.ESD.first()
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
         r = json.loads(bumpSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
         self.assertIn("success",r['status'])
 

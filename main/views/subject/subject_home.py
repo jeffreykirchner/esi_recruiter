@@ -10,7 +10,7 @@ from django.db.models import CharField, Q, F, Value as V
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 from main.models import parameters
 from main.models import help_docs
 
@@ -172,7 +172,7 @@ def acceptInvitation(data, u):
 
             #do a backup check that user has not already done this experiment, if prohibited
             if not failed:
-                esdu = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                esdu = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id).first()
                 
                 if esdu.getAlreadyAttended():
@@ -185,7 +185,7 @@ def acceptInvitation(data, u):
             #update confirmed status
             if not failed:
                 logger.info(f"Accept Success: {u} {esdu}")
-                experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=True)
             else:
@@ -240,7 +240,7 @@ def cancelAcceptInvitation(data,u):
 
             #subjects cannot cancel if they have been marked as bumped or attended
             if not failed:
-                esdu_list = experiment_session_day_users.objects\
+                esdu_list = ExperimentSessionDayUsers.objects\
                                        .filter(experiment_session_day__experiment_session__id = qs.id,
                                                user__id=u.id)\
                                        .filter(Q(attended=True) | Q(bumped=True))
@@ -253,7 +253,7 @@ def cancelAcceptInvitation(data,u):
                   
             if not failed:
                 logger.info("Cancel Not Failed")
-                experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = qs.id,
+                ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = qs.id,
                                                 user__id=u.id)\
                                         .update(confirmed=False)
             else:

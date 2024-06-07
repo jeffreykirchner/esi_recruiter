@@ -450,7 +450,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
       #       d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
 
-      #       qs = experiment_session_day_users.objects.filter(Q(attended = True) | Q(bumped = True))\
+      #       qs = ExperimentSessionDayUsers.objects.filter(Q(attended = True) | Q(bumped = True))\
       #                                        .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
       #                                        .values_list("user__id",flat=True)
 
@@ -552,7 +552,7 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
       ordering = ['-date']
 
 #Experiment session day admin
-@admin.register(experiment_session_day_users)
+@admin.register(ExperimentSessionDayUsers)
 class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -578,7 +578,7 @@ class ExperimentSessionDayUserInline(admin.TabularInline):
         return qs.filter(confirmed=True)
 
       extra = 0  
-      model = experiment_session_day_users
+      model = ExperimentSessionDayUsers
       can_delete = False
       show_change_link = True
       fields=('user','attended', 'bumped','show_up_fee','earnings')

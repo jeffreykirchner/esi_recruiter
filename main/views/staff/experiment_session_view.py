@@ -25,7 +25,7 @@ from django.http import HttpResponse
 from main.decorators import user_is_staff
 
 from main.models import experiment_session_days
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 from main.models import experiment_sessions
 from main.models import parameters
 from main.models import experiment_session_messages
@@ -387,7 +387,7 @@ def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
     esduId = data["esduId"]
     actionAll = data["actionAll"]
 
-    esdu = experiment_session_day_users.objects.get(id = esduId)                                  
+    esdu = ExperimentSessionDayUsers.objects.get(id = esduId)                                  
     
     failed = False
 
@@ -412,7 +412,7 @@ def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
 
     #update status of all days to match
     if actionAll:
-        experiment_session_day_users.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
+        ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
                                             .filter(user = esdu.user)\
                                             .update(confirmed = esdu.confirmed)
 
@@ -447,7 +447,7 @@ def getSearchForSubject(data,id):
         #logger.info(str(u['id']))
         #logger.info(str(id))
         #check that subject is not already in
-        esdu = experiment_session_day_users.objects.filter(user__id = u['id'],
+        esdu = ExperimentSessionDayUsers.objects.filter(user__id = u['id'],
                                                            experiment_session_day__experiment_session__id = id) \
                                                    .exists()
 
@@ -531,7 +531,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
             esdu_list = esdu_list + j.getNewUser(u["id"], request_user, True)
 
         if len(esdu_list) > 0:
-            main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
+            main.models.ExperimentSessionDayUsers.objects.bulk_create(esdu_list, ignore_conflicts=True)
 
         # es.addUser(u["id"], request_user, True)
         # es.save()
@@ -620,7 +620,7 @@ def inviteSubjects(data, id, request):
             status = "fail"
 
     if len(esdu_list) > 0:
-        main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
+        main.models.ExperimentSessionDayUsers.objects.bulk_create(esdu_list, ignore_conflicts=True)
             
     memo = f'Send invitations for session: {es.id}'
     subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
@@ -888,7 +888,7 @@ def removeSubject(data,id):
     userId = data['userId']
     esduId = data['esduId']    
 
-    esdu=experiment_session_day_users.objects.filter(user__id = userId,
+    esdu=ExperimentSessionDayUsers.objects.filter(user__id = userId,
                                                      experiment_session_day__experiment_session__id = id)
 
     status = "success"

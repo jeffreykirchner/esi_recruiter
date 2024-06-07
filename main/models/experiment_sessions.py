@@ -50,7 +50,7 @@ class experiment_sessions(models.Model):
     #get list of confirmed user emails
     def getConfirmedEmailList(self):
 
-        l = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id)\
+        l = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = self.id)\
                                                 .filter(confirmed = True)\
                                                 .select_related('user')\
                                                 .values('user__email','user__id','user__first_name','user__last_name')\
@@ -168,7 +168,7 @@ class experiment_sessions(models.Model):
     def allowDelete(self):
 
         #if subjects have been invited, session cannot be deleted
-        if main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id).count() > 0:
+        if main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = self.id).count() > 0:
             return False
         else:
             return True
@@ -366,18 +366,18 @@ class experiment_sessions(models.Model):
         #         --table of users and experiments they have been in or commited to be in
         #         user_experiments_past AS (SELECT main_experiments.id as experiments_id,
         #                                         main_experiment_sessions.id as experiment_sessions_id,
-        #                                         main_experiment_session_day_users.user_id as user_id
+        #                                         main_ExperimentSessionDayUsers.user_id as user_id
         #                         FROM main_experiments
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
         #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
-        #                               main_experiment_session_day_users.attended = TRUE
+        #                               main_ExperimentSessionDayUsers.attended = TRUE
         #                         '''
 
         #     if len(u_list) > 0:
         #         user_experiments_past_str +=f''' AND
-        #                             main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
+        #                             main_ExperimentSessionDayUsers.user_id IN {user_to_search_for_list_str}  
         #             '''
 
         #     user_experiments_past_str +='''),'''
@@ -387,20 +387,20 @@ class experiment_sessions(models.Model):
         #     --table of users and experiments they have been in or commited to be in
         #     user_experiments AS (SELECT main_experiments.id as experiments_id,
         #                                     main_experiment_sessions.id as experiment_sessions_id,
-        #                                     main_experiment_session_day_users.user_id as user_id
+        #                                     main_ExperimentSessionDayUsers.user_id as user_id
         #                     FROM main_experiments
         #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
         #                     INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                     INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                     INNER JOIN main_ExperimentSessionDayUsersn.models.ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
         #                     WHERE main_experiment_sessions.canceled = FALSE AND
-        #                           (main_experiment_session_day_users.attended = TRUE OR
-        #                             (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                           (main_ExperimentSessionDayUsers.attended = TRUE OR
+        #                             (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
         #                              main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
         #                     '''
 
         # if len(u_list) > 0:
         #     user_experiments_str +=f''' AND
-        #                           main_experiment_session_day_users.user_id IN {user_to_search_for_list_str}  
+        #                           main_ExperimentSessionDayUsers.user_id IN {user_to_search_for_list_str}  
         #         '''
 
         # if testExperiment > 0:
@@ -421,21 +421,21 @@ class experiment_sessions(models.Model):
         #     -- table of users and institutions they have been in past
         #     user_institutions_past AS (SELECT DISTINCT main_institutions.id as institution_id,
         #                                                --main_institutions.name AS institution_name,
-        #                                                main_experiment_session_day_users.user_id AS auth_user_id
+        #                                                main_ExperimentSessionDayUsers.user_id AS auth_user_id
         #                         FROM main_institutions
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
         #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
-        #                               main_experiment_session_day_users.attended = TRUE AND            
+        #                               main_ExperimentSessionDayUsers.attended = TRUE AND            
         #                               main_institutions.id = main_experiments_institutions.institution_id
         #     '''
 
         #     if len(u_list) > 0:
         #         user_institutions_past_str +=f''' AND       
-        #                                main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
+        #                                main_ExperimentSessionDayUsers.user_id IN {user_to_search_for_list_str} 
         #             '''
         #     user_institutions_past_str +='''),'''
 
@@ -446,23 +446,23 @@ class experiment_sessions(models.Model):
         #     -- table of users and institutions they have been in 
         #     user_institutions AS (SELECT DISTINCT main_institutions.id as institution_id,
         #                                     --main_institutions.name AS institution_name,
-        #                                     main_experiment_session_day_users.user_id AS auth_user_id
+        #                                     main_ExperimentSessionDayUsers.user_id AS auth_user_id
         #                         FROM main_institutions
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
         #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
         #                         INNER JOIN main_experiment_session_days ON main_experiment_session_days.experiment_session_id = main_experiment_sessions.id
-        #                         INNER JOIN main_experiment_session_day_users ON main_experiment_session_day_users.experiment_session_day_id = main_experiment_session_days.id
+        #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_experiment_session_days.id
         #                         WHERE main_experiment_sessions.canceled = FALSE AND
-        #                                (main_experiment_session_day_users.attended = TRUE OR
-        #                                  (main_experiment_session_day_users.confirmed = TRUE AND 
+        #                                (main_ExperimentSessionDayUsers.attended = TRUE OR
+        #                                  (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
         #                                 main_experiment_session_days.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
         #                                 main_institutions.id = main_experiments_institutions.institution_id)
         #     '''
 
         #     if len(u_list) > 0:
         #         user_institutions_str +=f''' AND       
-        #                                main_experiment_session_day_users.user_id IN {user_to_search_for_list_str} 
+        #                                main_ExperimentSessionDayUsers.user_id IN {user_to_search_for_list_str} 
         #             '''
             
         #     if testExperiment > 0:
@@ -770,7 +770,7 @@ class experiment_sessions(models.Model):
         logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
 
         #find list of users in overlapping sessions who are not eligable
-        user_overlap = main.models.experiment_session_day_users.objects.filter(experiment_session_day__in = session_overlap)\
+        user_overlap = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__in = session_overlap)\
                                                                        .filter(confirmed = True)\
                                                                        .values_list("user_id",flat=True)
 
@@ -964,7 +964,7 @@ class experiment_sessions(models.Model):
         logger.info(f'getValidUserList_date_time_overlap session: {session_overlap}')
 
         #find list of users in overlapping sessions who are not eligable
-        user_overlap = main.models.experiment_session_day_users.objects.filter(experiment_session_day__in = session_overlap)\
+        user_overlap = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__in = session_overlap)\
                                                                        .filter(confirmed = True)\
                                                                        .values_list("user_id",flat=True)
 
@@ -1114,7 +1114,7 @@ class experiment_sessions(models.Model):
         q2 = (Q(confirmed = True) & Q(experiment_session_day__date__lte = self.getFirstDate()))
         
         #list of everyone that has done this experiment.
-        user_ids = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
+        user_ids = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\
                                                                    .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                    .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                    .filter(user__in = u_list)\
@@ -1158,7 +1158,7 @@ class experiment_sessions(models.Model):
               Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)))
 
         #create dictionary with user id and institution id
-        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+        esdu = main.models.ExperimentSessionDayUsers.objects.filter(user__in = u_list)\
                                                                .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(bumped = False)\
@@ -1208,7 +1208,7 @@ class experiment_sessions(models.Model):
         logger.info("getValidUserList_check_institution_experience_include")
 
         #create dictionary with user id and institution id
-        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+        esdu = main.models.ExperimentSessionDayUsers.objects.filter(user__in = u_list)\
                                                                .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(bumped = False)\
@@ -1261,7 +1261,7 @@ class experiment_sessions(models.Model):
               Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)))
 
         #create dictionary with user id and experiment id
-        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+        esdu = main.models.ExperimentSessionDayUsers.objects.filter(user__in = u_list)\
                                                             .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                             .filter(experiment_session_day__experiment_session__canceled = False) \
                                                             .filter(bumped = False)\
@@ -1312,7 +1312,7 @@ class experiment_sessions(models.Model):
         logger.info("getValidUserList_check_experiment_experience_include")
 
         #create dictionary with user id and experiment id
-        esdu = main.models.experiment_session_day_users.objects.filter(user__in = u_list)\
+        esdu = main.models.ExperimentSessionDayUsers.objects.filter(user__in = u_list)\
                                                                .exclude(experiment_session_day__experiment_session__id = self.id)\
                                                                .filter(experiment_session_day__experiment_session__canceled = False) \
                                                                .filter(bumped = False)\
@@ -1370,7 +1370,7 @@ class experiment_sessions(models.Model):
         esd = self.ESD.order_by('date').first()
 
         if esd:
-            esdu_confirmed_count = main.models.experiment_session_day_users.objects.filter(experiment_session_day__id=esd.id,
+            esdu_confirmed_count = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__id=esd.id,
                                                                                            confirmed = True)\
                                                                                     .count()
             #logger.info(esdu_confirmed_count)
@@ -1388,7 +1388,7 @@ class experiment_sessions(models.Model):
         esd = self.ESD.order_by('date').first()
 
         if esd:
-            esdu_confirmed_count = main.models.experiment_session_day_users.objects.filter(experiment_session_day__id=esd.id,
+            esdu_confirmed_count = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__id=esd.id,
                                                                                            attended = True)\
                                                                                     .count()
             #logger.info(esdu_confirmed_count)
@@ -1440,7 +1440,7 @@ class experiment_sessions(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("json subject, session:" + str(self.id))
 
-        esdu = main.models.experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__id = self.id,
+        esdu = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__id = self.id,
                                                                        user__id = u.id)\
                                                                 .order_by('experiment_session_day__date')\
                                                                 .first()

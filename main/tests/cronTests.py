@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,AccountTypes,majors,\
                         parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
-                        experiment_session_day_users,experiment_session_days
+                        ExperimentSessionDayUsers,experiment_session_days
 
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank

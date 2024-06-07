@@ -22,7 +22,7 @@ from main.models import Traits
 from main.models import profile_trait
 from main.models import profile
 from main.models import help_docs
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 from main.models import experiment_session_days
 
 class TraitsView(View):
@@ -164,7 +164,7 @@ def getReport(data, u, session_day_id):
                                    'id') \
         
         #generate list of experiments attended by subject
-        attended_list_a = experiment_session_day_users.objects.select_related('user__profile', 
+        attended_list_a = ExperimentSessionDayUsers.objects.select_related('user__profile', 
                                                                               'experiment_session_day__experiment_session__experiment',
                                                                               'experiment_session_day__date')\
                                                               .filter(attended=True)\

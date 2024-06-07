@@ -26,7 +26,7 @@ from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
 from main.models import experiment_session_days
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 from main.models import profile
 from main.models import help_docs
 from main.models import parameters
@@ -216,7 +216,7 @@ def getStripeReaderCheckin(data, id, request_user):
 #get subjects by student id or user id
 def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
 
-    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id) \
+    esdu =  ExperimentSessionDayUsers.objects.filter(experiment_session_day__id=id) \
                                                 .select_related('user')
 
     #search by student id or user id
@@ -465,7 +465,7 @@ def backgroundSave(data, id, request_user):
 
     for p in payoutList:
         #logger.info(p)
-        esdu  = experiment_session_day_users.objects.filter(id = p['id']).first()
+        esdu  = ExperimentSessionDayUsers.objects.filter(id = p['id']).first()
 
         if esdu:
             try:
@@ -485,7 +485,7 @@ def backgroundSave(data, id, request_user):
             status = "fail"
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
     except Exception  as e:
         logger.info(e)
         status = "fail"
@@ -520,7 +520,7 @@ def savePayouts(data, id, request_user):
 
     for p in payoutList:
         #logger.info(p)
-        esdu = experiment_session_day_users.objects.filter(id=p['id']).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(id=p['id']).first()
 
         if esdu:
             try:
@@ -543,7 +543,7 @@ def savePayouts(data, id, request_user):
     json_info = ""
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
         esd = experiment_session_days.objects.get(id=id)
         json_info = esd.json_runInfo(request_user)
     except Exception  as exc:
@@ -684,7 +684,7 @@ def attendSubject(data, id, request_user):
         :param u: request user object
         :type u:django.contrib.auth.models.User
 
-        :param data: {id:experiment_session_day_users.id}
+        :param data: {id:ExperimentSessionDayUsers.id}
         :type data:dict
 
         :param id:experiment session day id
@@ -694,7 +694,7 @@ def attendSubject(data, id, request_user):
     logger.info("Attend Subject")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     logger.info(data)
 
@@ -770,7 +770,7 @@ def bumpSubject(data, id, request_user):
     '''
         Mark subject as attended in a session day
 
-        :param data: {id:experiment_session_day_users.id}
+        :param data: {id:ExperimentSessionDayUsers.id}
         :type data:dict
 
         :param id:experiment session day id
@@ -781,7 +781,7 @@ def bumpSubject(data, id, request_user):
     logger.info("Bump Subject")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     status=""
     statusMessage=""
@@ -826,7 +826,7 @@ def noShowSubject(data, id, request_user):
     logger.info("No Show")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     status = ""
 
@@ -985,7 +985,7 @@ def takeEarningsUpload2(data, id, request_user):
             message = "Error: Empty list"
 
         logger.info(f'Earnings import list: {esdu_list}')
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
     except ValueError as e:
         message = f"Failed to load earnings: Invalid ID format"
         logger.info(message)

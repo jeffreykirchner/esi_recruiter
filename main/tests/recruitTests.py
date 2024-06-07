@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import genders,experiments,subject_types,AccountTypes,majors,\
                         parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
-                        experiment_session_day_users,Traits,Recruitment_parameters_trait_constraint,profile_trait
+                        ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_session_view import changeConfirmationStatus,updateSessionDay,cancelSession
@@ -425,7 +425,7 @@ class recruitTestCase(TestCase):
 
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
 
-        e_users = experiment_session_day_users.objects.filter(experiment_session_day__experiment_session__experiment__id = e.id,
+        e_users = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment__id = e.id,
                                                               confirmed=True, 
                                                               bumped=False,
                                                               experiment_session_day__date__lte = es.getFirstDate())\
@@ -1374,7 +1374,7 @@ class recruitTestCase(TestCase):
         d_now_plus_one = self.d_now + timedelta(days=1)
 
         #unconfirm all
-        experiment_session_day_users.objects.all().update(confirmed=False, attended=False, bumped=False)
+        ExperimentSessionDayUsers.objects.all().update(confirmed=False, attended=False, bumped=False)
 
         #setup experiment 1, insitution "one"
         e=self.e1

@@ -23,7 +23,7 @@ from main.models import institutions,\
                                 experiment_sessions,\
                                 experiment_session_days,\
                                 locations,\
-                                experiment_session_day_users,\
+                                ExperimentSessionDayUsers,\
                                 experiments_institutions, \
                                 schools, \
                                 majors, \
@@ -844,7 +844,7 @@ def migrate_sessions():
 def migrate_session_users2():
         print("session user day")
 
-        experiment_session_day_users.objects.all().delete()
+        ExperimentSessionDayUsers.objects.all().delete()
 
         cursor = connections['old'].cursor()
         # cursor.execute('''SELECT CASE WHEN NOT ontime_earnings REGEXP '^[0-9]+(\.[0-9]+)?$'  
@@ -896,7 +896,7 @@ def migrate_session_users2():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                experiment_session_day_users.objects.bulk_create(batch,batch_size)
+                ExperimentSessionDayUsers.objects.bulk_create(batch,batch_size)
 
                 counter+=batch_size
                 print(counter)
@@ -955,7 +955,7 @@ def migrate_session_users4():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                experiment_session_day_users.objects.bulk_create(batch,batch_size)
+                ExperimentSessionDayUsers.objects.bulk_create(batch,batch_size)
 
                 counter+=batch_size
                 print(counter)

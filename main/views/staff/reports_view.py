@@ -23,7 +23,7 @@ from main.models import Departments
 from main.models import experiment_session_days
 from main.models import Accounts
 from main.models import parameters 
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 from main.models import help_docs
 
 class ReportsView(View):
@@ -137,7 +137,7 @@ def studentReport(data):
         writer = csv.writer(csv_response)
 
         #session day list
-        ESDU = experiment_session_day_users.objects.filter(experiment_session_day__date__gte=s_date,
+        ESDU = ExperimentSessionDayUsers.objects.filter(experiment_session_day__date__gte=s_date,
                                                            experiment_session_day__date__lte=e_date,)\
                                                    .filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
                                                            (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\

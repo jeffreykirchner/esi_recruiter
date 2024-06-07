@@ -13,7 +13,7 @@ from main.models import experiment_session_days
 import main
 
 #user results from a session day
-class experiment_session_day_users(models.Model):        
+class ExperimentSessionDayUsers(models.Model):        
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ESDU')    
     experiment_session_day = models.ForeignKey(experiment_session_days, on_delete=models.CASCADE, null = True, related_name='ESDU_b')                                                                                               
     addedByUser = models.ForeignKey(User,on_delete=models.CASCADE, null=True)              #staff user who added to session
@@ -52,7 +52,7 @@ class experiment_session_day_users(models.Model):
     # check if session user can be deleted
     def allowDelete(self):       
 
-        esdu=main.models.experiment_session_day_users.objects.filter(user__id = self.user.id,
+        esdu=main.models.ExperimentSessionDayUsers.objects.filter(user__id = self.user.id,
                                                          experiment_session_day__experiment_session__id = self.experiment_session_day.experiment_session.id)
 
         for i in esdu:
@@ -70,7 +70,7 @@ class experiment_session_day_users(models.Model):
 
         experiment_id = self.experiment_session_day.experiment_session.experiment.id
 
-        esdu_list = main.models.experiment_session_day_users.objects\
+        esdu_list = main.models.ExperimentSessionDayUsers.objects\
                                .filter(experiment_session_day__experiment_session__experiment__id=experiment_id)\
                                .filter(user__id=self.user.id)\
                                .filter(attended=True)\

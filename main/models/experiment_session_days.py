@@ -91,7 +91,7 @@ class experiment_session_days(models.Model):
     
     #return a new user to add
     def getNewUser(self, userID, staffUser, manuallyAdded):
-        esdu = main.models.experiment_session_day_users()
+        esdu = main.models.ExperimentSessionDayUsers()
 
         esdu.experiment_session_day = self
         esdu.user = User.objects.get(id=userID)
@@ -115,7 +115,7 @@ class experiment_session_days(models.Model):
 
         #add list of session users if multiday
         for u in u_list:
-            esdu = main.models.experiment_session_day_users()
+            esdu = main.models.ExperimentSessionDayUsers()
             esdu.user = u['user']
             esdu.confirmed = u['confirmed']
             esdu.experiment_session_day = self
@@ -458,7 +458,7 @@ class experiment_session_days(models.Model):
                     esdu_list.append(esdu)
             
             if len(esdu_list)>0:
-                main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])
+                main.models.ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['paypal_response'])
 
         else:
             logger.error(f'pullPayPalResult: ESD ID:{self.id}, status not found: Not Found')
