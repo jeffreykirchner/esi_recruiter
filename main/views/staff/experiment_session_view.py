@@ -29,7 +29,7 @@ from main.models import ExperimentSessionDayUsers
 from main.models import experiment_sessions
 from main.models import parameters
 from main.models import experiment_session_messages
-from main.models import experiment_session_invitations
+from main.models import ExperimentSessionInvitations
 from main.models import recruitment_parameters
 from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
@@ -282,7 +282,7 @@ def reSendInvitation(data, id):
     status = "success"
 
     try:
-        invitation = experiment_session_invitations.objects.get(id=data["id"]) 
+        invitation = ExperimentSessionInvitations.objects.get(id=data["id"]) 
         invitation.send_email_invitations(f"Re-send invitations for session: {id}")
     except ObjectDoesNotExist:
         status="fail"
@@ -362,7 +362,7 @@ def storeInvitation(id, userPkList, subjectText, messageText, memo):
     recruitment_params.setup(es.recruitment_params)
     recruitment_params.save()
 
-    m = experiment_session_invitations()
+    m = ExperimentSessionInvitations()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText

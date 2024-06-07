@@ -9,7 +9,7 @@ from main.models import recruitment_parameters
 
 from main.globals import send_mass_email_service
 
-class experiment_session_invitations(models.Model):
+class ExperimentSessionInvitations(models.Model):
     '''
     experiment session inivitation model
     '''
@@ -103,7 +103,7 @@ class experiment_session_invitations(models.Model):
 
 
 #delete recruitment parameters when deleted
-@receiver(post_delete, sender=experiment_session_invitations)
+@receiver(post_delete, sender=ExperimentSessionInvitations)
 def post_delete_recruitment_params(sender, instance, *args, **kwargs):
     if instance.recruitment_params: # just in case user is not specified
         instance.recruitment_params.delete()

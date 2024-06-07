@@ -599,7 +599,7 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       #list_display = [']
 
 #Experiment session day admin
-@admin.register(experiment_session_invitations)
+@admin.register(ExperimentSessionInvitations)
 class ExperimentSessionInvitationsAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -626,7 +626,7 @@ class ExperimentSessionInvitationsInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_session_invitations
+      model = ExperimentSessionInvitations
       can_delete = False
       show_change_link = True
       fields=('mailResultSentCount','mailResultErrorText')

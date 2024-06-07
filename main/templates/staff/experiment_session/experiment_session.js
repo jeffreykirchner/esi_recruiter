@@ -297,7 +297,7 @@ let app = Vue.createApp({
 
                 if(status != 'success')
                 {
-                    userFails = response.data.userFails;
+                    let userFails = response.data.userFails;
 
                     for (let i = 0; i < userFails.length; i++)
                     {
