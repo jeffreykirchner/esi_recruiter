@@ -11,6 +11,7 @@ from django.http import JsonResponse
 
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 
 from main.models import AccountTypes
 from main.models import profile
@@ -96,18 +97,18 @@ def createUser(request, data):
     if f.is_valid():
         
         u = profileCreateUser(f.cleaned_data['email'].strip().lower(),
-                                f.cleaned_data['email'].strip().lower(),
-                                f.cleaned_data['password1'],
-                                f.cleaned_data['first_name'].strip().capitalize(),
-                                f.cleaned_data['last_name'].strip().capitalize(),
-                                f.cleaned_data['chapman_id'].strip(),
-                                f.cleaned_data['gender'],
-                                f.cleaned_data['phone'].strip(),
-                                f.cleaned_data['major'],
-                                f.cleaned_data['subject_type'],
-                                f.cleaned_data['studentWorker'],
-                                True,
-                                AccountTypes.objects.get(id=2))
+                              f.cleaned_data['email'].strip().lower(),
+                              f.cleaned_data['password1'],
+                              f.cleaned_data['first_name'].strip().capitalize(),
+                              f.cleaned_data['last_name'].strip().capitalize(),
+                              f.cleaned_data['chapman_id'].strip(),
+                              f.cleaned_data['gender'],
+                              f.cleaned_data['phone'].strip(),
+                              f.cleaned_data['major'],
+                              f.cleaned_data['subject_type'],
+                              f.cleaned_data['studentWorker'],
+                              True,
+                              AccountTypes.objects.get(id=2))
 
         profile_create_send_email(u)
 
@@ -133,14 +134,14 @@ def profileCreateUser(username, email, password, firstName, lastName, studentID,
     u = User.objects.create_user(username=username,
                                  email=email,
                                  password=password,                                         
-                                 first_name=firstName,
-                                 last_name=lastName)
+                                 first_name=strip_tags(firstName),
+                                 last_name=strip_tags(lastName))
 
     #u.is_active = isActive   
     u.save()
 
     p = profile(user=u,
-                studentID=studentID,
+                studentID=strip_tags(studentID),
                 gender=gender,
                 type=accountType,
                 phone=phone,
