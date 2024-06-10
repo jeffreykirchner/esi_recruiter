@@ -6,7 +6,7 @@ from django.db.models.signals import post_delete
 from django.contrib.auth.models import User
 from django.db import models
 
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 from main.models import recruitment_parameters
 from main.models import parameters
 
@@ -16,7 +16,7 @@ class ExperimentSessionInvitations(models.Model):
     '''
     experiment session inivitation model
     '''
-    experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
+    experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
     recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
 
     users = models.ManyToManyField(User, related_name='experiment_session_invitation_users')

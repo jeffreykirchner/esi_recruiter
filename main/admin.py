@@ -44,7 +44,7 @@ class ExperimentSessionInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_sessions
+      model = ExperimentSessions
       can_delete = False
       show_change_link = True
       fields=('creator','consent_form')
@@ -631,7 +631,7 @@ class ExperimentSessionInvitationsInline(admin.TabularInline):
       show_change_link = True
       fields=('mailResultSentCount','mailResultErrorText')
 
-@admin.register(experiment_sessions)
+@admin.register(ExperimentSessions)
 class ExperimentSessionsAdmin(admin.ModelAdmin):
       
       def render_change_form(self, request, context, *args, **kwargs):

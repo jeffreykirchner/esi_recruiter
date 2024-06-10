@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from main.models import ConsentForm
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 
 class experimentSessionForm1(forms.ModelForm):
     '''
@@ -43,7 +43,7 @@ class experimentSessionForm1(forms.ModelForm):
                                                                          "placeholder":"Leave blank for no instructions"}))
 
     class Meta:
-        model = experiment_sessions
+        model = ExperimentSessions
         fields = ['consent_form', 'budget', 'incident_occurred', 'special_instructions']
 
     @staticmethod

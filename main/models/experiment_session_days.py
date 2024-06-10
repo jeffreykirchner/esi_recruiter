@@ -21,7 +21,7 @@ from django.db.models import Sum
 
 import main
 
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 from main.models import locations
 from main.models import Accounts
 from main.models import parameters
@@ -32,7 +32,7 @@ class ExperimentSessionDays(models.Model):
     '''
     Experiment Session Day Model
     '''
-    experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='ESD')
+    experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='ESD')
     location = models.ForeignKey(locations, on_delete=models.CASCADE)
     account = models.ForeignKey(Accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
 

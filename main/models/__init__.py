@@ -16,7 +16,7 @@ from .recruitment_parameters import recruitment_parameters
 from .experiments import experiments
 from .experiments import hrefExperiments
 from .experiments_institutions import experiments_institutions
-from .experiment_sessions import experiment_sessions
+from .experiment_sessions import ExperimentSessions
 from .profile import profile
 from .profile_note import profile_note
 from .experiment_session_days import ExperimentSessionDays

@@ -25,7 +25,7 @@ from main.models import institutions
 import main
 
 #session for an experiment (could last multiple days)
-class experiment_sessions(models.Model):
+class ExperimentSessions(models.Model):
     experiment = models.ForeignKey(experiments, on_delete=models.CASCADE, related_name='ES')  
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_d', blank=True, null=True)    #user that created the session
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True, related_name='ES_c')    #consent form used for new sessions
@@ -248,8 +248,8 @@ class experiment_sessions(models.Model):
         #     institutions_include AS (SELECT institutions_id
         #                                 FROM main_recruitment_parameters_institutions_include
         #                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_include.recruitment_parameters_id
-        #                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-        #                                 WHERE main_experiment_sessions.id = {id}),
+        #                                 INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                 WHERE main_ExperimentSessions.id = {id}),
 
         #     --table of users that have the correct institution experience
         #     institutions_include_user AS (SELECT user_institutions_past.auth_user_id as id
@@ -274,8 +274,8 @@ class experiment_sessions(models.Model):
         #         institutions_exclude AS (SELECT institutions_id
         #                                     FROM main_recruitment_parameters_institutions_exclude
         #                                     INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_institutions_exclude.recruitment_parameters_id
-        #                                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-        #                                     WHERE main_experiment_sessions.id = {id}), 
+        #                                     INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                     WHERE main_ExperimentSessions.id = {id}), 
 
         #         --table of users that should be excluded based on past history
         #         institutions_exclude_user AS (SELECT user_institutions.auth_user_id as id
@@ -301,8 +301,8 @@ class experiment_sessions(models.Model):
         #     experiments_include AS (SELECT experiments_id
         #                                 FROM main_recruitment_parameters_experiments_include
         #                                 INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_include.recruitment_parameters_id
-        #                                 INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-        #                                 WHERE main_experiment_sessions.id = {id}),
+        #                                 INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.recruitment_params_id = main_recruitment_parameters.id
+        #                                 WHERE main_ExperimentSessions.id = {id}),
             
 
         #     --table of users that have the correct experiment include experience
@@ -329,8 +329,8 @@ class experiment_sessions(models.Model):
         #     experiments_exclude AS (SELECT experiments_id
         #                             FROM main_recruitment_parameters_experiments_exclude
         #                             INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_experiments_exclude.recruitment_parameters_id
-        #                             INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-        #                             WHERE main_experiment_sessions.id = {id}),
+        #                             INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.recruitment_params_id = main_recruitment_parameters.id
+        #                             WHERE main_ExperimentSessions.id = {id}),
 
         #     --table of users that have the correct experiment exclude experience
         #     experiments_exclude_user AS(SELECT user_experiments.user_id as id
@@ -365,13 +365,13 @@ class experiment_sessions(models.Model):
         #     user_experiments_past_str= f'''
         #         --table of users and experiments they have been in or commited to be in
         #         user_experiments_past AS (SELECT main_experiments.id as experiments_id,
-        #                                         main_experiment_sessions.id as experiment_sessions_id,
+        #                                         main_ExperimentSessions.id as ExperimentSessions_id,
         #                                         main_ExperimentSessionDayUsers.user_id as user_id
         #                         FROM main_experiments
-        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
-        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                         WHERE main_ExperimentSessions.canceled = FALSE AND
         #                               main_ExperimentSessionDayUsers.attended = TRUE
         #                         '''
 
@@ -386,13 +386,13 @@ class experiment_sessions(models.Model):
         # user_experiments_str = f'''
         #     --table of users and experiments they have been in or commited to be in
         #     user_experiments AS (SELECT main_experiments.id as experiments_id,
-        #                                     main_experiment_sessions.id as experiment_sessions_id,
+        #                                     main_ExperimentSessions.id as ExperimentSessions_id,
         #                                     main_ExperimentSessionDayUsers.user_id as user_id
         #                     FROM main_experiments
-        #                     INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                     INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                     INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
+        #                     INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                     INNER JOIN main_ExperimentSessionDayUsersn.models.ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
-        #                     WHERE main_experiment_sessions.canceled = FALSE AND
+        #                     WHERE main_ExperimentSessions.canceled = FALSE AND
         #                           (main_ExperimentSessionDayUsers.attended = TRUE OR
         #                             (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
         #                              main_ExperimentSessionDays.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}'))
@@ -408,7 +408,7 @@ class experiment_sessions(models.Model):
         #                             --add test experiment and session in to check if violation occurs
         #                             UNION   
         #                             SELECT {testExperiment} as experiments_id,
-        #                                    {testSession} as experiment_sessions_id, 
+        #                                    {testSession} as ExperimentSessions_id, 
         #                                    v.user_id as user_id
 		#                             FROM (VALUES {user_to_search_for_list_values_str}) AS v(user_id)
         #                             '''
@@ -425,10 +425,10 @@ class experiment_sessions(models.Model):
         #                         FROM main_institutions
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
-        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
-        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                         WHERE main_ExperimentSessions.canceled = FALSE AND
         #                               main_ExperimentSessionDayUsers.attended = TRUE AND            
         #                               main_institutions.id = main_experiments_institutions.institution_id
         #     '''
@@ -450,10 +450,10 @@ class experiment_sessions(models.Model):
         #                         FROM main_institutions
         #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
         #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
-        #                         INNER JOIN main_experiment_sessions ON main_experiment_sessions.experiment_id = main_experiments.id
-        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_experiment_sessions.id
+        #                         INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
+        #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
-        #                         WHERE main_experiment_sessions.canceled = FALSE AND
+        #                         WHERE main_ExperimentSessions.canceled = FALSE AND
         #                                (main_ExperimentSessionDayUsers.attended = TRUE OR
         #                                  (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
         #                                 main_ExperimentSessionDays.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
@@ -483,8 +483,8 @@ class experiment_sessions(models.Model):
             subject_type_include AS (SELECT subject_types_id
                                         FROM main_recruitment_parameters_subject_type
                                         INNER JOIN main_recruitment_parameters ON main_recruitment_parameters.id = main_recruitment_parameters_subject_type.recruitment_parameters_id
-                                        INNER JOIN main_experiment_sessions ON main_experiment_sessions.recruitment_params_id = main_recruitment_parameters.id
-                                        WHERE main_experiment_sessions.id = {id})
+                                        INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.recruitment_params_id = main_recruitment_parameters.id
+                                        WHERE main_ExperimentSessions.id = {id})
 
             SELECT                 		
             
@@ -1541,7 +1541,7 @@ class experiment_sessions(models.Model):
         }
 
 #delete recruitment parameters when deleted
-@receiver(post_delete, sender=experiment_sessions)
+@receiver(post_delete, sender=ExperimentSessions)
 def post_delete_recruitment_params(sender, instance, *args, **kwargs):
     if instance.recruitment_params: # just in case user is not specified
         instance.recruitment_params.delete()

@@ -20,7 +20,7 @@ from main.models import institutions,\
                                 Departments,\
                                 Accounts,\
                                 experiments,\
-                                experiment_sessions,\
+                                ExperimentSessions,\
                                 ExperimentSessionDays,\
                                 locations,\
                                 ExperimentSessionDayUsers,\
@@ -166,7 +166,7 @@ def migrate_recruitment_parameters():
 
         print("Session recruitment parameters")
         
-        for es in experiment_sessions.objects.all():
+        for es in ExperimentSessions.objects.all():
                 p = es.experiment.recruitment_params_default
                 p.pk = None
                 p.save()
@@ -214,7 +214,7 @@ def migrate_experiments():
 
         # experiment_session_users.objects.all().delete()  
         # ExperimentSessionDays.objects.all().delete()
-        # experiment_sessions.objects.all().delete()        
+        # ExperimentSessions.objects.all().delete()        
 
 
         print("data loaded")       
@@ -614,9 +614,9 @@ def migrate_sessions():
         #                                 FROM experiments 
         #                                 WHERE experiment_id=id)''')
         
-        experiment_sessions.objects.all().delete()        
+        ExperimentSessions.objects.all().delete()        
         
-        objs = (experiment_sessions(id=c[0],
+        objs = (ExperimentSessions(id=c[0],
                                     experiment_id=c[1],                                    
                                     showUpFee_legacy = c[2],
                                     canceled = c[3]
@@ -634,7 +634,7 @@ def migrate_sessions():
                 if not batch:
                         break
 
-                experiment_sessions.objects.bulk_create(batch, batch_size)
+                ExperimentSessions.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
@@ -761,7 +761,7 @@ def migrate_sessions():
                 
         #         e=experiments.objects.get(id=experiment_id)                       
 
-        #         session=experiment_sessions(id=id,experiment_id=experiment_id)
+        #         session=ExperimentSessions(id=id,experiment_id=experiment_id)
         #         session.save()
 
         #         if not departments.objects.filter(id=department_id).exists():
@@ -838,7 +838,7 @@ def migrate_sessions():
         # for c in cursor.fetchall():
         #         id,session_id,student_id,experiment_id,confirmed,denied,attended,confirmation_hash,denial_hash,ontime_earnings,participation_earnings,is_signed_for,is_multi_session_invitation,created_on,signed_fingerprint,recruit_fingerprint,invite_expired=c                       
 
-        #         s=experiment_sessions.objects.get(id=session_id)
+        #         s=ExperimentSessions.objects.get(id=session_id)
         #         u=User.objects.get(id=student_id)
 
 def migrate_session_users2():

@@ -19,7 +19,7 @@ from main.decorators import user_is_staff
 
 from main.models import experiments
 from main.models import ExperimentSessionDays
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 from main.models import parameters
 from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
@@ -141,7 +141,7 @@ def removeSession(data, id):
     logger.info("Remove session")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=data["sid"])
+    es = ExperimentSessions.objects.get(id=data["sid"])
 
     logger.info("Recruitment Parameters ID:")
     logger.info(es.recruitment_params)
@@ -197,7 +197,7 @@ def addSessionBlank(e):
 
     e.save()
 
-    es=experiment_sessions()
+    es=ExperimentSessions()
     es.experiment=e    
     es.invitation_text = e.invitationText    
     es.consent_form = e.consent_form_default

@@ -10,7 +10,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
 
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 from main.models import parameters
 from main.models import help_docs
 
@@ -24,7 +24,7 @@ class ExperimentSessionParametersView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_session_parameters.html"
-    model = experiment_sessions
+    model = ExperimentSessions
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -79,7 +79,7 @@ def getSesssion(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"get session paramters {data}")
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
@@ -92,7 +92,7 @@ def updateRecruitmentParameters(data,id):
     logger.info("Update recruitment form")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     
     form_data_dict = data["formData"]
 

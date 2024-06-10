@@ -14,7 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import institutions
 from main.models import parameters
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 from main.models import profile
 from main.models import AccountTypes
 from main.models import schools
@@ -173,7 +173,7 @@ class profile(models.Model):
 
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
 
-        es = experiment_sessions.objects.annotate(first_date=models.Min("ESD__date"))\
+        es = ExperimentSessions.objects.annotate(first_date=models.Min("ESD__date"))\
                                         .annotate(last_date=models.Max("ESD__date"))\
                                         .filter(id__in = session_ids)\
                                         .filter(last_date__gte = startDateRange)
