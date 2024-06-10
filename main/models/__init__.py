@@ -15,7 +15,7 @@ from .consent_form import ConsentForm
 from .recruitment_parameters import recruitment_parameters
 from .experiments import experiments
 from .experiments import hrefExperiments
-from .experiments_institutions import experiments_institutions
+from .experiments_institutions import ExperimentsInstitutions
 from .experiment_sessions import ExperimentSessions
 from .profile import profile
 from .profile_note import profile_note

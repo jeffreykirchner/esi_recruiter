@@ -423,14 +423,14 @@ class ExperimentSessions(models.Model):
         #                                                --main_institutions.name AS institution_name,
         #                                                main_ExperimentSessionDayUsers.user_id AS auth_user_id
         #                         FROM main_institutions
-        #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
-        #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
+        #                         INNER JOIN main_ExperimentsInstitutions ON main_ExperimentsInstitutions.institution_id = main_institutions.id
+        #                         INNER JOIN main_experiments ON main_experiments.id = main_ExperimentsInstitutions.experiment_id
         #                         INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
         #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
         #                         WHERE main_ExperimentSessions.canceled = FALSE AND
         #                               main_ExperimentSessionDayUsers.attended = TRUE AND            
-        #                               main_institutions.id = main_experiments_institutions.institution_id
+        #                               main_institutions.id = main_ExperimentsInstitutions.institution_id
         #     '''
 
         #     if len(u_list) > 0:
@@ -448,8 +448,8 @@ class ExperimentSessions(models.Model):
         #                                     --main_institutions.name AS institution_name,
         #                                     main_ExperimentSessionDayUsers.user_id AS auth_user_id
         #                         FROM main_institutions
-        #                         INNER JOIN main_experiments_institutions ON main_experiments_institutions.institution_id = main_institutions.id
-        #                         INNER JOIN main_experiments ON main_experiments.id = main_experiments_institutions.experiment_id
+        #                         INNER JOIN main_ExperimentsInstitutions ON main_ExperimentsInstitutions.institution_id = main_institutions.id
+        #                         INNER JOIN main_experiments ON main_experiments.id = main_ExperimentsInstitutions.experiment_id
         #                         INNER JOIN main_ExperimentSessions ON main_ExperimentSessions.experiment_id = main_experiments.id
         #                         INNER JOIN main_ExperimentSessionDays ON main_ExperimentSessionDays.experiment_session_id = main_ExperimentSessions.id
         #                         INNER JOIN main_ExperimentSessionDayUsers ON main_ExperimentSessionDayUsers.experiment_session_day_id = main_ExperimentSessionDays.id
@@ -457,7 +457,7 @@ class ExperimentSessions(models.Model):
         #                                (main_ExperimentSessionDayUsers.attended = TRUE OR
         #                                  (main_ExperimentSessionDayUsers.confirmed = TRUE AND 
         #                                 main_ExperimentSessionDays.date_end BETWEEN CURRENT_TIMESTAMP AND '{self.getLastDate()}') AND            
-        #                                 main_institutions.id = main_experiments_institutions.institution_id)
+        #                                 main_institutions.id = main_ExperimentsInstitutions.institution_id)
         #     '''
 
         #     if len(u_list) > 0:

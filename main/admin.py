@@ -661,7 +661,7 @@ class ExperimentInstitutionsInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiments_institutions
+      model = ExperimentsInstitutions
       can_delete = False
       show_change_link = True
 

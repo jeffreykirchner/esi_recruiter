@@ -24,7 +24,7 @@ from main.models import institutions,\
                                 ExperimentSessionDays,\
                                 locations,\
                                 ExperimentSessionDayUsers,\
-                                experiments_institutions, \
+                                ExperimentsInstitutions, \
                                 schools, \
                                 majors, \
                                 parameters, \
@@ -255,7 +255,7 @@ def migrate_experiments():
         cursor2 = connections['old'].cursor()
 
         cursor2.execute('''SELECT *
-                          FROM experiments_institutions
+                          FROM ExperimentsInstitutions
                           WHERE EXISTS(SELECT id
                                        FROM institutions
                                        WHERE id = institution_id) AND
@@ -263,7 +263,7 @@ def migrate_experiments():
                                        FROM experiments
                                        WHERE id = experiment_id)''')
 
-        objs = (experiments_institutions(experiment_id=c[1],
+        objs = (ExperimentsInstitutions(experiment_id=c[1],
                                         institution_id=c[0],
                                         ) for c in cursor2.fetchall())
         
@@ -273,7 +273,7 @@ def migrate_experiments():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                experiments_institutions.objects.bulk_create(batch, batch_size)
+                ExperimentsInstitutions.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
@@ -547,7 +547,7 @@ def migrate_subjects2():
 
         print("email filters complete")     
 
-def migrate_experiments_institutions():     
+def migrate_ExperimentsInstitutions():     
         migrate_institutions()
 
         c1 = connections['default'].cursor()
@@ -555,7 +555,7 @@ def migrate_experiments_institutions():
 
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT *
-                          FROM experiments_institutions
+                          FROM ExperimentsInstitutions
                           WHERE EXISTS(SELECT id
                                         FROM institutions 
                                         WHERE institution_id=id) AND
