@@ -12,7 +12,7 @@ from django.test import TestCase
 from django.test import RequestFactory
 from django.test import Client
 
-from main.models import genders
+from main.models import Genders
 from main.models import subject_types
 from main.models import AccountTypes
 from main.models import majors
@@ -93,7 +93,7 @@ class subjectHomeTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
@@ -102,7 +102,7 @@ class subjectHomeTestCase(TestCase):
         self.p.save()
 
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
@@ -127,7 +127,7 @@ class subjectHomeTestCase(TestCase):
 
         self.es1 = addSessionBlank(self.e1)    
         self.es1.recruitment_params.reset_settings()
-        self.es1.recruitment_params.gender.set(genders.objects.all())
+        self.es1.recruitment_params.gender.set(Genders.objects.all())
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
@@ -151,7 +151,7 @@ class subjectHomeTestCase(TestCase):
 
         self.es2 = addSessionBlank(self.e2)    
         self.es2.recruitment_params.reset_settings()
-        self.es2.recruitment_params.gender.set(genders.objects.all())
+        self.es2.recruitment_params.gender.set(Genders.objects.all())
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
@@ -412,7 +412,7 @@ class subjectHomeTestCase(TestCase):
 
         temp_es1 = addSessionBlank(self.e1)    
         temp_es1.recruitment_params.reset_settings()
-        temp_es1.recruitment_params.gender.set(genders.objects.all())
+        temp_es1.recruitment_params.gender.set(Genders.objects.all())
         temp_es1.recruitment_params.subject_type.set(subject_types.objects.all())
         temp_es1.recruitment_params.registration_cutoff = 5
         temp_es1.recruitment_params.save()
@@ -453,7 +453,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
@@ -504,7 +504,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)

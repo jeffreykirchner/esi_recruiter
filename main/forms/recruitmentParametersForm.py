@@ -1,5 +1,5 @@
 from django import forms
-from main.models import genders,subject_types,institutions,recruitment_parameters,hrefExperiments,schools
+from main.models import Genders,subject_types,institutions,recruitment_parameters,hrefExperiments,schools
 from django.db.models.functions import Lower
 
 class recruitmentParametersForm(forms.ModelForm):   
@@ -13,7 +13,7 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                   "v-on:keyup":"recruitmentFormChange",
                                                                                   "v-on:change":"recruitmentFormChange"}))  
     gender = forms.ModelMultipleChoiceField(label="Gender(s)", 
-                                                queryset=genders.objects.all(),
+                                                queryset=Genders.objects.all(),
                                                 widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.gender",
                                                                                     "v-on:change":"recruitmentFormChange",}))   
                                                                                                                                                 

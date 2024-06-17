@@ -92,7 +92,7 @@ class AccountsAdmin(admin.ModelAdmin):
     list_display = [ 'name', 'charge_account', 'petty_cash']
     inlines = [AccountsInline]
 
-admin.site.register(genders)
+admin.site.register(Genders)
 admin.site.register(institutions)
 admin.site.register(majors)
 admin.site.register(schools)

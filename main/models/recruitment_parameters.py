@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
-from  main.models import genders
+from  main.models import Genders
 from  main.models import subject_types
 from  main.models import institutions
 from  main.models import schools
@@ -17,7 +17,7 @@ class recruitment_parameters(models.Model):
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)
     registration_cutoff = models.IntegerField(default=1)    
-    gender = models.ManyToManyField(genders)
+    gender = models.ManyToManyField(Genders)
     subject_type =  models.ManyToManyField(subject_types)      
 
     #institutions to include or exclude

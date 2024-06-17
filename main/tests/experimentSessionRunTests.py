@@ -8,7 +8,7 @@ import io
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 
-from main.models import genders
+from main.models import Genders
 from main.models import subject_types
 from main.models import AccountTypes
 from main.models import majors
@@ -85,7 +85,7 @@ class sessionRunTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name, user_name, "zxcvb1234asdf", "first", "last", "123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           temp_st, False, True, AccountTypes.objects.get(id=1))
         self.staff_u.is_staff = True
         self.staff_u.is_staff = True
@@ -96,7 +96,7 @@ class sessionRunTestCase(TestCase):
 
         #subject 1
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","00123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
@@ -111,7 +111,7 @@ class sessionRunTestCase(TestCase):
 
         #subject 2
         self.u2 = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","001234",\
-                    genders.objects.first(),"7145551234",majors.objects.first(),\
+                    Genders.objects.first(),"7145551234",majors.objects.first(),\
                     subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
@@ -126,7 +126,7 @@ class sessionRunTestCase(TestCase):
 
         #subject 3
         self.u3 = profileCreateUser("u3@chapman.edu","u3@chapman.edu","zxcvb1234asdf","first","last","00121212",\
-                    genders.objects.first(),"7145551234",majors.objects.first(),\
+                    Genders.objects.first(),"7145551234",majors.objects.first(),\
                     subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
@@ -152,7 +152,7 @@ class sessionRunTestCase(TestCase):
 
         self.es1 = addSessionBlank(self.e1)    
         self.es1.recruitment_params.reset_settings()
-        self.es1.recruitment_params.gender.set(genders.objects.all())
+        self.es1.recruitment_params.gender.set(Genders.objects.all())
         self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
@@ -185,7 +185,7 @@ class sessionRunTestCase(TestCase):
 
         self.es2 = addSessionBlank(self.e2)    
         self.es2.recruitment_params.reset_settings()
-        self.es2.recruitment_params.gender.set(genders.objects.all())
+        self.es2.recruitment_params.gender.set(Genders.objects.all())
         self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
@@ -634,7 +634,7 @@ class sessionRunTestCase(TestCase):
         #create empty session
         es1 = addSessionBlank(self.e1)    
         es1.recruitment_params.reset_settings()
-        es1.recruitment_params.gender.set(genders.objects.all())
+        es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()

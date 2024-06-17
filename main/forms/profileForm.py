@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
-from main.models import genders
+from main.models import Genders
 from main.models import majors
 from main.models import subject_types
 
@@ -33,7 +33,7 @@ class profileForm(forms.Form):
                             widget=forms.TextInput(attrs={"v-model":"profile.phone"}))
 
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
-                                     queryset=genders.objects.all(),
+                                     queryset=Genders.objects.all(),
                                      empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
     
