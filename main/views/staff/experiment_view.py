@@ -24,7 +24,7 @@ from main.models import parameters
 from main.models import HelpDocs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
-from main.models import Invitation_email_templates
+from main.models import InvitationEmailTemplates
 
 from main.forms import experimentForm1
 from main.forms import recruitmentParametersForm
@@ -61,7 +61,7 @@ class ExperimentView(SingleObjectMixin, View):
                       {'form1':experimentForm1(),
                        'traitConstraintForm':TraitConstraintForm(),       
                        'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
-                       'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
+                       'invitationEmailTemplateForm_default':InvitationEmailTemplates.objects.filter(enabled=True).first().id,           
                        'id': id,
                        'helpText':helpText})
     
@@ -338,7 +338,7 @@ def fillInvitationTextFromTemplate(data,id):
     logger.info("Fill invitation text from template")
     logger.info(data)
 
-    t = Invitation_email_templates.objects.filter(id = data["value"])
+    t = InvitationEmailTemplates.objects.filter(id = data["value"])
 
     text = ""
 

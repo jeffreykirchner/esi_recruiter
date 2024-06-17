@@ -154,7 +154,7 @@ class frontPageNoticeAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['subject_text','enabled']
 
-@admin.register(Invitation_email_templates)
+@admin.register(InvitationEmailTemplates)
 class invitationEmailTemplateAdmin(admin.ModelAdmin):
             
       form = InvitationEmailTemplateForm

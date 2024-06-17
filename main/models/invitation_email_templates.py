@@ -2,7 +2,7 @@ from tinymce.models import HTMLField
 
 from django.db import models
 
-class Invitation_email_templates(models.Model):
+class InvitationEmailTemplates(models.Model):
     '''
     experiment email invitation template
     '''

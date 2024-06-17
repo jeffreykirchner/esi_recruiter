@@ -22,7 +22,7 @@ from main.models import parameters
 from main.models import Genders
 from main.models import subject_types
 from main.models import HelpDocs
-from main.models import Invitation_email_templates    
+from main.models import InvitationEmailTemplates    
 
 class ExperimentSearch(View):
     '''
@@ -99,7 +99,7 @@ def createExperimentBlank():
     schools_list = list(schools.objects.filter(initialValue = True))
 
     #get invitation text from first template
-    t = Invitation_email_templates.objects.filter(enabled=True)
+    t = InvitationEmailTemplates.objects.filter(enabled=True)
     invitationText=""
     if t.count()>0:
         invitationText = t.first().body_text
