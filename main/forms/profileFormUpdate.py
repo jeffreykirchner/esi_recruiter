@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
-from main.models import Genders, majors, subject_types
+from main.models import Genders, Majors, subject_types
 
 class profileFormUpdate(forms.Form):
     '''
@@ -41,7 +41,7 @@ class profileFormUpdate(forms.Form):
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
     
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
-                                   queryset=majors.objects.all().order_by('name'),
+                                   queryset=Majors.objects.all().order_by('name'),
                                    empty_label=None,
                                    widget=forms.Select(attrs={"v-model":"profile.major"}))
     

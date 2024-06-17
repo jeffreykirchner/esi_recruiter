@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
-from main.models import Genders,Experiments,subject_types,AccountTypes,majors,\
+from main.models import Genders,Experiments,subject_types,AccountTypes,Majors,\
                         parameters,Accounts,Departments,locations,Institutions,schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -59,7 +59,7 @@ class GenderTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                            Genders.objects.first(),"7145551234",majors.objects.first(),\
+                            Genders.objects.first(),"7145551234",Majors.objects.first(),\
                             temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
@@ -72,7 +72,7 @@ class GenderTestCase(TestCase):
             user_name = "g"+str(g.id)+"@chapman.edu"
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.get(id=g.id),"7145551234",majors.objects.first(),\
+                          Genders.objects.get(id=g.id),"7145551234",Majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
             
             logger.info(u)
@@ -166,7 +166,7 @@ class subjectTypeTestCase(TestCase):
                 temp_st =  subject_types.objects.get(id=2)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=2))
             
             logger.info(u)
@@ -263,7 +263,7 @@ class recruitTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
@@ -279,7 +279,7 @@ class recruitTestCase(TestCase):
             temp_st =  subject_types.objects.get(id=1)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=2))
             
             logger.info(f'{u} {u.id}')
@@ -2320,7 +2320,7 @@ class traitConstraintTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
@@ -2346,7 +2346,7 @@ class traitConstraintTestCase(TestCase):
                 temp_at = AccountTypes.objects.get(id=1)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,temp_at)
             
             logger.info(u)
@@ -2729,7 +2729,7 @@ class schoolTestCase(TestCase):
                 temp_st =  subject_types.objects.get(id=2)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=2))
             
             logger.info(u)
@@ -2752,7 +2752,7 @@ class schoolTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()

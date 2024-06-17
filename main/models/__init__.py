@@ -4,7 +4,7 @@ from .email_filters import EmailFilters
 from .schools import schools
 from .genders import Genders
 from .account_types import AccountTypes
-from .majors import majors
+from .majors import Majors
 from .subject_types import subject_types
 from .institutions import Institutions
 from .locations import Locations

@@ -15,7 +15,7 @@ from django.test import Client
 from main.models import Genders
 from main.models import subject_types
 from main.models import AccountTypes
-from main.models import majors
+from main.models import Majors
 from main.models import parameters
 from main.models import Accounts
 from main.models import Departments
@@ -93,7 +93,7 @@ class subjectHomeTestCase(TestCase):
         user_name = "s1@chapman.edu"
         temp_st =  subject_types.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
@@ -102,7 +102,7 @@ class subjectHomeTestCase(TestCase):
         self.p.save()
 
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
@@ -453,7 +453,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
@@ -504,7 +504,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          Genders.objects.first(),"7145551234",majors.objects.first(),\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)

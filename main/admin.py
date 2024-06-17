@@ -94,7 +94,7 @@ class AccountsAdmin(admin.ModelAdmin):
 
 admin.site.register(Genders)
 admin.site.register(Institutions)
-admin.site.register(majors)
+admin.site.register(Majors)
 admin.site.register(schools)
 admin.site.register(EmailFilters)
 admin.site.register(subject_types)

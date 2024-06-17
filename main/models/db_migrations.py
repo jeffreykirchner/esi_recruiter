@@ -26,7 +26,7 @@ from main.models import Institutions,\
                                 ExperimentSessionDayUsers,\
                                 ExperimentsInstitutions, \
                                 schools, \
-                                majors, \
+                                Majors, \
                                 parameters, \
                                 recruitment_parameters,\
                                 email_filters,\
@@ -317,15 +317,15 @@ def migrate_Locations():
 
         cursor.close()
 
-def migrate_majors():
+def migrate_Majors():
         print("Migrate Majors")
 
-        majors.objects.all().delete()
+        Majors.objects.all().delete()
 
         cursor = connections['old'].cursor()
         cursor.execute('''select * from majors''')
        
-        objs = (majors(id=c[0],name=c[1]) for c in cursor.fetchall())
+        objs = (Majors(id=c[0],name=c[1]) for c in cursor.fetchall())
         cursor.close()
         batch_size=999
         # print(objs)
@@ -334,7 +334,7 @@ def migrate_majors():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                majors.objects.bulk_create(batch, batch_size)       
+                Majors.objects.bulk_create(batch, batch_size)       
 
 def migrate_subjects1():        
 
@@ -475,7 +475,7 @@ def migrate_subjects1():
 
 def migrate_subjects2():       
 
-        migrate_majors() 
+        migrate_Majors() 
 
         print("migrate profiles")
 

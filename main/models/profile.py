@@ -18,7 +18,7 @@ from main.models import ExperimentSessions
 from main.models import profile
 from main.models import AccountTypes
 from main.models import schools
-from main.models import majors
+from main.models import Majors
 from main.models import Genders
 from main.models import subject_types
 from main.models import EmailFilters
@@ -34,7 +34,7 @@ class profile(models.Model):
     user = models.OneToOneField(User, verbose_name="User", on_delete=models.CASCADE)
     type = models.ForeignKey(AccountTypes, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
     school = models.ForeignKey(schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
-    major = models.ForeignKey(majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
+    major = models.ForeignKey(Majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(Genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
     subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(EmailFilters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
