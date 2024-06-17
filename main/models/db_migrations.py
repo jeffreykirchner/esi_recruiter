@@ -31,7 +31,7 @@ from main.models import institutions,\
                                 recruitment_parameters,\
                                 email_filters,\
                                 profile,\
-                                faq,\
+                                FAQ,\
                                 Traits,\
                                 profile_trait
                         
@@ -1047,12 +1047,12 @@ def migrate_parameters():
 def migrate_faqs():
         print("migrate faqs")
 
-        faq.objects.all().delete()
+        FAQ.objects.all().delete()
 
         cursorFAQ = connections['old'].cursor()
         cursorFAQ.execute('''select active,question,answer,order_idx from faqs''')
 
-        objs = (faq(question=c[1],
+        objs = (FAQ(question=c[1],
                 answer=c[2],
                 active=c[0],
                 order=c[3]
@@ -1071,6 +1071,6 @@ def migrate_faqs():
                 if not batch:
                         break
 
-                faq.objects.bulk_create(batch, batch_size)
+                FAQ.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
 

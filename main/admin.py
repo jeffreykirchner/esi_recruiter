@@ -164,7 +164,7 @@ class invitationEmailTemplateAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['name','enabled']
 
-@admin.register(faq)
+@admin.register(FAQ)
 class faqAdmin(admin.ModelAdmin):
             
       form = faqForm

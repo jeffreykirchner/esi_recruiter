@@ -23,7 +23,7 @@ from .experiment_session_days import ExperimentSessionDays
 from .experiment_session_day_users import ExperimentSessionDayUsers
 from .experiment_session_messages import ExperimentSessionMessages
 from .experiment_session_invitations import ExperimentSessionInvitations
-from .faq import faq
+from .faq import FAQ
 from .help_docs import help_docs
 from .traits import Traits
 from .traits import HrefTraits

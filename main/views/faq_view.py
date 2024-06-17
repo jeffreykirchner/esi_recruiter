@@ -4,7 +4,7 @@ import logging
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from main.models import faq
+from main.models import FAQ
 from main.models import parameters
 
 from django.views import View
@@ -51,6 +51,6 @@ def getFaqs(data):
     logger = logging.getLogger(__name__) 
     logger.info(f"Get faqs: {data}")
 
-    return JsonResponse({"faq" : [i.json() for i in faq.objects.filter(active = True)]
+    return JsonResponse({"faq" : [i.json() for i in FAQ.objects.filter(active = True)]
                                  },safe=False,
                                 )
