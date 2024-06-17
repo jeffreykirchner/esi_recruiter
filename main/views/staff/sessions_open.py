@@ -11,7 +11,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.models import ExperimentSessionDays
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import parameters
 
 from main.decorators import user_is_staff
@@ -33,7 +33,7 @@ class SessionsOpen(View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

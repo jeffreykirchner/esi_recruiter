@@ -21,7 +21,7 @@ from main.models import Experiments
 from main.models import ExperimentSessionDays
 from main.models import ExperimentSessions
 from main.models import parameters
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 from main.models import Invitation_email_templates
@@ -49,7 +49,7 @@ class ExperimentView(SingleObjectMixin, View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
                                 .filter(rp__icontains=F('path')).first().text
         except Exception  as e:   
             helpText = "No help doc was found."

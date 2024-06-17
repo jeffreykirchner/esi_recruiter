@@ -24,7 +24,7 @@ from main.models import ExperimentSessionDays
 from main.models import Accounts
 from main.models import parameters 
 from main.models import ExperimentSessionDayUsers
-from main.models import help_docs
+from main.models import HelpDocs
 
 class ReportsView(View):
     '''
@@ -43,7 +43,7 @@ class ReportsView(View):
         p = parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

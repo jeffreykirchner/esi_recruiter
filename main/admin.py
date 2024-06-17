@@ -134,7 +134,7 @@ class UmbrellaConsentFormAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['display_name','active','updated','timestamp']
 
-@admin.register(help_docs)
+@admin.register(HelpDocs)
 class helpDocAdmin(admin.ModelAdmin):
             
       form = helpDocForm

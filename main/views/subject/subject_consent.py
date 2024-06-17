@@ -12,7 +12,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.models import parameters
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import ConsentForm
 from main.models import ProfileConsentForm
 from main.models import ExperimentSessions
@@ -49,7 +49,7 @@ class SubjectConsent(View):
         labManager = p.labManager
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

@@ -31,7 +31,7 @@ from main.models import parameters
 from main.models import ExperimentSessionMessages
 from main.models import ExperimentSessionInvitations
 from main.models import recruitment_parameters
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
 from main.models import ConsentForm
@@ -67,7 +67,7 @@ class ExperimentSessionView(SingleObjectMixin, View):
         p = parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

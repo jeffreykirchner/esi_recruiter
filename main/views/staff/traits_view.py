@@ -21,7 +21,7 @@ from main.decorators import user_is_staff
 from main.models import Traits
 from main.models import profile_trait
 from main.models import profile
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import ExperimentSessionDayUsers
 from main.models import ExperimentSessionDays
 
@@ -52,7 +52,7 @@ class TraitsView(View):
 
         try:
             logger.info(request.path)
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
                                 .filter(rp__icontains = F('path')).first().text
         except Exception  as e:   
             logger.info(f'{e}')

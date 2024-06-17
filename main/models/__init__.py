@@ -24,7 +24,7 @@ from .experiment_session_day_users import ExperimentSessionDayUsers
 from .experiment_session_messages import ExperimentSessionMessages
 from .experiment_session_invitations import ExperimentSessionInvitations
 from .faq import FAQ
-from .help_docs import help_docs
+from .help_docs import HelpDocs
 from .traits import Traits
 from .traits import HrefTraits
 from .profile_trait import profile_trait

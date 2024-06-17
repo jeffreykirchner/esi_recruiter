@@ -21,7 +21,7 @@ from django.conf import settings
 from main.decorators import user_is_staff
 
 from main.models import parameters
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import profile
 
 from main.globals import send_mass_email_service
@@ -45,7 +45,7 @@ class UserSearch(View):
         logger = logging.getLogger(__name__)
         
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

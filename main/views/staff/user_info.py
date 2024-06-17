@@ -13,7 +13,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.db.models import CharField, F, Value as V
 
 from main.models import profile_note
-from main.models import help_docs
+from main.models import HelpDocs
 
 from main.globals import get_now_show_blocks
 
@@ -37,7 +37,7 @@ class UserInfo(SingleObjectMixin, View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp=V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp=V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains=F('path')).first().text
 
         except Exception  as e:   

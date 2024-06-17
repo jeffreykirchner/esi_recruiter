@@ -28,7 +28,7 @@ from main.decorators import user_is_staff
 from main.models import ExperimentSessionDays
 from main.models import ExperimentSessionDayUsers
 from main.models import profile
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import parameters
 
 from main.views.staff.experiment_session_view import getManuallyAddSubject, changeConfirmationStatus
@@ -54,7 +54,7 @@ class ExperimentSessionRunView(SingleObjectMixin, View):
         id_ = esd.id
 
         try:
-            help_text = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+            help_text = HelpDocs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
                                         .filter(rp__icontains=F('path')).first().text
 
         except Exception  as exc:

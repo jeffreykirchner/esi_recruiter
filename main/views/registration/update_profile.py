@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django.utils.html import strip_tags
 
-from main.models import help_docs
+from main.models import HelpDocs
 from main.forms import profileFormUpdate
 from main.globals import profile_create_send_email
 
@@ -37,7 +37,7 @@ class UpdateProfile(View):
         form = profileFormUpdate()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:

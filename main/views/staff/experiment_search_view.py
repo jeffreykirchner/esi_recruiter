@@ -21,7 +21,7 @@ from main.models import recruitment_parameters
 from main.models import parameters
 from main.models import Genders
 from main.models import subject_types
-from main.models import help_docs
+from main.models import HelpDocs
 from main.models import Invitation_email_templates    
 
 class ExperimentSearch(View):
@@ -41,7 +41,7 @@ class ExperimentSearch(View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
                                         .filter(rp__icontains=F('path')).first().text
 
         except Exception  as e:   

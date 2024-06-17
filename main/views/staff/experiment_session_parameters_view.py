@@ -12,7 +12,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from main.models import ExperimentSessions
 from main.models import parameters
-from main.models import help_docs
+from main.models import HelpDocs
 
 from main.forms import recruitmentParametersForm
 
@@ -38,7 +38,7 @@ class ExperimentSessionParametersView(SingleObjectMixin, View):
         p = parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

@@ -15,7 +15,7 @@ from django.utils.html import strip_tags
 
 from main.models import AccountTypes
 from main.models import profile
-from main.models import help_docs
+from main.models import HelpDocs
 
 from main.globals import profile_create_send_email
 from main.forms import profileForm
@@ -40,7 +40,7 @@ class ProfileCreate(View):
 
         #logger.info(reverse('profile'))
         try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   

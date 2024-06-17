@@ -3,7 +3,7 @@ from tinymce.models import HTMLField
 from django.db import models
 
 #Help Documentation
-class help_docs(models.Model):
+class HelpDocs(models.Model):
     title = models.CharField(verbose_name = 'Title',max_length = 300,default="")
     path = models.CharField(verbose_name = 'URL Path',max_length = 300,default="/")
 

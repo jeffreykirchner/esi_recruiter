@@ -12,7 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import ExperimentSessionDayUsers
 from main.models import parameters
-from main.models import help_docs
+from main.models import HelpDocs
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
@@ -44,7 +44,7 @@ class SubjectHome(View):
         labManager = p.labManager
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
