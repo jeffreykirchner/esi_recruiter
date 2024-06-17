@@ -3,12 +3,12 @@ import logging
 import traceback
 
 from main.models import Experiments
-from main.models import institutions
+from main.models import Institutions
 
 #intermediate table for experiments and institutions
 class ExperimentsInstitutions(models.Model):
     experiment = models.ForeignKey(Experiments,on_delete=models.CASCADE)
-    institution = models.ForeignKey(institutions,on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institutions,on_delete=models.CASCADE)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now= True)

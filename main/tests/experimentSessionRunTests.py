@@ -16,7 +16,7 @@ from main.models import parameters
 from main.models import Accounts
 from main.models import Departments
 from main.models import locations
-from main.models import institutions 
+from main.models import Institutions 
 from main.models import schools 
 from main.models import EmailFilters
 from main.models import ExperimentSessionDayUsers
@@ -71,11 +71,11 @@ class sessionRunTestCase(TestCase):
         self.l2=locations(name="room2",address="room2")
         self.l2.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.first()
@@ -146,7 +146,7 @@ class sessionRunTestCase(TestCase):
         
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
-        self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.institution.set(Institutions.objects.filter(name="one"))
         self.e1.consent_form_default = ConsentForm.objects.first()        
         self.e1.save()
 
@@ -179,7 +179,7 @@ class sessionRunTestCase(TestCase):
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
-        self.e2.institution.set(institutions.objects.filter(name="two"))
+        self.e2.institution.set(Institutions.objects.filter(name="two"))
         self.e2.consent_form_default = ConsentForm.objects.first()
         self.e2.save()
 

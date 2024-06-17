@@ -20,7 +20,7 @@ from main.models import parameters
 from main.models import recruitment_parameters
 from main.models import parameters
 from main.models import ConsentForm
-from main.models import institutions
+from main.models import Institutions
 
 import main
 

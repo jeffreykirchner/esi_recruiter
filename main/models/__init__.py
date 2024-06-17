@@ -6,7 +6,7 @@ from .genders import Genders
 from .account_types import AccountTypes
 from .majors import majors
 from .subject_types import subject_types
-from .institutions import institutions
+from .institutions import Institutions
 from .locations import locations
 from .departments import Departments
 from .accounts import Accounts

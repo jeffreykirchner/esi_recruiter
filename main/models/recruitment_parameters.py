@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from  main.models import Genders
 from  main.models import subject_types
-from  main.models import institutions
+from  main.models import Institutions
 from  main.models import schools
 
 import main
@@ -21,8 +21,8 @@ class recruitment_parameters(models.Model):
     subject_type =  models.ManyToManyField(subject_types)      
 
     #institutions to include or exclude
-    institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
-    institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
+    institutions_exclude = models.ManyToManyField(Institutions, related_name='%(class)s_institutions_exclude',blank=True)
+    institutions_include = models.ManyToManyField(Institutions, related_name='%(class)s_institutions_include',blank=True)
 
     #Experiments to include or exclude
     experiments_exclude = models.ManyToManyField('main.Experiments', related_name='%(class)s_experiments_exclude',blank=True)

@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import Genders,Experiments,subject_types,AccountTypes,majors,\
-                        parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
+                        parameters,Accounts,Departments,locations,Institutions,schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
@@ -45,11 +45,11 @@ class GenderTestCase(TestCase):
         self.l1=locations(name="l",address="room")
         self.l1.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.get(id=1)
@@ -86,7 +86,7 @@ class GenderTestCase(TestCase):
             u.profile.setup_email_filter()
         
         e = createExperimentBlank()
-        e.institution.set(institutions.objects.filter(name="one"))
+        e.institution.set(Institutions.objects.filter(name="one"))
         e.save()
     
     def testWomenOnly(self):
@@ -144,11 +144,11 @@ class subjectTypeTestCase(TestCase):
         l=locations(name="l",address="room")
         l.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.first()
@@ -180,7 +180,7 @@ class subjectTypeTestCase(TestCase):
             u.profile.setup_email_filter()
         
         e = createExperimentBlank()
-        e.institution.set(institutions.objects.filter(name="one"))
+        e.institution.set(Institutions.objects.filter(name="one"))
         e.save()
     
     #undergrad only
@@ -249,11 +249,11 @@ class recruitTestCase(TestCase):
         self.l2=locations(name="room2",address="room2")
         self.l2.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.first()
@@ -303,7 +303,7 @@ class recruitTestCase(TestCase):
         
         #setup experiment with one session two subjects, one confirmed, +1 day
         self.e1 = createExperimentBlank()
-        self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.institution.set(Institutions.objects.filter(name="one"))
         self.e1.save()
 
         es1 = addSessionBlank(self.e1)    
@@ -333,7 +333,7 @@ class recruitTestCase(TestCase):
 
         #setup experiment with one session three subjects, one confirmed, +2 day
         self.e2 = createExperimentBlank()
-        self.e2.institution.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        self.e2.institution.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
         self.e2.save()
 
         es1 = addSessionBlank(self.e2)    
@@ -776,7 +776,7 @@ class recruitTestCase(TestCase):
         e=self.e2
         es=self.e2.ES.first()
 
-        es.recruitment_params.institutions_include.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.institutions_include.set(Institutions.objects.filter(name="one"))
         es.recruitment_params.save()
 
         e_users = []
@@ -851,14 +851,14 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_include.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
 
@@ -909,7 +909,7 @@ class recruitTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
-        e.institution.set(institutions.objects.filter(name="one"))
+        e.institution.set(Institutions.objects.filter(name="one"))
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
         esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True,bumped=True)
@@ -942,14 +942,14 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_include.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
         es1.recruitment_params.institutions_include_all=False
 
         esd1 = es1.ESD.first()
@@ -1035,14 +1035,14 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_include.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
 
@@ -1081,7 +1081,7 @@ class recruitTestCase(TestCase):
         e=self.e2
         es=self.e2.ES.first()
 
-        es.recruitment_params.institutions_include.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.institutions_include.set(Institutions.objects.filter(name="one"))
         es.recruitment_params.save()
 
         e_users = []
@@ -1132,7 +1132,7 @@ class recruitTestCase(TestCase):
         e=self.e2
         es=self.e2.ES.first()
 
-        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="one"))
+        es.recruitment_params.institutions_exclude.set(Institutions.objects.filter(name="one"))
         es.recruitment_params.save()
 
         e_users = []
@@ -1208,7 +1208,7 @@ class recruitTestCase(TestCase):
 
         #extra eperiment to give user one insitituion three experimence
         e4 = createExperimentBlank()
-        e4.institution.set(institutions.objects.filter(name="three"))
+        e4.institution.set(Institutions.objects.filter(name="three"))
         e4.save()
        
         es1 = addSessionBlank(e4)    
@@ -1232,14 +1232,14 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
 
@@ -1327,7 +1327,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1335,7 +1335,7 @@ class recruitTestCase(TestCase):
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.institutions_exclude_all=False
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one") | Q(name="three")))
+        es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
 
@@ -1393,11 +1393,11 @@ class recruitTestCase(TestCase):
         esd1.ESDU_b.all().filter(user=self.user_list[2]).update(confirmed=True)
         # esd1.ESDU_b.all().filter(user=self.user_list[4]).update(confirmed=True)
 
-        es.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="three"))
+        es.recruitment_params.institutions_exclude.set(Institutions.objects.filter(name="three"))
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="three"))
+        e3.institution.set(Institutions.objects.filter(name="three"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1405,7 +1405,7 @@ class recruitTestCase(TestCase):
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.institutions_exclude_all=False
         es1.recruitment_params.subject_type.set(subject_types.objects.all())
-        es1.recruitment_params.institutions_exclude.set(institutions.objects.filter(Q(name="one")))
+        es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one")))
         es1.recruitment_params.save()
 
         esd1 = es1.ESD.first()
@@ -1449,7 +1449,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1518,7 +1518,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1677,7 +1677,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1781,7 +1781,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -1890,7 +1890,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -2076,7 +2076,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -2188,7 +2188,7 @@ class recruitTestCase(TestCase):
 
         #test experiment
         e3 = createExperimentBlank()
-        e3.institution.set(institutions.objects.filter(name="two"))
+        e3.institution.set(Institutions.objects.filter(name="two"))
         e3.save()
        
         es1 = addSessionBlank(e3)    
@@ -2306,11 +2306,11 @@ class traitConstraintTestCase(TestCase):
         l=locations(name="l",address="room")
         l.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.first()
@@ -2362,7 +2362,7 @@ class traitConstraintTestCase(TestCase):
             self.user_list.append(u)
         
         self.e = createExperimentBlank()
-        self.e.institution.set(institutions.objects.filter(name="one"))
+        self.e.institution.set(Institutions.objects.filter(name="one"))
         self.e.save()
 
         self.d_now = datetime.now(pytz.utc)
@@ -2703,11 +2703,11 @@ class schoolTestCase(TestCase):
         l=locations(name="l",address="room")
         l.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
         s=schools.objects.first()
@@ -2745,7 +2745,7 @@ class schoolTestCase(TestCase):
             self.user_list.append(u)
         
         self.e = createExperimentBlank()
-        self.e.institution.set(institutions.objects.filter(name="one"))
+        self.e.institution.set(Institutions.objects.filter(name="one"))
         self.e.save()
 
         #staff user

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from main.models import schools
 from main.models import Accounts
-from main.models import institutions
+from main.models import Institutions
 from main.models import Experiments
 from main.models import ConsentForm
 
@@ -72,7 +72,7 @@ class experimentForm1(forms.ModelForm):
                                                                             "v-on:change":"mainFormChange1"}))
 
     institution = forms.ModelMultipleChoiceField(label="",
-                                                 queryset=institutions.objects.all().order_by("name"),
+                                                 queryset=Institutions.objects.all().order_by("name"),
                                                  widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.institution",
                                                                                       "v-on:change":"mainFormChange1",
                                                                                       "class":"selectpicker",

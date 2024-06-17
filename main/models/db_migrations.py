@@ -16,7 +16,7 @@ from django.utils.crypto import get_random_string
 
 from datetime import timedelta
 
-from main.models import institutions,\
+from main.models import Institutions,\
                                 Departments,\
                                 Accounts,\
                                 Experiments,\
@@ -38,18 +38,18 @@ from main.models import institutions,\
 
 #migrate old data base over to new database
 
-def migrate_institutions():
+def migrate_Institutions():
     cursor = connections['old'].cursor()
     cursor.execute('''select * from institutions''')
 
-    institutions.objects.all().delete()
+    Institutions.objects.all().delete()
 
     print("Migrate Institutions")
 
     for c in cursor.fetchall():
         id,name,archived=c
         #print(id,name)
-        institution=institutions(id=id,name=name)
+        institution=Institutions(id=id,name=name)
         institution.save()
 
 def migrate_departments():
@@ -181,7 +181,7 @@ def migrate_Experiments():
         migrate_departments()
         migrate_accounts()
         
-        migrate_institutions()
+        migrate_Institutions()
 
         print("Experiment data loading")
         cursor = connections['old'].cursor()
@@ -548,7 +548,7 @@ def migrate_subjects2():
         print("email filters complete")     
 
 def migrate_ExperimentsInstitutions():     
-        migrate_institutions()
+        migrate_Institutions()
 
         c1 = connections['default'].cursor()
         c1.execute('''DELETE FROM main_Experiments_institution''')
@@ -589,7 +589,7 @@ def migrate_ExperimentsInstitutions():
                         
         #                 experiment=Experiments.objects.get(id=experiment_id)
 
-        #                 if not institutions.objects.filter(id=institution_id).exists():
+        #                 if not Institutions.objects.filter(id=institution_id).exists():
         #                         institution_id=2
 
         #                 experiment.institution.add(institution_id)

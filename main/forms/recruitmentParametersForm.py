@@ -1,5 +1,5 @@
 from django import forms
-from main.models import Genders,subject_types,institutions,recruitment_parameters,hrefExperiments,schools
+from main.models import Genders,subject_types,Institutions,recruitment_parameters,hrefExperiments,schools
 from django.db.models.functions import Lower
 
 class recruitmentParametersForm(forms.ModelForm):   
@@ -25,14 +25,14 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                         "size":"4"}))
     institutions_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=institutions.objects.all().order_by(Lower("name")),
+                                                    queryset=Institutions.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.institutions_exclude",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     institutions_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=institutions.objects.all().order_by(Lower("name")),
+                                                    queryset=Institutions.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.institutions_include",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",

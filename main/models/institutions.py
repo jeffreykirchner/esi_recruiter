@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #type of experiment
-class institutions(models.Model):
+class Institutions(models.Model):
     name = models.CharField(max_length = 50)
 
     timestamp = models.DateTimeField(auto_now_add= True)

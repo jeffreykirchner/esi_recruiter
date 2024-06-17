@@ -17,7 +17,7 @@ from django.db.models import Max
 
 from main.models import schools
 from main.models import Accounts
-from main.models import institutions 
+from main.models import Institutions 
 from main.models import recruitment_parameters
 from main.models import parameters
 from main.models import ConsentForm
@@ -33,7 +33,7 @@ class Experiments(models.Model):
     account_default = models.ForeignKey(Accounts, on_delete=models.CASCADE)
     recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
     consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True)                   #default consent form used for new sessions
-    institution = models.ManyToManyField(institutions, through="ExperimentsInstitutions")                       #institutions to which this experiment belongs  
+    institution = models.ManyToManyField(Institutions, through="ExperimentsInstitutions")                       #institutions to which this experiment belongs  
     budget_default = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiments_a', blank=True, null=True)             #default faculty budget for experiment
     experiment_pi = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='experiments_b', blank=True, null=True)          #Primary Investigator
 

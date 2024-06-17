@@ -71,7 +71,7 @@ class UserSearchParametersView(View):
         if not id:
             #no experiment id provided, create dummy experiment
             with transaction.atomic():
-                i1=main.models.institutions(name="search")
+                i1=main.models.Institutions(name="search")
                 i1.save()
 
                 e = createExperimentBlank()
@@ -140,7 +140,7 @@ def search(request, data, id):
 
     if not id:
         #no experiment provided
-        i1=main.models.institutions(name="search")
+        i1=main.models.Institutions(name="search")
         i1.save()
 
         e = createExperimentBlank()

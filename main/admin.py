@@ -93,7 +93,7 @@ class AccountsAdmin(admin.ModelAdmin):
     inlines = [AccountsInline]
 
 admin.site.register(Genders)
-admin.site.register(institutions)
+admin.site.register(Institutions)
 admin.site.register(majors)
 admin.site.register(schools)
 admin.site.register(EmailFilters)

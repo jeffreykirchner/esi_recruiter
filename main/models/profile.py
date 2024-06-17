@@ -12,7 +12,7 @@ from django.contrib import admin
 from django.db.models import Subquery, OuterRef
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.models import institutions
+from main.models import Institutions
 from main.models import parameters
 from main.models import ExperimentSessions
 from main.models import profile
@@ -218,7 +218,7 @@ class profile(models.Model):
 
     #get list of institutions this subject has been in
     def get_institution_list(self):
-        l = institutions.objects.none()
+        l = Institutions.objects.none()
         out_str = []
         esdus = self.user.ESDU.filter(attended=True)
 
