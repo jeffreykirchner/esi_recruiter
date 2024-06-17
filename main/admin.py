@@ -144,7 +144,7 @@ class helpDocAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['title','path']
 
-@admin.register(Front_page_notice)
+@admin.register(FrontPageNotice)
 class frontPageNoticeAdmin(admin.ModelAdmin):
             
       form = frontPageNoticeForm
