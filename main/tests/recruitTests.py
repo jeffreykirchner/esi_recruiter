@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import Genders,Experiments,subject_types,AccountTypes,Majors,\
-                        parameters,Accounts,Departments,locations,Institutions,schools,EmailFilters,\
+                        parameters,Accounts,Departments,Locations,Institutions,schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
