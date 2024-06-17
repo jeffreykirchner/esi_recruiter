@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,AccountTypes,majors,\
+from main.models import genders,Experiments,subject_types,AccountTypes,majors,\
                         parameters,Accounts,Departments,locations,institutions,schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -93,7 +93,7 @@ class GenderTestCase(TestCase):
         """Test only females are recruited""" 
         logger = logging.getLogger(__name__)
         
-        e=experiments.objects.first()
+        e=Experiments.objects.first()
 
         #women only test
         es_women_only = addSessionBlank(e)    
@@ -113,7 +113,7 @@ class GenderTestCase(TestCase):
     def testAll(self):
         """Test all genders are recruited""" 
 
-        e=experiments.objects.first()
+        e=Experiments.objects.first()
 
         es_all = addSessionBlank(e)    
         es_all.recruitment_params.reset_settings()
@@ -188,7 +188,7 @@ class subjectTypeTestCase(TestCase):
         """Test subject type undergraduate""" 
         logger = logging.getLogger(__name__)
         
-        e=experiments.objects.first()
+        e=Experiments.objects.first()
 
         es = addSessionBlank(e)    
         es.recruitment_params.reset_settings()
@@ -205,7 +205,7 @@ class subjectTypeTestCase(TestCase):
         """Test subject type all""" 
         logger = logging.getLogger(__name__)
         
-        e=experiments.objects.first() 
+        e=Experiments.objects.first() 
 
         es = addSessionBlank(e)    
         es.recruitment_params.reset_settings()

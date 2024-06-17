@@ -16,7 +16,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.models import help_docs
-from main.models import experiments
+from main.models import Experiments
 from main.models import ExperimentSessions
 from main.models import parameters
 

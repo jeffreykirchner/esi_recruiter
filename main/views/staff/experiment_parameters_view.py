@@ -13,7 +13,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
+from main.models import Experiments
 from main.models import parameters
 from main.models import help_docs
 
@@ -25,7 +25,7 @@ class ExperimentParametersView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_parameters.html"
-    model = experiments
+    model = Experiments
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -80,7 +80,7 @@ def getExperiment(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"get session paramters {data}")
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
@@ -92,7 +92,7 @@ def updateRecruitmentParameters(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"Update default recruitment parameters: {data}")
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     form_data_dict = data["formData"]
 

@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
+from main.models import Experiments
 from main.models import parameters
 from main.models import help_docs
 from main.models import Recruitment_parameters_trait_constraint
@@ -84,7 +84,7 @@ class UserSearchParametersView(View):
                 i1.delete()
         else:
             try:
-                e = experiments.objects.get(id=id)     
+                e = Experiments.objects.get(id=id)     
             except ObjectDoesNotExist :
                 raise Http404('Experiment Not Found')   
             
@@ -150,7 +150,7 @@ def search(request, data, id):
         form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
     else:
         #experiment provided
-        e = experiments.objects.get(id=id)
+        e = Experiments.objects.get(id=id)
         es = addSessionBlank(e)
         esd = es.ESD.first()
         esd.date = esd.date + timedelta(days=1000)

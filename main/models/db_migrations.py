@@ -19,7 +19,7 @@ from datetime import timedelta
 from main.models import institutions,\
                                 Departments,\
                                 Accounts,\
-                                experiments,\
+                                Experiments,\
                                 ExperimentSessions,\
                                 ExperimentSessionDays,\
                                 locations,\
@@ -154,7 +154,7 @@ def migrate_recruitment_parameters():
         migrate_experiments()
 
         print("Experiment recruitment parameters")
-        for e in experiments.objects.all():
+        for e in Experiments.objects.all():
                 p=recruitment_parameters()
                 p.actual_participants = e.actual_participants_legacy
                 p.registration_cutoff = e.registration_cutoff_legacy
@@ -174,9 +174,9 @@ def migrate_recruitment_parameters():
                 es.recruitment_params = p
                 es.save()
 
-def migrate_experiments():      
+def migrate_Experiments():      
 
-        experiments.objects.all().delete()
+        Experiments.objects.all().delete()
 
         migrate_departments()
         migrate_accounts()
@@ -209,7 +209,7 @@ def migrate_experiments():
                                                         WHERE experiment_id = experiment.id
                                                         LIMIT 1)
                                                 END AS account_number
-                        FROM experiments AS experiment
+                        FROM Experiments AS experiment
                       ''')
 
         # experiment_session_users.objects.all().delete()  
@@ -243,7 +243,7 @@ def migrate_experiments():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                experiments.objects.bulk_create(batch, batch_size)
+                Experiments.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
@@ -260,7 +260,7 @@ def migrate_experiments():
                                        FROM institutions
                                        WHERE id = institution_id) AND
                                 EXISTS(SELECT id
-                                       FROM experiments
+                                       FROM Experiments
                                        WHERE id = experiment_id)''')
 
         objs = (ExperimentsInstitutions(experiment_id=c[1],
@@ -278,9 +278,9 @@ def migrate_experiments():
                 print(counter)
 
         # cursor = connections['old'].cursor()
-        # cursor.execute('''select * from experiments''')
+        # cursor.execute('''select * from Experiments''')
 
-        # experiments.objects.all().delete()
+        # Experiments.objects.all().delete()
 
         # for c in cursor.fetchall():
         #         id,faculty_user_id,title,experiment_manager,archived,treatment,institution_id,group_id,registration_cutoff,actual_participants,notes,created_on,last_updated,school_id=c
@@ -289,7 +289,7 @@ def migrate_experiments():
         #                 school_id=1
 
         #         if not title is None:
-        #                 experiment=experiments()
+        #                 experiment=Experiments()
         #                 experiment.id=id
         #                 experiment.title=title
         #                 experiment.experiment_manager=experiment_manager
@@ -551,7 +551,7 @@ def migrate_ExperimentsInstitutions():
         migrate_institutions()
 
         c1 = connections['default'].cursor()
-        c1.execute('''DELETE FROM main_experiments_institution''')
+        c1.execute('''DELETE FROM main_Experiments_institution''')
 
         cursor = connections['old'].cursor()
         cursor.execute('''SELECT *
@@ -560,7 +560,7 @@ def migrate_ExperimentsInstitutions():
                                         FROM institutions 
                                         WHERE institution_id=id) AND
                           EXISTS(SELECT id
-                                FROM experiments 
+                                FROM Experiments 
                                 WHERE experiment_id=id)''')
 
         print("migrate experiment institutions")
@@ -569,7 +569,7 @@ def migrate_ExperimentsInstitutions():
 
         counter=0
 
-        objs = (experiments.institution(experiments_id=c[1],
+        objs = (Experiments.institution(experiments_id=c[1],
                                         institutions_id=c[0],
                                         ) for c in cursor.fetchall())
         cursor.close()
@@ -578,16 +578,16 @@ def migrate_ExperimentsInstitutions():
                 batch = list(islice(objs, batch_size))
                 if not batch:
                         break
-                experiments.institution.objects.bulk_create(batch, batch_size)
+                Experiments.institution.objects.bulk_create(batch, batch_size)
                 counter+=batch_size
                 print(counter)
 
         # for c in cursor.fetchall():
         #         institution_id,experiment_id=c
 
-        #         if experiments.objects.filter(id=experiment_id).exists():
+        #         if Experiments.objects.filter(id=experiment_id).exists():
                         
-        #                 experiment=experiments.objects.get(id=experiment_id)
+        #                 experiment=Experiments.objects.get(id=experiment_id)
 
         #                 if not institutions.objects.filter(id=institution_id).exists():
         #                         institution_id=2
@@ -609,9 +609,9 @@ def migrate_sessions():
         #                                 ELSE on_time_bonus END AS on_time_bonus,
         #                          cancelled                                                                  
         #                 FROM sessions 
-        #                 INNER JOIN experiments ON sessions.experiment_id=experiments.id
+        #                 INNER JOIN Experiments ON sessions.experiment_id=Experiments.id
         #                 WHERE EXISTS(SELECT id
-        #                                 FROM experiments 
+        #                                 FROM Experiments 
         #                                 WHERE experiment_id=id)''')
         
         ExperimentSessions.objects.all().delete()        
@@ -641,7 +641,7 @@ def migrate_sessions():
         #copy show up fees into experiment
         print("show up fees")
 
-        e_list=experiments.objects.all().prefetch_related('ES') 
+        e_list=Experiments.objects.all().prefetch_related('ES') 
        
         for e in e_list:
                 if e.ES.first():
@@ -653,7 +653,7 @@ def migrate_sessions():
                 #print("show up fee " + str(e.id) + " " + str(e.showUpFee))
                 #e.save()
 
-        experiments.objects.bulk_update(e_list,['showUpFee'])
+        Experiments.objects.bulk_update(e_list,['showUpFee'])
         
        # e_list.update()
                                 
@@ -678,9 +678,9 @@ def migrate_sessions():
                                  auto_reminder,
                                  opened                             
                         FROM sessions
-                        INNER JOIN experiments ON sessions.experiment_id=experiments.id 
+                        INNER JOIN Experiments ON sessions.experiment_id=Experiments.id 
                         WHERE EXISTS(SELECT id
-                                        FROM experiments 
+                                        FROM Experiments 
                                         WHERE experiment_id=id)''')
 
         objs = (ExperimentSessionDays(experiment_session_id = c[0],
@@ -725,9 +725,9 @@ def migrate_sessions():
                                 cancelled,
                                 additional_day
                         FROM sessions
-                        INNER JOIN experiments ON sessions.experiment_id=experiments.id 
+                        INNER JOIN Experiments ON sessions.experiment_id=Experiments.id 
                         WHERE EXISTS(SELECT id
-                                        FROM experiments 
+                                        FROM Experiments 
                                         WHERE experiment_id=id) AND
                         additional_day != "0000-00-00 00:00:00"''')
 
@@ -759,7 +759,7 @@ def migrate_sessions():
         # for c in cursor.fetchall():               
         #         id,experiment_id,location_id,date_time,length_of_session,on_time_bonus,opened,canceled,additional_day,created_on,last_updated,department_id,account_number,school_id,auto_reminder=c
                 
-        #         e=experiments.objects.get(id=experiment_id)                       
+        #         e=Experiments.objects.get(id=experiment_id)                       
 
         #         session=ExperimentSessions(id=id,experiment_id=experiment_id)
         #         session.save()

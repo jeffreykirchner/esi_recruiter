@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
+from main.models import Experiments
 from main.models import ExperimentSessionDays
 from main.models import ExperimentSessions
 from main.models import parameters
@@ -37,7 +37,7 @@ class ExperimentView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment.html"
-    model = experiments
+    model = Experiments
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -114,7 +114,7 @@ def getExperiment(data, id):
     logger.info(data)
 
     try:
-        e = experiments.objects.get(id=id)     
+        e = Experiments.objects.get(id=id)     
     except ObjectDoesNotExist :
         raise Http404('Experiment Not Found')
 
@@ -131,7 +131,7 @@ def showAllSessions(data, id):
     logger.info("Show All Sessions")
     logger.info(data)
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
 
@@ -149,7 +149,7 @@ def removeSession(data, id):
     if es.allowDelete():        
         es.delete()
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     return JsonResponse({"sessions" : e.json_sessions(offset=0, limit=25),
                          "sessions_count":e.ES.count(),
@@ -162,7 +162,7 @@ def addSession(data, id, creator):
 
     status = ""
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     #experiment must have an institution set before adding a session
     if len(e.institution.all()) == 0:
@@ -221,7 +221,7 @@ def updateForm1(data,id):
     logger.info("Update experiment parameters")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     form_data_dict = data["formData"]
     #institutionList=[]               
@@ -258,7 +258,7 @@ def addTrait(data,id):
     logger.info("Add Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     tc = Recruitment_parameters_trait_constraint()
     tc.recruitment_parameter = e.recruitment_params_default
@@ -273,7 +273,7 @@ def deleteTrait(data,id):
     logger.info("Delete Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     t_id = data["id"]
 
@@ -290,7 +290,7 @@ def updateTrait(data,id):
     logger.info("Update Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     t_id = data["trait_id"]
 
@@ -318,7 +318,7 @@ def updateRequireAllTraitContraints(data,id):
     logger.info("Update Require All Trait Constraints")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     v = data["value"]
 
@@ -328,7 +328,7 @@ def updateRequireAllTraitContraints(data,id):
         e.recruitment_params_default.trait_constraints_require_all=False
     
     e.recruitment_params_default.save()
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
     
     return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
 
@@ -405,7 +405,7 @@ def addToAllowList(data, id):
         return JsonResponse({"not_found_list" : not_found_list,
                              "status" : "fail"}, safe=False)
                    
-    experiment = experiments.objects.get(id=id)
+    experiment = Experiments.objects.get(id=id)
 
     for i in id_list:
         if not experiment.recruitment_params_default.allowed_list:
@@ -426,7 +426,7 @@ def clearAllowList(data, id):
 
     form_data_dict = data["formData"]
 
-    experiment = experiments.objects.get(id=id)
+    experiment = Experiments.objects.get(id=id)
 
     experiment.recruitment_params_default.allowed_list = []
     experiment.recruitment_params_default.save()

@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from main.models import schools
 from main.models import Accounts
 from main.models import institutions
-from main.models import experiments
+from main.models import Experiments
 from main.models import ConsentForm
 
 class experimentForm1(forms.ModelForm):   
@@ -109,7 +109,7 @@ class experimentForm1(forms.ModelForm):
                                                                                  'placeholder':'Leave blank for no instructions'}))
 
     class Meta:
-        model=experiments
+        model=Experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
         exclude=['recruitment_params_default']
 

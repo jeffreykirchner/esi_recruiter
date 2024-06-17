@@ -665,7 +665,7 @@ class ExperimentInstitutionsInline(admin.TabularInline):
       can_delete = False
       show_change_link = True
 
-@admin.register(experiments)
+@admin.register(Experiments)
 class ExperimentsAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False

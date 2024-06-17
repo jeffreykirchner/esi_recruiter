@@ -13,7 +13,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
-from main.models import experiments
+from main.models import Experiments
 from main.models import ExperimentSessionDays
 from main.models import schools
 from main.models import Accounts
@@ -104,7 +104,7 @@ def createExperimentBlank():
     if t.count()>0:
         invitationText = t.first().body_text
 
-    e = experiments()
+    e = Experiments()
     e.school = schools.objects.first()
     e.account_default = Accounts.objects.first()
     e.recruitment_params_default = rp
@@ -143,7 +143,7 @@ def deleteExperiment(data):
 
     id = data["id"]
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     title = e.title
 
@@ -163,7 +163,7 @@ def getAllExperiments(data):
     logger.info("Get All Experiments")
     logger.info(data)
 
-    e_list=experiments.objects.order_by(Lower("title"))         
+    e_list=Experiments.objects.order_by(Lower("title"))         
     
     e_list_json = [e.json_search() for e in e_list]
 
@@ -181,7 +181,7 @@ def getOpenExperiments(data):
 
     # logger.info(list(esd_open))
 
-    e_list=experiments.objects.filter(id__in=esd_open)\
+    e_list=Experiments.objects.filter(id__in=esd_open)\
                               .distinct()\
                               .order_by(Lower("title"))
     
@@ -201,7 +201,7 @@ def getRecentExperimentsList():
     logger = logging.getLogger(__name__)
     logger.info("Get Recent Experiments List")
 
-    e_list = experiments.objects.order_by('-updated')[:10]
+    e_list = Experiments.objects.order_by('-updated')[:10]
 
     return [e.json_search() for e in e_list]
 
@@ -211,14 +211,14 @@ def lookup(value):
     logger = logging.getLogger(__name__)
     logger.info(f"Experiment Lookup: {value}")
    
-    # e_list = experiments.objects.order_by(Lower('title')) \
+    # e_list = Experiments.objects.order_by(Lower('title')) \
     #                   .filter(Q(title__icontains = value) |
     #                           Q(experiment_manager__icontains = value) |
     #                           Q(notes__icontains = value))
 
     value = value.strip()
 
-    e_list = experiments.objects.annotate(title_similarity=TrigramSimilarity('title', value)) \
+    e_list = Experiments.objects.annotate(title_similarity=TrigramSimilarity('title', value)) \
                         .annotate(experiment_manager_similarity=TrigramSimilarity('experiment_manager', value)) \
                         .annotate(notes_similarity=TrigramSimilarity('notes', value)) \
                         .annotate(similarity_total=F('title_similarity') +

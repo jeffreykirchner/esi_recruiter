@@ -24,9 +24,9 @@ class recruitment_parameters(models.Model):
     institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
     institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
 
-    #experiments to include or exclude
-    experiments_exclude = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_exclude',blank=True)
-    experiments_include = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_include',blank=True)
+    #Experiments to include or exclude
+    experiments_exclude = models.ManyToManyField('main.Experiments', related_name='%(class)s_experiments_exclude',blank=True)
+    experiments_include = models.ManyToManyField('main.Experiments', related_name='%(class)s_experiments_include',blank=True)
 
     #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0,null=True)

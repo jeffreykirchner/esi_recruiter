@@ -24,7 +24,7 @@ from main.models import ConsentForm
 
 import main
 
-class experiments(models.Model):    
+class Experiments(models.Model):    
     '''
     experiment model
     '''
@@ -191,13 +191,13 @@ class experiments(models.Model):
         }
 
 #delete recruitment parameters when deleted
-@receiver(post_delete, sender=experiments)
+@receiver(post_delete, sender=Experiments)
 def post_delete_recruitment_params_default(sender, instance, *args, **kwargs):
     if instance.recruitment_params_default: # just in case user is not specified
         instance.recruitment_params_default.delete()
 
 #proxy model returns link to experiemnts
-class hrefExperiments(experiments): 
+class hrefExperiments(Experiments): 
     class Meta:
         proxy = True
 

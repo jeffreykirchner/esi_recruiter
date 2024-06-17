@@ -13,7 +13,7 @@ from .accounts import Accounts
 from .irb_study import IrbStudy
 from .consent_form import ConsentForm
 from .recruitment_parameters import recruitment_parameters
-from .experiments import experiments
+from .experiments import Experiments
 from .experiments import hrefExperiments
 from .experiments_institutions import ExperimentsInstitutions
 from .experiment_sessions import ExperimentSessions
