@@ -12,7 +12,7 @@ from main.models import majors
 from main.models import parameters
 from main.models import Accounts
 from main.models import Departments
-from main.models import locations
+from main.models import Locations
 from main.models import Institutions
 from main.models import schools
 from main.models import EmailFilters
@@ -66,9 +66,9 @@ class cronTests(TestCase):
         self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
-        self.l1=locations(name="room1",address="room1")
+        self.l1=Locations(name="room1",address="room1")
         self.l1.save()
-        self.l2=locations(name="room2",address="room2")
+        self.l2=Locations(name="room2",address="room2")
         self.l2.save()
 
         i1=Institutions(name="one")

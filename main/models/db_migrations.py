@@ -22,7 +22,7 @@ from main.models import Institutions,\
                                 Experiments,\
                                 ExperimentSessions,\
                                 ExperimentSessionDays,\
-                                locations,\
+                                Locations,\
                                 ExperimentSessionDayUsers,\
                                 ExperimentsInstitutions, \
                                 schools, \
@@ -301,10 +301,10 @@ def migrate_Experiments():
         #                 experiment.department_id=1
         #                 experiment.save()   
 
-def migrate_locations():
+def migrate_Locations():
         print("Migrate Locations")
 
-        locations.objects.all().delete()
+        Locations.objects.all().delete()
 
         cursor = connections['old'].cursor()
         cursor.execute('''select * from locations''')        
@@ -312,7 +312,7 @@ def migrate_locations():
         for c in cursor.fetchall():
                 id,name,address=c
 
-                location=locations(id=id,name=name,address=address)
+                location=Locations(id=id,name=name,address=address)
                 location.save()
 
         cursor.close()
@@ -657,7 +657,7 @@ def migrate_sessions():
         
        # e_list.update()
                                 
-        migrate_locations()
+        migrate_Locations()
 
         print("session day")
 

@@ -42,7 +42,7 @@ class GenderTestCase(TestCase):
         self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
-        self.l1=locations(name="l",address="room")
+        self.l1=Locations(name="l",address="room")
         self.l1.save()
 
         i1=Institutions(name="one")
@@ -141,7 +141,7 @@ class subjectTypeTestCase(TestCase):
         a = Accounts(name="a",number="1.0",department=d)
         a.save()
 
-        l=locations(name="l",address="room")
+        l=Locations(name="l",address="room")
         l.save()
 
         i1=Institutions(name="one")
@@ -244,9 +244,9 @@ class recruitTestCase(TestCase):
         self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
-        self.l1=locations(name="room1",address="room1")
+        self.l1=Locations(name="room1",address="room1")
         self.l1.save()
-        self.l2=locations(name="room2",address="room2")
+        self.l2=Locations(name="room2",address="room2")
         self.l2.save()
 
         i1=Institutions(name="one")
@@ -2303,7 +2303,7 @@ class traitConstraintTestCase(TestCase):
         a = Accounts(name="a",number="1.0",department=d)
         a.save()
 
-        l=locations(name="l",address="room")
+        l=Locations(name="l",address="room")
         l.save()
 
         i1=Institutions(name="one")
@@ -2700,7 +2700,7 @@ class schoolTestCase(TestCase):
         a = Accounts(name="a",number="1.0",department=d)
         a.save()
 
-        l=locations(name="l",address="room")
+        l=Locations(name="l",address="room")
         l.save()
 
         i1=Institutions(name="one")

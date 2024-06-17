@@ -99,6 +99,7 @@ admin.site.register(schools)
 admin.site.register(EmailFilters)
 admin.site.register(subject_types)
 admin.site.register(IrbStudy)
+admin.site.register(Locations)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 

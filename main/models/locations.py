@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #room experiment is run in
-class locations(models.Model):
+class Locations(models.Model):
     name = models.CharField(max_length = 300)
     address = models.TextField(null=True)
 

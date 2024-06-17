@@ -17,7 +17,7 @@ from django.views.generic.detail import SingleObjectMixin
 from main.decorators import user_is_staff
 
 from main.models import ExperimentSessionDays
-from main.models import locations
+from main.models import Locations
 from main.models import parameters
 from main.models import HelpDocs
 
@@ -128,7 +128,7 @@ def get_month(request, data, month, year):
                          "todayMonth": t.month,
                          "todayYear": t.year,
                          "todayDay": t.day,
-                         "locations" : [l.json() for l in locations.objects.all()],
+                         "locations" : [l.json() for l in Locations.objects.all()],
                          "currentMonthString" :  t_current.strftime("%B, %Y"),
                          "jump_to_month" : str(get_month_jump_display_json(t_current)),
                          "calendar": get_calendar_json(month, year)},safe=False)

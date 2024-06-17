@@ -8,7 +8,7 @@ import pytz
 
 from django import forms
 
-from main.models import locations
+from main.models import Locations
 from main.models import Accounts
 from main.models import ExperimentSessionDays
 from main.models import parameters
@@ -18,7 +18,7 @@ class experimentSessionForm2(forms.ModelForm):
     Experiment session parameters form
     '''
     location = forms.ModelChoiceField(label="Location",
-                                      queryset=locations.objects.all(),
+                                      queryset=Locations.objects.all(),
                                       widget=forms.Select(attrs={"v-model":"currentSessionDay.location",
                                                                  "v-on:change":"mainFormChange2"}))
 

@@ -22,7 +22,7 @@ from django.db.models import Sum
 import main
 
 from main.models import ExperimentSessions
-from main.models import locations
+from main.models import Locations
 from main.models import Accounts
 from main.models import parameters
 from main.globals import send_mass_email_service
@@ -33,7 +33,7 @@ class ExperimentSessionDays(models.Model):
     Experiment Session Day Model
     '''
     experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='ESD')
-    location = models.ForeignKey(locations, on_delete=models.CASCADE)
+    location = models.ForeignKey(Locations, on_delete=models.CASCADE)
     account = models.ForeignKey(Accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
 
     date = models.DateTimeField(default=now)                            #date and time of session
@@ -104,7 +104,7 @@ class ExperimentSessionDays(models.Model):
     def setup(self, es, u_list):
         self.experiment_session = es
 
-        self.location = locations.objects.first()
+        self.location = Locations.objects.first()
         self.length = es.experiment.length_default
         self.account = es.experiment.account_default
         self.date = now()

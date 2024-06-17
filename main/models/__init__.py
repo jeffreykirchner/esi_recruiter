@@ -7,7 +7,7 @@ from .account_types import AccountTypes
 from .majors import majors
 from .subject_types import subject_types
 from .institutions import Institutions
-from .locations import locations
+from .locations import Locations
 from .departments import Departments
 from .accounts import Accounts
 from .irb_study import IrbStudy
