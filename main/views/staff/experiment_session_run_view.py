@@ -29,7 +29,7 @@ from main.models import ExperimentSessionDays
 from main.models import ExperimentSessionDayUsers
 from main.models import profile
 from main.models import HelpDocs
-from main.models import parameters
+from main.models import Parameters
 
 from main.views.staff.experiment_session_view import getManuallyAddSubject, changeConfirmationStatus
 
@@ -1027,7 +1027,7 @@ def payPalAPI(data, id_, request_user):
     logger.info("PayPal API")
     logger.info(data)
 
-    parm = parameters.objects.first()
+    parm = Parameters.objects.first()
 
     esd = ExperimentSessionDays.objects.get(id=id_)
     esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0)) \

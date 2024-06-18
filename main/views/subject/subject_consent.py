@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 from main.models import ConsentForm
 from main.models import ProfileConsentForm
@@ -44,7 +44,7 @@ class SubjectConsent(View):
         id = kwargs['id']
         consent_type = kwargs['type']
         view_mode = kwargs['view_mode']
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         labManager = p.labManager
 

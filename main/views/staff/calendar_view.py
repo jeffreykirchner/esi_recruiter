@@ -18,7 +18,7 @@ from main.decorators import user_is_staff
 
 from main.models import ExperimentSessionDays
 from main.models import Locations
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 
 from main.globals import todays_date
@@ -110,7 +110,7 @@ def get_month(request, data, month, year):
     logger = logging.getLogger(__name__) 
     logger.info(f"Get month: {data}, url month:{month}, url year:{year}")
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #today's month
     tz = pytz.timezone(p.subjectTimeZone)
@@ -146,7 +146,7 @@ def change_month(request, data):
     currentYear = int(data["currentYear"])
 
     if direction == "current":
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         t = datetime.now(tz)
     elif direction == "previous":
@@ -214,7 +214,7 @@ def get_calendar_json(month, year):
     #month = 3
     #year = 2020
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
 
     cal_full = []

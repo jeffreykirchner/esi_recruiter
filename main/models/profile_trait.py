@@ -5,7 +5,7 @@ from django.db.models.functions import Lower
 
 from main.models import profile
 from main.models import Traits
-from main.models import parameters
+from main.models import Parameters
 
 #a user trait
 class profile_trait(models.Model):
@@ -28,7 +28,7 @@ class profile_trait(models.Model):
         ordering = [Lower('trait__name')]
 
     def getDateStringTZOffset(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.updated.astimezone(tz).strftime("%-m/%d/%Y, %-I:%M %p")
     

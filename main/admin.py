@@ -173,7 +173,7 @@ class faqAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['__str__','active']
 
-@admin.register(parameters)
+@admin.register(Parameters)
 class parametersadmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False

@@ -27,7 +27,7 @@ from main.models import Institutions,\
                                 ExperimentsInstitutions, \
                                 schools, \
                                 Majors, \
-                                parameters, \
+                                Parameters, \
                                 recruitment_parameters,\
                                 email_filters,\
                                 profile,\
@@ -991,16 +991,16 @@ def migrate_session_users3():
         #         sud.save()
         #         print(sud.id)
 
-def migrate_parameters():
+def migrate_Parameters():
         print("migrate parameters")
 
-        parameters.objects.all().delete()
+        Parameters.objects.all().delete()
 
         #invitation text
         cursorMP1 = connections['old'].cursor()
         cursorMP1.execute('''select body,subject from boilerplates where id = 1 limit 1''')
 
-        p = parameters()
+        p = Parameters()
         p.id=1
 
         for c in cursorMP1.fetchall():

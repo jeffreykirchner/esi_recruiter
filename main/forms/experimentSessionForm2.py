@@ -11,7 +11,7 @@ from django import forms
 from main.models import Locations
 from main.models import Accounts
 from main.models import ExperimentSessionDays
-from main.models import parameters
+from main.models import Parameters
 
 class experimentSessionForm2(forms.ModelForm):
     '''
@@ -135,7 +135,7 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj = datetime.strptime(date, '%Y-%m-%dT%H:%M')
@@ -160,7 +160,7 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj = datetime.strptime(date_reminder, '%Y-%m-%dT%H:%M')
@@ -170,7 +170,7 @@ class experimentSessionForm2(forms.ModelForm):
             raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj2 = datetime.strptime(date, '%Y-%m-%dT%H:%M')

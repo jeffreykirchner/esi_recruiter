@@ -9,7 +9,7 @@ from main.models import Experiments
 from main.models import subject_types
 from main.models import AccountTypes
 from main.models import Majors
-from main.models import parameters
+from main.models import Parameters
 from main.models import Accounts
 from main.models import Departments
 from main.models import Locations
@@ -57,7 +57,7 @@ class cronTests(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
@@ -124,7 +124,7 @@ class cronTests(TestCase):
         self.u2.profile.setup_email_filter()
         
         #sessions
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         self.d_now = datetime.now(tz)

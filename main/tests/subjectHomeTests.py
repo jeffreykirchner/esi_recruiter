@@ -16,7 +16,7 @@ from main.models import Genders
 from main.models import subject_types
 from main.models import AccountTypes
 from main.models import Majors
-from main.models import parameters
+from main.models import Parameters
 from main.models import Accounts
 from main.models import Departments
 from main.models import Locations
@@ -65,7 +65,7 @@ class subjectHomeTestCase(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")

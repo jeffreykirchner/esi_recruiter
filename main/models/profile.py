@@ -13,7 +13,7 @@ from django.db.models import Subquery, OuterRef
 from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import Institutions
-from main.models import parameters
+from main.models import Parameters
 from main.models import ExperimentSessions
 from main.models import profile
 from main.models import AccountTypes
@@ -83,7 +83,7 @@ class profile(models.Model):
     
     #return the last login time in the server's time zone
     def last_login_tz(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         if not self.user.last_login:
             return "Never"
         return self.user.last_login.astimezone(pytz.timezone(p.subjectTimeZone)).strftime("%m/%d/%Y %I:%M %p %Z")
@@ -266,7 +266,7 @@ class profile(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("ytd earnings")
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         #create a new tz aware date time

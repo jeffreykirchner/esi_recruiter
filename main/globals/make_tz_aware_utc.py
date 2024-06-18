@@ -6,7 +6,7 @@ from datetime import datetime
 import logging
 import pytz
 
-from main.models import parameters
+from main.models import Parameters
 
 def make_tz_aware_utc(old_date, new_hour, new_min, new_sec):
     '''
@@ -15,7 +15,7 @@ def make_tz_aware_utc(old_date, new_hour, new_min, new_sec):
     logger = logging.getLogger(__name__)
     logger.info(f"make_tz_aware_utc start date: {old_date}")
 
-    parm = parameters.objects.first()
+    parm = Parameters.objects.first()
     tmz = pytz.timezone(parm.subjectTimeZone)
 
     new_date = datetime.now(tmz)

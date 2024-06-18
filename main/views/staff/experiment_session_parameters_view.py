@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.detail import SingleObjectMixin
 
 from main.models import ExperimentSessions
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 
 from main.forms import recruitmentParametersForm
@@ -35,7 +35,7 @@ class ExperimentSessionParametersView(SingleObjectMixin, View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
             helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\

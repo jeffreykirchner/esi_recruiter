@@ -8,7 +8,7 @@ from django.db import models
 
 from main.models import ExperimentSessions
 from main.models import recruitment_parameters
-from main.models import parameters
+from main.models import Parameters
 
 from main.globals import send_mass_email_service
 
@@ -71,7 +71,7 @@ class ExperimentSessionInvitations(models.Model):
         return mail_result
     
     def getDateString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
       
         return  self.timestamp.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") 

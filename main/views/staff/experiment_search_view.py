@@ -18,7 +18,7 @@ from main.models import ExperimentSessionDays
 from main.models import schools
 from main.models import Accounts
 from main.models import recruitment_parameters
-from main.models import parameters
+from main.models import Parameters
 from main.models import Genders
 from main.models import subject_types
 from main.models import HelpDocs
@@ -91,7 +91,7 @@ def createExperimentBlank():
     logger.info("Create Blank Experiment")
     
     rp = recruitment_parameters()
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #setup with initial genders selected
     g_list=list(Genders.objects.filter(initialValue = True))

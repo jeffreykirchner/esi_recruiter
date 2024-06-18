@@ -24,7 +24,7 @@ import main
 from main.models import ExperimentSessions
 from main.models import Locations
 from main.models import Accounts
-from main.models import parameters
+from main.models import Parameters
 from main.globals import send_mass_email_service
 
 #one day of a session
@@ -157,7 +157,7 @@ class ExperimentSessionDays(models.Model):
 
     #get reminder time string
     def getReminderTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         if not self.reminder_time:
@@ -167,7 +167,7 @@ class ExperimentSessionDays(models.Model):
 
     #get user readable string of session date
     def getDateString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         if self.enable_time:
             return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") + " " + p.subjectTimeZone
@@ -176,7 +176,7 @@ class ExperimentSessionDays(models.Model):
     
     #get html version of date string
     def getDateStringHTML(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         v = self.date.astimezone(tz).strftime("%a") + " "
@@ -192,24 +192,24 @@ class ExperimentSessionDays(models.Model):
 
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p %z")
     
     def getDateStringTZOffsetInput(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%Y-%m-%dT%H:%M")
 
     #get the local time of experiment start
     def getStartTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         endTime = self.date + timedelta(minutes = self.length)
         return  endTime.astimezone(tz).strftime("%-I:%M %p")
@@ -271,7 +271,7 @@ class ExperimentSessionDays(models.Model):
     def getReminderEmail(self):
         #logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         message = ""
 
@@ -302,7 +302,7 @@ class ExperimentSessionDays(models.Model):
         self.reminder_email_sent = True
         self.save()
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         logger.info(f"Send Reminder emails to: session {self.experiment_session}, session day {self.id}")
 
         users_list = self.ESDU_b.filter(confirmed=True).select_related("user")

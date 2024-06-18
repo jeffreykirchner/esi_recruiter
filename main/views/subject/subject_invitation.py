@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 from main.models import ConsentForm
 from main.models import ProfileConsentForm
@@ -40,7 +40,7 @@ class SubjectInvitation(View):
         u = request.user
         id = kwargs['id']
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         labManager = p.labManager
 

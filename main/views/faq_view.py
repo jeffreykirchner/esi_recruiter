@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 from main.models import FAQ
-from main.models import parameters
+from main.models import Parameters
 
 from django.views import View
 
@@ -23,7 +23,7 @@ class FaqView(View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         labManager = p.labManager      
         
         return render(request, self.template_name, {"labManager":labManager}) 

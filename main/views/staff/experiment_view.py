@@ -20,7 +20,7 @@ from main.decorators import user_is_staff
 from main.models import Experiments
 from main.models import ExperimentSessionDays
 from main.models import ExperimentSessions
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 from main.models import Recruitment_parameters_trait_constraint
 from main.models import Traits
@@ -118,7 +118,7 @@ def getExperiment(data, id):
     except ObjectDoesNotExist :
         raise Http404('Experiment Not Found')
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
             
     return JsonResponse({"experiment" :  e.json(),
                          "sessions" : e.json_sessions(offset=0, limit=25),
@@ -353,7 +353,7 @@ def fillDefaultReminderText(data,id):
     logger.info("Fill default reminder text")
     logger.info(data)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     text = p.reminderText
     

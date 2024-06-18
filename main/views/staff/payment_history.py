@@ -24,7 +24,7 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 from main.models import ExperimentSessionDays
 from main.models import profile
@@ -58,7 +58,7 @@ class PaymentHistory(View):
         except Exception as exce:
             help_text = "No help doc was found."
 
-        param = parameters.objects.first()
+        param = Parameters.objects.first()
         tmz = pytz.timezone(param.subjectTimeZone)
         d_today = datetime.now(tmz)
         d_one_day = d_today - timedelta(days=1)
@@ -138,7 +138,7 @@ def get_paypal_history_list(start_date, end_date):
     history = []
     error_message = ""
 
-    param = parameters.objects.first()
+    param = Parameters.objects.first()
     tmz = pytz.timezone(param.subjectTimeZone)
 
     try:
@@ -195,7 +195,7 @@ def get_paypal_history_recruiter(request, data):
     history = []
     error_message = ""
 
-    param = parameters.objects.first()
+    param = Parameters.objects.first()
     tz = pytz.timezone(param.subjectTimeZone)
 
     # try:
@@ -257,7 +257,7 @@ def get_budget_history(request, data):
     history = []
     error_message = ""
 
-    param = parameters.objects.first()
+    param = Parameters.objects.first()
     tz = pytz.timezone(param.subjectTimeZone)
 
     # try:

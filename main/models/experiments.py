@@ -19,7 +19,7 @@ from main.models import schools
 from main.models import Accounts
 from main.models import Institutions 
 from main.models import recruitment_parameters
-from main.models import parameters
+from main.models import Parameters
 from main.models import ConsentForm
 
 import main
@@ -98,7 +98,7 @@ class Experiments(models.Model):
 
     #return date of range session of sessions
     def getDateRangeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
         esd = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('date')
@@ -118,7 +118,7 @@ class Experiments(models.Model):
 
     #return date of first session
     def getDateString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         
         esd = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=self).order_by('date').first()

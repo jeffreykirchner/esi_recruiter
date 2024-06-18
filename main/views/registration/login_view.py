@@ -14,7 +14,7 @@ from django.utils import timezone
 from main.forms import loginForm
 
 from main.models import FrontPageNotice
-from main.models import parameters
+from main.models import Parameters
 from main.models import ProfileLoginAttempt
 
 class LoginView(View):
@@ -33,7 +33,7 @@ class LoginView(View):
 
         request.session['redirect_path'] = request.GET.get('next','/')
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         labManager = p.labManager 
 
         form = loginForm()

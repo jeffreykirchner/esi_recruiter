@@ -22,7 +22,7 @@ from main.forms import studentReportForm
 from main.models import Departments
 from main.models import ExperimentSessionDays
 from main.models import Accounts
-from main.models import parameters 
+from main.models import Parameters 
 from main.models import ExperimentSessionDayUsers
 from main.models import HelpDocs
 
@@ -40,7 +40,7 @@ class ReportsView(View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
             helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
@@ -50,7 +50,7 @@ class ReportsView(View):
             helpText = "No help doc was found."
 
 
-        param = parameters.objects.first()
+        param = Parameters.objects.first()
         tmz = pytz.timezone(param.subjectTimeZone)
         d_today = datetime.now(tmz)
 
@@ -101,7 +101,7 @@ def studentReport(data):
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         studentReport_nra = form.cleaned_data['studentReport_nra'] 
@@ -261,7 +261,7 @@ def pettyCash(data):
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         dpt = form.cleaned_data['department']

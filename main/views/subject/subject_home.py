@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import ExperimentSessionDayUsers
-from main.models import parameters
+from main.models import Parameters
 from main.models import HelpDocs
 
 from main.decorators import user_is_subject
@@ -39,7 +39,7 @@ class SubjectHome(View):
 
         u = request.user 
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         labManager = p.labManager
 
@@ -85,7 +85,7 @@ def getCurrentInvitations(data,u):
     logger.info("Get current invitations")    
     logger.info(data)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     failed=False
 

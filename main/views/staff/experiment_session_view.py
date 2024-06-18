@@ -27,7 +27,7 @@ from main.decorators import user_is_staff
 from main.models import ExperimentSessionDays
 from main.models import ExperimentSessionDayUsers
 from main.models import ExperimentSessions
-from main.models import parameters
+from main.models import Parameters
 from main.models import ExperimentSessionMessages
 from main.models import ExperimentSessionInvitations
 from main.models import recruitment_parameters
@@ -64,7 +64,7 @@ class ExperimentSessionView(SingleObjectMixin, View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
             helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
@@ -234,7 +234,7 @@ def sendMessage(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Send Message: {data}")
 
-    params = parameters.objects.first()
+    params = Parameters.objects.first()
 
     subjectText = data["subject"]
     messageText = data["text"]
@@ -312,7 +312,7 @@ def cancelSession(data, id):
         
         es.canceled = True
 
-        params = parameters.objects.first()
+        params = Parameters.objects.first()
 
         subjectText = params.cancelationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
         messageText = es.getCancelationEmail()
@@ -490,7 +490,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
     logger.info(data)
 
     es = ExperimentSessions.objects.get(id=id)
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     u = data["user"]
 
     #check that session is not canceled
@@ -595,7 +595,7 @@ def inviteSubjects(data, id, request):
     userFails = []              #list of users failed to add
     userPkList = []             #list of primary keys of added users
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #invite to all sessions in the future
     future_es_list=[]
@@ -656,7 +656,7 @@ def findSubjectsToInvite(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Find subjects to invite: {data}")
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #check valid number
     if data["number"] == "":
@@ -843,7 +843,7 @@ def updateSessionDay(data,id):
         #anytime experiment
         if not esd.enable_time:
             #change time to last second of the day
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
             temp_d = esd.date.astimezone(tz)
             esd.date = temp_d.replace(hour=23,minute=59, second=59)

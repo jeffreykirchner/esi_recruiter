@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 
 from main.models import ExperimentSessionDays
 from main.models import HelpDocs
-from main.models import parameters
+from main.models import Parameters
 
 from main.decorators import user_is_staff
 
@@ -84,7 +84,7 @@ def getOpenSessions(data):
    
     s_list = list(s_dict)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
 
     for i in s_list:

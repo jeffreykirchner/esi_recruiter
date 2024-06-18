@@ -16,9 +16,9 @@ from django.urls import reverse
 from django.db.models import Q, F, Value as V, Count
 
 from main.models import Experiments
-from main.models import parameters
+from main.models import Parameters
 from main.models import recruitment_parameters
-from main.models import parameters
+from main.models import Parameters
 from main.models import ConsentForm
 from main.models import Institutions
 
@@ -76,7 +76,7 @@ class ExperimentSessions(models.Model):
     def getInvitationEmail(self):
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
        
         message = ""
 
@@ -94,7 +94,7 @@ class ExperimentSessions(models.Model):
     
     #build a cancelation email for this experiment session
     def getCancelationEmail(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         message = ""
 
@@ -208,7 +208,7 @@ class ExperimentSessions(models.Model):
         es = self
         es_p = es.recruitment_params
         id =  self.id
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         experiment_id = es.experiment.id
 

@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelChoiceField
 
-from main.models import parameters
+from main.models import Parameters
 
 class UserModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
@@ -84,5 +84,5 @@ class parametersForm(forms.ModelForm):
                                        widget=forms.NumberInput(attrs={"step":"1","min":"1"}))
 
     class Meta:
-        model=parameters
+        model=Parameters
         fields = ('__all__')

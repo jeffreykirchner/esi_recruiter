@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import Genders,Experiments,subject_types,AccountTypes,Majors,\
-                        parameters,Accounts,Departments,Locations,Institutions,schools,EmailFilters,\
+                        Parameters,Accounts,Departments,Locations,Institutions,schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
@@ -33,7 +33,7 @@ class GenderTestCase(TestCase):
         sys._called_from_test = True
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
@@ -132,7 +132,7 @@ class subjectTypeTestCase(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters()
+        p = Parameters()
         p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
@@ -235,7 +235,7 @@ class recruitTestCase(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
@@ -2294,7 +2294,7 @@ class traitConstraintTestCase(TestCase):
     def setUp(self):
         logger = logging.getLogger(__name__)
 
-        p = parameters()
+        p = Parameters()
         p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
@@ -2691,7 +2691,7 @@ class schoolTestCase(TestCase):
     def setUp(self):
         logger = logging.getLogger(__name__)
 
-        p = parameters()
+        p = Parameters()
         p.save()
         
         d = Departments(name="d",charge_account="ca",petty_cash="0")
