@@ -20,7 +20,7 @@ from main.decorators import user_is_staff
 from main.models import Experiments
 from main.models import Parameters
 from main.models import HelpDocs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 
 from main.globals import todays_date
@@ -162,7 +162,7 @@ def search(request, data, id):
         es.recruitment_params.save()
 
         for i in trait_data_list:
-            tc = Recruitment_parameters_trait_constraint()
+            tc = RecruitmentParametersTraitConstraint()
             tc.recruitment_parameter = es.recruitment_params
             tc.trait = Traits.objects.get(id=i["trait_id"])
             tc.min_value = i["min_value"]
@@ -194,7 +194,7 @@ def search(request, data, id):
             es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
             es.recruitment_params.save()
             for i in trait_data_list:
-                tc = Recruitment_parameters_trait_constraint()
+                tc = RecruitmentParametersTraitConstraint()
                 tc.recruitment_parameter = es.recruitment_params
                 tc.trait = Traits.objects.get(id=i["trait_id"])
                 tc.min_value = i["min_value"]

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
 from main.models import Genders,Experiments,subject_types,AccountTypes,Majors,\
                         Parameters,Accounts,Departments,Locations,Institutions,schools,EmailFilters,\
-                        ExperimentSessionDayUsers,Traits,Recruitment_parameters_trait_constraint,profile_trait
+                        ExperimentSessionDayUsers,Traits,RecruitmentParametersTraitConstraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_session_view import changeConfirmationStatus,updateSessionDay,cancelSession
@@ -2439,7 +2439,7 @@ class traitConstraintTestCase(TestCase):
         es.recruitment_params.trait_constraints_require_all = False
         es.recruitment_params.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 10
         tc.min_value = 5
         tc.trait = self.t1
@@ -2493,14 +2493,14 @@ class traitConstraintTestCase(TestCase):
         es.recruitment_params.trait_constraints_require_all = False
         es.recruitment_params.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 10
         tc.min_value = 0
         tc.trait = self.t1
         tc.recruitment_parameter = es.recruitment_params
         tc.save()
 
-        tc2 = Recruitment_parameters_trait_constraint()
+        tc2 = RecruitmentParametersTraitConstraint()
         tc2.max_value = 10
         tc2.min_value = 0
         tc2.trait = self.t2
@@ -2577,7 +2577,7 @@ class traitConstraintTestCase(TestCase):
         es.recruitment_params.trait_constraints_require_all = False
         es.recruitment_params.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 3
         tc.min_value = 0
         tc.include_if_in_range = False
@@ -2610,7 +2610,7 @@ class traitConstraintTestCase(TestCase):
         es.recruitment_params.trait_constraints_require_all = False
         es.recruitment_params.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 3
         tc.min_value = 0
         tc.include_if_in_range = False
@@ -2618,7 +2618,7 @@ class traitConstraintTestCase(TestCase):
         tc.recruitment_parameter = es.recruitment_params
         tc.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 7
         tc.min_value = 7
         tc.include_if_in_range = False
@@ -2650,7 +2650,7 @@ class traitConstraintTestCase(TestCase):
         es.recruitment_params.trait_constraints_require_all = False
         es.recruitment_params.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 3
         tc.min_value = 0
         tc.include_if_in_range = False
@@ -2658,7 +2658,7 @@ class traitConstraintTestCase(TestCase):
         tc.recruitment_parameter = es.recruitment_params
         tc.save()
 
-        tc = Recruitment_parameters_trait_constraint()
+        tc = RecruitmentParametersTraitConstraint()
         tc.max_value = 7
         tc.min_value = 7
         tc.include_if_in_range = True

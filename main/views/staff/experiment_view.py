@@ -22,7 +22,7 @@ from main.models import ExperimentSessionDays
 from main.models import ExperimentSessions
 from main.models import Parameters
 from main.models import HelpDocs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 from main.models import InvitationEmailTemplates
 
@@ -260,7 +260,7 @@ def addTrait(data,id):
 
     e = Experiments.objects.get(id=id)
 
-    tc = Recruitment_parameters_trait_constraint()
+    tc = RecruitmentParametersTraitConstraint()
     tc.recruitment_parameter = e.recruitment_params_default
     tc.trait = Traits.objects.first()
     tc.save()
@@ -277,7 +277,7 @@ def deleteTrait(data,id):
 
     t_id = data["id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.filter(id=t_id)
 
     if tc:
         tc.first().delete()
@@ -294,7 +294,7 @@ def updateTrait(data,id):
 
     t_id = data["trait_id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.get(id=t_id)
 
     form_data_dict = data["formData"] 
 

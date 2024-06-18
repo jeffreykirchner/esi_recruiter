@@ -32,7 +32,7 @@ from main.models import ExperimentSessionMessages
 from main.models import ExperimentSessionInvitations
 from main.models import recruitment_parameters
 from main.models import HelpDocs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 from main.models import ConsentForm
 
@@ -935,7 +935,7 @@ def addTrait(data,id):
 
     es = ExperimentSessions.objects.get(id=id)
 
-    tc = Recruitment_parameters_trait_constraint()
+    tc = RecruitmentParametersTraitConstraint()
     tc.recruitment_parameter = es.recruitment_params
     tc.trait = Traits.objects.first()
     tc.save()
@@ -952,7 +952,7 @@ def deleteTrait(data,id):
 
     t_id = data["id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.filter(id=t_id)
 
     if tc:
         tc.first().delete()
@@ -969,7 +969,7 @@ def updateTrait(data,id):
 
     t_id = data["trait_id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.get(id=t_id)
 
     form_data_dict = data["formData"]
 

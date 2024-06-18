@@ -98,7 +98,7 @@ class recruitment_parameters(models.Model):
 
         #self.trait_constraints.set(es.trait_constraints.all())
         for trait_constraint in es.trait_constraints.all():
-            new_trait_constraint = main.models.Recruitment_parameters_trait_constraint()
+            new_trait_constraint = main.models.RecruitmentParametersTraitConstraint()
 
             new_trait_constraint.setup(trait_constraint)
             new_trait_constraint.recruitment_parameter = self

@@ -1,9 +1,10 @@
 from django.db import models
 import logging
 
-from . import recruitment_parameters,Traits
+from main.models import recruitment_parameters
+from main.models import Traits
 
-class Recruitment_parameters_trait_constraint(models.Model):
+class RecruitmentParametersTraitConstraint(models.Model):
 
     trait = models.ForeignKey(Traits,on_delete=models.CASCADE)                                   #trait to that is constrainded
     recruitment_parameter = models.ForeignKey(recruitment_parameters,

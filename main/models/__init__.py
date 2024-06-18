@@ -30,7 +30,7 @@ from .traits import HrefTraits
 from .profile_trait import profile_trait
 from .profile_consent_form import ProfileConsentForm
 from .profile_login_attempt import ProfileLoginAttempt
-from .recruitment_parameters_trait_constraint import Recruitment_parameters_trait_constraint
+from .recruitment_parameters_trait_constraint import RecruitmentParametersTraitConstraint
 from .front_page_notice import FrontPageNotice
 from .invitation_email_templates import InvitationEmailTemplates
 from .daily_email_report import DailyEmailReport
