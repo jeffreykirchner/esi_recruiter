@@ -18,7 +18,7 @@ from .experiments import hrefExperiments
 from .experiments_institutions import ExperimentsInstitutions
 from .experiment_sessions import ExperimentSessions
 from .profile import profile
-from .profile_note import profile_note
+from .profile_note import ProfileNote
 from .experiment_session_days import ExperimentSessionDays
 from .experiment_session_day_users import ExperimentSessionDayUsers
 from .experiment_session_messages import ExperimentSessionMessages

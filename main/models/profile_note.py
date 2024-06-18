@@ -1,8 +1,6 @@
 '''
 profile_note class
 '''
-import logging
-import traceback
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -10,12 +8,12 @@ from django.contrib.auth.models import User
 
 from main.models import profile
 
-class profile_note(models.Model):
+class ProfileNote(models.Model):
     '''
     a note or comment made abbout a user
     '''
-    my_profile = models.ForeignKey(profile, on_delete=models.CASCADE)               #profile that note is attached to
-    noteMaker = models.ForeignKey(User, on_delete=models.CASCADE)                   #user that made the note
+    my_profile = models.ForeignKey(profile, related_name="profile_notes_a", on_delete=models.CASCADE)               #profile that note is attached to
+    noteMaker = models.ForeignKey(User, related_name="profile_notes_b", on_delete=models.CASCADE)                   #user that made the note
 
     text = models.CharField(max_length = 1000)                                      #text of the note
 
