@@ -28,7 +28,7 @@ from main.globals import todays_date
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_search_view import createExperimentBlank
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 from main.forms import TraitConstraintForm
 
 import main
@@ -58,7 +58,7 @@ class UserSearchParametersView(View):
         except Exception  as e:   
              helpText = "No help doc was found."
         
-        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form = RecruitmentParametersForm()
         recruitment_parameters_form_ids=[]
 
         for i in recruitment_parameters_form:
@@ -92,7 +92,7 @@ class UserSearchParametersView(View):
 
         return render(request,
                       self.template_name,
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      {'updateRecruitmentParametersForm':RecruitmentParametersForm(),  
                        'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
                        'traitConstraintForm':TraitConstraintForm(),
@@ -147,7 +147,7 @@ def search(request, data, id):
         e.institution.set([i1])
         e.save()            
 
-        form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+        form = RecruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
     else:
         #experiment provided
         e = Experiments.objects.get(id=id)
@@ -170,7 +170,7 @@ def search(request, data, id):
             tc.include_if_in_range = i["include_if_in_range"]
             tc.save()
 
-        form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
+        form = RecruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                       

@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils.html import strip_tags
 
 from main.models import HelpDocs
-from main.forms import profileFormUpdate
+from main.forms import ProfileFormUpdate
 from main.globals import profile_create_send_email
 
 class UpdateProfile(View):
@@ -34,7 +34,7 @@ class UpdateProfile(View):
         logger = logging.getLogger(__name__)
         logger.info("show profile")
 
-        form = profileFormUpdate()
+        form = ProfileFormUpdate()
 
         try:
             helpText = HelpDocs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
@@ -82,7 +82,7 @@ def update_profile(u, data):
     # for field in data["formData"]:
     #     form_data_dict[field["name"]] = field["value"]
 
-    form = profileFormUpdate(form_data_dict, user=u)
+    form = ProfileFormUpdate(form_data_dict, user=u)
 
     if form.is_valid():
 

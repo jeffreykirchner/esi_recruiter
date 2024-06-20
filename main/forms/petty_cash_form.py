@@ -6,7 +6,7 @@ from main.models import Departments
 import logging
 
 #form
-class pettyCashForm(forms.Form):
+class PettyCashForm(forms.Form):
 
     department =  forms.ModelChoiceField(label="Department",
                                      queryset=Departments.objects.all().order_by('name'),

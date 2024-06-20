@@ -4,7 +4,7 @@ from django import forms
 
 from main.models import FAQ
 
-class helpDocForm(forms.ModelForm):
+class HelpDocForm(forms.ModelForm):
 
 
     title = forms.CharField(label='Title',

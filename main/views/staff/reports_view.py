@@ -17,8 +17,8 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
-from main.forms import pettyCashForm
-from main.forms import studentReportForm
+from main.forms import PettyCashForm
+from main.forms import StudentReportForm
 from main.models import Departments
 from main.models import ExperimentSessionDays
 from main.models import Accounts
@@ -61,8 +61,8 @@ class ReportsView(View):
         if d_today.month<6:
             d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
-        return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
-                                                    "studentReportForm" : studentReportForm(),
+        return render(request,'staff/reports.html',{"pettyCashForm" : PettyCashForm() ,
+                                                    "studentReportForm" : StudentReportForm(),
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
                                                     "d_today" : d_today.date().strftime("%Y-%m-%d"),
                                                     "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d"),
@@ -96,7 +96,7 @@ def studentReport(data):
     # for field in data["formData"]:            
     #     form_data_dict[field["name"]] = field["value"]
     
-    form = studentReportForm(form_data_dict)
+    form = StudentReportForm(form_data_dict)
 
     if form.is_valid():
         #print("valid form")   
@@ -256,7 +256,7 @@ def pettyCash(data):
     # for field in data["formData"]:            
     #     form_data_dict[field["name"]] = field["value"]
     
-    form = pettyCashForm(form_data_dict)
+    form = PettyCashForm(form_data_dict)
 
     if form.is_valid():
         #print("valid form")   

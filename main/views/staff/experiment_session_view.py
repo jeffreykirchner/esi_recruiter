@@ -38,7 +38,7 @@ from main.models import ConsentForm
 
 from main.views.staff.user_search import lookup
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 from main.forms import ExperimentSessionForm1
 from main.forms import ExperimentSessionForm2
 from main.forms import TraitConstraintForm
@@ -733,7 +733,7 @@ def updateRecruitmentParameters(data,id):
         form_data_dict["allow_multiple_participations"] = "1" if es.recruitment_params.allow_multiple_participations else "0"
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
+    form = RecruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                

@@ -6,7 +6,7 @@ from main.models import Departments
 import logging
 
 #form
-class studentReportForm(forms.Form):
+class StudentReportForm(forms.Form):
     studentReport_nra = forms.TypedChoiceField(label="Subjects that are international?",                                       
                                        choices=[(1,"Yes"),(0,"No, any subjects.")],                                                  
                                        widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_nra"}))

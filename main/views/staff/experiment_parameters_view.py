@@ -17,7 +17,7 @@ from main.models import Experiments
 from main.models import Parameters
 from main.models import HelpDocs
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 
 class ExperimentParametersView(SingleObjectMixin, View):
     '''
@@ -45,14 +45,14 @@ class ExperimentParametersView(SingleObjectMixin, View):
         except Exception  as e:   
              helpText = "No help doc was found."
         
-        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form = RecruitmentParametersForm()
         recruitment_parameters_form_ids=[]
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
                       self.template_name,
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      {'updateRecruitmentParametersForm':RecruitmentParametersForm(),  
                       'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
                        'experiment':self.get_object()})
@@ -135,7 +135,7 @@ def updateRecruitmentParameters(data,id):
     # form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
+    form = RecruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
 
     if form.is_valid():
         #print("valid form")                                

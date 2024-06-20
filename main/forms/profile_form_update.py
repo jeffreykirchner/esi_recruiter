@@ -12,7 +12,7 @@ from main.models import Genders
 from main.models import Majors
 from main.models import SubjectTypes
 
-class profileFormUpdate(forms.Form):
+class ProfileFormUpdate(forms.Form):
     '''
     update profile form
     '''
@@ -109,7 +109,7 @@ class profileFormUpdate(forms.Form):
 
     def __init__(self, *args, **kwargs):
          self.user = kwargs.pop('user', None)
-         super(profileFormUpdate, self).__init__(*args, **kwargs)
+         super(ProfileFormUpdate, self).__init__(*args, **kwargs)
 
     #check that passwords match
     def clean_password1(self):

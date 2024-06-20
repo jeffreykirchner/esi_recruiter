@@ -14,7 +14,7 @@ from main.models import ExperimentSessions
 from main.models import Parameters
 from main.models import HelpDocs
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 
 from main.decorators import user_is_staff
 
@@ -44,7 +44,7 @@ class ExperimentSessionParametersView(SingleObjectMixin, View):
         except Exception  as e:   
              helpText = "No help doc was found."
 
-        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form = RecruitmentParametersForm()
         recruitment_parameters_form_ids=[]
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
@@ -101,7 +101,7 @@ def updateRecruitmentParameters(data,id):
         form_data_dict["allow_multiple_participations"] = 1 if es.recruitment_params.allow_multiple_participations else 0
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
+    form = RecruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                

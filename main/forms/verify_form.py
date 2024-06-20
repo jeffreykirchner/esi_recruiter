@@ -1,4 +1,4 @@
 from django import forms
 
-class verifyForm(forms.Form):
+class VerifyForm(forms.Form):
     token = forms.CharField()

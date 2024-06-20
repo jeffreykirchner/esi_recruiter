@@ -15,7 +15,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.forms import traitReportForm
+from main.forms import TraitReportForm
 from main.decorators import user_is_staff
 
 from main.models import Traits
@@ -58,7 +58,7 @@ class TraitsView(View):
             logger.info(f'{e}')
             helpText = "No help doc was found."
 
-        return render(request, self.template_name,{"traitReportForm":traitReportForm(),
+        return render(request, self.template_name,{"traitReportForm":TraitReportForm(),
                                                    "session_day" : json.dumps(session_day,cls=DjangoJSONEncoder),
                                                    "helpText":helpText})
 
@@ -117,7 +117,7 @@ def getReport(data, u, session_day_id):
 
     logger.info(form_data_dict)
     
-    form = traitReportForm(form_data_dict)
+    form = TraitReportForm(form_data_dict)
 
     if form.is_valid():
 

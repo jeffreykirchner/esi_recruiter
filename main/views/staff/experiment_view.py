@@ -27,9 +27,9 @@ from main.models import Traits
 from main.models import InvitationEmailTemplates
 
 from main.forms import ExperimentForm
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 from main.forms import TraitConstraintForm
-from main.forms import invitationEmailTemplateSelectForm
+from main.forms import InvitationEmailTemplateSelectForm
 
 class ExperimentView(SingleObjectMixin, View):
     '''
@@ -60,7 +60,7 @@ class ExperimentView(SingleObjectMixin, View):
                       self.template_name,
                       {'form1':ExperimentForm(),
                        'traitConstraintForm':TraitConstraintForm(),       
-                       'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
+                       'invitationEmailTemplateForm' : InvitationEmailTemplateSelectForm(), 
                        'invitationEmailTemplateForm_default':InvitationEmailTemplates.objects.filter(enabled=True).first().id,           
                        'id': id,
                        'helpText':helpText})

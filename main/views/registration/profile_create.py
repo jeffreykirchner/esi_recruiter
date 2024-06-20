@@ -18,7 +18,7 @@ from main.models import profile
 from main.models import HelpDocs
 
 from main.globals import profile_create_send_email
-from main.forms import profileForm
+from main.forms import ProfileForm
 
 class ProfileCreate(View):
     '''
@@ -36,7 +36,7 @@ class ProfileCreate(View):
 
         logout(request)
         
-        form = profileForm()
+        form = ProfileForm()
 
         #logger.info(reverse('profile'))
         try:
@@ -92,7 +92,7 @@ def createUser(request, data):
     # if field["name"] == "email":
     #     form_data_dict["email"] = form_data_dict["email"].strip().lower()
 
-    f = profileForm(form_data_dict)
+    f = ProfileForm(form_data_dict)
 
     if f.is_valid():
         

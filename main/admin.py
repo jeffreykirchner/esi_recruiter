@@ -24,9 +24,9 @@ from main.models import *
 
 from main.globals import todays_date
 
-from main.forms import parametersForm
+from main.forms import ParametersForm
 from main.forms import FaqForm
-from main.forms import helpDocForm
+from main.forms import HelpDocForm
 from main.forms import FrontPageNoticeForm
 from main.forms import InvitationEmailTemplateForm
 
@@ -137,7 +137,7 @@ class UmbrellaConsentFormAdmin(admin.ModelAdmin):
 @admin.register(HelpDocs)
 class helpDocAdmin(admin.ModelAdmin):
             
-      form = helpDocForm
+      form = HelpDocForm
 
       ordering = [Lower('title')]
 
@@ -180,7 +180,7 @@ class parametersadmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
       
-      form = parametersForm
+      form = ParametersForm
 
       actions = []
 

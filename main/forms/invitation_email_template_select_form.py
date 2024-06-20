@@ -1,7 +1,7 @@
 from django import forms
 from main.models import InvitationEmailTemplates
 
-class invitationEmailTemplateSelectForm(forms.Form):   
+class InvitationEmailTemplateSelectForm(forms.Form):   
     
     invitation_email_template = forms.ModelChoiceField(label="Invitation Email Templates",
                                                      queryset=InvitationEmailTemplates.objects.filter(enabled=True)

@@ -10,7 +10,7 @@ import logging
 import re
 
 #form
-class profileForm(forms.Form):
+class ProfileForm(forms.Form):
     first_name = forms.CharField(label='First Name', 
                                  max_length=100,
                                  widget=forms.TextInput(attrs={"v-model":"profile.first_name"}))

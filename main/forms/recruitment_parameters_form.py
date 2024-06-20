@@ -8,7 +8,7 @@ from main.models import RecruitmentParameters
 from main.models import hrefExperiments
 from main.models import Schools
 
-class recruitmentParametersForm(forms.ModelForm):   
+class RecruitmentParametersForm(forms.ModelForm):   
 
     actual_participants = forms.CharField(label='Number of Participants', 
                                                   widget=forms.NumberInput(attrs={"v-model":"recruitment_params.actual_participants",

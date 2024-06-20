@@ -12,7 +12,7 @@ class UserModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
          return obj.get_full_name()
 
-class parametersForm(forms.ModelForm):
+class ParametersForm(forms.ModelForm):
     '''
     site parameters admin form
     '''
