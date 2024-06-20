@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 
 from main.models import Genders
-from main.models import subject_types
+from main.models import SubjectTypes
 from main.models import AccountTypes
 from main.models import Majors
 from main.models import Parameters
@@ -17,7 +17,7 @@ from main.models import Accounts
 from main.models import Departments
 from main.models import Locations
 from main.models import Institutions 
-from main.models import schools 
+from main.models import Schools 
 from main.models import EmailFilters
 from main.models import ExperimentSessionDayUsers
 from main.models import ProfileConsentForm
@@ -78,12 +78,12 @@ class sessionRunTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
+        s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
 
          #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name, user_name, "zxcvb1234asdf", "first", "last", "123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st, False, True, AccountTypes.objects.get(id=1))
@@ -97,7 +97,7 @@ class sessionRunTestCase(TestCase):
         #subject 1
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","00123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
 
@@ -112,7 +112,7 @@ class sessionRunTestCase(TestCase):
         #subject 2
         self.u2 = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","001234",\
                     Genders.objects.first(),"7145551234",Majors.objects.first(),\
-                    subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+                    SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
 
@@ -127,7 +127,7 @@ class sessionRunTestCase(TestCase):
         #subject 3
         self.u3 = profileCreateUser("u3@chapman.edu","u3@chapman.edu","zxcvb1234asdf","first","last","00121212",\
                     Genders.objects.first(),"7145551234",Majors.objects.first(),\
-                    subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+                    SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
 
@@ -153,7 +153,7 @@ class sessionRunTestCase(TestCase):
         self.es1 = addSessionBlank(self.e1)    
         self.es1.recruitment_params.reset_settings()
         self.es1.recruitment_params.gender.set(Genders.objects.all())
-        self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
         self.es1.invitation_text = "test"
@@ -186,7 +186,7 @@ class sessionRunTestCase(TestCase):
         self.es2 = addSessionBlank(self.e2)    
         self.es2.recruitment_params.reset_settings()
         self.es2.recruitment_params.gender.set(Genders.objects.all())
-        self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es2.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
         self.es2.invitation_text = "test"
@@ -635,7 +635,7 @@ class sessionRunTestCase(TestCase):
         es1 = addSessionBlank(self.e1)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()

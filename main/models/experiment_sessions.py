@@ -508,7 +508,7 @@ class ExperimentSessions(models.Model):
             --user's subject type is on the list
             EXISTS(SELECT 1                                                   
                     FROM subject_type_include	
-                    WHERE main_profile.subject_type_id = subject_type_include.subject_types_id) AND 
+                    WHERE main_profile.subject_type_id = subject_type_include.SubjectTypes_id) AND 
 
             main_profile.paused = FALSE                                      --check that the subject has not paused their account
             '''
@@ -534,7 +534,7 @@ class ExperimentSessions(models.Model):
 
     #gets the valid list from getValidUserList then clean it based on future confermations
     #max_user_count max number of users to return, randomize otherwise
-    def getValidUserList_forward_check(self,u_list,checkAlreadyIn,testExperiment,testSession,testInstiutionList,printSQL,max_user_count):
+    def getValidUserList_forward_check(self, u_list, checkAlreadyIn, testExperiment, testSession, testInstiutionList, printSQL, max_user_count):
         logger = logging.getLogger(__name__)
 
         start_time = datetime.now()
