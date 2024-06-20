@@ -3,7 +3,7 @@ from tinymce.widgets import TinyMCE
 from django import forms
 from main.models import FAQ
 
-class faqForm(forms.ModelForm):
+class FaqForm(forms.ModelForm):
 
     question = forms.CharField(label='Question',
                                          widget=forms.TextInput(attrs={"size":"125"}))

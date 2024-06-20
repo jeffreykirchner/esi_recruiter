@@ -39,8 +39,8 @@ from main.models import ConsentForm
 from main.views.staff.user_search import lookup
 
 from main.forms import recruitmentParametersForm
-from main.forms import experimentSessionForm1
-from main.forms import experimentSessionForm2
+from main.forms import ExperimentSessionForm1
+from main.forms import ExperimentSessionForm2
 from main.forms import TraitConstraintForm
 
 from main.globals import send_mass_email_service
@@ -77,8 +77,8 @@ class ExperimentSessionView(SingleObjectMixin, View):
 
         return render(request,
                       self.template_name,
-                      {'form2':experimentSessionForm2(), 
-                       'form1':experimentSessionForm1(),      
+                      {'form2':ExperimentSessionForm2(), 
+                       'form1':ExperimentSessionForm1(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': es.id,
                        'max_invitation_block_size':p.max_invitation_block_size,
@@ -834,7 +834,7 @@ def updateSessionDay(data,id):
     if form_data_dict["custom_reminder_time"] == 0:
         form_data_dict["reminder_time"] = form_data_dict["date"]
 
-    form = experimentSessionForm2(form_data_dict,instance=esd)   
+    form = ExperimentSessionForm2(form_data_dict,instance=esd)   
 
     if form.is_valid():       
         esd.save()
@@ -1022,7 +1022,7 @@ def updateSession(data, id):
     if not s.allowEdit():
         form_data_dict["consent_form"] = s.consent_form
 
-    form = experimentSessionForm1(form_data_dict, instance=s)
+    form = ExperimentSessionForm1(form_data_dict, instance=s)
 
     if not s.allowEdit():
         form.fields['consent_form'].queryset = ConsentForm.objects.all()

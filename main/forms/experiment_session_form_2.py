@@ -13,7 +13,7 @@ from main.models import Accounts
 from main.models import ExperimentSessionDays
 from main.models import Parameters
 
-class experimentSessionForm2(forms.ModelForm):
+class ExperimentSessionForm2(forms.ModelForm):
     '''
     Experiment session parameters form
     '''

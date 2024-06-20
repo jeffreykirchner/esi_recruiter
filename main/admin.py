@@ -25,9 +25,9 @@ from main.models import *
 from main.globals import todays_date
 
 from main.forms import parametersForm
-from main.forms import faqForm
+from main.forms import FaqForm
 from main.forms import helpDocForm
-from main.forms import frontPageNoticeForm
+from main.forms import FrontPageNoticeForm
 from main.forms import InvitationEmailTemplateForm
 
 import main
@@ -147,7 +147,7 @@ class helpDocAdmin(admin.ModelAdmin):
 @admin.register(FrontPageNotice)
 class frontPageNoticeAdmin(admin.ModelAdmin):
             
-      form = frontPageNoticeForm
+      form = FrontPageNoticeForm
 
       ordering = [Lower('subject_text')]
 
@@ -167,7 +167,7 @@ class invitationEmailTemplateAdmin(admin.ModelAdmin):
 @admin.register(FAQ)
 class faqAdmin(admin.ModelAdmin):
             
-      form = faqForm
+      form = FaqForm
 
       actions = []
       list_display = ['__str__','active']
