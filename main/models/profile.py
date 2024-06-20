@@ -325,9 +325,9 @@ class profile(models.Model):
         #i_list = es.experiment.institution.values_list("id", flat=True)
 
         for s in qs_attending:
-            user_list_valid = s.getValidUserList([{'id':self.user.id}], False, experiment_id, es.id, i_list, False)
-            user_list_valid = s.getValidUserListDjango(user_list_valid, False, experiment_id, es.id, i_list, False)
-
+            # user_list_valid = s.getValidUserList([{'id':self.user.id}], False, experiment_id, es.id, i_list, False)
+            user_list_valid = s.getValidUserListDjango([self.user], False, experiment_id, es.id, i_list, False)
+            
             if not self.user in user_list_valid:
                 #logger.info("Invitation failed attended recruitment violation")             
                 logger.info(f'check_for_future_constraints Invitation failed attended recruitment violation User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {experiment_id}')
