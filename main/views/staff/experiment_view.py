@@ -26,7 +26,7 @@ from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 from main.models import InvitationEmailTemplates
 
-from main.forms import experimentForm1
+from main.forms import ExperimentForm
 from main.forms import recruitmentParametersForm
 from main.forms import TraitConstraintForm
 from main.forms import invitationEmailTemplateSelectForm
@@ -58,7 +58,7 @@ class ExperimentView(SingleObjectMixin, View):
 
         return render(request,
                       self.template_name,
-                      {'form1':experimentForm1(),
+                      {'form1':ExperimentForm(),
                        'traitConstraintForm':TraitConstraintForm(),       
                        'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
                        'invitationEmailTemplateForm_default':InvitationEmailTemplates.objects.filter(enabled=True).first().id,           
@@ -243,7 +243,7 @@ def updateForm1(data,id):
 
         form_data_dict["survey"] = 1 if e.survey else 0
 
-    form = experimentForm1(form_data_dict,instance=e)
+    form = ExperimentForm(form_data_dict,instance=e)
 
     if form.is_valid():           
         e=form.save()               

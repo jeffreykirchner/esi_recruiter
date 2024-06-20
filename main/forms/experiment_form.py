@@ -11,12 +11,12 @@ from main.models import Institutions
 from main.models import Experiments
 from main.models import ConsentForm
 
-class experimentForm1(forms.ModelForm):   
+class ExperimentForm(forms.ModelForm):   
     '''
     edit experiment parmeters
     '''
     def __init__(self, *args, **kwargs):
-        super(experimentForm1, self).__init__(*args, **kwargs)
+        super(ExperimentForm, self).__init__(*args, **kwargs)
 
         self.fields['budget_default'].label_from_instance = self.budget_label_from_instance
         self.fields['experiment_pi'].label_from_instance = self.budget_label_from_instance
