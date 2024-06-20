@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from main.models import ExperimentSessions
-from main.models import recruitment_parameters
+from main.models import RecruitmentParameters
 from main.models import Parameters
 
 from main.globals import send_mass_email_service
@@ -17,7 +17,7 @@ class ExperimentSessionInvitations(models.Model):
     experiment session inivitation model
     '''
     experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
-    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
+    recruitment_params = models.ForeignKey(RecruitmentParameters, on_delete=models.CASCADE, null=True)
 
     users = models.ManyToManyField(User, related_name='experiment_session_invitation_users')
 

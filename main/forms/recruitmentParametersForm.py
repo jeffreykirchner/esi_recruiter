@@ -1,6 +1,12 @@
 from django import forms
-from main.models import Genders,subject_types,Institutions,recruitment_parameters,hrefExperiments,schools
 from django.db.models.functions import Lower
+
+from main.models import Genders
+from main.models import SubjectTypes
+from main.models import Institutions
+from main.models import RecruitmentParameters 
+from main.models import hrefExperiments
+from main.models import Schools
 
 class recruitmentParametersForm(forms.ModelForm):   
 
@@ -18,7 +24,7 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                                     "v-on:change":"recruitmentFormChange",}))   
                                                                                                                                                 
     subject_type = forms.ModelMultipleChoiceField(label="Subject Type(s)",
-                                                    queryset=subject_types.objects.all(),
+                                                    queryset=SubjectTypes.objects.all(),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.subject_type",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
@@ -95,14 +101,14 @@ class recruitmentParametersForm(forms.ModelForm):
 
     schools_include = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=schools.objects.all().order_by(Lower("name")),
+                                                    queryset=Schools.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.schools_include",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
                                                                                         "size":"10"}))
     schools_exclude = forms.ModelMultipleChoiceField(label="",
                                                     required=False,
-                                                    queryset=schools.objects.all().order_by(Lower("name")),
+                                                    queryset=Schools.objects.all().order_by(Lower("name")),
                                                     widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.schools_exclude",
                                                                                         "v-on:change":"recruitmentFormChange",
                                                                                         "class":"selectpicker",
@@ -119,7 +125,7 @@ class recruitmentParametersForm(forms.ModelForm):
                                                                          "v-on:change":"recruitmentFormChange"}))
 
     class Meta:
-        model=recruitment_parameters
+        model=RecruitmentParameters
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
         exclude=['trait_constraints_require_all']
 

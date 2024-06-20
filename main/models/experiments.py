@@ -15,10 +15,10 @@ from django.db.models.signals import post_delete
 from django.contrib.auth.models import User
 from django.db.models import Max
 
-from main.models import schools
+from main.models import Schools
 from main.models import Accounts
 from main.models import Institutions 
-from main.models import recruitment_parameters
+from main.models import RecruitmentParameters
 from main.models import Parameters
 from main.models import ConsentForm
 
@@ -29,9 +29,9 @@ class Experiments(models.Model):
     experiment model
     '''
 
-    school = models.ForeignKey(schools, on_delete=models.CASCADE)
+    school = models.ForeignKey(Schools, on_delete=models.CASCADE)
     account_default = models.ForeignKey(Accounts, on_delete=models.CASCADE)
-    recruitment_params_default = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
+    recruitment_params_default = models.ForeignKey(RecruitmentParameters, on_delete=models.CASCADE, null=True)  #default parameters used for new sessions
     consent_form_default = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True)                   #default consent form used for new sessions
     institution = models.ManyToManyField(Institutions, through="ExperimentsInstitutions")                       #institutions to which this experiment belongs  
     budget_default = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiments_a', blank=True, null=True)             #default faculty budget for experiment

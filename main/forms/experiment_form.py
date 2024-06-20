@@ -5,7 +5,7 @@ from tinymce.widgets import TinyMCE
 from django import forms
 from django.contrib.auth.models import User
 
-from main.models import schools
+from main.models import Schools
 from main.models import Accounts
 from main.models import Institutions
 from main.models import Experiments
@@ -57,7 +57,7 @@ class experimentForm1(forms.ModelForm):
                                                          "rows":"12"}),
                             required=False)
 
-    school = forms.ModelChoiceField(queryset=schools.objects.all(),
+    school = forms.ModelChoiceField(queryset=Schools.objects.all(),
                                     widget=forms.Select(attrs={"v-model":"experiment.school",
                                                                "v-on:change":"mainFormChange1"}))
     

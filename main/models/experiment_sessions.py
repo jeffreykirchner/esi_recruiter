@@ -17,7 +17,7 @@ from django.db.models import Q, F, Value as V, Count
 
 from main.models import Experiments
 from main.models import Parameters
-from main.models import recruitment_parameters
+from main.models import RecruitmentParameters
 from main.models import Parameters
 from main.models import ConsentForm
 from main.models import Institutions
@@ -29,7 +29,7 @@ class ExperimentSessions(models.Model):
     experiment = models.ForeignKey(Experiments, on_delete=models.CASCADE, related_name='ES')  
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_d', blank=True, null=True)    #user that created the session
     consent_form = models.ForeignKey(ConsentForm, on_delete=models.CASCADE, null=True, blank=True, related_name='ES_c')    #consent form used for new sessions
-    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)        #recruitment parameters
+    recruitment_params = models.ForeignKey(RecruitmentParameters, on_delete=models.CASCADE, null=True)        #recruitment parameters
     budget = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ES_b', blank=True, null=True)                               #faculty budget for session
    
     canceled = models.BooleanField(default=False)
@@ -154,7 +154,7 @@ class ExperimentSessions(models.Model):
 
         p = self.experiment.recruitment_params_default
 
-        tempP = recruitment_parameters()
+        tempP = RecruitmentParameters()
         tempP.setup(p)
         tempP.save()
 

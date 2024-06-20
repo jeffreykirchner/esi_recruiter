@@ -8,7 +8,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
-from main.models import Genders, Majors, subject_types
+from main.models import Genders
+from main.models import Majors
+from main.models import SubjectTypes
 
 class profileFormUpdate(forms.Form):
     '''
@@ -46,7 +48,7 @@ class profileFormUpdate(forms.Form):
                                    widget=forms.Select(attrs={"v-model":"profile.major"}))
     
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
-                                          queryset=subject_types.objects.all(),
+                                          queryset=SubjectTypes.objects.all(),
                                           empty_label=None,
                                           widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
     

@@ -2,8 +2,8 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
-from main.models import Genders,Experiments,subject_types,AccountTypes,Majors,\
-                        Parameters,Accounts,Departments,Locations,Institutions,schools,EmailFilters,\
+from main.models import Genders,Experiments,SubjectTypes,AccountTypes,Majors,\
+                        Parameters,Accounts,Departments,Locations,Institutions,Schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,RecruitmentParametersTraitConstraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
@@ -52,12 +52,12 @@ class GenderTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.get(id=1)
+        s=Schools.objects.get(id=1)
         s.email_filter.set(EmailFilters.objects.all())
 
         #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                             Genders.objects.first(),"7145551234",Majors.objects.first(),\
                             temp_st,False,True,AccountTypes.objects.get(id=1))
@@ -73,7 +73,7 @@ class GenderTestCase(TestCase):
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.get(id=g.id),"7145551234",Majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
             
             logger.info(u)
 
@@ -99,7 +99,7 @@ class GenderTestCase(TestCase):
         es_women_only = addSessionBlank(e)    
         es_women_only.recruitment_params.reset_settings()
         es_women_only.recruitment_params.gender.set(Genders.objects.filter(name="Female"))
-        es_women_only.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
+        es_women_only.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
         esd1 = es_women_only.ESD.first()
        
         u_list = es_women_only.getValidUserList_forward_check([],True,0,0,[],False,10)
@@ -118,7 +118,7 @@ class GenderTestCase(TestCase):
         es_all = addSessionBlank(e)    
         es_all.recruitment_params.reset_settings()
         es_all.recruitment_params.gender.set(Genders.objects.all())
-        es_all.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
+        es_all.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
 
         u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False,10)
         c=len(u_list)
@@ -151,7 +151,7 @@ class subjectTypeTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
+        s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
         
 
@@ -161,9 +161,9 @@ class subjectTypeTestCase(TestCase):
 
             temp_st=""
             if g<=2:
-                temp_st =  subject_types.objects.get(id=1)
+                temp_st =  SubjectTypes.objects.get(id=1)
             else:
-                temp_st =  subject_types.objects.get(id=2)
+                temp_st =  SubjectTypes.objects.get(id=2)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
@@ -193,12 +193,12 @@ class subjectTypeTestCase(TestCase):
         es = addSessionBlank(e)    
         es.recruitment_params.reset_settings()
         es.recruitment_params.gender.set(Genders.objects.all())
-        es.recruitment_params.subject_type.set(subject_types.objects.filter(id=1))
+        es.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
        
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
         c=len(u_list)
 
-        self.assertEqual(c, len(User.objects.filter(profile__subject_type=subject_types.objects.get(id=1)))) 
+        self.assertEqual(c, len(User.objects.filter(profile__subject_type=SubjectTypes.objects.get(id=1)))) 
 
     #get all types
     def testSubjectTypeAll(self):
@@ -210,7 +210,7 @@ class subjectTypeTestCase(TestCase):
         es = addSessionBlank(e)    
         es.recruitment_params.reset_settings()
         es.recruitment_params.gender.set(Genders.objects.all())
-        es.recruitment_params.subject_type.set(subject_types.objects.all())
+        es.recruitment_params.subject_type.set(SubjectTypes.objects.all())
        
         u_list = es.getValidUserList_forward_check([],True,0,0,[],False,10)
         c=len(u_list)
@@ -256,12 +256,12 @@ class recruitTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
+        s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
 
         #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
@@ -276,7 +276,7 @@ class recruitTestCase(TestCase):
         #create 7 subjects
         for g in range(8):
             user_name = "g"+str(g)+"@chapman.edu"
-            temp_st =  subject_types.objects.get(id=1)
+            temp_st =  SubjectTypes.objects.get(id=1)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
@@ -309,7 +309,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(self.e1)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
@@ -339,7 +339,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(self.e2)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
@@ -372,7 +372,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(self.e2)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
@@ -393,7 +393,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(self.e2)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
@@ -857,7 +857,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
@@ -948,7 +948,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
         es1.recruitment_params.institutions_include_all=False
 
@@ -1041,7 +1041,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_include.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
@@ -1214,7 +1214,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e4)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         esd1 = es1.ESD.first()
         
@@ -1238,7 +1238,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
@@ -1334,7 +1334,7 @@ class recruitTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.institutions_exclude_all=False
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one") | Q(name="three")))
 
         esd1 = es1.ESD.first()
@@ -1404,7 +1404,7 @@ class recruitTestCase(TestCase):
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
         es1.recruitment_params.institutions_exclude_all=False
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.institutions_exclude.set(Institutions.objects.filter(Q(name="one")))
         es1.recruitment_params.save()
 
@@ -1455,7 +1455,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         esd1 = es1.ESD.first()
 
@@ -1524,7 +1524,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         esd1 = es1.ESD.first()
 
@@ -1683,7 +1683,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.experiments_include.add(self.e1)
         es1.recruitment_params.experiments_include.add(self.e2)
 
@@ -1787,7 +1787,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.experiments_include.add(self.e1)
         es1.recruitment_params.experiments_include.add(self.e2)
         es1.recruitment_params.experiments_include_all=False
@@ -1896,7 +1896,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.experiments_include.add(self.e1)
         es1.recruitment_params.experiments_include.add(self.e2)
         es1.recruitment_params.experiments_include_all=False
@@ -2082,7 +2082,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.experiments_exclude.set([self.e1,self.e2])
 
         esd1 = es1.ESD.first()
@@ -2194,7 +2194,7 @@ class recruitTestCase(TestCase):
         es1 = addSessionBlank(e3)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.experiments_exclude.set([self.e1,self.e2])
         es1.recruitment_params.experiments_exclude_all=False
         es1.recruitment_params.save()
@@ -2313,12 +2313,12 @@ class traitConstraintTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
+        s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
 
         #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
@@ -2339,10 +2339,10 @@ class traitConstraintTestCase(TestCase):
 
             temp_st=""
             if g<=2:
-                temp_st =  subject_types.objects.get(id=1)
+                temp_st =  SubjectTypes.objects.get(id=1)
                 temp_at = AccountTypes.objects.get(id=2)
             else:
-                temp_st =  subject_types.objects.get(id=2)
+                temp_st =  SubjectTypes.objects.get(id=2)
                 temp_at = AccountTypes.objects.get(id=1)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
@@ -2398,7 +2398,7 @@ class traitConstraintTestCase(TestCase):
         es1 = addSessionBlank(self.e)    
         es1.recruitment_params.reset_settings()
         es1.recruitment_params.gender.set(Genders.objects.all())
-        es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         es1.recruitment_params.registration_cutoff = 5
         es1.recruitment_params.save()
         es1.save()
@@ -2710,7 +2710,7 @@ class schoolTestCase(TestCase):
         i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
+        s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
 
         self.user_list=[]
@@ -2724,9 +2724,9 @@ class schoolTestCase(TestCase):
 
             temp_st=""
             if g<=2:
-                temp_st =  subject_types.objects.get(id=1)
+                temp_st =  SubjectTypes.objects.get(id=1)
             else:
-                temp_st =  subject_types.objects.get(id=2)
+                temp_st =  SubjectTypes.objects.get(id=2)
 
             u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
@@ -2750,7 +2750,7 @@ class schoolTestCase(TestCase):
 
         #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
                           Genders.objects.first(),"7145551234",Majors.objects.first(),\
                           temp_st,False,True,AccountTypes.objects.get(id=1))
@@ -2768,7 +2768,7 @@ class schoolTestCase(TestCase):
         es = addSessionBlank(self.e)    
         es.recruitment_params.reset_settings()
         es.recruitment_params.gender.set(Genders.objects.all())
-        es.recruitment_params.subject_type.set(subject_types.objects.all())
+        es.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         es.recruitment_params.schools_include_constraint=False
         es.recruitment_params.schools_exclude_constraint=False
@@ -2801,11 +2801,11 @@ class schoolTestCase(TestCase):
         es = addSessionBlank(self.e)    
         es.recruitment_params.reset_settings()
         es.recruitment_params.gender.set(Genders.objects.all())
-        es.recruitment_params.subject_type.set(subject_types.objects.all())
+        es.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         es.recruitment_params.schools_include_constraint=False
         es.recruitment_params.schools_exclude_constraint=True
-        es.recruitment_params.schools_exclude.set(schools.objects.filter(id=1))
+        es.recruitment_params.schools_exclude.set(Schools.objects.filter(id=1))
         es.recruitment_params.save()
 
         e_users = []
@@ -2835,11 +2835,11 @@ class schoolTestCase(TestCase):
         es = addSessionBlank(self.e)    
         es.recruitment_params.reset_settings()
         es.recruitment_params.gender.set(Genders.objects.all())
-        es.recruitment_params.subject_type.set(subject_types.objects.all())
+        es.recruitment_params.subject_type.set(SubjectTypes.objects.all())
 
         es.recruitment_params.schools_include_constraint=True
         es.recruitment_params.schools_exclude_constraint=False
-        es.recruitment_params.schools_include.set(schools.objects.filter(id=1))
+        es.recruitment_params.schools_include.set(Schools.objects.filter(id=1))
         es.recruitment_params.save()
 
         e_users = []

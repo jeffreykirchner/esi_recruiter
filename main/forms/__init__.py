@@ -3,9 +3,8 @@ from .profileForm import *
 from .profileFormUpdate import *
 from .verifyForm import *
 from .verifyFormResend import *
-from .experimentForm1 import *
+from .experiment_form import *
 from .recruitmentParametersForm import *
-from .experimentForm1 import *
 from .experimentSessionForm1 import *
 from .experimentSessionForm2 import *
 from .parametersForm import *

@@ -25,10 +25,10 @@ from main.models import Institutions,\
                                 Locations,\
                                 ExperimentSessionDayUsers,\
                                 ExperimentsInstitutions, \
-                                schools, \
+                                Schools, \
                                 Majors, \
                                 Parameters, \
-                                recruitment_parameters,\
+                                RecruitmentParameters,\
                                 email_filters,\
                                 profile,\
                                 FAQ,\
@@ -81,10 +81,10 @@ def migrate_accounts():
                 account.department_id=int(department_id)
                 account.save()
         
-def migrate_schools():
+def migrate_Schools():
         print("Migrate Schools")
 
-        schools.objects.all().delete()
+        Schools.objects.all().delete()
 
         cursor = connections['old'].cursor()
         cursor.execute('''select * from schools''')               
@@ -92,7 +92,7 @@ def migrate_schools():
         for c in cursor.fetchall():
                 id,name,hide_school=c
 
-                school=schools(id=id,name=name)
+                school=Schools(id=id,name=name)
                 school.save()
 
         cursor.close()
@@ -149,13 +149,13 @@ def migrate_profile_traits():
 def migrate_recruitment_parameters():
         print("Start of experiments")       
 
-        recruitment_parameters.objects.all().delete()
+        RecruitmentParameters.objects.all().delete()
 
         migrate_experiments()
 
         print("Experiment recruitment parameters")
         for e in Experiments.objects.all():
-                p=recruitment_parameters()
+                p=RecruitmentParameters()
                 p.actual_participants = e.actual_participants_legacy
                 p.registration_cutoff = e.registration_cutoff_legacy
 

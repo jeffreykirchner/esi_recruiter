@@ -15,12 +15,12 @@ from django.utils.decorators import method_decorator
 from main.decorators import user_is_staff
 from main.models import Experiments
 from main.models import ExperimentSessionDays
-from main.models import schools
+from main.models import Schools
 from main.models import Accounts
-from main.models import recruitment_parameters
+from main.models import RecruitmentParameters
 from main.models import Parameters
 from main.models import Genders
-from main.models import subject_types
+from main.models import SubjectTypes
 from main.models import HelpDocs
 from main.models import InvitationEmailTemplates    
 
@@ -90,13 +90,13 @@ def createExperimentBlank():
     logger = logging.getLogger(__name__)
     logger.info("Create Blank Experiment")
     
-    rp = recruitment_parameters()
+    rp = RecruitmentParameters()
     p = Parameters.objects.first()
 
     #setup with initial genders selected
     g_list=list(Genders.objects.filter(initialValue = True))
-    st_list = list(subject_types.objects.filter(initialValue = True))
-    schools_list = list(schools.objects.filter(initialValue = True))
+    st_list = list(SubjectTypes.objects.filter(initialValue = True))
+    schools_list = list(Schools.objects.filter(initialValue = True))
 
     #get invitation text from first template
     t = InvitationEmailTemplates.objects.filter(enabled=True)
@@ -105,7 +105,7 @@ def createExperimentBlank():
         invitationText = t.first().body_text
 
     e = Experiments()
-    e.school = schools.objects.first()
+    e.school = Schools.objects.first()
     e.account_default = Accounts.objects.first()
     e.recruitment_params_default = rp
     e.showUpFee = p.defaultShowUpFee

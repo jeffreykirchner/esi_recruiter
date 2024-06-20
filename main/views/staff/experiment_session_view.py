@@ -30,7 +30,7 @@ from main.models import ExperimentSessions
 from main.models import Parameters
 from main.models import ExperimentSessionMessages
 from main.models import ExperimentSessionInvitations
-from main.models import recruitment_parameters
+from main.models import RecruitmentParameters
 from main.models import HelpDocs
 from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
@@ -358,7 +358,7 @@ def storeInvitation(id, userPkList, subjectText, messageText, memo):
 
     es = ExperimentSessions.objects.get(id=id)
 
-    recruitment_params = recruitment_parameters()
+    recruitment_params = RecruitmentParameters()
     recruitment_params.setup(es.recruitment_params)
     recruitment_params.save()
 

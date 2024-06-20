@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import pytz
 import logging
 
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
@@ -95,9 +94,9 @@ class AccountsAdmin(admin.ModelAdmin):
 admin.site.register(Genders)
 admin.site.register(Institutions)
 admin.site.register(Majors)
-admin.site.register(schools)
+admin.site.register(Schools)
 admin.site.register(EmailFilters)
-admin.site.register(subject_types)
+admin.site.register(SubjectTypes)
 admin.site.register(IrbStudy)
 admin.site.register(Locations)
 

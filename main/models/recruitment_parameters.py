@@ -6,19 +6,19 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
 from  main.models import Genders
-from  main.models import subject_types
+from  main.models import SubjectTypes
 from  main.models import Institutions
-from  main.models import schools
+from  main.models import Schools
 
 import main
 
-class recruitment_parameters(models.Model):
+class RecruitmentParameters(models.Model):
 
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)
     registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(Genders)
-    subject_type =  models.ManyToManyField(subject_types)      
+    subject_type =  models.ManyToManyField(SubjectTypes)      
 
     #institutions to include or exclude
     institutions_exclude = models.ManyToManyField(Institutions, related_name='%(class)s_institutions_exclude',blank=True)
@@ -43,8 +43,8 @@ class recruitment_parameters(models.Model):
     allow_multiple_participations =  models.BooleanField(default=False, null=True)
 
     #school filters by subject email domain
-    schools_include = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_include')
-    schools_exclude = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_exclude')
+    schools_include = models.ManyToManyField(Schools, blank=True, related_name='%(class)s_schools_include')
+    schools_exclude = models.ManyToManyField(Schools, blank=True, related_name='%(class)s_schools_exclude')
     schools_include_constraint = models.BooleanField(default=True)
     schools_exclude_constraint = models.BooleanField(default=False)
 
