@@ -34,9 +34,9 @@ class RecruitmentParameters(models.Model):
     experience_constraint  =  models.BooleanField(default=False) 
 
     #wether constraints should be be all or more than one
-    institutions_exclude_all = models.BooleanField(default=True)
+    institutions_exclude_all = models.BooleanField(default=False)
     institutions_include_all = models.BooleanField(default=True)
-    experiments_exclude_all = models.BooleanField(default=True)
+    experiments_exclude_all = models.BooleanField(default=False)
     experiments_include_all = models.BooleanField(default=True)
 
     #all subject to come multiple times to the same same experiment
