@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from main.models import departments
+from main.models import Departments
 
 import logging
 
 #form
-class studentReportForm(forms.Form):
+class StudentReportForm(forms.Form):
     studentReport_nra = forms.TypedChoiceField(label="Subjects that are international?",                                       
                                        choices=[(1,"Yes"),(0,"No, any subjects.")],                                                  
                                        widget = forms.RadioSelect(attrs={"v-model":"studentReport.studentReport_nra"}))

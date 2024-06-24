@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.shortcuts import render
-from main.forms import verifyFormResend
+from main.forms import VerifyFormResend
 
 from .models import profile
 

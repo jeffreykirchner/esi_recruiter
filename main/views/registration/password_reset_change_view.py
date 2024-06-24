@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import logout
 from django.views import View
 
-from main.models import parameters
+from main.models import Parameters
 from main.models import profile
 
 from main.forms import passwordResetChangeForm
@@ -31,7 +31,7 @@ class PasswordResetChangeView(View):
 
         logout(request)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         labManager = p.labManager 
 
         form = passwordResetChangeForm()
@@ -85,7 +85,7 @@ def checkValidCode(token):
 def changePassword(request,data,token):
     logger = logging.getLogger(__name__) 
    
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #convert form into dictionary
     form_data_dict = data["formData"]             

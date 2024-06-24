@@ -5,18 +5,18 @@ from tinymce.widgets import TinyMCE
 from django import forms
 from django.contrib.auth.models import User
 
-from main.models import schools
-from main.models import accounts
-from main.models import institutions
-from main.models import experiments
+from main.models import Schools
+from main.models import Accounts
+from main.models import Institutions
+from main.models import Experiments
 from main.models import ConsentForm
 
-class experimentForm1(forms.ModelForm):   
+class ExperimentForm(forms.ModelForm):   
     '''
     edit experiment parmeters
     '''
     def __init__(self, *args, **kwargs):
-        super(experimentForm1, self).__init__(*args, **kwargs)
+        super(ExperimentForm, self).__init__(*args, **kwargs)
 
         self.fields['budget_default'].label_from_instance = self.budget_label_from_instance
         self.fields['experiment_pi'].label_from_instance = self.budget_label_from_instance
@@ -57,12 +57,12 @@ class experimentForm1(forms.ModelForm):
                                                          "rows":"12"}),
                             required=False)
 
-    school = forms.ModelChoiceField(queryset=schools.objects.all(),
+    school = forms.ModelChoiceField(queryset=Schools.objects.all(),
                                     widget=forms.Select(attrs={"v-model":"experiment.school",
                                                                "v-on:change":"mainFormChange1"}))
     
     account_default = forms.ModelChoiceField(label="Account (default)",
-                                            queryset=accounts.objects.filter(archived=False),
+                                            queryset=Accounts.objects.filter(archived=False),
                                             widget=forms.Select(attrs={"v-model":"experiment.account_default",
                                                                        "v-on:change":"mainFormChange1"}))
 
@@ -72,7 +72,7 @@ class experimentForm1(forms.ModelForm):
                                                                             "v-on:change":"mainFormChange1"}))
 
     institution = forms.ModelMultipleChoiceField(label="",
-                                                 queryset=institutions.objects.all().order_by("name"),
+                                                 queryset=Institutions.objects.all().order_by("name"),
                                                  widget = forms.CheckboxSelectMultiple(attrs={"v-model":"experiment.institution",
                                                                                       "v-on:change":"mainFormChange1",
                                                                                       "class":"selectpicker",
@@ -109,7 +109,7 @@ class experimentForm1(forms.ModelForm):
                                                                                  'placeholder':'Leave blank for no instructions'}))
 
     class Meta:
-        model=experiments
+        model=Experiments
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
         exclude=['recruitment_params_default']
 

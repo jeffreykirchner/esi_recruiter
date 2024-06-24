@@ -10,9 +10,9 @@ from django.db.models import Count
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import experiment_session_days
-from main.models import help_docs
-from main.models import parameters
+from main.models import ExperimentSessionDays
+from main.models import HelpDocs
+from main.models import Parameters
 
 from main.decorators import user_is_staff
 
@@ -33,7 +33,7 @@ class SessionsOpen(View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -65,7 +65,7 @@ def getOpenSessions(data):
     logger.info("Get Open Sessions")
     logger.info(data)
 
-    s_dict = experiment_session_days.objects.filter(complete = False).values('id',
+    s_dict = ExperimentSessionDays.objects.filter(complete = False).values('id',
                                                                              'date',
                                                                              'experiment_session__recruitment_params__registration_cutoff',
                                                                              'experiment_session__experiment__title',
@@ -84,7 +84,7 @@ def getOpenSessions(data):
    
     s_list = list(s_dict)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
 
     for i in s_list:
@@ -103,6 +103,6 @@ def closeAllSessions(data):
     logger.info("Close All Sessions")
     logger.info(data)
 
-    experiment_session_days.objects.all().update(complete = True)
+    ExperimentSessionDays.objects.all().update(complete = True)
 
     return getOpenSessions(data)

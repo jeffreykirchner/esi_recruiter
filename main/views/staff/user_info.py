@@ -12,8 +12,8 @@ from django.views.generic.detail import SingleObjectMixin
 
 from django.db.models import CharField, F, Value as V
 
-from main.models import profile_note
-from main.models import help_docs
+from main.models import ProfileNote
+from main.models import HelpDocs
 
 from main.globals import get_now_show_blocks
 
@@ -37,7 +37,7 @@ class UserInfo(SingleObjectMixin, View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp=V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp=V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains=F('path')).first().text
 
         except Exception  as e:   
@@ -88,7 +88,7 @@ def makeNote(request, data, id):
 
     u = User.objects.get(id=id)
 
-    n = profile_note()
+    n = ProfileNote()
     n.my_profile = u.profile
     n.noteMaker = request.user
     n.text = data["text"].strip().capitalize()
@@ -105,7 +105,7 @@ def deleteNote(request, data, id):
     logger.info(data)
 
     note_id = data["id"]
-    n = profile_note.objects.get(id=note_id)
+    n = ProfileNote.objects.get(id=note_id)
 
     if request.user.is_staff:
         n.delete()

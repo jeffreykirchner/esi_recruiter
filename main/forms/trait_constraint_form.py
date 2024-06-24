@@ -1,5 +1,5 @@
 from django import forms
-from main.models import Recruitment_parameters_trait_constraint,Traits
+from main.models import RecruitmentParametersTraitConstraint,Traits
 
 import logging
 
@@ -22,7 +22,7 @@ class TraitConstraintForm(forms.ModelForm):
                               widget=forms.NumberInput(attrs={"v-model":"current_trait.max_value"}))
    
     class Meta:
-        model=Recruitment_parameters_trait_constraint
+        model=RecruitmentParametersTraitConstraint
         fields=['trait', 'include_if_in_range', 'min_value', 'max_value']
 
     def clean_max_value(self):

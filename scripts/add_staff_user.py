@@ -6,7 +6,7 @@ from django.utils.crypto import get_random_string
 from main.views.registration import profileCreateUser
 
 from main.models import genders
-from main.models import subject_types
+from main.models import SubjectTypes
 from main.models import account_types
 from main.models import majors
 
@@ -22,7 +22,7 @@ while go:
     last_name = input()
 
     user_name = email
-    temp_st =  subject_types.objects.get(id=3)
+    temp_st =  SubjectTypes.objects.get(id=3)
     new_user = profileCreateUser(email, email, get_random_string(16), first_name, last_name, "123456",\
                     genders.objects.last(),"7145551234", majors.objects.first(),\
                     temp_st, False, True, account_types.objects.get(id=1))

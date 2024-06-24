@@ -8,7 +8,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 
 from main.globals import profile_create_send_email
-from main.models import parameters
+from main.models import Parameters
 
 class ProfileVerifyResend(View):
     '''
@@ -47,7 +47,7 @@ def getUser(request,data):
     u=request.user
     logger.info(u)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     return JsonResponse({"emailVerified":False if u.profile.email_confirmed != "yes" else True,
                          "admainName":p.labManager.first_name + " " + p.labManager.last_name,

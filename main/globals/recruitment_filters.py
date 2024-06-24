@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models import Count
 
-from main.models import parameters
+from main.models import Parameters
 
 def get_now_show_blocks():
     '''
     return a query set of users currently under the now show block restriction
     '''
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
 
     user_qs = User.objects.filter(Q(ESDU__confirmed = True) &

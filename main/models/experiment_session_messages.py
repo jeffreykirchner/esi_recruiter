@@ -1,11 +1,11 @@
 from django.db import models
 import logging
 
-from . import experiment_sessions
+from . import ExperimentSessions
 from django.contrib.auth.models import User
 
-class experiment_session_messages(models.Model):
-    experiment_session = models.ForeignKey(experiment_sessions,on_delete=models.CASCADE)
+class ExperimentSessionMessages(models.Model):
+    experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='experiment_session_messages')
     users = models.ManyToManyField(User)
 
     subjectText = models.CharField(max_length = 1000,default = "")  

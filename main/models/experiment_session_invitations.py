@@ -1,20 +1,23 @@
 
+import pytz
+
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.contrib.auth.models import User
 from django.db import models
 
-from main.models import experiment_sessions
-from main.models import recruitment_parameters
+from main.models import ExperimentSessions
+from main.models import RecruitmentParameters
+from main.models import Parameters
 
 from main.globals import send_mass_email_service
 
-class experiment_session_invitations(models.Model):
+class ExperimentSessionInvitations(models.Model):
     '''
     experiment session inivitation model
     '''
-    experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
-    recruitment_params = models.ForeignKey(recruitment_parameters, on_delete=models.CASCADE, null=True)
+    experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='experiment_session_invitations')
+    recruitment_params = models.ForeignKey(RecruitmentParameters, on_delete=models.CASCADE, null=True)
 
     users = models.ManyToManyField(User, related_name='experiment_session_invitation_users')
 
@@ -67,6 +70,12 @@ class experiment_session_invitations(models.Model):
 
         return mail_result
     
+    def getDateString(self):
+        p = Parameters.objects.first()
+        tz = pytz.timezone(p.subjectTimeZone)
+      
+        return  self.timestamp.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") 
+
     def get_message_text_filled(self, u):
         '''
         return message text filled with variables from u (User)
@@ -96,6 +105,7 @@ class experiment_session_invitations(models.Model):
             "messageText":self.messageText,
             "users":[u.profile.json_min() for u in self.users.all()],
             "date_raw":self.timestamp,
+            "date_string":self.getDateString(),
             "mailResultSentCount":self.mailResultSentCount,
             "mailResultErrorText":self.mailResultErrorText,
             "recruitment_params":self.recruitment_params.json_displayString(),
@@ -103,7 +113,7 @@ class experiment_session_invitations(models.Model):
 
 
 #delete recruitment parameters when deleted
-@receiver(post_delete, sender=experiment_session_invitations)
+@receiver(post_delete, sender=ExperimentSessionInvitations)
 def post_delete_recruitment_params(sender, instance, *args, **kwargs):
     if instance.recruitment_params: # just in case user is not specified
         instance.recruitment_params.delete()

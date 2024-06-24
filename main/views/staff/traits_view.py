@@ -15,15 +15,15 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.forms import traitReportForm
+from main.forms import TraitReportForm
 from main.decorators import user_is_staff
 
 from main.models import Traits
 from main.models import profile_trait
 from main.models import profile
-from main.models import help_docs
-from main.models import experiment_session_day_users
-from main.models import experiment_session_days
+from main.models import HelpDocs
+from main.models import ExperimentSessionDayUsers
+from main.models import ExperimentSessionDays
 
 class TraitsView(View):
     '''
@@ -44,7 +44,7 @@ class TraitsView(View):
         session_day = None
 
         if session_day_id:
-            result = experiment_session_days.objects.filter(id=session_day_id).values('id','experiment_session__experiment__title')
+            result = ExperimentSessionDays.objects.filter(id=session_day_id).values('id','experiment_session__experiment__title')
             if result:
                 session_day = result.first()
 
@@ -52,13 +52,13 @@ class TraitsView(View):
 
         try:
             logger.info(request.path)
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
                                 .filter(rp__icontains = F('path')).first().text
         except Exception  as e:   
             logger.info(f'{e}')
             helpText = "No help doc was found."
 
-        return render(request, self.template_name,{"traitReportForm":traitReportForm(),
+        return render(request, self.template_name,{"traitReportForm":TraitReportForm(),
                                                    "session_day" : json.dumps(session_day,cls=DjangoJSONEncoder),
                                                    "helpText":helpText})
 
@@ -117,7 +117,7 @@ def getReport(data, u, session_day_id):
 
     logger.info(form_data_dict)
     
-    form = traitReportForm(form_data_dict)
+    form = TraitReportForm(form_data_dict)
 
     if form.is_valid():
 
@@ -125,7 +125,7 @@ def getReport(data, u, session_day_id):
         session_day = None
 
         if session_day_id:
-            result = experiment_session_days.objects.filter(id=session_day_id)
+            result = ExperimentSessionDays.objects.filter(id=session_day_id)
             if result:
                 session_day = result.first()
 
@@ -164,7 +164,7 @@ def getReport(data, u, session_day_id):
                                    'id') \
         
         #generate list of experiments attended by subject
-        attended_list_a = experiment_session_day_users.objects.select_related('user__profile', 
+        attended_list_a = ExperimentSessionDayUsers.objects.select_related('user__profile', 
                                                                               'experiment_session_day__experiment_session__experiment',
                                                                               'experiment_session_day__date')\
                                                               .filter(attended=True)\

@@ -12,21 +12,21 @@ from django.test import TestCase
 from django.test import RequestFactory
 from django.test import Client
 
-from main.models import genders
-from main.models import subject_types
-from main.models import account_types
-from main.models import majors
-from main.models import parameters
-from main.models import accounts
-from main.models import departments
-from main.models import locations
-from main.models import institutions
-from main.models import schools
-from main.models import email_filters
+from main.models import Genders
+from main.models import SubjectTypes
+from main.models import AccountTypes
+from main.models import Majors
+from main.models import Parameters
+from main.models import Accounts
+from main.models import Departments
+from main.models import Locations
+from main.models import Institutions
+from main.models import Schools
+from main.models import EmailFilters
 from main.models import ConsentForm         
 from main.models import ProfileConsentForm           
 from main.models import UmbrellaConsentForm
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDayUsers
 
 from main.views import profileCreateUser
 from main.views import update_profile
@@ -65,36 +65,36 @@ class subjectHomeTestCase(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
-        self.account1 = accounts(name="a",number="1.0",department=d)
+        self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
-        self.l1=locations(name="room1",address="room1")
+        self.l1=Locations(name="room1",address="room1")
         self.l1.save()
-        self.l2=locations(name="room2",address="room2")
+        self.l2=Locations(name="room2",address="room2")
         self.l2.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
-        s.email_filter.set(email_filters.objects.all())
+        s=Schools.objects.first()
+        s.email_filter.set(EmailFilters.objects.all())
 
          #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
         
@@ -102,8 +102,8 @@ class subjectHomeTestCase(TestCase):
         self.p.save()
 
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
 
@@ -121,14 +121,14 @@ class subjectHomeTestCase(TestCase):
         
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
-        self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.institution.set(Institutions.objects.filter(name="one"))
         self.e1.consent_form_default = ConsentForm.objects.first()
         self.e1.save()
 
         self.es1 = addSessionBlank(self.e1)    
         self.es1.recruitment_params.reset_settings()
-        self.es1.recruitment_params.gender.set(genders.objects.all())
-        self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.gender.set(Genders.objects.all())
+        self.es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
         self.es1.save()
@@ -145,14 +145,14 @@ class subjectHomeTestCase(TestCase):
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
-        self.e2.institution.set(institutions.objects.filter(name="two"))
+        self.e2.institution.set(Institutions.objects.filter(name="two"))
         self.e2.consent_form_default = ConsentForm.objects.first()
         self.e2.save()
 
         self.es2 = addSessionBlank(self.e2)    
         self.es2.recruitment_params.reset_settings()
-        self.es2.recruitment_params.gender.set(genders.objects.all())
-        self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es2.recruitment_params.gender.set(Genders.objects.all())
+        self.es2.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
         self.es2.save()
@@ -208,7 +208,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #test no consent form required by session
         profile_consent_form.delete()
@@ -225,7 +225,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #test no agreement required
         self.es1.consent_form=ConsentForm.objects.first()
@@ -258,7 +258,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual("", r['message'])
 
         #remove confirmations
-        experiment_session_day_users.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
+        ExperimentSessionDayUsers.objects.filter(user__id=self.u.id).update(attended=False,confirmed=False)
 
         #enable umbrella consent
         umbrella_consent = UmbrellaConsentForm.objects.first()
@@ -317,7 +317,7 @@ class subjectHomeTestCase(TestCase):
 
         #attend subject check that consent now exists
         esd1 = self.es1.ESD.first()
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
         r = json.loads(attendSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
         self.assertIn("is now attending",r['status'])
 
@@ -330,7 +330,7 @@ class subjectHomeTestCase(TestCase):
         #bump subject, check that consent no longer exists
         #attend subject check that consent now exists
         esd1 = self.es1.ESD.first()
-        esdu = experiment_session_day_users.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(experiment_session_day__id = esd1.id, user__id = self.u.id).first()
         r = json.loads(bumpSubject({"id":esdu.id},esd1.id,self.staff_u,).content.decode("UTF-8"))
         self.assertIn("success",r['status'])
 
@@ -378,7 +378,7 @@ class subjectHomeTestCase(TestCase):
         """Test subject confirm with future institution conflict""" 
         logger = logging.getLogger(__name__)
 
-        self.es2.recruitment_params.institutions_exclude.set(institutions.objects.filter(name="one"))
+        self.es2.recruitment_params.institutions_exclude.set(Institutions.objects.filter(name="one"))
         self.es2.recruitment_params.save()
 
         #add consent form
@@ -412,8 +412,8 @@ class subjectHomeTestCase(TestCase):
 
         temp_es1 = addSessionBlank(self.e1)    
         temp_es1.recruitment_params.reset_settings()
-        temp_es1.recruitment_params.gender.set(genders.objects.all())
-        temp_es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        temp_es1.recruitment_params.gender.set(Genders.objects.all())
+        temp_es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         temp_es1.recruitment_params.registration_cutoff = 5
         temp_es1.recruitment_params.save()
         temp_es1.save()
@@ -453,8 +453,8 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
 
@@ -504,8 +504,8 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         temp_u = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(temp_u)
 

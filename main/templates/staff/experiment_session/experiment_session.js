@@ -297,7 +297,7 @@ let app = Vue.createApp({
 
                 if(status != 'success')
                 {
-                    userFails = response.data.userFails;
+                    let userFails = response.data.userFails;
 
                     for (let i = 0; i < userFails.length; i++)
                     {
@@ -1164,7 +1164,7 @@ let app = Vue.createApp({
             for(let i=0;i<app.invitationList.length;i++)
             {
                 let m=app.invitationList[i];
-                m.date_raw=app.formatDate(m.date_raw,false,false);
+                // m.date_raw=app.formatDate(m.date_raw,false,false);
 
                 let emailMessageList="";
 

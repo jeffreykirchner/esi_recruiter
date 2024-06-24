@@ -2,12 +2,13 @@ from django.db import models
 import logging
 import traceback
 
-from . import experiments,institutions
+from main.models import Experiments
+from main.models import Institutions
 
 #intermediate table for experiments and institutions
-class experiments_institutions(models.Model):
-    experiment = models.ForeignKey(experiments,on_delete=models.CASCADE)
-    institution = models.ForeignKey(institutions,on_delete=models.CASCADE)
+class ExperimentsInstitutions(models.Model):
+    experiment = models.ForeignKey(Experiments,on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institutions,on_delete=models.CASCADE)
 
     timestamp = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now= True)

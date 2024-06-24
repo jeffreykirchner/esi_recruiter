@@ -5,28 +5,28 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
-from  main.models import genders
-from  main.models import subject_types
-from  main.models import institutions
-from  main.models import schools
+from  main.models import Genders
+from  main.models import SubjectTypes
+from  main.models import Institutions
+from  main.models import Schools
 
 import main
 
-class recruitment_parameters(models.Model):
+class RecruitmentParameters(models.Model):
 
     #recruitment parameters
     actual_participants = models.IntegerField(default=1)
     registration_cutoff = models.IntegerField(default=1)    
-    gender = models.ManyToManyField(genders)
-    subject_type =  models.ManyToManyField(subject_types)      
+    gender = models.ManyToManyField(Genders)
+    subject_type =  models.ManyToManyField(SubjectTypes)      
 
     #institutions to include or exclude
-    institutions_exclude = models.ManyToManyField(institutions, related_name='%(class)s_institutions_exclude',blank=True)
-    institutions_include = models.ManyToManyField(institutions, related_name='%(class)s_institutions_include',blank=True)
+    institutions_exclude = models.ManyToManyField(Institutions, related_name='%(class)s_institutions_exclude',blank=True)
+    institutions_include = models.ManyToManyField(Institutions, related_name='%(class)s_institutions_include',blank=True)
 
-    #experiments to include or exclude
-    experiments_exclude = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_exclude',blank=True)
-    experiments_include = models.ManyToManyField('main.experiments', related_name='%(class)s_experiments_include',blank=True)
+    #Experiments to include or exclude
+    experiments_exclude = models.ManyToManyField('main.Experiments', related_name='%(class)s_experiments_exclude',blank=True)
+    experiments_include = models.ManyToManyField('main.Experiments', related_name='%(class)s_experiments_include',blank=True)
 
     #range, in number of experiments, the subject has been in
     experience_min = models.IntegerField(default = 0,null=True)
@@ -34,17 +34,17 @@ class recruitment_parameters(models.Model):
     experience_constraint  =  models.BooleanField(default=False) 
 
     #wether constraints should be be all or more than one
-    institutions_exclude_all = models.BooleanField(default=True)
+    institutions_exclude_all = models.BooleanField(default=False)
     institutions_include_all = models.BooleanField(default=True)
-    experiments_exclude_all = models.BooleanField(default=True)
+    experiments_exclude_all = models.BooleanField(default=False)
     experiments_include_all = models.BooleanField(default=True)
 
     #all subject to come multiple times to the same same experiment
     allow_multiple_participations =  models.BooleanField(default=False, null=True)
 
     #school filters by subject email domain
-    schools_include = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_include')
-    schools_exclude = models.ManyToManyField(schools, blank=True, related_name='%(class)s_schools_exclude')
+    schools_include = models.ManyToManyField(Schools, blank=True, related_name='%(class)s_schools_include')
+    schools_exclude = models.ManyToManyField(Schools, blank=True, related_name='%(class)s_schools_exclude')
     schools_include_constraint = models.BooleanField(default=True)
     schools_exclude_constraint = models.BooleanField(default=False)
 
@@ -98,7 +98,7 @@ class recruitment_parameters(models.Model):
 
         #self.trait_constraints.set(es.trait_constraints.all())
         for trait_constraint in es.trait_constraints.all():
-            new_trait_constraint = main.models.Recruitment_parameters_trait_constraint()
+            new_trait_constraint = main.models.RecruitmentParametersTraitConstraint()
 
             new_trait_constraint.setup(trait_constraint)
             new_trait_constraint.recruitment_parameter = self

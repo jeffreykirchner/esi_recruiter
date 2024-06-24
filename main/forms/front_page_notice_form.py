@@ -2,9 +2,9 @@ from tinymce.widgets import TinyMCE
 
 from django import forms
 
-from main.models import Front_page_notice
+from main.models import FrontPageNotice
 
-class frontPageNoticeForm(forms.ModelForm):
+class FrontPageNoticeForm(forms.ModelForm):
 
 
     subject_text = forms.CharField(label='Subject Text',
@@ -17,5 +17,5 @@ class frontPageNoticeForm(forms.ModelForm):
 
 
     class Meta:
-        model=Front_page_notice
+        model=FrontPageNotice
         fields = ('__all__')

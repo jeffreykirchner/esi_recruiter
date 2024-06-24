@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #econ,english,math,etc.
-class majors(models.Model):
+class Majors(models.Model):
     name = models.CharField(max_length = 300)
 
     timestamp = models.DateTimeField(auto_now_add= True)

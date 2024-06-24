@@ -21,20 +21,20 @@ from django.db.models import Sum
 
 import main
 
-from main.models import experiment_sessions
-from main.models import locations
-from main.models import accounts
-from main.models import parameters
+from main.models import ExperimentSessions
+from main.models import Locations
+from main.models import Accounts
+from main.models import Parameters
 from main.globals import send_mass_email_service
 
 #one day of a session
-class experiment_session_days(models.Model):
+class ExperimentSessionDays(models.Model):
     '''
     Experiment Session Day Model
     '''
-    experiment_session = models.ForeignKey(experiment_sessions, on_delete=models.CASCADE, related_name='ESD')
-    location = models.ForeignKey(locations, on_delete=models.CASCADE)
-    account = models.ForeignKey(accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
+    experiment_session = models.ForeignKey(ExperimentSessions, on_delete=models.CASCADE, related_name='ESD')
+    location = models.ForeignKey(Locations, on_delete=models.CASCADE)
+    account = models.ForeignKey(Accounts, on_delete=models.CASCADE)      #finanical account used to pay subjects from
 
     date = models.DateTimeField(default=now)                            #date and time of session
     length = models.IntegerField(default=60)                            #length of session in minutes
@@ -91,7 +91,7 @@ class experiment_session_days(models.Model):
     
     #return a new user to add
     def getNewUser(self, userID, staffUser, manuallyAdded):
-        esdu = main.models.experiment_session_day_users()
+        esdu = main.models.ExperimentSessionDayUsers()
 
         esdu.experiment_session_day = self
         esdu.user = User.objects.get(id=userID)
@@ -104,7 +104,7 @@ class experiment_session_days(models.Model):
     def setup(self, es, u_list):
         self.experiment_session = es
 
-        self.location = locations.objects.first()
+        self.location = Locations.objects.first()
         self.length = es.experiment.length_default
         self.account = es.experiment.account_default
         self.date = now()
@@ -115,7 +115,7 @@ class experiment_session_days(models.Model):
 
         #add list of session users if multiday
         for u in u_list:
-            esdu = main.models.experiment_session_day_users()
+            esdu = main.models.ExperimentSessionDayUsers()
             esdu.user = u['user']
             esdu.confirmed = u['confirmed']
             esdu.experiment_session_day = self
@@ -157,7 +157,7 @@ class experiment_session_days(models.Model):
 
     #get reminder time string
     def getReminderTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         if not self.reminder_time:
@@ -167,7 +167,7 @@ class experiment_session_days(models.Model):
 
     #get user readable string of session date
     def getDateString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         if self.enable_time:
             return  self.date.astimezone(tz).strftime("%A %-m/%-d/%Y %-I:%M %p") + " " + p.subjectTimeZone
@@ -176,7 +176,7 @@ class experiment_session_days(models.Model):
     
     #get html version of date string
     def getDateStringHTML(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         v = self.date.astimezone(tz).strftime("%a") + " "
@@ -192,24 +192,24 @@ class experiment_session_days(models.Model):
 
     #get user readable string of session date with timezone offset
     def getDateStringTZOffset(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%#m/%#d/%Y %#I:%M %p %z")
     
     def getDateStringTZOffsetInput(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%Y-%m-%dT%H:%M")
 
     #get the local time of experiment start
     def getStartTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.date.astimezone(tz).strftime("%-I:%M %p")
 
     #get the local time of experiment end
     def getEndTimeString(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         endTime = self.date + timedelta(minutes = self.length)
         return  endTime.astimezone(tz).strftime("%-I:%M %p")
@@ -251,7 +251,7 @@ class experiment_session_days(models.Model):
         get any room overlaps for this session day
         '''
         if self.enable_time:
-            esd = main.models.experiment_session_days.objects.filter(location=self.location)\
+            esd = main.models.ExperimentSessionDays.objects.filter(location=self.location)\
                                                          .filter(date__lte=self.date_end)\
                                                          .filter(date_end__gte=self.date)\
                                                          .exclude(enable_time=False)\
@@ -271,7 +271,7 @@ class experiment_session_days(models.Model):
     def getReminderEmail(self):
         #logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         message = ""
 
@@ -302,7 +302,7 @@ class experiment_session_days(models.Model):
         self.reminder_email_sent = True
         self.save()
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         logger.info(f"Send Reminder emails to: session {self.experiment_session}, session day {self.id}")
 
         users_list = self.ESDU_b.filter(confirmed=True).select_related("user")
@@ -458,7 +458,7 @@ class experiment_session_days(models.Model):
                     esdu_list.append(esdu)
             
             if len(esdu_list)>0:
-                main.models.experiment_session_day_users.objects.bulk_update(esdu_list, ['paypal_response'])
+                main.models.ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['paypal_response'])
 
         else:
             logger.error(f'pullPayPalResult: ESD ID:{self.id}, status not found: Not Found')

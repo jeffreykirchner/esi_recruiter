@@ -3,7 +3,7 @@ import logging
 import traceback
 
 #room experiment is run in
-class locations(models.Model):
+class Locations(models.Model):
     name = models.CharField(max_length = 300)
     address = models.TextField(null=True)
 
@@ -16,6 +16,7 @@ class locations(models.Model):
     class Meta:
         verbose_name = 'Location'
         verbose_name_plural = 'Locations'
+        ordering = ['name']
     
     def json(self):
         return{

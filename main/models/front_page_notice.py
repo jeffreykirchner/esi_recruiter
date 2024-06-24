@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Front_page_notice(models.Model):
+class FrontPageNotice(models.Model):
     '''
     notices shown on long in screen
     '''

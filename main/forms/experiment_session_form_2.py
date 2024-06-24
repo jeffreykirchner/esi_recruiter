@@ -8,17 +8,17 @@ import pytz
 
 from django import forms
 
-from main.models import locations
-from main.models import accounts
-from main.models import experiment_session_days
-from main.models import parameters
+from main.models import Locations
+from main.models import Accounts
+from main.models import ExperimentSessionDays
+from main.models import Parameters
 
-class experimentSessionForm2(forms.ModelForm):
+class ExperimentSessionForm2(forms.ModelForm):
     '''
     Experiment session parameters form
     '''
     location = forms.ModelChoiceField(label="Location",
-                                      queryset=locations.objects.all(),
+                                      queryset=Locations.objects.all(),
                                       widget=forms.Select(attrs={"v-model":"currentSessionDay.location",
                                                                  "v-on:change":"mainFormChange2"}))
 
@@ -39,7 +39,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                                 "v-bind:disabled":"session.confirmedCount > 0"}))
 
     account = forms.ModelChoiceField(label="Account",
-                                     queryset=accounts.objects.filter(archived=False),
+                                     queryset=Accounts.objects.filter(archived=False),
                                      widget=forms.Select(attrs={"v-model":"currentSessionDay.account",
                                                                 "v-on:change":"mainFormChange2"}))
 
@@ -68,7 +68,7 @@ class experimentSessionForm2(forms.ModelForm):
                                                                              "v-on:change":"mainFormChange2"}))
 
     class Meta:
-        model = experiment_session_days
+        model = ExperimentSessionDays
         fields = ['location', 'date', 'length', 'account', 'auto_reminder', 'enable_time', 'reminder_time', 'custom_reminder_time']
 
     # def clean_enable_time(self):
@@ -135,7 +135,7 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj = datetime.strptime(date, '%Y-%m-%dT%H:%M')
@@ -160,7 +160,7 @@ class experimentSessionForm2(forms.ModelForm):
         #logger.info(date)
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj = datetime.strptime(date_reminder, '%Y-%m-%dT%H:%M')
@@ -170,7 +170,7 @@ class experimentSessionForm2(forms.ModelForm):
             raise forms.ValidationError('Invalid Format: M/D/YYYY H:MM am/pm ZZ')
 
         try:
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
 
             date_time_obj2 = datetime.strptime(date, '%Y-%m-%dT%H:%M')

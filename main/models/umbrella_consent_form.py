@@ -6,7 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from main.models import profile
 from main.models import ConsentForm
-from main.models import parameters
+from main.models import Parameters
 
 class UmbrellaConsentForm(models.Model):
     '''
@@ -32,7 +32,7 @@ class UmbrellaConsentForm(models.Model):
         '''
         return a date string converted to the lab's time zone
         '''
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         return  self.updated.astimezone(tz).strftime("%-m/%-d/%Y")
     

@@ -1,12 +1,12 @@
 from django.db import models
 
-from . import departments
+from . import Departments
 
 #billing account number
-class accounts(models.Model):
+class Accounts(models.Model):
     name = models.CharField(max_length = 300,default="")
     number = models.CharField(max_length = 100)
-    department = models.ForeignKey(departments, on_delete=models.CASCADE)
+    department = models.ForeignKey(Departments, on_delete=models.CASCADE)
 
     archived = models.BooleanField(verbose_name="Archived", default=False)                    #if archived hide from useage
     outside_funding = models.BooleanField(verbose_name="Outside Funding", default=False)      #payments are coming from outside the oganization

@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.safestring import mark_safe
 
 #frequently asked questions
-class faq(models.Model):
+class FAQ(models.Model):
     question = models.CharField(verbose_name="Question", max_length = 300)              #the question
     answer= HTMLField(verbose_name="Answer", max_length = 10000)                        #the answer to the question
     active = models.BooleanField(verbose_name="Show Question", default=True)            #hide question if false

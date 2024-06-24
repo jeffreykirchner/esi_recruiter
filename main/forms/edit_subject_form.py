@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
-from main.models import account_types
+from main.models import AccountTypes
 from main.models import profile
 
 
@@ -20,7 +20,7 @@ class EditSubjectForm(forms.ModelForm):
 
     type = forms.ModelChoiceField(label='Account type',
                                   empty_label=None,
-                                  queryset=account_types.objects.all(),
+                                  queryset=AccountTypes.objects.all(),
                                   widget=forms.Select(attrs={"v-model":"subject.type",}))
     
     pi_eligible = forms.ChoiceField(label='Can be PI',

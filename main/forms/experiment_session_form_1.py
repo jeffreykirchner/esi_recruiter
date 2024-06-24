@@ -6,16 +6,16 @@ from django import forms
 from django.contrib.auth.models import User
 
 from main.models import ConsentForm
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 
-class experimentSessionForm1(forms.ModelForm):
+class ExperimentSessionForm1(forms.ModelForm):
     '''
     Experiment session parameters form
     '''
 
     #change budget form label
     def __init__(self, *args, **kwargs):
-        super(experimentSessionForm1, self).__init__(*args, **kwargs)
+        super(ExperimentSessionForm1, self).__init__(*args, **kwargs)
 
         self.fields['budget'].label_from_instance = self.budget_label_from_instance
 
@@ -43,7 +43,7 @@ class experimentSessionForm1(forms.ModelForm):
                                                                          "placeholder":"Leave blank for no instructions"}))
 
     class Meta:
-        model = experiment_sessions
+        model = ExperimentSessions
         fields = ['consent_form', 'budget', 'incident_occurred', 'special_instructions']
 
     @staticmethod

@@ -13,8 +13,8 @@ from django.utils import timezone
 
 from main.forms import loginForm
 
-from main.models import Front_page_notice
-from main.models import parameters
+from main.models import FrontPageNotice
+from main.models import Parameters
 from main.models import ProfileLoginAttempt
 
 class LoginView(View):
@@ -33,7 +33,7 @@ class LoginView(View):
 
         request.session['redirect_path'] = request.GET.get('next','/')
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         labManager = p.labManager 
 
         form = loginForm()
@@ -42,7 +42,7 @@ class LoginView(View):
         for i in form:
             form_ids.append(i.html_name)
 
-        fpn_list = Front_page_notice.objects.filter(enabled = True)
+        fpn_list = FrontPageNotice.objects.filter(enabled = True)
 
         return render(request,self.template_name,{"labManager":labManager,
                                                   "form":form,

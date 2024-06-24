@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import pytz
 import logging
 
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.utils.translation import ngettext
@@ -25,10 +24,10 @@ from main.models import *
 
 from main.globals import todays_date
 
-from main.forms import parametersForm
-from main.forms import faqForm
-from main.forms import helpDocForm
-from main.forms import frontPageNoticeForm
+from main.forms import ParametersForm
+from main.forms import FaqForm
+from main.forms import HelpDocForm
+from main.forms import FrontPageNoticeForm
 from main.forms import InvitationEmailTemplateForm
 
 import main
@@ -44,7 +43,7 @@ class ExperimentSessionInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_sessions
+      model = ExperimentSessions
       can_delete = False
       show_change_link = True
       fields=('creator','consent_form')
@@ -60,12 +59,12 @@ class ExperimentSessionDayInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_session_days
+      model = ExperimentSessionDays
       can_delete = False
       show_change_link = True
       fields=('date','length', 'complete')
 
-@admin.register(accounts)
+@admin.register(Accounts)
 class AccountsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'number']
     list_display = [ 'number', 'name', 'department', 'archived', 'outside_funding']
@@ -80,25 +79,26 @@ class AccountsInline(admin.TabularInline):
         return False
 
     extra = 0  
-    model = accounts
+    model = Accounts
     can_delete = True   
     show_change_link = True
     readonly_fields = ['number', 'name', 'archived', 'outside_funding']
     fields = ['number', 'name', 'archived', 'outside_funding']
 
-@admin.register(departments)
+@admin.register(Departments)
 class AccountsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'charge_account']
     list_display = [ 'name', 'charge_account', 'petty_cash']
     inlines = [AccountsInline]
 
-admin.site.register(genders)
-admin.site.register(institutions)
-admin.site.register(majors)
-admin.site.register(schools)
-admin.site.register(email_filters)
-admin.site.register(subject_types)
+admin.site.register(Genders)
+admin.site.register(Institutions)
+admin.site.register(Majors)
+admin.site.register(Schools)
+admin.site.register(EmailFilters)
+admin.site.register(SubjectTypes)
 admin.site.register(IrbStudy)
+admin.site.register(Locations)
 
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
@@ -134,27 +134,27 @@ class UmbrellaConsentFormAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['display_name','active','updated','timestamp']
 
-@admin.register(help_docs)
+@admin.register(HelpDocs)
 class helpDocAdmin(admin.ModelAdmin):
             
-      form = helpDocForm
+      form = HelpDocForm
 
       ordering = [Lower('title')]
 
       actions = []
       list_display = ['title','path']
 
-@admin.register(Front_page_notice)
+@admin.register(FrontPageNotice)
 class frontPageNoticeAdmin(admin.ModelAdmin):
             
-      form = frontPageNoticeForm
+      form = FrontPageNoticeForm
 
       ordering = [Lower('subject_text')]
 
       actions = []
       list_display = ['subject_text','enabled']
 
-@admin.register(Invitation_email_templates)
+@admin.register(InvitationEmailTemplates)
 class invitationEmailTemplateAdmin(admin.ModelAdmin):
             
       form = InvitationEmailTemplateForm
@@ -164,15 +164,15 @@ class invitationEmailTemplateAdmin(admin.ModelAdmin):
       actions = []
       list_display = ['name','enabled']
 
-@admin.register(faq)
+@admin.register(FAQ)
 class faqAdmin(admin.ModelAdmin):
             
-      form = faqForm
+      form = FaqForm
 
       actions = []
       list_display = ['__str__','active']
 
-@admin.register(parameters)
+@admin.register(Parameters)
 class parametersadmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
@@ -180,7 +180,7 @@ class parametersadmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
       
-      form = parametersForm
+      form = ParametersForm
 
       actions = []
 
@@ -450,7 +450,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
       #       d_now_minus_two_years = datetime.now(pytz.utc) - timedelta(days=730)
 
-      #       qs = experiment_session_day_users.objects.filter(Q(attended = True) | Q(bumped = True))\
+      #       qs = ExperimentSessionDayUsers.objects.filter(Q(attended = True) | Q(bumped = True))\
       #                                        .filter(experiment_session_day__date__gte = d_now_minus_two_years)\
       #                                        .values_list("user__id",flat=True)
 
@@ -552,7 +552,7 @@ class DailyEmailReportAdmin(admin.ModelAdmin):
       ordering = ['-date']
 
 #Experiment session day admin
-@admin.register(experiment_session_day_users)
+@admin.register(ExperimentSessionDayUsers)
 class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -578,13 +578,13 @@ class ExperimentSessionDayUserInline(admin.TabularInline):
         return qs.filter(confirmed=True)
 
       extra = 0  
-      model = experiment_session_day_users
+      model = ExperimentSessionDayUsers
       can_delete = False
       show_change_link = True
       fields=('user','attended', 'bumped','show_up_fee','earnings')
 
 #Experiment session day admin
-@admin.register(experiment_session_days)
+@admin.register(ExperimentSessionDays)
 class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -599,7 +599,7 @@ class ExperimentSessionDaysAdmin(admin.ModelAdmin):
       #list_display = [']
 
 #Experiment session day admin
-@admin.register(experiment_session_invitations)
+@admin.register(ExperimentSessionInvitations)
 class ExperimentSessionInvitationsAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -626,12 +626,12 @@ class ExperimentSessionInvitationsInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiment_session_invitations
+      model = ExperimentSessionInvitations
       can_delete = False
       show_change_link = True
       fields=('mailResultSentCount','mailResultErrorText')
 
-@admin.register(experiment_sessions)
+@admin.register(ExperimentSessions)
 class ExperimentSessionsAdmin(admin.ModelAdmin):
       
       def render_change_form(self, request, context, *args, **kwargs):
@@ -661,11 +661,11 @@ class ExperimentInstitutionsInline(admin.TabularInline):
         return False
 
       extra = 0  
-      model = experiments_institutions
+      model = ExperimentsInstitutions
       can_delete = False
       show_change_link = True
 
-@admin.register(experiments)
+@admin.register(Experiments)
 class ExperimentsAdmin(admin.ModelAdmin):
       def has_delete_permission(self, request, obj=None):
             return False
@@ -707,7 +707,7 @@ class ExperimentsAdmin(admin.ModelAdmin):
 
       @admin.display(description='Last Run Date')
       def last_date_run(self, obj):
-            experiment_session_day = main.models.experiment_session_days.objects.filter(experiment_session__experiment=obj).order_by('-date').first()
+            experiment_session_day = main.models.ExperimentSessionDays.objects.filter(experiment_session__experiment=obj).order_by('-date').first()
 
             return experiment_session_day.date if experiment_session_day else None
       

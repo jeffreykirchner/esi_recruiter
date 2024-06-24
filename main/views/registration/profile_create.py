@@ -11,13 +11,14 @@ from django.http import JsonResponse
 
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 
-from main.models import account_types
+from main.models import AccountTypes
 from main.models import profile
-from main.models import help_docs
+from main.models import HelpDocs
 
 from main.globals import profile_create_send_email
-from main.forms import profileForm
+from main.forms import ProfileForm
 
 class ProfileCreate(View):
     '''
@@ -35,11 +36,11 @@ class ProfileCreate(View):
 
         logout(request)
         
-        form = profileForm()
+        form = ProfileForm()
 
         #logger.info(reverse('profile'))
         try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -91,23 +92,23 @@ def createUser(request, data):
     # if field["name"] == "email":
     #     form_data_dict["email"] = form_data_dict["email"].strip().lower()
 
-    f = profileForm(form_data_dict)
+    f = ProfileForm(form_data_dict)
 
     if f.is_valid():
         
         u = profileCreateUser(f.cleaned_data['email'].strip().lower(),
-                                f.cleaned_data['email'].strip().lower(),
-                                f.cleaned_data['password1'],
-                                f.cleaned_data['first_name'].strip().capitalize(),
-                                f.cleaned_data['last_name'].strip().capitalize(),
-                                f.cleaned_data['chapman_id'].strip(),
-                                f.cleaned_data['gender'],
-                                f.cleaned_data['phone'].strip(),
-                                f.cleaned_data['major'],
-                                f.cleaned_data['subject_type'],
-                                f.cleaned_data['studentWorker'],
-                                True,
-                                account_types.objects.get(id=2))
+                              f.cleaned_data['email'].strip().lower(),
+                              f.cleaned_data['password1'],
+                              f.cleaned_data['first_name'].strip().capitalize(),
+                              f.cleaned_data['last_name'].strip().capitalize(),
+                              f.cleaned_data['chapman_id'].strip(),
+                              f.cleaned_data['gender'],
+                              f.cleaned_data['phone'].strip(),
+                              f.cleaned_data['major'],
+                              f.cleaned_data['subject_type'],
+                              f.cleaned_data['studentWorker'],
+                              True,
+                              AccountTypes.objects.get(id=2))
 
         profile_create_send_email(u)
 
@@ -133,14 +134,14 @@ def profileCreateUser(username, email, password, firstName, lastName, studentID,
     u = User.objects.create_user(username=username,
                                  email=email,
                                  password=password,                                         
-                                 first_name=firstName,
-                                 last_name=lastName)
+                                 first_name=strip_tags(firstName),
+                                 last_name=strip_tags(lastName))
 
     #u.is_active = isActive   
     u.save()
 
     p = profile(user=u,
-                studentID=studentID,
+                studentID=strip_tags(studentID),
                 gender=gender,
                 type=accountType,
                 phone=phone,

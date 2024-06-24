@@ -25,11 +25,11 @@ from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
-from main.models import experiment_session_days
-from main.models import experiment_session_day_users
+from main.models import ExperimentSessionDays
+from main.models import ExperimentSessionDayUsers
 from main.models import profile
-from main.models import help_docs
-from main.models import parameters
+from main.models import HelpDocs
+from main.models import Parameters
 
 from main.views.staff.experiment_session_view import getManuallyAddSubject, changeConfirmationStatus
 
@@ -39,7 +39,7 @@ class ExperimentSessionRunView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_session_run.html"
-    model = experiment_session_days
+    model = ExperimentSessionDays
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -54,13 +54,13 @@ class ExperimentSessionRunView(SingleObjectMixin, View):
         id_ = esd.id
 
         try:
-            help_text = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+            help_text = HelpDocs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
                                         .filter(rp__icontains=F('path')).first().text
 
         except Exception  as exc:
             help_text = "No help doc was found."
 
-        esd = experiment_session_days.objects.get(id=id_)
+        esd = ExperimentSessionDays.objects.get(id=id_)
         return render(request,
                       self.template_name,
                       {"sessionDay":esd, 
@@ -133,7 +133,7 @@ def getSession(data, id, request_user):
     logger.info("Get Session Day")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     if esd.complete and esd.paypal_api:
         esd.pullPayPalResult(False)
@@ -207,7 +207,7 @@ def getStripeReaderCheckin(data, id, request_user):
             if status["message"] == "":
                 status["message"] = attendSubjectAction(esdu.first(), id, request_user)
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     logger.info(status)
 
@@ -216,7 +216,7 @@ def getStripeReaderCheckin(data, id, request_user):
 #get subjects by student id or user id
 def getSubjectByID(id, studentID, request_user, filter_confirmed, id_mode):
 
-    esdu =  experiment_session_day_users.objects.filter(experiment_session_day__id=id) \
+    esdu =  ExperimentSessionDayUsers.objects.filter(experiment_session_day__id=id) \
                                                 .select_related('user')
 
     #search by student id or user id
@@ -255,7 +255,7 @@ def autoAddSubject(studentID, id, request_user, ignoreConstraints, upload_id_typ
     info = []
 
     p_list = getProfileByID(studentID, request_user, upload_id_type)
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     if len(p_list) > 1:
         #multiple users found
@@ -314,7 +314,7 @@ def getPayPalExport(data, id, request_user):
     logger.info("Pay Pal Export")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
     esdu = esd.ESDU_b.filter(Q(show_up_fee__gt = 0) | Q(earnings__gt = 0))
 
     esd.users_who_paypal_paysheet.add(request_user)
@@ -339,7 +339,7 @@ def getEarningsExport(data, id, request_user):
     logger.info("Earnings Export")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
     esdu = esd.ESDU_b.filter(attended=True).order_by('user__last_name', 'user__first_name')
 
     csv_response = HttpResponse(content_type='text/csv')
@@ -374,7 +374,7 @@ def autoBump(data, id_, request_user):
     status = "success"
 
     try:
-        esd = experiment_session_days.objects.get(id=id_)
+        esd = ExperimentSessionDays.objects.get(id=id_)
 
         esdu_attended = esd.ESDU_b.filter(attended=True)
 
@@ -430,7 +430,7 @@ def bumpAll(data, id, request_user):
     status = "success"
 
     try:
-        esd = experiment_session_days.objects.get(id=id)
+        esd = ExperimentSessionDays.objects.get(id=id)
         esd.ESDU_b.filter(attended=True) \
                   .update(attended=False,bumped=True)
         json_info = esd.json_runInfo(request_user)
@@ -465,7 +465,7 @@ def backgroundSave(data, id, request_user):
 
     for p in payoutList:
         #logger.info(p)
-        esdu  = experiment_session_day_users.objects.filter(id = p['id']).first()
+        esdu  = ExperimentSessionDayUsers.objects.filter(id = p['id']).first()
 
         if esdu:
             try:
@@ -485,7 +485,7 @@ def backgroundSave(data, id, request_user):
             status = "fail"
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
     except Exception  as e:
         logger.info(e)
         status = "fail"
@@ -520,7 +520,7 @@ def savePayouts(data, id, request_user):
 
     for p in payoutList:
         #logger.info(p)
-        esdu = experiment_session_day_users.objects.filter(id=p['id']).first()
+        esdu = ExperimentSessionDayUsers.objects.filter(id=p['id']).first()
 
         if esdu:
             try:
@@ -543,8 +543,8 @@ def savePayouts(data, id, request_user):
     json_info = ""
 
     try:
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
-        esd = experiment_session_days.objects.get(id=id)
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee'])
+        esd = ExperimentSessionDays.objects.get(id=id)
         json_info = esd.json_runInfo(request_user)
     except Exception  as exc:
         logger.warning(f"Save payouts error : {exc}")
@@ -571,7 +571,7 @@ def completeSession(data, id, request_user):
     json_info = ""
 
     try:
-        esd = experiment_session_days.objects.get(id=id)
+        esd = ExperimentSessionDays.objects.get(id=id)
 
         status = "success"
 
@@ -620,7 +620,7 @@ def fillEarningsWithFixed(data, id, request_user):
     json_info = ""
 
     try:
-        esd = experiment_session_days.objects.get(id=id)
+        esd = ExperimentSessionDays.objects.get(id=id)
 
         amount = data["amount"]
 
@@ -655,7 +655,7 @@ def fillDefaultShowUpFee(data, id, request_user):
     json_info=""
 
     try:
-        esd = experiment_session_days.objects.get(id=id)
+        esd = ExperimentSessionDays.objects.get(id=id)
 
         showUpFee = esd.experiment_session.experiment.showUpFee
         #logger.info(showUpFee)
@@ -684,7 +684,7 @@ def attendSubject(data, id, request_user):
         :param u: request user object
         :type u:django.contrib.auth.models.User
 
-        :param data: {id:experiment_session_day_users.id}
+        :param data: {id:ExperimentSessionDayUsers.id}
         :type data:dict
 
         :param id:experiment session day id
@@ -694,7 +694,7 @@ def attendSubject(data, id, request_user):
     logger.info("Attend Subject")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     logger.info(data)
 
@@ -705,7 +705,7 @@ def attendSubject(data, id, request_user):
     else:
         logger.info("Attend Subject Error, non super user")
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status }, safe=False)
 
@@ -770,7 +770,7 @@ def bumpSubject(data, id, request_user):
     '''
         Mark subject as attended in a session day
 
-        :param data: {id:experiment_session_day_users.id}
+        :param data: {id:ExperimentSessionDayUsers.id}
         :type data:dict
 
         :param id:experiment session day id
@@ -781,7 +781,7 @@ def bumpSubject(data, id, request_user):
     logger.info("Bump Subject")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     status=""
     statusMessage=""
@@ -807,7 +807,7 @@ def bumpSubject(data, id, request_user):
         logger.info(statusMessage)
         status="fail"
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user),"status":status,"statusMessage": statusMessage}, safe=False)
 
@@ -826,7 +826,7 @@ def noShowSubject(data, id, request_user):
     logger.info("No Show")
     logger.info(data)
 
-    esdu = experiment_session_day_users.objects.filter(id=data['id']).first()
+    esdu = ExperimentSessionDayUsers.objects.filter(id=data['id']).first()
 
     status = ""
 
@@ -839,7 +839,7 @@ def noShowSubject(data, id, request_user):
         logger.info("Now Show Error, subject not found")
         status = "fail"
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     return JsonResponse({"sessionDay" : esd.json_runInfo(request_user), "status":status}, safe=False)
 
@@ -874,7 +874,7 @@ def takeEarningsUpload2(data, id, request_user):
 
     message = ""
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     try:
 
@@ -985,7 +985,7 @@ def takeEarningsUpload2(data, id, request_user):
             message = "Error: Empty list"
 
         logger.info(f'Earnings import list: {esdu_list}')
-        experiment_session_day_users.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
+        ExperimentSessionDayUsers.objects.bulk_update(esdu_list, ['earnings', 'show_up_fee', 'attended'])
     except ValueError as e:
         message = f"Failed to load earnings: Invalid ID format"
         logger.info(message)
@@ -1009,7 +1009,7 @@ def roundEarningsUp(data, id, request_user):
     logger.info("Round Earnings Up")
     logger.info(data)
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     for i in esd.ESDU_b.filter(attended=True):
         i.earnings = math.ceil(i.earnings*4)/4
@@ -1027,9 +1027,9 @@ def payPalAPI(data, id_, request_user):
     logger.info("PayPal API")
     logger.info(data)
 
-    parm = parameters.objects.first()
+    parm = Parameters.objects.first()
 
-    esd = experiment_session_days.objects.get(id=id_)
+    esd = ExperimentSessionDays.objects.get(id=id_)
     esdu_list = esd.ESDU_b.filter(Q(show_up_fee__gt=0) | Q(earnings__gt=0)) \
                           .filter(Q(attended=True) | Q(bumped=True))
 

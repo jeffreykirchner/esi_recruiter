@@ -24,23 +24,23 @@ from django.http import HttpResponse
 
 from main.decorators import user_is_staff
 
-from main.models import experiment_session_days
-from main.models import experiment_session_day_users
-from main.models import experiment_sessions
-from main.models import parameters
-from main.models import experiment_session_messages
-from main.models import experiment_session_invitations
-from main.models import recruitment_parameters
-from main.models import help_docs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import ExperimentSessionDays
+from main.models import ExperimentSessionDayUsers
+from main.models import ExperimentSessions
+from main.models import Parameters
+from main.models import ExperimentSessionMessages
+from main.models import ExperimentSessionInvitations
+from main.models import RecruitmentParameters
+from main.models import HelpDocs
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 from main.models import ConsentForm
 
 from main.views.staff.user_search import lookup
 
-from main.forms import recruitmentParametersForm
-from main.forms import experimentSessionForm1
-from main.forms import experimentSessionForm2
+from main.forms import RecruitmentParametersForm
+from main.forms import ExperimentSessionForm1
+from main.forms import ExperimentSessionForm2
 from main.forms import TraitConstraintForm
 
 from main.globals import send_mass_email_service
@@ -53,7 +53,7 @@ class ExperimentSessionView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_session.html"
-    model = experiment_sessions
+    model = ExperimentSessions
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -64,10 +64,10 @@ class ExperimentSessionView(SingleObjectMixin, View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -77,8 +77,8 @@ class ExperimentSessionView(SingleObjectMixin, View):
 
         return render(request,
                       self.template_name,
-                      {'form2':experimentSessionForm2(), 
-                       'form1':experimentSessionForm1(),      
+                      {'form2':ExperimentSessionForm2(), 
+                       'form1':ExperimentSessionForm1(),      
                        'traitConstraintForm':TraitConstraintForm(),                                                         
                        'id': es.id,
                        'max_invitation_block_size':p.max_invitation_block_size,
@@ -161,7 +161,7 @@ def getSesssion(data,id):
     logger.info("get session")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
@@ -183,7 +183,7 @@ def downloadInvitations(data, id):
 
     writer.writerow(['Session Day', 'Last', 'First', 'Recruiter ID', 'Public ID', 'Confirmed', 'Attended', 'Bumped'])
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     for esd in es.ESD.all().order_by('date'):
         date_string = esd.getDateStringTZOffset()
@@ -211,7 +211,7 @@ def showInvitations(data,id):
     logger.info("Show Invitations")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     invitationList = [i.json() for i in es.experiment_session_invitations.all()]
 
@@ -223,9 +223,9 @@ def showMessages(data, id):
     logger.info("Show Messages")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
-    messageList = [i.json() for i in es.experiment_session_messages_set.all()]
+    messageList = [i.json() for i in es.experiment_session_messages.all()]
 
     return JsonResponse({"messageList" : messageList }, safe=False)
 
@@ -234,12 +234,12 @@ def sendMessage(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Send Message: {data}")
 
-    params = parameters.objects.first()
+    params = Parameters.objects.first()
 
     subjectText = data["subject"]
     messageText = data["text"]
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     user_list = []
     userPkList = []
@@ -260,7 +260,7 @@ def sendMessage(data, id):
     #logger.info(userPkList)
 
     #store message result
-    m = experiment_session_messages()
+    m = ExperimentSessionMessages()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
@@ -270,7 +270,7 @@ def sendMessage(data, id):
     m.users.add(*userPkList)
     m.save()
 
-    message_count = es.experiment_session_messages_set.count()
+    message_count = es.experiment_session_messages.count()
 
     return JsonResponse({"mailResult":mail_result, "messageCount":message_count}, safe=False)
 
@@ -282,7 +282,7 @@ def reSendInvitation(data, id):
     status = "success"
 
     try:
-        invitation = experiment_session_invitations.objects.get(id=data["id"]) 
+        invitation = ExperimentSessionInvitations.objects.get(id=data["id"]) 
         invitation.send_email_invitations(f"Re-send invitations for session: {id}")
     except ObjectDoesNotExist:
         status="fail"
@@ -306,13 +306,13 @@ def cancelSession(data, id):
     logger.info("Cancel Session")
     logger.info(data)
         
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     if es.allowEdit():       
         
         es.canceled = True
 
-        params = parameters.objects.first()
+        params = Parameters.objects.first()
 
         subjectText = params.cancelationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
         messageText = es.getCancelationEmail()
@@ -347,7 +347,7 @@ def showUnconfirmedSubjects(data, id):
     logger.info("Show Unconfirmed Subjects")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     return JsonResponse({"status":"success","es_min":es.json_esd(True)}, safe=False)
 
@@ -356,13 +356,13 @@ def storeInvitation(id, userPkList, subjectText, messageText, memo):
     logger = logging.getLogger(__name__)
     logger.info("store invitation")
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
-    recruitment_params = recruitment_parameters()
+    recruitment_params = RecruitmentParameters()
     recruitment_params.setup(es.recruitment_params)
     recruitment_params.save()
 
-    m = experiment_session_invitations()
+    m = ExperimentSessionInvitations()
     m.experiment_session = es
     m.subjectText = subjectText
     m.messageText = messageText
@@ -387,12 +387,12 @@ def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
     esduId = data["esduId"]
     actionAll = data["actionAll"]
 
-    esdu = experiment_session_day_users.objects.get(id = esduId)                                  
+    esdu = ExperimentSessionDayUsers.objects.get(id = esduId)                                  
     
     failed = False
 
     if newStatus == "confirm":
-        es = experiment_sessions.objects.get(id=id)
+        es = ExperimentSessions.objects.get(id=id)
 
         #check user is still valid
         if not ignoreConstraints:
@@ -412,7 +412,7 @@ def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
 
     #update status of all days to match
     if actionAll:
-        experiment_session_day_users.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
+        ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session = esdu.experiment_session_day.experiment_session)\
                                             .filter(user = esdu.user)\
                                             .update(confirmed = esdu.confirmed)
 
@@ -420,7 +420,7 @@ def changeConfirmationStatus(data,id,ignoreConstraints,min_mode=False):
     if min_mode:
         return JsonResponse({"status":"success" if not failed else "fail"}, safe=False)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     return JsonResponse({"status":"success" if not failed else "fail","es_min":es.json_esd(True)}, safe=False)
 
 #manually search for users to add to session
@@ -432,7 +432,7 @@ def getSearchForSubject(data,id):
 
     users_list = lookup(data["searchInfo"],False,True)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     if len(users_list)>=1000:
         return JsonResponse({"status":"fail","message":"Error: Narrow your search"}, safe=False)
@@ -447,7 +447,7 @@ def getSearchForSubject(data,id):
         #logger.info(str(u['id']))
         #logger.info(str(id))
         #check that subject is not already in
-        esdu = experiment_session_day_users.objects.filter(user__id = u['id'],
+        esdu = ExperimentSessionDayUsers.objects.filter(user__id = u['id'],
                                                            experiment_session_day__experiment_session__id = id) \
                                                    .exists()
 
@@ -489,8 +489,8 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
     logger.info("Manually add subject")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
-    p = parameters.objects.first()
+    es = ExperimentSessions.objects.get(id=id)
+    p = Parameters.objects.first()
     u = data["user"]
 
     #check that session is not canceled
@@ -531,7 +531,7 @@ def getManuallyAddSubject(data,id,request_user,ignoreConstraints,min_mode=False)
             esdu_list = esdu_list + j.getNewUser(u["id"], request_user, True)
 
         if len(esdu_list) > 0:
-            main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
+            main.models.ExperimentSessionDayUsers.objects.bulk_create(esdu_list, ignore_conflicts=True)
 
         # es.addUser(u["id"], request_user, True)
         # es.save()
@@ -577,7 +577,7 @@ def inviteSubjects(data, id, request):
 
     subjectInvitations = data["subjectInvitations"]
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     # logger.info(es.canceled)
 
@@ -595,7 +595,7 @@ def inviteSubjects(data, id, request):
     userFails = []              #list of users failed to add
     userPkList = []             #list of primary keys of added users
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #invite to all sessions in the future
     future_es_list=[]
@@ -620,7 +620,7 @@ def inviteSubjects(data, id, request):
             status = "fail"
 
     if len(esdu_list) > 0:
-        main.models.experiment_session_day_users.objects.bulk_create(esdu_list, ignore_conflicts=True)
+        main.models.ExperimentSessionDayUsers.objects.bulk_create(esdu_list, ignore_conflicts=True)
             
     memo = f'Send invitations for session: {es.id}'
     subjectText = p.invitationTextSubject.replace("[session date and time]", es.getSessionDayDateString())
@@ -656,7 +656,7 @@ def findSubjectsToInvite(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Find subjects to invite: {data}")
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #check valid number
     if data["number"] == "":
@@ -668,7 +668,7 @@ def findSubjectsToInvite(data, id):
     if number > p.max_invitation_block_size:
         number = p.max_invitation_block_size
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     u_list_2 = es.getValidUserList_forward_check([],True,0,0,[],False,number)
 
@@ -686,7 +686,7 @@ def updateRecruitmentParameters(data,id):
     logger.info("Update recruitment form")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     
     form_data_dict = {} 
 
@@ -733,7 +733,7 @@ def updateRecruitmentParameters(data,id):
         form_data_dict["allow_multiple_participations"] = "1" if es.recruitment_params.allow_multiple_participations else "0"
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
+    form = RecruitmentParametersForm(form_data_dict,instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                
@@ -749,7 +749,7 @@ def addSessionDay(data,id):
     logger.info("Add session day")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     if es.getConfirmedCount() == 0:
 
@@ -757,7 +757,7 @@ def addSessionDay(data,id):
 
         #add specified number of session days
         for i in range(count):
-            esd = experiment_session_days()
+            esd = ExperimentSessionDays()
             
             u_list = es.ESD.first().getListOfUserIDs()
 
@@ -786,7 +786,7 @@ def addSessionDay(data,id):
 
                 esd.save()    
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     
     return JsonResponse({"status":"success","session":es.json()}, safe=False)
 
@@ -796,7 +796,7 @@ def removeSessionDay(data,id):
     logger.info("Remove session day")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     esd = es.ESD.get(id = data["id"])
 
@@ -816,8 +816,8 @@ def updateSessionDay(data,id):
 
     status = "success"
 
-    es = experiment_sessions.objects.get(id=id)
-    esd = experiment_session_days.objects.get(id = data["id"])           
+    es = ExperimentSessions.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id = data["id"])           
 
     form_data_dict = data["formData"]           
 
@@ -834,16 +834,16 @@ def updateSessionDay(data,id):
     if form_data_dict["custom_reminder_time"] == 0:
         form_data_dict["reminder_time"] = form_data_dict["date"]
 
-    form = experimentSessionForm2(form_data_dict,instance=esd)   
+    form = ExperimentSessionForm2(form_data_dict,instance=esd)   
 
     if form.is_valid():       
         esd.save()
-        esd = experiment_session_days.objects.get(id = data["id"])
+        esd = ExperimentSessionDays.objects.get(id = data["id"])
 
         #anytime experiment
         if not esd.enable_time:
             #change time to last second of the day
-            p = parameters.objects.first()
+            p = Parameters.objects.first()
             tz = pytz.timezone(p.subjectTimeZone)
             temp_d = esd.date.astimezone(tz)
             esd.date = temp_d.replace(hour=23,minute=59, second=59)
@@ -888,7 +888,7 @@ def removeSubject(data,id):
     userId = data['userId']
     esduId = data['esduId']    
 
-    esdu=experiment_session_day_users.objects.filter(user__id = userId,
+    esdu=ExperimentSessionDayUsers.objects.filter(user__id = userId,
                                                      experiment_session_day__experiment_session__id = id)
 
     status = "success"
@@ -901,7 +901,7 @@ def removeSubject(data,id):
         else:
             status="fail"        
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
     return JsonResponse({"status":status,"es_min":es.json_esd(True)}, safe=False)
     
 #update invitation text
@@ -920,7 +920,7 @@ def updateInvitationText(data,id):
     logger.info("Update Session Invitation Text")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)     
+    es = ExperimentSessions.objects.get(id=id)     
 
     es.invitation_text = data["invitationRawText"]
     es.save()
@@ -933,9 +933,9 @@ def addTrait(data,id):
     logger.info("Add Trait Constraint")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
-    tc = Recruitment_parameters_trait_constraint()
+    tc = RecruitmentParametersTraitConstraint()
     tc.recruitment_parameter = es.recruitment_params
     tc.trait = Traits.objects.first()
     tc.save()
@@ -948,11 +948,11 @@ def deleteTrait(data,id):
     logger.info("Delete Trait Constraint")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     t_id = data["id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.filter(id=t_id)
 
     if tc:
         tc.first().delete()
@@ -965,11 +965,11 @@ def updateTrait(data,id):
     logger.info("Update Trait Constraint")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     t_id = data["trait_id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.get(id=t_id)
 
     form_data_dict = data["formData"]
 
@@ -993,7 +993,7 @@ def updateRequireAllTraitContraints(data,id):
     logger.info("Update Require All Trait Constraints")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=id)
+    es = ExperimentSessions.objects.get(id=id)
 
     v = data["value"]
 
@@ -1011,7 +1011,7 @@ def updateSession(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"Update session: {data}")
 
-    s = experiment_sessions.objects.get(id=id)
+    s = ExperimentSessions.objects.get(id=id)
 
     form_data_dict = data["formData"]
     institutionList=[]               
@@ -1022,7 +1022,7 @@ def updateSession(data, id):
     if not s.allowEdit():
         form_data_dict["consent_form"] = s.consent_form
 
-    form = experimentSessionForm1(form_data_dict, instance=s)
+    form = ExperimentSessionForm1(form_data_dict, instance=s)
 
     if not s.allowEdit():
         form.fields['consent_form'].queryset = ConsentForm.objects.all()
@@ -1080,7 +1080,7 @@ def addToAllowList(data, id):
         return JsonResponse({"not_found_list" : not_found_list,
                              "status" : "fail"}, safe=False)
                    
-    experiment_session = experiment_sessions.objects.get(id=id)
+    experiment_session = ExperimentSessions.objects.get(id=id)
 
     for i in id_list:
         if not experiment_session.recruitment_params.allowed_list:
@@ -1098,11 +1098,11 @@ def clearAllowList(data, id):
     logger = logging.getLogger(__name__)
     logger.info(f"clearAllowList session: {data}")
 
-    s = experiment_sessions.objects.get(id=id)
+    s = ExperimentSessions.objects.get(id=id)
 
     form_data_dict = data["formData"]
 
-    experiment_session = experiment_sessions.objects.get(id=id)
+    experiment_session = ExperimentSessions.objects.get(id=id)
 
     experiment_session.recruitment_params.allowed_list = []
     experiment_session.recruitment_params.save()

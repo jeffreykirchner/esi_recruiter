@@ -15,7 +15,7 @@ def todays_date():
     #logger = logging.getLogger(__name__)
     #logger.info("Get todays date object")
 
-    prm = main.models.parameters.objects.first()
+    prm = main.models.Parameters.objects.first()
     tmz = pytz.timezone(prm.subjectTimeZone)
 
     d_today = datetime.now(tmz)
@@ -28,7 +28,7 @@ def todays_time():
     get current tz adjusted time
     '''
 
-    prm = main.models.parameters.objects.first()
+    prm = main.models.Parameters.objects.first()
     tmz = pytz.timezone(prm.experimentTimeZone)
 
     d_today = datetime.now(tmz)

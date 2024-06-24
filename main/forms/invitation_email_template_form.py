@@ -5,7 +5,7 @@ import pytz
 from django import forms
 from django.contrib.auth.models import User
 
-from main.models import Invitation_email_templates
+from main.models import InvitationEmailTemplates
 
 class InvitationEmailTemplateForm(forms.ModelForm):
     '''
@@ -27,5 +27,5 @@ class InvitationEmailTemplateForm(forms.ModelForm):
     enabled = forms.BooleanField(label='Visible', required=False, initial=True)
 
     class Meta:
-        model=Invitation_email_templates
+        model=InvitationEmailTemplates
         fields = ('__all__')

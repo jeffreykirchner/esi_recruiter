@@ -10,9 +10,9 @@ from django.db.models import Count
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import help_docs
-from main.models import experiments
-from main.models import experiment_sessions
+from main.models import HelpDocs
+from main.models import Experiments
+from main.models import ExperimentSessions
 
 from main.decorators import user_is_staff
 
@@ -36,7 +36,7 @@ class ConsentFormReport(View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = Value(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -84,10 +84,10 @@ def getConsentForm(data):
 
         consent_form_json = consent_form.json()
 
-        experiment_ids = experiment_sessions.objects.filter(consent_form=consent_form) \
+        experiment_ids = ExperimentSessions.objects.filter(consent_form=consent_form) \
                                                     .values_list('experiment__id', flat=True)
 
-        experiment_list = experiments.objects.filter(id__in=experiment_ids)
+        experiment_list = Experiments.objects.filter(id__in=experiment_ids)
 
         experiment_list_json = [{"id":e.id, "title":e.title} for e in experiment_list]
 

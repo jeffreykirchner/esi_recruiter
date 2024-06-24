@@ -12,9 +12,10 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.urls import reverse
+from django.utils.html import strip_tags
 
-from main.models import help_docs
-from main.forms import profileFormUpdate
+from main.models import HelpDocs
+from main.forms import ProfileFormUpdate
 from main.globals import profile_create_send_email
 
 class UpdateProfile(View):
@@ -33,10 +34,10 @@ class UpdateProfile(View):
         logger = logging.getLogger(__name__)
         logger.info("show profile")
 
-        form = profileFormUpdate()
+        form = ProfileFormUpdate()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(reverse('profile2'),output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:
@@ -81,7 +82,7 @@ def update_profile(u, data):
     # for field in data["formData"]:
     #     form_data_dict[field["name"]] = field["value"]
 
-    form = profileFormUpdate(form_data_dict, user=u)
+    form = ProfileFormUpdate(form_data_dict, user=u)
 
     if form.is_valid():
 
@@ -90,12 +91,12 @@ def update_profile(u, data):
         if u.email != form.cleaned_data['email'].lower():
             email_verification_required = True
 
-        u.first_name = form.cleaned_data['first_name'].strip().capitalize()
-        u.last_name = form.cleaned_data['last_name'].strip().capitalize()
+        u.first_name = strip_tags(form.cleaned_data['first_name'].strip().capitalize())
+        u.last_name = strip_tags(form.cleaned_data['last_name'].strip().capitalize())
         u.email = form.cleaned_data['email'].strip().lower()
         u.username = u.email
 
-        u.profile.studentID = form.cleaned_data['chapman_id'].strip()
+        u.profile.studentID = strip_tags(form.cleaned_data['chapman_id'].strip())
         u.profile.gender = form.cleaned_data['gender']
         u.profile.subject_type = form.cleaned_data['subject_type']
         u.profile.studentWorker = form.cleaned_data['studentWorker']

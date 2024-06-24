@@ -4,9 +4,20 @@ import unittest
 from django.contrib.auth.models import User
 
 from main.views.registration import profileCreateUser
-from main.models import genders,experiments,subject_types,account_types,majors,\
-                        parameters,accounts,departments,locations,institutions,schools,email_filters,\
-                        experiment_session_day_users,experiment_session_days
+from main.models import Genders
+from main.models import Experiments
+from main.models import SubjectTypes
+from main.models import AccountTypes
+from main.models import Majors
+from main.models import Parameters
+from main.models import Accounts
+from main.models import Departments
+from main.models import Locations
+from main.models import Institutions
+from main.models import Schools
+from main.models import EmailFilters
+from main.models import ExperimentSessionDayUsers
+from main.models import ExperimentSessionDays
 
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
@@ -46,36 +57,36 @@ class cronTests(TestCase):
 
         logger = logging.getLogger(__name__)
 
-        self.p = parameters()
+        self.p = Parameters()
         self.p.save()
         
-        d = departments(name="d",charge_account="ca",petty_cash="0")
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
         d.save()
 
-        self.account1 = accounts(name="a",number="1.0",department=d)
+        self.account1 = Accounts(name="a",number="1.0",department=d)
         self.account1.save()
 
-        self.l1=locations(name="room1",address="room1")
+        self.l1=Locations(name="room1",address="room1")
         self.l1.save()
-        self.l2=locations(name="room2",address="room2")
+        self.l2=Locations(name="room2",address="room2")
         self.l2.save()
 
-        i1=institutions(name="one")
+        i1=Institutions(name="one")
         i1.save()
-        i2=institutions(name="two")
+        i2=Institutions(name="two")
         i2.save()
-        i3=institutions(name="three")
+        i3=Institutions(name="three")
         i3.save()
 
-        s=schools.objects.first()
-        s.email_filter.set(email_filters.objects.all())
+        s=Schools.objects.first()
+        s.email_filter.set(EmailFilters.objects.all())
 
          #staff user
         user_name = "s1@chapman.edu"
-        temp_st =  subject_types.objects.get(id=3)
+        temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          temp_st,False,True,account_types.objects.get(id=1))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          temp_st,False,True,AccountTypes.objects.get(id=1))
         self.staff_u.is_staff=True
         self.staff_u.save()
         
@@ -84,8 +95,8 @@ class cronTests(TestCase):
 
         #subject 1
         self.u = profileCreateUser("u1@chapman.edu","u1@chapman.edu","zxcvb1234asdf","first","last","00123456",\
-                          genders.objects.first(),"7145551234",majors.objects.first(),\
-                          subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u)
 
@@ -99,8 +110,8 @@ class cronTests(TestCase):
 
         #subject 2
         self.u2 = profileCreateUser("u2@chapman.edu","u2@chapman.edu","zxcvb1234asdf","first","last","001234",\
-                    genders.objects.first(),"7145551234",majors.objects.first(),\
-                    subject_types.objects.get(id=1),False,True,account_types.objects.get(id=2))
+                    Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                    SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
         
         logger.info(self.u2)
 
@@ -113,7 +124,7 @@ class cronTests(TestCase):
         self.u2.profile.setup_email_filter()
         
         #sessions
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         self.d_now = datetime.now(tz)
@@ -122,13 +133,13 @@ class cronTests(TestCase):
         
         #setup experiment two days from now
         self.e1 = createExperimentBlank()
-        self.e1.institution.set(institutions.objects.filter(name="one"))
+        self.e1.institution.set(Institutions.objects.filter(name="one"))
         self.e1.save()
 
         self.es1 = addSessionBlank(self.e1)    
         self.es1.recruitment_params.reset_settings()
-        self.es1.recruitment_params.gender.set(genders.objects.all())
-        self.es1.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es1.recruitment_params.gender.set(Genders.objects.all())
+        self.es1.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es1.recruitment_params.registration_cutoff = 5
         self.es1.recruitment_params.save()
         self.es1.save()
@@ -152,13 +163,13 @@ class cronTests(TestCase):
 
         #setup experiment three days from now
         self.e2 = createExperimentBlank()
-        self.e2.institution.set(institutions.objects.filter(name="two"))
+        self.e2.institution.set(Institutions.objects.filter(name="two"))
         self.e2.save()
 
         self.es2 = addSessionBlank(self.e2)    
         self.es2.recruitment_params.reset_settings()
-        self.es2.recruitment_params.gender.set(genders.objects.all())
-        self.es2.recruitment_params.subject_type.set(subject_types.objects.all())
+        self.es2.recruitment_params.gender.set(Genders.objects.all())
+        self.es2.recruitment_params.subject_type.set(SubjectTypes.objects.all())
         self.es2.recruitment_params.registration_cutoff = 5
         self.es2.recruitment_params.save()
         self.es2.save()

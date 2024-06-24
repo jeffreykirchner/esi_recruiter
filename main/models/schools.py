@@ -1,12 +1,14 @@
-from django.db import models
 import logging
 import traceback
-from . import email_filters
+
+from django.db import models
+
+from main.models import EmailFilters
 
 #Chapman, etc
-class schools(models.Model):
+class Schools(models.Model):
     name = models.CharField(max_length=300, verbose_name='Name')
-    email_filter = models.ManyToManyField(email_filters, blank=True, verbose_name='Email Filters')      #email domains that determine if in school
+    email_filter = models.ManyToManyField(EmailFilters, blank=True, verbose_name='Email Filters')      #email domains that determine if in school
     initialValue = models.BooleanField(verbose_name='Default to On', default=False)                     #if true add on initial experiment creation
 
     timestamp = models.DateTimeField(auto_now_add=True)

@@ -15,7 +15,7 @@ from django.conf import settings
 from django.utils.html import strip_tags
 
 from main.models import profile
-from main.models import parameters
+from main.models import Parameters
 
 from main.globals.todays_date import todays_date
 
@@ -26,7 +26,7 @@ def send_mass_email_verify(profile_list, request):
     logger = logging.getLogger(__name__)
     logger.info(f"Send mass verification email to list: {profile_list}")
 
-    params = parameters.objects.first()
+    params = Parameters.objects.first()
 
     if len(profile_list) == 0:
         return {"mailCount":0, "errorMessage":"No valid users"}
@@ -57,7 +57,7 @@ def profile_create_send_email(user):
     logger = logging.getLogger(__name__) 
     logger.info(f"Verify Email: {user.profile}")
 
-    params = parameters.objects.first()
+    params = Parameters.objects.first()
 
     user.profile.email_confirmed = get_random_string(length=32)   
     user.profile.save()

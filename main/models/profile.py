@@ -12,17 +12,16 @@ from django.contrib import admin
 from django.db.models import Subquery, OuterRef
 from django.core.serializers.json import DjangoJSONEncoder
 
-from main.models import institutions
-from main.models import parameters
-from main.models import experiment_sessions
+from main.models import Institutions
+from main.models import Parameters
+from main.models import ExperimentSessions
 from main.models import profile
-from main.models import account_types
-from main.models import schools
-from main.models import majors
-from main.models import genders
-from main.models import subject_types
-
-from . import email_filters
+from main.models import AccountTypes
+from main.models import Schools
+from main.models import Majors
+from main.models import Genders
+from main.models import SubjectTypes
+from main.models import EmailFilters
 
 import main
 
@@ -33,12 +32,12 @@ from django.db.models.signals import post_delete
 class profile(models.Model):
 
     user = models.OneToOneField(User, verbose_name="User", on_delete=models.CASCADE)
-    type = models.ForeignKey(account_types, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
-    school = models.ForeignKey(schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
-    major = models.ForeignKey(majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
-    gender = models.ForeignKey(genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
-    subject_type = models.ForeignKey(subject_types, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
-    email_filter = models.ForeignKey(email_filters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
+    type = models.ForeignKey(AccountTypes, verbose_name="Account Type", on_delete=models.CASCADE,default=2)            #subject or staff
+    school = models.ForeignKey(Schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
+    major = models.ForeignKey(Majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
+    gender = models.ForeignKey(Genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
+    subject_type = models.ForeignKey(SubjectTypes, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
+    email_filter = models.ForeignKey(EmailFilters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
     
     studentID = models.CharField(verbose_name="ID Number", max_length=100, default="00000000", null=True, blank=True) #student ID number
     email_confirmed =  models.CharField(verbose_name="Email Confirmed", max_length = 100, default="no")               #yes/code/no
@@ -84,7 +83,7 @@ class profile(models.Model):
     
     #return the last login time in the server's time zone
     def last_login_tz(self):
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         if not self.user.last_login:
             return "Never"
         return self.user.last_login.astimezone(pytz.timezone(p.subjectTimeZone)).strftime("%m/%d/%Y %I:%M %p %Z")
@@ -105,7 +104,7 @@ class profile(models.Model):
         #logger.info(email_split)
 
         #domain__regex = r'.+@' + email_regx
-        ef = email_filters.objects.filter(domain = email_split[1]).first()
+        ef = EmailFilters.objects.filter(domain = email_split[1]).first()
 
         if ef:
             self.email_filter = ef
@@ -174,7 +173,7 @@ class profile(models.Model):
 
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
 
-        es = experiment_sessions.objects.annotate(first_date=models.Min("ESD__date"))\
+        es = ExperimentSessions.objects.annotate(first_date=models.Min("ESD__date"))\
                                         .annotate(last_date=models.Max("ESD__date"))\
                                         .filter(id__in = session_ids)\
                                         .filter(last_date__gte = startDateRange)
@@ -219,7 +218,7 @@ class profile(models.Model):
 
     #get list of institutions this subject has been in
     def get_institution_list(self):
-        l = institutions.objects.none()
+        l = Institutions.objects.none()
         out_str = []
         esdus = self.user.ESDU.filter(attended=True)
 
@@ -241,7 +240,7 @@ class profile(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("get note list")
 
-        note_list=self.profile_note_set.all().order_by('-timestamp')
+        note_list=self.profile_notes_a.all().order_by('-timestamp')
 
         return [n.json() for n in note_list]
 
@@ -267,7 +266,7 @@ class profile(models.Model):
         logger = logging.getLogger(__name__)
         logger.info("ytd earnings")
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         #create a new tz aware date time
@@ -276,14 +275,14 @@ class profile(models.Model):
         #replace with non aware info
         s_date = s_date.replace(day=1,month=1, hour=0,minute=0,second=0,microsecond=1)
 
-        r1 = main.models.experiment_session_day_users.objects.filter(attended = True)\
+        r1 = main.models.ExperimentSessionDayUsers.objects.filter(attended = True)\
                                                              .filter(experiment_session_day__date__gte = s_date)\
                                                              .filter(user = self.user)
                                                                   
-                                            #  .annotate(totalBumps = Sum(Case(When(experiment_session_day_users__bumped = 1,
-                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
-                                            #                                  When(experiment_session_day_users__attended = 1,
-                                            #                                    then = 'experiment_session_day_users__show_up_fee'),
+                                            #  .annotate(totalBumps = Sum(Case(When(main.models.ExperimentSessionDayUsers__bumped = 1,
+                                            #                                    then = 'main.models.ExperimentSessionDayUsers__show_up_fee'),
+                                            #                                  When(main.models.ExperimentSessionDayUsers__attended = 1,
+                                            #                                    then = 'main.models.ExperimentSessionDayUsers__show_up_fee'),
                                             #                                  default=Value(0)  )))\
                                             #  .filter(account__in = dpt.accounts_set.all(),
                                             #          date__gte=s_date,
@@ -292,7 +291,7 @@ class profile(models.Model):
                                             #          Q(totalBumps__gt = 0))\
                                             #  .select_related('experiment_session__experiment','account')\
                                             #  .order_by('date')
-        r2 = main.models.experiment_session_day_users.objects.filter(bumped = True)\
+        r2 = main.models.ExperimentSessionDayUsers.objects.filter(bumped = True)\
                                                              .filter(experiment_session_day__date__gte = s_date)\
                                                              .filter(user = self.user)
 
@@ -326,9 +325,9 @@ class profile(models.Model):
         #i_list = es.experiment.institution.values_list("id", flat=True)
 
         for s in qs_attending:
-            user_list_valid = s.getValidUserList([{'id':self.user.id}], False, experiment_id, es.id, i_list, False)
-            user_list_valid = s.getValidUserListDjango(user_list_valid, False, experiment_id, es.id, i_list, False)
-
+            # user_list_valid = s.getValidUserList([{'id':self.user.id}], False, experiment_id, es.id, i_list, False)
+            user_list_valid = s.getValidUserListDjango([self.user], False, experiment_id, es.id, i_list, False)
+            
             if not self.user in user_list_valid:
                 #logger.info("Invitation failed attended recruitment violation")             
                 logger.info(f'check_for_future_constraints Invitation failed attended recruitment violation User: {self.user.id} {self.user.email}, attending session: {s.id} violation experiment: {experiment_id}')
@@ -361,7 +360,7 @@ class profile(models.Model):
         #consent_forms = self.profile_consent_forms_a.values_list('consent_form__id', flat=True)
 
         #if only bumped from consent form, require resign
-        attended_consents = main.models.experiment_session_day_users.objects.filter(
+        attended_consents = main.models.ExperimentSessionDayUsers.objects.filter(
                                                 user__profile=self, 
                                                 attended=True, 
                                                 experiment_session_day__experiment_session__consent_form__id=consent_form.id)

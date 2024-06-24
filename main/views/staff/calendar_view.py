@@ -16,10 +16,10 @@ from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
-from main.models import experiment_session_days
-from main.models import locations
-from main.models import parameters
-from main.models import help_docs
+from main.models import ExperimentSessionDays
+from main.models import Locations
+from main.models import Parameters
+from main.models import HelpDocs
 
 from main.globals import todays_date
 
@@ -40,7 +40,7 @@ class CalendarView(View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -110,7 +110,7 @@ def get_month(request, data, month, year):
     logger = logging.getLogger(__name__) 
     logger.info(f"Get month: {data}, url month:{month}, url year:{year}")
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     #today's month
     tz = pytz.timezone(p.subjectTimeZone)
@@ -128,7 +128,7 @@ def get_month(request, data, month, year):
                          "todayMonth": t.month,
                          "todayYear": t.year,
                          "todayDay": t.day,
-                         "locations" : [l.json() for l in locations.objects.all()],
+                         "locations" : [l.json() for l in Locations.objects.all()],
                          "currentMonthString" :  t_current.strftime("%B, %Y"),
                          "jump_to_month" : str(get_month_jump_display_json(t_current)),
                          "calendar": get_calendar_json(month, year)},safe=False)
@@ -146,7 +146,7 @@ def change_month(request, data):
     currentYear = int(data["currentYear"])
 
     if direction == "current":
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
         t = datetime.now(tz)
     elif direction == "previous":
@@ -214,7 +214,7 @@ def get_calendar_json(month, year):
     #month = 3
     #year = 2020
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
     tz = pytz.timezone(p.subjectTimeZone)
 
     cal_full = []
@@ -228,7 +228,7 @@ def get_calendar_json(month, year):
     #logger.info(first_day)
     #logger.info(last_day)
 
-    s_list = list(experiment_session_days.objects.filter(date__gte = first_day,
+    s_list = list(ExperimentSessionDays.objects.filter(date__gte = first_day,
                                                          date__lte = last_day)\
                                                  .order_by("date")\
                                                  .select_related('experiment_session','experiment_session__experiment','location','experiment_session__experiment'))

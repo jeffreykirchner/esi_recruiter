@@ -13,11 +13,11 @@ from django.views.generic.detail import SingleObjectMixin
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
-from main.models import parameters
-from main.models import help_docs
+from main.models import Experiments
+from main.models import Parameters
+from main.models import HelpDocs
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 
 class ExperimentParametersView(SingleObjectMixin, View):
     '''
@@ -25,7 +25,7 @@ class ExperimentParametersView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_parameters.html"
-    model = experiments
+    model = Experiments
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -36,23 +36,23 @@ class ExperimentParametersView(SingleObjectMixin, View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
         
-        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form = RecruitmentParametersForm()
         recruitment_parameters_form_ids=[]
         for i in recruitment_parameters_form:
             recruitment_parameters_form_ids.append(i.html_name)
 
         return render(request,
                       self.template_name,
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      {'updateRecruitmentParametersForm':RecruitmentParametersForm(),  
                       'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
                        'experiment':self.get_object()})
@@ -80,7 +80,7 @@ def getExperiment(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"get session paramters {data}")
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
     
     # logger.info(es.recruitment_params)
 
@@ -92,7 +92,7 @@ def updateRecruitmentParameters(data,id):
     logger = logging.getLogger(__name__)
     logger.info(f"Update default recruitment parameters: {data}")
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     form_data_dict = data["formData"]
 
@@ -135,7 +135,7 @@ def updateRecruitmentParameters(data,id):
     # form_data_dict["schools_include"]=schoolsIncludeList
 
     #print(form_data_dict)
-    form = recruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
+    form = RecruitmentParametersForm(form_data_dict,instance=e.recruitment_params_default)
 
     if form.is_valid():
         #print("valid form")                                

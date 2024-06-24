@@ -17,10 +17,10 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
-from main.models import parameters
-from main.models import help_docs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import Experiments
+from main.models import Parameters
+from main.models import HelpDocs
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
 
 from main.globals import todays_date
@@ -28,7 +28,7 @@ from main.globals import todays_date
 from main.views.staff.experiment_view import addSessionBlank
 from main.views.staff.experiment_search_view import createExperimentBlank
 
-from main.forms import recruitmentParametersForm
+from main.forms import RecruitmentParametersForm
 from main.forms import TraitConstraintForm
 
 import main
@@ -49,16 +49,16 @@ class UserSearchParametersView(View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
              helpText = "No help doc was found."
         
-        recruitment_parameters_form = recruitmentParametersForm()
+        recruitment_parameters_form = RecruitmentParametersForm()
         recruitment_parameters_form_ids=[]
 
         for i in recruitment_parameters_form:
@@ -71,7 +71,7 @@ class UserSearchParametersView(View):
         if not id:
             #no experiment id provided, create dummy experiment
             with transaction.atomic():
-                i1=main.models.institutions(name="search")
+                i1=main.models.Institutions(name="search")
                 i1.save()
 
                 e = createExperimentBlank()
@@ -84,7 +84,7 @@ class UserSearchParametersView(View):
                 i1.delete()
         else:
             try:
-                e = experiments.objects.get(id=id)     
+                e = Experiments.objects.get(id=id)     
             except ObjectDoesNotExist :
                 raise Http404('Experiment Not Found')   
             
@@ -92,7 +92,7 @@ class UserSearchParametersView(View):
 
         return render(request,
                       self.template_name,
-                      {'updateRecruitmentParametersForm':recruitmentParametersForm(),  
+                      {'updateRecruitmentParametersForm':RecruitmentParametersForm(),  
                        'recruitment_parameters_form_ids':recruitment_parameters_form_ids,  
                        'helpText':helpText,
                        'traitConstraintForm':TraitConstraintForm(),
@@ -140,17 +140,17 @@ def search(request, data, id):
 
     if not id:
         #no experiment provided
-        i1=main.models.institutions(name="search")
+        i1=main.models.Institutions(name="search")
         i1.save()
 
         e = createExperimentBlank()
         e.institution.set([i1])
         e.save()            
 
-        form = recruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
+        form = RecruitmentParametersForm(form_data_dict, instance=e.recruitment_params_default)
     else:
         #experiment provided
-        e = experiments.objects.get(id=id)
+        e = Experiments.objects.get(id=id)
         es = addSessionBlank(e)
         esd = es.ESD.first()
         esd.date = esd.date + timedelta(days=1000)
@@ -162,15 +162,15 @@ def search(request, data, id):
         es.recruitment_params.save()
 
         for i in trait_data_list:
-            tc = Recruitment_parameters_trait_constraint()
+            tc = RecruitmentParametersTraitConstraint()
             tc.recruitment_parameter = es.recruitment_params
-            tc.trait = Traits.objects.get(id=i["trait_id"])
+            tc.trait = Traits.objects.get(id=i["trait"])
             tc.min_value = i["min_value"]
             tc.max_value = i["max_value"]
             tc.include_if_in_range = i["include_if_in_range"]
             tc.save()
 
-        form = recruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
+        form = RecruitmentParametersForm(form_data_dict, instance=es.recruitment_params)
 
     if form.is_valid():
         #print("valid form")                       
@@ -194,7 +194,7 @@ def search(request, data, id):
             es.recruitment_params.trait_constraints_require_all = trait_constraints_require_all
             es.recruitment_params.save()
             for i in trait_data_list:
-                tc = Recruitment_parameters_trait_constraint()
+                tc = RecruitmentParametersTraitConstraint()
                 tc.recruitment_parameter = es.recruitment_params
                 tc.trait = Traits.objects.get(id=i["trait_id"])
                 tc.min_value = i["min_value"]

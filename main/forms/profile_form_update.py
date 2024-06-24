@@ -8,9 +8,11 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
-from main.models import genders, majors, subject_types
+from main.models import Genders
+from main.models import Majors
+from main.models import SubjectTypes
 
-class profileFormUpdate(forms.Form):
+class ProfileFormUpdate(forms.Form):
     '''
     update profile form
     '''
@@ -36,17 +38,17 @@ class profileFormUpdate(forms.Form):
                             widget=forms.TextInput(attrs={"v-model":"profile.phone"}))
     
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
-                                     queryset=genders.objects.all(),
+                                     queryset=Genders.objects.all(),
                                      empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
     
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
-                                   queryset=majors.objects.all().order_by('name'),
+                                   queryset=Majors.objects.all().order_by('name'),
                                    empty_label=None,
                                    widget=forms.Select(attrs={"v-model":"profile.major"}))
     
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
-                                          queryset=subject_types.objects.all(),
+                                          queryset=SubjectTypes.objects.all(),
                                           empty_label=None,
                                           widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
     
@@ -107,7 +109,7 @@ class profileFormUpdate(forms.Form):
 
     def __init__(self, *args, **kwargs):
          self.user = kwargs.pop('user', None)
-         super(profileFormUpdate, self).__init__(*args, **kwargs)
+         super(ProfileFormUpdate, self).__init__(*args, **kwargs)
 
     #check that passwords match
     def clean_password1(self):

@@ -17,19 +17,19 @@ from django.contrib.auth.models import User
 
 from main.decorators import user_is_staff
 
-from main.models import experiments
-from main.models import experiment_session_days
-from main.models import experiment_sessions
-from main.models import parameters
-from main.models import help_docs
-from main.models import Recruitment_parameters_trait_constraint
+from main.models import Experiments
+from main.models import ExperimentSessionDays
+from main.models import ExperimentSessions
+from main.models import Parameters
+from main.models import HelpDocs
+from main.models import RecruitmentParametersTraitConstraint
 from main.models import Traits
-from main.models import Invitation_email_templates
+from main.models import InvitationEmailTemplates
 
-from main.forms import experimentForm1
-from main.forms import recruitmentParametersForm
+from main.forms import ExperimentForm
+from main.forms import RecruitmentParametersForm
 from main.forms import TraitConstraintForm
-from main.forms import invitationEmailTemplateSelectForm
+from main.forms import InvitationEmailTemplateSelectForm
 
 class ExperimentView(SingleObjectMixin, View):
     '''
@@ -37,7 +37,7 @@ class ExperimentView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment.html"
-    model = experiments
+    model = Experiments
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -49,7 +49,7 @@ class ExperimentView(SingleObjectMixin, View):
         logger = logging.getLogger(__name__)
 
         try:
-            helpText = help_docs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp=Value(request.path, output_field=CharField()))\
                                 .filter(rp__icontains=F('path')).first().text
         except Exception  as e:   
             helpText = "No help doc was found."
@@ -58,10 +58,10 @@ class ExperimentView(SingleObjectMixin, View):
 
         return render(request,
                       self.template_name,
-                      {'form1':experimentForm1(),
+                      {'form1':ExperimentForm(),
                        'traitConstraintForm':TraitConstraintForm(),       
-                       'invitationEmailTemplateForm' : invitationEmailTemplateSelectForm(), 
-                       'invitationEmailTemplateForm_default':Invitation_email_templates.objects.filter(enabled=True).first().id,           
+                       'invitationEmailTemplateForm' : InvitationEmailTemplateSelectForm(), 
+                       'invitationEmailTemplateForm_default':InvitationEmailTemplates.objects.filter(enabled=True).first().id,           
                        'id': id,
                        'helpText':helpText})
     
@@ -114,11 +114,11 @@ def getExperiment(data, id):
     logger.info(data)
 
     try:
-        e = experiments.objects.get(id=id)     
+        e = Experiments.objects.get(id=id)     
     except ObjectDoesNotExist :
         raise Http404('Experiment Not Found')
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
             
     return JsonResponse({"experiment" :  e.json(),
                          "sessions" : e.json_sessions(offset=0, limit=25),
@@ -131,7 +131,7 @@ def showAllSessions(data, id):
     logger.info("Show All Sessions")
     logger.info(data)
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     return JsonResponse({"sessions" : e.json_sessions()}, safe=False)
 
@@ -141,7 +141,7 @@ def removeSession(data, id):
     logger.info("Remove session")
     logger.info(data)
 
-    es = experiment_sessions.objects.get(id=data["sid"])
+    es = ExperimentSessions.objects.get(id=data["sid"])
 
     logger.info("Recruitment Parameters ID:")
     logger.info(es.recruitment_params)
@@ -149,7 +149,7 @@ def removeSession(data, id):
     if es.allowDelete():        
         es.delete()
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     return JsonResponse({"sessions" : e.json_sessions(offset=0, limit=25),
                          "sessions_count":e.ES.count(),
@@ -162,7 +162,7 @@ def addSession(data, id, creator):
 
     status = ""
 
-    e = experiments.objects.get(id=id) 
+    e = Experiments.objects.get(id=id) 
 
     #experiment must have an institution set before adding a session
     if len(e.institution.all()) == 0:
@@ -197,7 +197,7 @@ def addSessionBlank(e):
 
     e.save()
 
-    es=experiment_sessions()
+    es=ExperimentSessions()
     es.experiment=e    
     es.invitation_text = e.invitationText    
     es.consent_form = e.consent_form_default
@@ -209,7 +209,7 @@ def addSessionBlank(e):
     es.save()    
 
     #create experiment session day, attach to session
-    esd=experiment_session_days()
+    esd=ExperimentSessionDays()
     esd.setup(es,[])
     esd.save()
 
@@ -221,7 +221,7 @@ def updateForm1(data,id):
     logger.info("Update experiment parameters")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     form_data_dict = data["formData"]
     #institutionList=[]               
@@ -243,7 +243,7 @@ def updateForm1(data,id):
 
         form_data_dict["survey"] = 1 if e.survey else 0
 
-    form = experimentForm1(form_data_dict,instance=e)
+    form = ExperimentForm(form_data_dict,instance=e)
 
     if form.is_valid():           
         e=form.save()               
@@ -258,9 +258,9 @@ def addTrait(data,id):
     logger.info("Add Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
-    tc = Recruitment_parameters_trait_constraint()
+    tc = RecruitmentParametersTraitConstraint()
     tc.recruitment_parameter = e.recruitment_params_default
     tc.trait = Traits.objects.first()
     tc.save()
@@ -273,11 +273,11 @@ def deleteTrait(data,id):
     logger.info("Delete Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     t_id = data["id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.filter(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.filter(id=t_id)
 
     if tc:
         tc.first().delete()
@@ -290,11 +290,11 @@ def updateTrait(data,id):
     logger.info("Update Trait Constraint")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     t_id = data["trait_id"]
 
-    tc = Recruitment_parameters_trait_constraint.objects.get(id=t_id)
+    tc = RecruitmentParametersTraitConstraint.objects.get(id=t_id)
 
     form_data_dict = data["formData"] 
 
@@ -318,7 +318,7 @@ def updateRequireAllTraitContraints(data,id):
     logger.info("Update Require All Trait Constraints")
     logger.info(data)
 
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
 
     v = data["value"]
 
@@ -328,7 +328,7 @@ def updateRequireAllTraitContraints(data,id):
         e.recruitment_params_default.trait_constraints_require_all=False
     
     e.recruitment_params_default.save()
-    e = experiments.objects.get(id=id)
+    e = Experiments.objects.get(id=id)
     
     return JsonResponse({"recruitment_params":e.recruitment_params_default.json(),"status":"success"}, safe=False)
 
@@ -338,7 +338,7 @@ def fillInvitationTextFromTemplate(data,id):
     logger.info("Fill invitation text from template")
     logger.info(data)
 
-    t = Invitation_email_templates.objects.filter(id = data["value"])
+    t = InvitationEmailTemplates.objects.filter(id = data["value"])
 
     text = ""
 
@@ -353,7 +353,7 @@ def fillDefaultReminderText(data,id):
     logger.info("Fill default reminder text")
     logger.info(data)
 
-    p = parameters.objects.first()
+    p = Parameters.objects.first()
 
     text = p.reminderText
     
@@ -405,7 +405,7 @@ def addToAllowList(data, id):
         return JsonResponse({"not_found_list" : not_found_list,
                              "status" : "fail"}, safe=False)
                    
-    experiment = experiments.objects.get(id=id)
+    experiment = Experiments.objects.get(id=id)
 
     for i in id_list:
         if not experiment.recruitment_params_default.allowed_list:
@@ -426,7 +426,7 @@ def clearAllowList(data, id):
 
     form_data_dict = data["formData"]
 
-    experiment = experiments.objects.get(id=id)
+    experiment = Experiments.objects.get(id=id)
 
     experiment.recruitment_params_default.allowed_list = []
     experiment.recruitment_params_default.save()

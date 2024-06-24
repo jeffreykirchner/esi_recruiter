@@ -1,15 +1,15 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from main.models import departments
+from main.models import Departments
 
 import logging
 
 #form
-class pettyCashForm(forms.Form):
+class PettyCashForm(forms.Form):
 
     department =  forms.ModelChoiceField(label="Department",
-                                     queryset=departments.objects.all().order_by('name'),
+                                     queryset=Departments.objects.all().order_by('name'),
                                      widget=forms.Select(attrs={"v-model":"pettyCash.department"}))
 
     startDate = forms.DateTimeField(label="Start Date",

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.contrib.auth import logout
 from django.views import View
 
-from main.models import parameters
+from main.models import Parameters
 from main.globals import send_mass_email_service
 from main.forms import passwordResetForm
 
@@ -27,7 +27,7 @@ class PasswordResetView(View):
 
         logout(request)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         labManager = p.labManager 
 
         form = passwordResetForm()
@@ -56,7 +56,7 @@ class PasswordResetView(View):
 def send_reset(request, data):
     logger = logging.getLogger(__name__) 
    
-    params = parameters.objects.first()
+    params = Parameters.objects.first()
 
     #convert form into dictionary
     form_data_dict = data["formData"]             

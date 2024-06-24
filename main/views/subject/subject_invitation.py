@@ -11,11 +11,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.utils.decorators import method_decorator
 
-from main.models import parameters
-from main.models import help_docs
+from main.models import Parameters
+from main.models import HelpDocs
 from main.models import ConsentForm
 from main.models import ProfileConsentForm
-from main.models import experiment_sessions
+from main.models import ExperimentSessions
 
 from main.decorators import user_is_subject
 from main.decorators import email_confirmed
@@ -40,12 +40,12 @@ class SubjectInvitation(View):
         u = request.user
         id = kwargs['id']
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         labManager = p.labManager
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                         .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
@@ -53,7 +53,7 @@ class SubjectInvitation(View):
 
         try:
             subject_session_list = u.ESDU.values_list('experiment_session_day__experiment_session__id',flat=True)
-            session = experiment_sessions.objects.filter(id__in=subject_session_list).filter(id=id)
+            session = ExperimentSessions.objects.filter(id__in=subject_session_list).filter(id=id)
 
             # logger.info(subject_session_list)
             # logger.info(session)

@@ -2,9 +2,9 @@ from tinymce.widgets import TinyMCE
 
 from django import forms
 
-from main.models import faq
+from main.models import FAQ
 
-class helpDocForm(forms.ModelForm):
+class HelpDocForm(forms.ModelForm):
 
 
     title = forms.CharField(label='Title',
@@ -17,5 +17,5 @@ class helpDocForm(forms.ModelForm):
                            widget=TinyMCE(attrs={"rows":30, "cols":125, "plugins": "link image code"}))
 
     class Meta:
-        model=faq
+        model=FAQ
         fields = ('__all__')

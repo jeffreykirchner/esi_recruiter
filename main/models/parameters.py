@@ -6,7 +6,7 @@ from tinymce.models import HTMLField
 from django.db import models
 from django.contrib.auth.models import User
 
-class parameters(models.Model):
+class Parameters(models.Model):
     '''
     site wide parameters
     '''

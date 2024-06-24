@@ -1,13 +1,16 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from main.models import genders,profile,account_types,majors,subject_types
+
+from main.models import Genders
+from main.models import Majors
+from main.models import SubjectTypes
 
 import logging
 import re
 
 #form
-class profileForm(forms.Form):
+class ProfileForm(forms.Form):
     first_name = forms.CharField(label='First Name', 
                                  max_length=100,
                                  widget=forms.TextInput(attrs={"v-model":"profile.first_name"}))
@@ -30,17 +33,17 @@ class profileForm(forms.Form):
                             widget=forms.TextInput(attrs={"v-model":"profile.phone"}))
 
     gender =  forms.ModelChoiceField(label="To which gender identity do you most identify?",
-                                     queryset=genders.objects.all(),
+                                     queryset=Genders.objects.all(),
                                      empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
     
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
-                                     queryset=majors.objects.all().order_by('name'),
+                                     queryset=Majors.objects.all().order_by('name'),
                                      empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.major"}))
 
     subject_type = forms.ModelChoiceField(label="What is your enrollment status?",
-                                        queryset=subject_types.objects.all(),
+                                        queryset=SubjectTypes.objects.all(),
                                         empty_label=None,
                                         widget=forms.Select(attrs={"v-model":"profile.subject_type"}))
 

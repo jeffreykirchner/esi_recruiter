@@ -14,7 +14,7 @@ from django.db.models.functions import Lower
 
 from main.decorators import user_is_staff
 
-from main.models import experiment_session_days
+from main.models import ExperimentSessionDays
 
 class ExperimentSessionPayoutsView(SingleObjectMixin, View):
     '''
@@ -22,7 +22,7 @@ class ExperimentSessionPayoutsView(SingleObjectMixin, View):
     '''
 
     template_name = "staff/experiment_session_payouts.html"
-    model = experiment_session_days
+    model = ExperimentSessionDays
 
     @method_decorator(login_required)
     @method_decorator(user_is_staff)
@@ -69,7 +69,7 @@ def getSession(data, id, request_user):
 
     payGroup = data["payGroup"]
 
-    esd = experiment_session_days.objects.get(id=id)
+    esd = ExperimentSessionDays.objects.get(id=id)
 
     if payGroup == "bumps":     
 

@@ -17,14 +17,14 @@ from django.utils.decorators import method_decorator
 
 from main.decorators import user_is_staff
 
-from main.forms import pettyCashForm
-from main.forms import studentReportForm
-from main.models import departments
-from main.models import experiment_session_days
-from main.models import accounts
-from main.models import parameters 
-from main.models import experiment_session_day_users
-from main.models import help_docs
+from main.forms import PettyCashForm
+from main.forms import StudentReportForm
+from main.models import Departments
+from main.models import ExperimentSessionDays
+from main.models import Accounts
+from main.models import Parameters 
+from main.models import ExperimentSessionDayUsers
+from main.models import HelpDocs
 
 class ReportsView(View):
     '''
@@ -40,17 +40,17 @@ class ReportsView(View):
 
         logger = logging.getLogger(__name__)
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
 
         try:
-            helpText = help_docs.objects.annotate(rp = V(request.path,output_field=CharField()))\
+            helpText = HelpDocs.objects.annotate(rp = V(request.path,output_field=CharField()))\
                                     .filter(rp__icontains = F('path')).first().text
 
         except Exception  as e:   
             helpText = "No help doc was found."
 
 
-        param = parameters.objects.first()
+        param = Parameters.objects.first()
         tmz = pytz.timezone(param.subjectTimeZone)
         d_today = datetime.now(tmz)
 
@@ -61,8 +61,8 @@ class ReportsView(View):
         if d_today.month<6:
             d_fisical_start = d_fisical_start.replace(year=d_fisical_start.year-1)
 
-        return render(request,'staff/reports.html',{"pettyCashForm" : pettyCashForm() ,
-                                                    "studentReportForm" : studentReportForm(),
+        return render(request,'staff/reports.html',{"pettyCashForm" : PettyCashForm() ,
+                                                    "studentReportForm" : StudentReportForm(),
                                                     "maxAnnualEarnings":p.maxAnnualEarnings,
                                                     "d_today" : d_today.date().strftime("%Y-%m-%d"),
                                                     "d_fisical_start" : d_fisical_start.date().strftime("%Y-%m-%d"),
@@ -96,12 +96,12 @@ def studentReport(data):
     # for field in data["formData"]:            
     #     form_data_dict[field["name"]] = field["value"]
     
-    form = studentReportForm(form_data_dict)
+    form = StudentReportForm(form_data_dict)
 
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         studentReport_nra = form.cleaned_data['studentReport_nra'] 
@@ -137,7 +137,7 @@ def studentReport(data):
         writer = csv.writer(csv_response)
 
         #session day list
-        ESDU = experiment_session_day_users.objects.filter(experiment_session_day__date__gte=s_date,
+        ESDU = ExperimentSessionDayUsers.objects.filter(experiment_session_day__date__gte=s_date,
                                                            experiment_session_day__date__lte=e_date,)\
                                                    .filter((Q(attended = 1) & (Q(earnings__gt = 0) | Q(show_up_fee__gt = 0))) | 
                                                            (Q(bumped = 1) & Q(show_up_fee__gt = 0)))\
@@ -146,8 +146,8 @@ def studentReport(data):
                                                                    'user',
                                                                    'user__profile',
                                                                    'experiment_session_day__account')
-        acnts = accounts.objects.all()
-        depts = departments.objects.all().prefetch_related('accounts_set')
+        acnts = Accounts.objects.all()
+        depts = Departments.objects.all().prefetch_related('accounts_set')
 
         #outside funding
         if studentReport_outside_funding == "1":
@@ -256,12 +256,12 @@ def pettyCash(data):
     # for field in data["formData"]:            
     #     form_data_dict[field["name"]] = field["value"]
     
-    form = pettyCashForm(form_data_dict)
+    form = PettyCashForm(form_data_dict)
 
     if form.is_valid():
         #print("valid form")   
 
-        p = parameters.objects.first()
+        p = Parameters.objects.first()
         tz = pytz.timezone(p.subjectTimeZone)
 
         dpt = form.cleaned_data['department']
@@ -289,7 +289,7 @@ def pettyCash(data):
 
         writer = csv.writer(csv_response)   
 
-        ESD = experiment_session_days.objects.annotate(totalEarnings=Sum(Case(When(ESDU_b__attended = 1,
+        ESD = ExperimentSessionDays.objects.annotate(totalEarnings=Sum(Case(When(ESDU_b__attended = 1,
                                                                                  then = 'ESDU_b__earnings'),
                                                                                  default = Decimal("0")),
                                                                         output_field=DecimalField()))\
@@ -307,12 +307,12 @@ def pettyCash(data):
                                              .select_related('experiment_session__experiment','account')\
                                              .order_by('date')
         
-        ESD_accounts_ids = experiment_session_days.objects.filter(account__in = dpt.accounts_set.filter(outside_funding=False),
+        ESD_accounts_ids = ExperimentSessionDays.objects.filter(account__in = dpt.accounts_set.filter(outside_funding=False),
                                                      date__gte=s_date,
                                                      date__lte=e_date)\
                                               .values_list('account_id',flat=True).distinct()                                            
 
-        ESD_accounts = accounts.objects.filter(id__in=ESD_accounts_ids)\
+        ESD_accounts = Accounts.objects.filter(id__in=ESD_accounts_ids)\
                                        .filter(outside_funding=False)
 
         logger.info(ESD_accounts) 
