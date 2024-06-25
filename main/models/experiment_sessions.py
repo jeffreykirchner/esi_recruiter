@@ -1111,7 +1111,10 @@ class ExperimentSessions(models.Model):
         logger.info("getValidUserList_check_multi_participations")
 
         q1 = Q(attended = True)
-        q2 = (Q(confirmed = True) & Q(experiment_session_day__date__lte = self.getFirstDate()))
+        # q2 = (Q(confirmed = True) & Q(experiment_session_day__date__lte = self.getFirstDate()))
+        q2 = (Q(confirmed = True) &
+              Q(experiment_session_day__date_end__lte = self.getFirstDate()) &
+              Q(experiment_session_day__date_end__gte = datetime.now(pytz.UTC)))
         
         #list of everyone that has done this experiment.
         user_ids = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment__id = self.experiment.id)\

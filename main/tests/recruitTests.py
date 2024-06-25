@@ -685,6 +685,51 @@ class recruitTestCase(TestCase):
         
         self.assertEqual(len(e_users),len(u_list))
 
+    #test that subjects are still eligable for future sessions even after a no show if they have not reached the no show limit
+    def testNoShowViolationsEligiabilityLaterSessions(self):
+        d_now_minus_one = self.d_now - timedelta(days=1)
+        d_now_plus_one = self.d_now + timedelta(days=5)
+
+        #logger.info("here:" + str(d_now_minus_one))
+
+        e=self.e2
+        es1=self.e2.ES.first()
+        esd1 = es1.ESD.first()
+
+        esd1.ESDU_b.all().update(confirmed=False, attended=False)
+        # r = json.loads(cancelAcceptInvitation({"id":es.id},self.user_list[1]).content.decode("UTF-8"))
+        # self.assertFalse(r['failed'])
+
+        #move session 1 experiment 1 into past so experience is counted
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        temp_u = self.user_list[1]
+
+        es1.addUser(temp_u.id,self.staff_u,True)
+        temp_esdu = esd1.ESDU_b.filter(user__id = temp_u.id).first()
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es1.id,False).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        #move session 2 into the future
+        es2=self.e2.ES.last()
+        esd2 = es2.ESD.first()
+        self.assertNotEqual(esd1.id,esd2.id)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd2.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        #try to confirm user
+        es2.addUser(temp_u.id,self.staff_u,True)
+        temp_esdu = esd2.ESDU_b.filter(user__id = temp_u.id).first()
+        r=json.loads(changeConfirmationStatus({"userId":temp_u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},es2.id,False).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
     #no shows in canceled experiment
     def testNoShowViolationsCanceled(self):
         """Test no show violation for canceled experiment""" 
