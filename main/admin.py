@@ -391,7 +391,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
             #self.message_user(request, "Emails Sent: " + str(updated3['mail_count']) + " " + updated3['error_message'], messages.SUCCESS)
 
-      pause_all.short_description = "Paused selected accounts"
+      pause_all.short_description = "Pause selected accounts"
 
       #clear everyone from blackballs status
       def clear_blackBalls(self, request, queryset):
