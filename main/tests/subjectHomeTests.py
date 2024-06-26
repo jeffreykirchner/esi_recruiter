@@ -425,10 +425,15 @@ class subjectHomeTestCase(TestCase):
         r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
+        #check not same session
+        self.assertNotEqual(self.es1.id,temp_es1.id)
+
+        #check same experiment
+        self.assertEqual(self.es1.experiment.id, temp_es1.experiment.id)
+
         #add consent form
         profile_consent_form = ProfileConsentForm(my_profile=self.u.profile, consent_form=self.es1.consent_form)
         profile_consent_form.save()
-
 
         temp_es1.addUser(self.u.id,self.staff_u,True)
         temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
@@ -437,10 +442,21 @@ class subjectHomeTestCase(TestCase):
         self.assertFalse(r['failed'])
         self.assertEqual("", r['message'])
 
-
+        #try to confirm same experiment twice
         r = json.loads(acceptInvitation({"id":temp_es1.id},self.u).content.decode("UTF-8"))
         self.assertTrue(r['failed'])
         self.assertEqual("Invitation failed recruitment violation.", r['message'])
+
+        #leave first session and confirm again
+        r = json.loads(cancelAcceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        r = json.loads(acceptInvitation({"id":temp_es1.id},self.u).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        #try to join first session again and fail
+        r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
+        self.assertTrue(r['failed'])
 
     #test accept when the session is full
     def testSessionNotFull(self):
