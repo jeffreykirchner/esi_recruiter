@@ -3,7 +3,7 @@
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-let app = Vue.createApp({
+var app = Vue.createApp({
 
     delimiters: ['[[', ']]'],
       
@@ -865,7 +865,7 @@ let app = Vue.createApp({
 
             if(confirm("Remove subject from session?")){
                 
-                document.getElementById("removeSubject" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                document.getElementById("updateUnconfirmedSubjects" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                
                 axios.post('{{request.get_full_path}}', {
                     status:"removeSubject",   
@@ -901,7 +901,7 @@ let app = Vue.createApp({
         //change a subject's confirmation status
         confirmSubject: function confirmSubject(userId,esduId,confirmed){                       
 
-            document.getElementById("confirmSubject" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            document.getElementById("updateUnconfirmedSubjects" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
            
             axios.post('{{request.get_full_path}}', {
                 status:"changeConfirmation",   
@@ -920,7 +920,7 @@ let app = Vue.createApp({
 
                 if(status=="success")
                 {
-                    
+                    app.updateUnconfirmedSubjects();
                     // app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
                 }
                 else
@@ -1055,8 +1055,10 @@ let app = Vue.createApp({
             .then(function (response) {
                 app.session.experiment_session_days=response.data.es_min.experiment_session_days;                             
                 app.currentSessionDay = Object.assign({},app.session.experiment_session_days[ app.currentSessionDayIndex]);
-
                 app.showUnconfirmedButtonText = 'Show <i class="fa fa-eye fa-xs"></i>';
+
+                app.updateUnconfirmedSubjects();
+               
             })
             .catch(function (error) {
                 console.log(error);
@@ -1064,6 +1066,51 @@ let app = Vue.createApp({
             });                                       
                             
             },
+        
+        //update unconfirmed subjects table
+        updateUnconfirmedSubjects: function updateUnconfirmedSubjects(){
+            let result = "";
+            for(let i=0;i<app.currentSessionDay.experiment_session_days_user_unconfirmed.length;i++)
+                {
+                    let esdu = app.currentSessionDay.experiment_session_days_user_unconfirmed[i];
+
+                    let confirmButton = "";
+                    
+                    {%if user.is_staff%}
+                    confirmButton =  `<button type="button" 
+                                              class="btn btn-outline-primary btn-sm" 
+                                              onclick = "app.confirmSubject(${esdu.user.id},${esdu.id},'confirm')">
+                                            Confirm <i class="fas fa-level-up-alt"></i>
+                                       </button>`;
+                    {%endif%}
+
+                    result += `
+                    <tr>
+                           <td>                                        
+                               ${i+1})
+                               <a  href='"/userInfo/" + ${esdu.user.id}' target="_blank">
+                                   ${esdu.user.last_name}, ${esdu.user.first_name}
+                               </a>                                                                           
+                           </td>                               
+                           <td class="text-center" id="updateUnconfirmedSubjects${esdu.id}">
+                               <button type="button" 
+                                       class="btn btn-outline-danger btn-sm me-2" 
+                                       onclick = "app.removeSubject(${esdu.user.id},${esdu.id})">
+                                   Remove <i class="fas fa-user-minus fa-xs"></i>  
+                               </button>
+                               
+                               ${confirmButton}
+                               
+                               ${esdu.valid == 0 ? '<div class="text-center text-danger">Rec. Violation</div>' : ''}
+                               
+                           </td>
+                       </tr>
+                   `;
+                }
+
+                var subjectsModalCenterUnconfirmed = document.getElementById("subjectsModalCenterUnconfirmed");
+                subjectsModalCenterUnconfirmed.innerHTML = result;
+        },
 
         //show message list
         showMessages:function showMessages(){
@@ -1380,6 +1427,8 @@ let app = Vue.createApp({
         Vue.nextTick(() => {
             app.getSession(); 
         });
+
+        window.app = this;
     },                 
 
 }).mount('#app');
