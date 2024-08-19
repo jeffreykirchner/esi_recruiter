@@ -33,6 +33,7 @@ DATABASES = {
         'USER': os.environ['DBUSER'],
         'PASSWORD': os.environ['DBPASS'],
         'OPTIONS': {'sslmode': 'prefer'},
+        'CONN_MAX_AGE' : 60,
     },
 }
 
