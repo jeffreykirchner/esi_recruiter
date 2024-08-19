@@ -881,7 +881,7 @@ var app = Vue.createApp({
 
                     if(status=="success")
                     {
-                        
+                        app.updateUnconfirmedSubjects();
                         // app.session.experiment_session_days = response.data.sessionDays.experiment_session_days;                                                                    
                     }
                     else
