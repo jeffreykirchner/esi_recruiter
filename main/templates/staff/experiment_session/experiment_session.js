@@ -1088,7 +1088,7 @@ var app = Vue.createApp({
                     <tr>
                            <td>                                        
                                ${i+1})
-                               <a  href='"/userInfo/" + ${esdu.user.id}' target="_blank">
+                               <a  href="/userInfo/${esdu.user.id}" target="_blank">
                                    ${esdu.user.last_name}, ${esdu.user.first_name}
                                </a>                                                                           
                            </td>                               
