@@ -185,7 +185,7 @@ def getNoShows(request, data):
     d = datetime.now(timezone.utc) - timedelta(days=p.noShowCutoffWindow)
 
     errorMessage = ""
-    activeOnly = data["activeOnly"] 
+    active_only = data["activeOnly"] 
 
     users = get_now_show_blocks()
     users = users.order_by(Lower('last_name'),Lower('first_name'))\
@@ -212,7 +212,7 @@ def getNoShows(request, data):
 
     #logger.info(users.query)
 
-    if activeOnly:
+    if active_only:
         users = users.filter(is_active = True, profile__paused = False)
 
     u_list = list(users)
@@ -226,7 +226,7 @@ def getBlackBalls(request,data):
     logger.info(data)
 
     errorMessage=""
-    activeOnly = data["activeOnly"] 
+    active_only = data["activeOnly"] 
 
     users=User.objects.order_by(Lower('last_name'),Lower('first_name')) \
                 .filter(profile__blackballed=True) \
@@ -242,7 +242,7 @@ def getBlackBalls(request,data):
                         "profile__subject_type__name",
                         "profile__blackballed")
     
-    if activeOnly:
+    if active_only:
         users = users.filter(is_active = True, profile__paused = False)
 
     u_list = list(users)
@@ -256,9 +256,9 @@ def getUsers(request, data):
     logger.info(data)
 
     #request.session['userSearchTerm'] = data["searchInfo"]            
-    activeOnly = data["activeOnly"] 
+    active_only = data["activeOnly"] 
 
-    users = lookup(data["searchInfo"], False, activeOnly)            
+    users = lookup(data["searchInfo"], False, active_only)            
 
     errorMessage = ""
 
@@ -270,7 +270,7 @@ def getUsers(request, data):
                          "errorMessage":errorMessage},safe=False)
 
 #search for users that back search criterion
-def lookup(value, returnJSON, activeOnly):
+def lookup(value, return_json, active_only, subjects_only=False):
     logger = logging.getLogger(__name__)
     logger.info("User Lookup")
     logger.info(value)
@@ -316,11 +316,14 @@ def lookup(value, returnJSON, activeOnly):
                                 "profile__blackballed") \
                         .order_by('-similarity_total')
 
-    if activeOnly:
+    if active_only:
         users = users.filter(is_active=True, 
                              profile__paused = False, 
                              profile__disabled=False,
                              profile__email_confirmed='yes')
+    
+    if subjects_only:
+        users = users.filter(profile__type__id=2)
 
     u_list = list(users[:100])
 
@@ -330,7 +333,7 @@ def lookup(value, returnJSON, activeOnly):
         u['first_name'] = u['first_name'].capitalize()
         u['last_name'] = u['last_name'].capitalize()
 
-    if returnJSON:
+    if return_json:
         #print(json.dumps(list(users),cls=DjangoJSONEncoder))
         return json.dumps(u_list, cls=DjangoJSONEncoder)
     else:

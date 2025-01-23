@@ -430,7 +430,7 @@ def getSearchForSubject(data,id):
     logger.info("Search for subject to maually add")
     logger.info(data)
 
-    users_list = lookup(data["searchInfo"],False,True)
+    users_list = lookup(data["searchInfo"], False, True, True)
 
     es = ExperimentSessions.objects.get(id=id)
 
@@ -448,7 +448,7 @@ def getSearchForSubject(data,id):
         #logger.info(str(id))
         #check that subject is not already in
         esdu = ExperimentSessionDayUsers.objects.filter(user__id = u['id'],
-                                                           experiment_session_day__experiment_session__id = id) \
+                                                        experiment_session_day__experiment_session__id = id) \
                                                    .exists()
 
         if esdu:
