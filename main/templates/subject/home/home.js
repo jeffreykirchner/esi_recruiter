@@ -112,6 +112,40 @@ let app = Vue.createApp({
                             
                             app.showInvitationsText='Show <i class="fa fa-eye fa-xs"></i>';
                             app.waiting=false;
+
+                            let result = "";
+
+                            for(let i=0;i<app.allInvitations.length;i++)
+                            {
+                                let s = app.allInvitations[i];
+
+                                result += `
+                                    <tr>
+                                        <td  class="text-center">                                                                
+                                            ${s.date_html}
+                                            ${s.multiDay ? '<div>(Multi-day)</div>' : ''}                                 
+                                        </td>
+                                        <td class="text-center">`
+                                
+                                if(s.noShow)
+                                    result += `<div class="text-danger">No Show</div>`;
+                                else if(s.canceled)
+                                    result += `<div class="text-danger">Canceled</div>`;
+                                else if(s.bumped)
+                                    result += `<div>Bumped</div>`;
+                                else if(s.attended)
+                                    result += `<div>Attended</div>`;
+                                else if(s.confirmed)
+                                    result += `<div>Confirmed</div>`;                                                                                             
+                            
+                              result += `
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                            
+                            let id_all_anvitations = document.getElementById("allInvitations");
+                            id_all_anvitations.innerHTML = result;
                         })
                         .catch(function (error) {
                             console.log(error);                                    

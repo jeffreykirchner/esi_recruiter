@@ -21,20 +21,8 @@
                     Status
                 </th>
             </thead>
-            <tbody>                        
-                <tr v-for="(s,index) in allInvitations" v-bind:key="s.id">                            
-                    <td  class="text-center">                                                                
-                        <span v-html="s.date_html"></span>
-                        <div v-if="s.multiDay"><span v-html="'(Multi-day)'"></span></div>                                    
-                    </td>
-                    <td  class="text-center">  
-                        <div v-if="s.noShow" class="text-danger"><span v-html="'No Show'"></span></div> 
-                        <div v-else-if="s.canceled" class="text-danger"><span v-html="'Canceled'"></span></div>  
-                        <div v-else-if="s.bumped"><span v-html="'Bumped'"></span></div>
-                        <div v-else-if="s.attended"><span v-html="'Attended'"></span></div>
-                        <div v-else-if="s.confirmed"><span v-html="'Confirmed'"></span></div>                                                               
-                    </td>
-                </tr>                        
+            <tbody id="allInvitations">                        
+                                      
             </tbody>
             <tfoot v-if="allInvitations.length === 0">
                 <tr>
