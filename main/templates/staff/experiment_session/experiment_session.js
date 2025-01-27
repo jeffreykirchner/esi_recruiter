@@ -23,7 +23,7 @@ var app = Vue.createApp({
         searchResultsEmptyText:"",           //show when no results found from manual add
         inviteResultsEmptyText:"",           //show when no subject fround for invitiation
         sendMessageSubject:"",               //subject of send message     
-        sendMessageText:"<p>[first name],</p><p>If you have any questions contact [contact email].</p>",   //text of send message     
+        sendMessageText:"<p>[first name],</p><p>If you have any questions, contact [contact email].</p>",   //text of send message     
         emailMessageList:"",                 //emails for send message    
         sendMessageButtonText:"Send Message <i class='fas fa-envelope fa-xs'></i>", 
         reSendMessageButtonText:"Re-send <i class='fas fa-envelope fa-xs'></i>",
