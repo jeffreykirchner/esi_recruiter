@@ -138,7 +138,7 @@ let app = Vue.createApp({
                                 else if(s.confirmed)
                                     result += `<div>Confirmed</div>`;                                                                                             
                             
-                              result += `
+                                result += `
                                         </td>
                                     </tr>
                                 `;
