@@ -13,17 +13,42 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
 DEBUG = os.environ.get('DEBUG',False)
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATICFILES_STORAGE = '_esi_recruiter.custom_azure.AzureStaticStorage'
-STATIC_ROOT = os.environ['STATIC_ROOT']
-STATIC_URL = os.environ['STATIC_URL']
+# STATICFILES_STORAGE = '_esi_recruiter.custom_azure.AzureStaticStorage'
+# STATIC_ROOT = os.environ['STATIC_ROOT']
+# STATIC_URL = os.environ['STATIC_URL']
 
-MEDIA_ROOT = os.environ['MEDIA_ROOT']
-DEFAULT_FILE_STORAGE = '_esi_recruiter.custom_azure.AzureMediaStorage'
-AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
-AZURE_ACCOUNT_NAME = os.environ['AZURE_ACCOUNT_NAME']
-AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
-AZURE_CUSTOM_DOMAIN = os.environ['AZURE_CUSTOM_DOMAIN']
-AZURE_OVERWRITE_FILES = True
+# MEDIA_ROOT = os.environ['MEDIA_ROOT']
+# DEFAULT_FILE_STORAGE = '_esi_recruiter.custom_azure.AzureMediaStorage'
+# AZURE_CONTAINER =  os.environ['AZURE_CONTAINER']
+# AZURE_ACCOUNT_NAME = os.environ['AZURE_ACCOUNT_NAME']
+# AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
+# AZURE_CUSTOM_DOMAIN = os.environ['AZURE_CUSTOM_DOMAIN']
+# AZURE_OVERWRITE_FILES = True
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.azure_storage.AzureStorage",
+        "OPTIONS": {
+            "account_key": os.environ['AZURE_ACCOUNT_KEY'],
+            "custom_domain": os.environ['AZURE_CUSTOM_DOMAIN'],
+            "account_name": os.environ['AZURE_ACCOUNT_NAME'],
+            "azure_container": os.environ['AZURE_CONTAINER'],
+            "overwrite_files": True,
+            "location": "media",
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.azure_storage.AzureStorage",
+        "OPTIONS": {
+            "account_key": os.environ['AZURE_ACCOUNT_KEY'],
+            "custom_domain": os.environ['AZURE_CUSTOM_DOMAIN'],
+            "account_name": os.environ['AZURE_ACCOUNT_NAME'],
+            "azure_container": os.environ['AZURE_CONTAINER'],
+            "overwrite_files": True,  
+            "location": "static",         
+        },       
+    },
+}
 
 DATABASES = {
     'default': {

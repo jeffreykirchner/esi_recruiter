@@ -20,7 +20,7 @@ jobs:
     - name: Set up Python version
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
 
     - name: Create and start virtual environment
       run: |
@@ -57,6 +57,6 @@ jobs:
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'chapman-experiments'
+          app-name: '${{ secrets.APP_NAME }}'
           slot-name: 'production'
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_5b5e43b315ae416bb5025bc2b869f466 }}

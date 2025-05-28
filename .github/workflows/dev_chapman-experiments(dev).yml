@@ -16,7 +16,7 @@ jobs:
     
     services:
       postgres:
-        image: postgres:13.7
+        image: postgres:16.8
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -32,7 +32,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Create and start virtual environment
         run: |
@@ -52,7 +52,7 @@ jobs:
           DBUSER: postgres
           LOG_LOCATION: abc
           MEDIA_ROOT : abc
-          STATIC_ROOT : abc
+          STATIC_ROOT : abe
           STATIC_URL : abc/
           AZURE_CONTAINER : abc
           AZURE_ACCOUNT_NAME : abc
@@ -93,6 +93,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'chapman-experiments'
+          app-name: '${{ secrets.APP_NAME }}'
           slot-name: 'dev'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_63AA5C73EB444745ACB2DED683193A07 }}

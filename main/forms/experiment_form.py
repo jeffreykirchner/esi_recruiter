@@ -13,7 +13,7 @@ from main.models import ConsentForm
 
 class ExperimentForm(forms.ModelForm):   
     '''
-    edit experiment parmeters
+    edit experiment parameters
     '''
     def __init__(self, *args, **kwargs):
         super(ExperimentForm, self).__init__(*args, **kwargs)
