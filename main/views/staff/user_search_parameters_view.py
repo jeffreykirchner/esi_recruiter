@@ -196,7 +196,7 @@ def search(request, data, id):
             for i in trait_data_list:
                 tc = RecruitmentParametersTraitConstraint()
                 tc.recruitment_parameter = es.recruitment_params
-                tc.trait = Traits.objects.get(id=i["trait_id"])
+                tc.trait = Traits.objects.get(id=i["trait"])
                 tc.min_value = i["min_value"]
                 tc.max_value = i["max_value"]
                 tc.include_if_in_range = i["include_if_in_range"]
