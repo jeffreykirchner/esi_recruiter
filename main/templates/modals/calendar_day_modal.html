@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle"><span v-html="displayDay.dayString"></span></h5>
+            <h5 class="modal-title" id="exampleModalLongTitle">[[displayDay.dayString]]</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 
             </button>
@@ -28,13 +28,13 @@
                                                                 
                             </div>
                             <div class="col-md text-md-center">
-                                <span v-html="'<a href=\'/experimentSessionRun/' + s.id + '/\'' + ' > Run <i class=\'fas fa-running fa-sm\'> </a>'"></span>                               
+                                <a :href="'/experimentSessionRun/' + s.id + '/'" >Run <i class='fas fa-running fa-sm'></i></a>
                             </div>
                             <div class="col-md text-md-center">
-                                <span v-html="'<a href=\'/experimentSession/' + s.session_id + '/\'' + ' > Session <i class=\'far fa-edit fa-sm\'></i> </a>'"></span>                               
+                                <a :href="'/experimentSession/' + s.session_id + '/'" >Session <i class='far fa-edit fa-sm'></i></a>
                             </div>
                             <div class="col-md text-md-center">
-                                <span v-html="'<a href=\'/experiment/' + s.experiment_id + '/\'' + ' > Experiment <i class=\'fas fa-flask\'></i></a>'"></span>                               
+                                <a :href="'/experiment/' + s.experiment_id + '/'" >Experiment <i class='fas fa-flask'></i></a>
                             </div>
                             <div class="col-md text-md-center">
                                 [[s.manager]]
