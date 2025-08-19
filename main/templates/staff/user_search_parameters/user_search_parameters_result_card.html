@@ -2,7 +2,7 @@
 
 <div class="card" v-cloak id="id_search_results">                  
     <div class="card-header" >
-      Search Results ([[searchResults.length]])
+      Search Results: [[searchResults.length]] of {{active_count}} (Past 90 days: {{active_count_recent}})
 
       <div class="float-end" v-show="working">
          <i class="fas fa-spinner fa-spin"></i>
@@ -10,9 +10,6 @@
 
     </div>
     <div class="card-body" v-cloak>  
-        <span v-for="(r, index) in searchResults" v-bind:key="r.id">
-            <span v-if="index != 0 ">,&nbsp;</span>
-            <a v-bind:href="'/userInfo/' + r.id ">[[r.email]]</a>
-        </span>
+        <div id="id_search_results_html"></div>
     </div>
 </div>

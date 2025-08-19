@@ -66,6 +66,17 @@ let app = Vue.createApp({
                     if(status=="success")
                     {                                 
                         app.searchResults = response.data.result.u_list_json;
+                        let search_results_html = "";
+                        for(let u in app.searchResults)
+                        {
+                            const user = app.searchResults[u];
+                            if(search_results_html != "") {
+                                search_results_html += ',&nbsp;';
+                            }
+                            search_results_html += `<a href="/userInfo/${user.id}">${user.email}</a>`;
+                        }
+
+                        document.getElementById("id_search_results_html").innerHTML = search_results_html;
                     }
                     else
                     {                                
