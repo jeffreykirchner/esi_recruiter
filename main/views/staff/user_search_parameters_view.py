@@ -90,6 +90,18 @@ class UserSearchParametersView(View):
             
             recruitment_params = e.recruitment_params_default.json() 
 
+        #get number of active users
+        active_count = User.objects.filter(is_active = True,
+                                           profile__type__id = 2,
+                                           profile__email_confirmed = 'yes',
+                                           profile__paused = False).count()
+        
+        #number of active users in last 90 days
+        active_count_recent = User.objects.filter(last_login__gte = todays_date() - timedelta(days=90),
+                                                  profile__type__id = 2,
+                                                  profile__email_confirmed = 'yes',
+                                                  profile__paused = False).count()
+
         return render(request,
                       self.template_name,
                       {'updateRecruitmentParametersForm':RecruitmentParametersForm(),  
@@ -99,6 +111,8 @@ class UserSearchParametersView(View):
                        'experiment_id':e.id if id else None,
                        'experiment_title':e.title if id else None,
                        'recruitment_params': json.dumps(recruitment_params, cls=DjangoJSONEncoder),
+                       'active_count': active_count,
+                       'active_count_recent': active_count_recent,
                        },)
     
     @method_decorator(login_required)
