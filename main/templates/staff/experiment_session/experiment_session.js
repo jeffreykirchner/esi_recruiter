@@ -641,6 +641,13 @@ var app = Vue.createApp({
         showSubjects:function showSubjects(id){
             app.cancelModal=true;
             app.currentSessionDay = Object.assign({},app.session.experiment_session_days[id]);
+
+            if(app.currentSessionDayIndex != id)
+            {
+                var subjectsModalCenterUnconfirmed = document.getElementById("subjectsModalCenterUnconfirmed");
+                subjectsModalCenterUnconfirmed.innerHTML = "";
+            }
+
             app.currentSessionDayIndex =id;
             // app.sessionBeforeEdit = Object.assign({}, app.session);
             app.buttonText3="Update";
