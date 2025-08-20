@@ -596,6 +596,15 @@ def completeSession(data, id, request_user):
                 esdu = esd.ESDU_b.all().filter(bumped=True)
                 esdu.update(earnings = 0)
 
+                #list of attended users
+                attended_users = esd.ESDU_b.all().filter(attended=True).values_list('user__id', flat=True)
+
+                #if session is a multi day session, removed bumped and no show users from future sessions.
+                ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session=esd.experiment_session)\
+                                                 .filter(experiment_session_day__date__gt=esd.date)\
+                                                 .exclude(experiment_session_day__id=esd.id)\
+                                                 .exclude(user__in=attended_users)\
+                                                 .update(confirmed=False, bumped=False, attended=False)
 
         json_info = esd.json_runInfo(request_user)
     except Exception  as exc:
