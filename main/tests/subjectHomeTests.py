@@ -135,7 +135,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,self.es1.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
@@ -159,7 +159,7 @@ class subjectHomeTestCase(TestCase):
         esd1 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_three.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,self.es2.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
 
@@ -356,7 +356,7 @@ class subjectHomeTestCase(TestCase):
         profile_consent_form.save()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT%H:%M") ,'length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         r = json.loads(acceptInvitation({"id":self.es1.id},self.u).content.decode("UTF-8"))
@@ -422,7 +422,7 @@ class subjectHomeTestCase(TestCase):
         d_now_plus_two = self.d_now + timedelta(days=2)
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '13:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #check not same session

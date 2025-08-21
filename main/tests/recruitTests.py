@@ -316,7 +316,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[1]
@@ -347,7 +347,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': str(esd1.id), 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[3]
@@ -380,7 +380,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l2.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:30','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}   
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[6]
@@ -401,7 +401,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '18:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}   
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[7]
@@ -490,7 +490,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -545,7 +545,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -595,7 +595,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -651,7 +651,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
@@ -702,7 +702,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         temp_u = self.user_list[1]
@@ -721,7 +721,7 @@ class recruitTestCase(TestCase):
         self.assertNotEqual(esd1.id,esd2.id)
 
         session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd2.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd2.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #try to confirm user
@@ -749,7 +749,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
@@ -806,7 +806,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -861,7 +861,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -885,7 +885,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
@@ -908,7 +908,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -951,7 +951,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         e.institution.set(Institutions.objects.filter(name="one"))
@@ -976,7 +976,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
@@ -1000,7 +1000,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1044,7 +1044,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1067,7 +1067,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
@@ -1092,7 +1092,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1162,7 +1162,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1218,7 +1218,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1242,7 +1242,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
@@ -1264,7 +1264,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
         
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '11:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add user one to experiment two, confirmed
@@ -1289,7 +1289,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1338,7 +1338,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1361,7 +1361,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[3]).update(confirmed=True,attended=True)
@@ -1385,7 +1385,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1431,7 +1431,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 to future so experience is counted for future conflict
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
@@ -1456,7 +1456,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1505,7 +1505,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '15:45','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         e_users = []
@@ -1531,7 +1531,7 @@ class recruitTestCase(TestCase):
         #check ignore time
         esd1 = es1.ESD.first()
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '15:45','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 0,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         e_users.append(self.user_list[3])
@@ -1574,7 +1574,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '15:45','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         e_users = []
@@ -1618,7 +1618,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1673,7 +1673,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1696,7 +1696,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))  
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))  
         self.assertEqual(r['status'],"success")
 
         #add user two to experiment two, confirmed
@@ -1735,7 +1735,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1777,7 +1777,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1800,7 +1800,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))  
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))  
         self.assertEqual(r['status'],"success")
 
         #add user two to experiment two, confirmed
@@ -1841,7 +1841,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -1885,7 +1885,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -1909,7 +1909,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))  
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))  
         self.assertEqual(r['status'],"success")
 
         #add user two to experiment two, confirmed
@@ -1950,7 +1950,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -2021,7 +2021,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -2073,7 +2073,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '11:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True,attended=True)
@@ -2096,7 +2096,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add user two to experiment two, unconfirmed
@@ -2133,7 +2133,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -2185,7 +2185,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '11:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esd1.ESDU_b.all().filter(user=self.user_list[1]).update(confirmed=True)
@@ -2208,7 +2208,7 @@ class recruitTestCase(TestCase):
 
         #move session 1 experiment 1 into past so experience is counted
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add user two to experiment two, unconfirmed
@@ -2247,7 +2247,7 @@ class recruitTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '14:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
         
         # esd1 = es1.ESD.first()
@@ -2450,7 +2450,7 @@ class traitConstraintTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(l.id),'date': d_now_plus_one.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(a.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
     
     #no trait constraints
