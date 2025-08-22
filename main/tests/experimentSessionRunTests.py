@@ -27,9 +27,16 @@ from main.models import UmbrellaConsentForm
 from main.views.registration import profileCreateUser
 from main.views.staff.experiment_search_view import createExperimentBlank
 from main.views.staff.experiment_view import addSessionBlank
-from main.views.staff.experiment_session_view import changeConfirmationStatus, updateSessionDay, cancelSession, removeSubject
+
+from main.views.staff.experiment_session_view import changeConfirmationStatus
+from main.views.staff.experiment_session_view import updateSessionDay
+from main.views.staff.experiment_session_view import cancelSession
+from main.views.staff.experiment_session_view import removeSubject
+from main.views.staff.experiment_session_view import addSessionDay
+
 from main.views.staff.experiment_session_run_view import getStripeReaderCheckin, noShowSubject, attendSubject, bumpSubject, noShowSubject,fillDefaultShowUpFee
 from main.views.staff.experiment_session_run_view import fillEarningsWithFixed, completeSession, savePayouts, backgroundSave, bumpAll, autoBump, completeSession, takeEarningsUpload2
+
 from main.views.subject.subject_home import cancelAcceptInvitation, acceptInvitation
 
 class sessionRunTestCase(TestCase):
@@ -81,7 +88,7 @@ class sessionRunTestCase(TestCase):
         s=Schools.objects.first()
         s.email_filter.set(EmailFilters.objects.all())
 
-         #staff user
+        #staff user
         user_name = "s1@chapman.edu"
         temp_st =  SubjectTypes.objects.get(id=3)
         self.staff_u = profileCreateUser(user_name, user_name, "zxcvb1234asdf", "first", "last", "123456",\
@@ -161,7 +168,7 @@ class sessionRunTestCase(TestCase):
         esd1 = self.es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add subject 1
@@ -169,7 +176,6 @@ class sessionRunTestCase(TestCase):
         temp_esdu = esd1.ESDU_b.filter(user__id = self.u.id).first()
         r = json.loads(changeConfirmationStatus({"userId":self.u.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
-
 
         #add subject 2
         self.es1.addUser(self.u2.id,self.staff_u,True)
@@ -194,7 +200,7 @@ class sessionRunTestCase(TestCase):
         esd2 = self.es2.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd2.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_three.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd2.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd2.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         #add subject 1
@@ -648,7 +654,7 @@ class sessionRunTestCase(TestCase):
         esd1 = es1.ESD.first()
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now_minus_two.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         self.staff_u.is_staff=False
@@ -820,7 +826,7 @@ class sessionRunTestCase(TestCase):
         d_now = self.d_now
 
         session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now.strftime("%Y-%m-%dT") + '01:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
-        r = json.loads(updateSessionDay(session_day_data,esd1.id).content.decode("UTF-8"))
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
         self.assertEqual(r['status'],"success")
 
         esdu.confirmed=True
@@ -996,8 +1002,166 @@ class sessionRunTestCase(TestCase):
         self.assertEqual(esdu.earnings, Decimal("28.01"))
         self.assertEqual(esdu.show_up_fee, 3)
 
+    #test earnings upload
+    def test_multi_day_session(self):
+        """Test multi-day session""" 
+        logger = logging.getLogger(__name__)
+
+        d_now = datetime.now(pytz.utc)
+        d_now_plus_two = d_now + timedelta(days=2)
+        d_now_plus_three = d_now + timedelta(days=3)
+
+        #move session 1 to today
+        esd1 = self.es1.ESD.first()
+        esd2 = self.es2.ESD.first()
+
+        esd1.ESDU_b.update(confirmed=False)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1.id, 'formData': {'location': str(self.l1.id),'date': d_now.strftime("%Y-%m-%dT") + '16:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,esd1.experiment_session.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        esd1.ESDU_b.update(confirmed=True)
+
+        #setup experiment two days from now
+        e_multi_day = createExperimentBlank()
+        e_multi_day.institution.set(Institutions.objects.filter(name="one"))
+        e_multi_day.consent_form_default = ConsentForm.objects.first()        
+        e_multi_day.save()
+
+        #add first session day
+        es_multi_day = addSessionBlank(e_multi_day)    
+        es_multi_day.recruitment_params.reset_settings()
+        es_multi_day.recruitment_params.gender.set(Genders.objects.all())
+        es_multi_day.recruitment_params.subject_type.set(SubjectTypes.objects.all())
+        es_multi_day.recruitment_params.registration_cutoff = 5
+        es_multi_day.recruitment_params.save()
+        es_multi_day.invitation_text = "test"
+        es_multi_day.save()
+
+        esd1_multi_day_1 = es_multi_day.ESD.first()
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1_multi_day_1.id, 'formData': {'location': str(self.l1.id),'date': d_now.strftime("%Y-%m-%dT") + '18:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data,es_multi_day.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        #add second session day
+        session_add_day_data={'status': 'addSessionDay', 'count': 1}
+        r = json.loads(addSessionDay(session_add_day_data, es_multi_day.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'], "success")
+
+        self.assertEqual(es_multi_day.ESD.count(), 2)
+
+        esd1_multi_day_2 = es_multi_day.ESD.last()
+        self.assertNotEqual(esd1_multi_day_1.id, esd1_multi_day_2.id)
+
+        session_day_data={'status': 'updateSessionDay', 'id': esd1_multi_day_2.id, 'formData': {'location': str(self.l1.id),'date': d_now_plus_two.strftime("%Y-%m-%dT") + '18:00','length': '60','account': str(self.account1.id),'auto_reminder': 1,'enable_time': 1,'custom_reminder_time': 0,'reminder_time': '01/05/2021 12:04 pm -0800'}, 'sessionCanceledChangedMessage': False}
+        r = json.loads(updateSessionDay(session_day_data, es_multi_day.id).content.decode("UTF-8"))
+        self.assertEqual(r['status'],"success")
+
+        #setup user 4
+        u4 = profileCreateUser("u4@chapman.edu","u4@chapman.edu","zxcvb1234asdf","first","last","00121212",\
+                    Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                    SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+
+        u4.is_active = True
+        u4.profile.email_confirmed = 'yes'
+
+        u4.profile.save()
+        u4.save()
+
+        u4.profile.setup_email_filter()
 
 
+        #add user 4 to session 1
+        self.es1.addUser(u4.id,self.staff_u,True)
+
+        profile_consent_form = ProfileConsentForm(my_profile=u4.profile, consent_form=self.es1.consent_form)
+        profile_consent_form.save()
+
+        r = json.loads(acceptInvitation({"id":self.es1.id}, u4).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        #add user 4 to session 2
+        self.es2.addUser(u4.id,self.staff_u,True)
+
+        profile_consent_form = ProfileConsentForm(my_profile=u4.profile, consent_form=self.es2.consent_form)
+        profile_consent_form.save()
+
+        r = json.loads(acceptInvitation({"id":self.es2.id}, u4).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        #add user 4 to new session
+        es_multi_day.addUser(u4.id,self.staff_u,True)
+
+        profile_consent_form = ProfileConsentForm(my_profile=u4.profile, consent_form=es_multi_day.consent_form)
+        profile_consent_form.save()
+
+        r = json.loads(completeSession({},esd1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual("success",r['status'])
+
+        #accept invitation for user 4 to multi-day session
+        r = json.loads(acceptInvitation({"id":es_multi_day.id}, u4).content.decode("UTF-8"))
+        self.assertFalse(r['failed'])
+
+        temp_esdu1 = esd1_multi_day_1.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu1.user, u4)
+        self.assertTrue(temp_esdu1.confirmed)
+
+        temp_esdu2 = esd1_multi_day_2.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu2.user, u4)
+        self.assertTrue(temp_esdu2.confirmed)
+
+        #check user 4 in first session day
+        r = json.loads(attendSubject({"id":temp_esdu1.id},esd1_multi_day_1.id,self.staff_u,).content.decode("UTF-8"))
+        self.assertIn("is now attending",r['status'])
+
+        r = json.loads(completeSession({},esd1_multi_day_1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual("success",r['status'])
+
+        #verify in day 1
+        temp_esdu = esd1_multi_day_1.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu.user, u4)
+        self.assertTrue(temp_esdu.confirmed)
+
+        #verify in day 2
+        temp_esdu = esd1_multi_day_2.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu.user, u4)
+        self.assertTrue(temp_esdu.confirmed)
+
+        #reopen session and bump
+        r = json.loads(completeSession({},esd1_multi_day_1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual("success",r['status'])
+
+        r = json.loads(bumpSubject({"id":temp_esdu1.id},esd1_multi_day_1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertIn("success",r['status'])
+
+        r = json.loads(completeSession({},esd1_multi_day_1.id,self.staff_u).content.decode("UTF-8"))
+        self.assertEqual("success",r['status'])
+
+        #verify in day 1
+        temp_esdu = esd1_multi_day_1.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu.user, u4)
+        self.assertTrue(temp_esdu.confirmed)
+
+        #verify not in day 2
+        temp_esdu = esd1_multi_day_2.ESDU_b.filter(user__id = u4.id).first()
+        self.assertEqual(temp_esdu.user, u4)
+        self.assertFalse(temp_esdu.confirmed)
+
+        #verify session 1 unaffected
+        self.assertEqual(esd1.ESDU_b.count(), 3)
+        self.assertEqual(esd1.ESDU_b.filter(confirmed=False).count(), 0)
+
+        #verify session 2 unaffected
+        self.assertEqual(esd2.ESDU_b.count(), 3)
+        self.assertEqual(esd2.ESDU_b.filter(confirmed=True).count(), 2)
+
+        # r = json.loads(changeConfirmationStatus({"userId":u4.id,"confirmed":"confirm","actionAll":"false","esduId":temp_esdu.id},self.es1.id,False).content.decode("UTF-8"))
+        # self.assertEqual(r['status'],"success")
+
+
+        
 
 
 

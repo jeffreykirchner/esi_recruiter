@@ -603,6 +603,7 @@ def completeSession(data, id, request_user):
                 ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session=esd.experiment_session)\
                                                  .filter(experiment_session_day__date__gt=esd.date)\
                                                  .exclude(experiment_session_day__id=esd.id)\
+                                                 .exclude(experiment_session_day__complete=True)\
                                                  .exclude(user__in=attended_users)\
                                                  .update(confirmed=False, bumped=False, attended=False)
 
