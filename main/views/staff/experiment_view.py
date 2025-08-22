@@ -18,8 +18,9 @@ from django.contrib.auth.models import User
 from main.decorators import user_is_staff
 
 from main.models import Experiments
-from main.models import ExperimentSessionDays
 from main.models import ExperimentSessions
+from main.models import ExperimentSessionDays
+from main.models import ExperimentSessionDayUsers
 from main.models import Parameters
 from main.models import HelpDocs
 from main.models import RecruitmentParametersTraitConstraint
@@ -30,6 +31,7 @@ from main.forms import ExperimentForm
 from main.forms import RecruitmentParametersForm
 from main.forms import TraitConstraintForm
 from main.forms import InvitationEmailTemplateSelectForm
+
 
 class ExperimentView(SingleObjectMixin, View):
     '''
@@ -119,11 +121,18 @@ def getExperiment(data, id):
         raise Http404('Experiment Not Found')
 
     p = Parameters.objects.first()
-            
+
+    invited_count = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment = e).count()
+    confirmed_count = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment = e, confirmed=True).count()
+    attended_count = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment = e, attended=True).count()
+
     return JsonResponse({"experiment" :  e.json(),
                          "sessions" : e.json_sessions(offset=0, limit=25),
                          "sessions_count":e.ES.count(),
                          "recruitment_params":e.recruitment_params_default.json(),
+                         "invited_count": invited_count,
+                         "confirmed_count": confirmed_count,
+                         "attended_count": attended_count
                            }, safe=False)
 
 def showAllSessions(data, id):

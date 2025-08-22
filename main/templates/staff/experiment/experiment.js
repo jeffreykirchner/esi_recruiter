@@ -49,6 +49,10 @@ let app = Vue.createApp({
         working : false,
         add_to_allow_list:"",
         allow_list_error:"",
+        invited_count:0,
+        confirmed_count:0,
+        attended_count:0,
+
 
         //modal instances
         setupModalCenter:null,
@@ -167,7 +171,11 @@ let app = Vue.createApp({
                     app.sessions = response.data.sessions.experiment_sessions; 
                     app.sessions_count = response.data.sessions_count;     
                     app.parameters = response.data.parameters;  
-                    app.recruitment_params = response.data.recruitment_params;                                        
+                    app.recruitment_params = response.data.recruitment_params;             
+                    app.invited_count = response.data.invited_count;
+                    app.confirmed_count = response.data.confirmed_count;
+                    app.attended_count = response.data.attended_count;
+                    
                     app.loading=false; 
                     app.updateDisplayLists();
 
