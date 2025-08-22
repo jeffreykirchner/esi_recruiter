@@ -126,6 +126,11 @@ def getExperiment(data, id):
     confirmed_count = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment = e, confirmed=True).count()
     attended_count = ExperimentSessionDayUsers.objects.filter(experiment_session_day__experiment_session__experiment = e, attended=True).count()
 
+    #format counts
+    invited_count = f"{invited_count:,}"
+    confirmed_count = f"{confirmed_count:,}"
+    attended_count = f"{attended_count:,}"
+
     return JsonResponse({"experiment" :  e.json(),
                          "sessions" : e.json_sessions(offset=0, limit=25),
                          "sessions_count":e.ES.count(),
