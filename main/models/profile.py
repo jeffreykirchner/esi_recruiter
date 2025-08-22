@@ -11,6 +11,7 @@ from django.db.models import F, Q, When, Case
 from django.contrib import admin
 from django.db.models import Subquery, OuterRef
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
 
 from main.models import Institutions
 from main.models import Parameters
@@ -173,10 +174,31 @@ class profile(models.Model):
 
         session_ids = qs.values_list('experiment_session_day__experiment_session__id',flat=True).distinct()
 
+        #check for multi day sessions
+        session_multi_day_exclude_ids = []
+        sessions_multi_day_ids = ExperimentSessions.objects.filter(id__in = session_ids)\
+                                                           .annotate(esd_count=Count('ESD'))\
+                                                           .filter(esd_count__gt=1)\
+                                                           .values_list('id', flat=True)
+        
+        if len(sessions_multi_day_ids) > 0:
+            #find esd's in multi day sessions that started in the past
+            esds = main.models.ExperimentSessionDays.objects.filter(experiment_session__id__in = sessions_multi_day_ids)\
+                                                            .filter(date__lt = datetime.now(pytz.utc) - timedelta(hours=1))
+            
+            #find esdu's in esds where local user didn't participate
+            esdus = main.models.ExperimentSessionDayUsers.objects.filter(experiment_session_day__in = esds)\
+                                                                .filter(user=self.user)\
+                                                                .exclude(attended=True)
+
+            #create a flat list of session multi day ids that user didn't participate in
+            session_multi_day_exclude_ids = esdus.values_list('experiment_session_day__experiment_session__id', flat=True).distinct()
+
         es = ExperimentSessions.objects.annotate(first_date=models.Min("ESD__date"))\
                                         .annotate(last_date=models.Max("ESD__date"))\
                                         .filter(id__in = session_ids)\
-                                        .filter(last_date__gte = startDateRange)
+                                        .filter(last_date__gte = startDateRange)\
+                                        .exclude(id__in = session_multi_day_exclude_ids)
     
         return es
 
