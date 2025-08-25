@@ -346,7 +346,32 @@ class NoLoginIn400Days(admin.SimpleListFilter):
             return queryset.filter(
                   user__last_login__lte=today_minus_100,
             )
-        
+
+#profile has failed login attempts
+class FailedLoginAttempts(admin.SimpleListFilter):
+    title = _('Failed login attempts')
+    parameter_name = 'user__failed_login_attempts'
+
+    def lookups(self, request, model_admin):
+        return (            
+            ('5', _('50 or more failed attempts')),
+            ('10', _('100 or more failed attempts')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value():
+            queryset = queryset.annotate(failed_login_attempts=Count('profile_login_attempts',
+                                                                     filter=Q(profile_login_attempts__success=False) &
+                                                                            Q(profile_login_attempts__timestamp__contained_by=DateTimeTZRange(timezone.now() - datetime.timedelta(days=30), timezone.now()))))
+
+            if self.value() == '50':
+                return queryset.filter(failed_login_attempts__gte=50)
+            if self.value() == '100':
+                return queryset.filter(failed_login_attempts__gte=100)
+            
+        return queryset
+
+
 @admin.register(profile)
 class ProfileAdmin(admin.ModelAdmin):
       
@@ -515,7 +540,7 @@ class ProfileAdmin(admin.ModelAdmin):
             actions.append(setup_test_users)
 
       list_display = ['__str__', 'paused', 'disabled', 'email_filter', 'updated', 'last_login']
-      list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'disabled', NoLoginIn400Days)
+      list_filter = ('blackballed', 'email_filter', 'international_student', 'paused', 'user__last_login', 'type', 'disabled', NoLoginIn400Days, FailedLoginAttempts)
       readonly_fields = ['user', 'password_reset_key', 'public_id']
       inlines = [ProfileConsentFormInline, ProfileTraitsInline, ProfileLoginAttemptInline]
 
