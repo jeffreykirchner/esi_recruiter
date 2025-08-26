@@ -109,3 +109,24 @@ class ProfileForm(forms.Form):
             raise forms.ValidationError(u'Email "%s" is already in use.' % email)
 
         return email
+    
+    #check that first_name does not have a URL in it
+    def clean_first_name(self):
+        first_name = self.cleaned_data['first_name']
+        if re.search(r'http[s]?://', first_name):
+            raise forms.ValidationError("First name cannot contain a URL.")
+        return first_name
+    
+    #check that last_name does not have a URL in it
+    def clean_last_name(self):
+        last_name = self.cleaned_data['last_name']
+        if re.search(r'http[s]?://', last_name):
+            raise forms.ValidationError("Last name cannot contain a URL.")
+        return last_name
+
+    #check that chapman_id does not have a URL in it
+    def clean_chapman_id(self):
+        chapman_id = self.cleaned_data['chapman_id']
+        if re.search(r'http[s]?://', chapman_id):
+            raise forms.ValidationError("Student ID cannot contain a URL.")
+        return chapman_id
