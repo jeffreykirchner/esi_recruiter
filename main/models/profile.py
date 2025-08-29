@@ -272,7 +272,11 @@ class profile(models.Model):
         #logger.info("Get bumped from last session")
 
         d = datetime.now(timezone.utc)
-        ESDU_last = self.user.ESDU.exclude(id = excludeESDU).filter(confirmed = True,experiment_session_day__date__lt = d).order_by("-experiment_session_day__date").first()
+        ESDU_last = self.user.ESDU.exclude(id = excludeESDU) \
+                                  .filter(confirmed = True,
+                                          experiment_session_day__date__lt = d,
+                                          experiment_session_day__experiment_session__canceled = False) \
+                                  .order_by("-experiment_session_day__date").first()
 
         if ESDU_last:        
             if ESDU_last.bumped:
