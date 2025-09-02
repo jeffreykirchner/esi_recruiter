@@ -40,6 +40,7 @@ let app = Vue.createApp({
                 plugins: "directionality,searchreplace,code,link",
                     toolbar: "undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link | code",
                 directionality: "{{ directionality }}",
+                license_key: 'gpl',
             });
     
             // Prevent Bootstrap dialog from blocking focusin
