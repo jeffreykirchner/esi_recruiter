@@ -113,7 +113,7 @@ let app = Vue.createApp({
         payPalExport:function payPalExport(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                alert("Save payouts before continuing.") ;                    
+                app.showAlertDialog("Save payouts before continuing.") ;                    
                 return;                        
             }
             
@@ -150,7 +150,7 @@ let app = Vue.createApp({
         earningsExport:function earningsExport(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                confirm("Save payouts before continuing.") ;                    
+                app.showAlertDialog("Save payouts before continuing.") ;                    
                 return;                        
             }
             
@@ -278,7 +278,7 @@ let app = Vue.createApp({
 
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                confirm("Save payouts before continuing.") ;                    
+                app.showAlertDialog("Save payouts before continuing.") ;                    
                 return;                        
             }
 
@@ -438,7 +438,7 @@ let app = Vue.createApp({
         printPayouts:function printPayouts(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                alert("Save payouts before continuing.") ;                    
+                app.showAlertDialog("Save payouts before continuing.") ;                    
                 return;                        
             }
 
@@ -449,7 +449,7 @@ let app = Vue.createApp({
         printBumps:function printBumps(){
             if(app.saveButtonText.indexOf("*") >= 0)
             {  
-                alert("Save payouts before continuing.") ;                      
+                app.showAlertDialog("Save payouts before continuing.") ;                      
                 return;                        
             }
 
@@ -551,7 +551,7 @@ let app = Vue.createApp({
 
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                alert("Save payouts before continuing.") ;                    
+                app.showAlertDialog("Save payouts before continuing.") ;                    
                 return;                        
             }
 
@@ -571,26 +571,26 @@ let app = Vue.createApp({
         },
 
         //pay subjects with PayPal API
-        payPalAPI:function payPalAPI(){
+        payPalAPI:async function payPalAPI(){
             if(app.sessionDay.experiment_session_days_user.length == 0)
             {
-                alert("No subjects in session.") ; 
+                app.showAlertDialog("Error: No Subjects Found");
                 return;
             }
 
             if(app.payoutTotal == "0.00")
             {
-                alert("No payouts entered.") ; 
+                app.showAlertDialog("Error: No payouts entered.");
                 return;
             }
 
             if(app.saveButtonText.indexOf("*") >= 0)
             {   
-                alert("Save payouts before continuing.") ;                    
-                return;                        
+                app.showAlertDialog("Error: Save payouts before continuing.");
+                return;
             }
 
-            let r = confirm("Pay subjects directly with PayPal's API?");
+            let r = await app.showConfirmDialog("Pay subjects directly with PayPal's API?");
 
             if (r == false)
             {
@@ -634,6 +634,9 @@ let app = Vue.createApp({
                 return "date format error";
             }
         },
+
+        {%include "modals/alert_dialog.js"%}  
+
     },
 
     mounted(){

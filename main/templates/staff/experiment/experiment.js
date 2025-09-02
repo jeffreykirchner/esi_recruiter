@@ -297,9 +297,9 @@ let app = Vue.createApp({
         },
 
         //remove session from experiment
-        removeSession: function removeSession(sid){
+        removeSession: async function removeSession(sid){
             app.working = true;
-            if(confirm("Delete session?")){
+            if(await app.showConfirmDialog("Delete session?")){
                 axios.post('/experiment/{{id}}/', {
                         status : "remove" ,
                         sid : sid,                                                                                                                              
@@ -314,6 +314,10 @@ let app = Vue.createApp({
                     .catch(function (error) {
                         console.log(error);
                     });
+            }
+            else
+            {
+                app.working = false;
             }
         },
 
@@ -622,6 +626,8 @@ let app = Vue.createApp({
            
             app.editAllowListModal.show();
         },
+
+        {%include "modals/alert_dialog.js"%} 
     },
 
     mounted(){
