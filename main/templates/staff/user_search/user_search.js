@@ -193,17 +193,17 @@ let app = Vue.createApp({
 
             if(app.sendMessageSubject == "" )
             {
-                confirm("Add a subject to your message.");
+                app.showAlertDialog("Add a subject to your message.");
                 return;
             }
+            
+            app.sendMessageText = tinymce.get("id_sendMessageText").getContent();
 
             if(app.sendMessageText == "" )
             {
-                confirm("Your message is empty.");
+                app.showAlertDialog("Your message is empty.");
                 return;
             }
-
-            app.sendMessageText = tinymce.get("id_sendMessageText").getContent();
 
             if(app.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
@@ -233,17 +233,19 @@ let app = Vue.createApp({
                     console.log(error);
                     //app.searching=false;                                                              
                 });
-            },
+        },
 
         formatDate: function formatDate(value){
-                if (value) {
-                    //return value;
-                    return moment(String(value)).local().format('M/D/YYYY, h:mm a')
-                }
-                else{
-                    return "date format error";
-                }
-            },           
+            if (value) {
+                //return value;
+                return moment(String(value)).local().format('M/D/YYYY, h:mm a')
+            }
+            else{
+                return "date format error";
+            }
+        },      
+        
+        {%include "modals/alert_dialog.js"%} 
         
     },
     

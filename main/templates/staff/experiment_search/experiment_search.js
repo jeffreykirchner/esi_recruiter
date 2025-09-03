@@ -193,8 +193,8 @@ let app = Vue.createApp({
         },
 
         //delete the selected experiment
-        deleteExperiment:function deleteExperiment(id){
-            if(confirm("Delete Experiment?"))
+        deleteExperiment: async function deleteExperiment(id){
+            if(await app.showConfirmDialog("Delete Experiment?"))
             {
                 app.experiments=[];
                 app.warningText ='<i class="fas fa-spinner fa-spin"></i>';
@@ -220,8 +220,10 @@ let app = Vue.createApp({
                         console.log(error);
                         app.searching=false;
                     });                        
-                }
-            }                          
+            }
+        },
+        
+        {%include "modals/alert_dialog.js"%} 
     },
 
     mounted(){

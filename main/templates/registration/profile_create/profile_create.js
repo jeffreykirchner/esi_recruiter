@@ -27,8 +27,8 @@ let app = Vue.createApp({
 
         create:function create(){
         if(!app.human)
-        {
-            alert("Please confirm you are a person.");
+        {            
+            app.showAlertDialog("Please confirm you are a person using the button below.");
             return;
         }
 
@@ -114,8 +114,9 @@ let app = Vue.createApp({
             }
         },
 
-        
-    },            
+        {%include "modals/alert_dialog.js"%} 
+
+    },
 
     mounted(){
         Vue.nextTick(() => {

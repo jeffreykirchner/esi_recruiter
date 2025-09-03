@@ -64,10 +64,10 @@ let app = Vue.createApp({
             app.autoRefreshButtonText = 'Auto Refresh: ' + app.auto_refresh + ' <i class="fas fa-sync"></i>';
         },
 
-        //get list of open experiments
-        closeAllSessions:function closeAllSessions(){        
-            
-            let r = confirm("Are you sure you want to complete all sessions?");
+        //close all open sessions
+        closeAllSessions: async function closeAllSessions(){        
+
+            let r = await app.showConfirmDialog("Are you sure you want to complete all sessions?");
             if (r == false) {
                 return;
             }

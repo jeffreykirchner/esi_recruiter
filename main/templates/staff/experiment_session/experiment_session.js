@@ -261,8 +261,8 @@ var app = Vue.createApp({
         },
 
         //deletes a session day
-        removeSessionDay: function removeSessionDay(id){
-            if(confirm("Delete Session Day?")){
+        removeSessionDay: async function removeSessionDay(id){
+            if(await app.showConfirmDialog("Delete Session Day?")){
                 axios.post('{{request.get_full_path}}', {
                         status:"removeSessionDay",    
                         id:id,                                                          
@@ -421,14 +421,14 @@ var app = Vue.createApp({
         },
 
         //update the session day parameters
-        updateSessionDay: function updateSessionDay(){
+        updateSessionDay: async function updateSessionDay(){
 
             let sessionCanceledChangedMessage=false;
 
             if(app.currentSessionDay.canceled != 
                 app.session.experiment_session_days[app.currentSessionDayIndex].canceled)
             {
-                if(confirm("Send email about cancellation update?")){
+                if(await app.showConfirmDialog("Send email about cancellation update?")){
                     let sessionCanceledChangedMessage=true;
                 }
             }
@@ -786,23 +786,23 @@ var app = Vue.createApp({
         },
 
         //send an email to all of the confirmed subjects
-        sendEmailMessage:function sendEmailMessage(){
+        sendEmailMessage: async function sendEmailMessage(){
 
             if(app.sendMessageSubject == "" )
             {
-                confirm("Add a subject to your message.");
-                return;
-            }
-
-            if(app.sendMessageText == "" )
-            {
-                confirm("Your message is empty.");
+                await app.showAlertDialog("Add a subject to your message.");
                 return;
             }
 
             if(app.sendMessageButtonText == '<i class="fas fa-spinner fa-spin"></i>') return;
 
             app.sendMessageText = tinymce.get("sendMessageText").getContent();
+
+            if(app.sendMessageText == "" )
+            {
+                await app.showAlertDialog("Your message is empty.");
+                return;
+            }
 
             app.sendMessageButtonText = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -870,10 +870,10 @@ var app = Vue.createApp({
         },
 
         //remove subject from a sesssion day
-        removeSubject: function removeSubject(userId,esduId){
+        removeSubject: async function removeSubject(userId,esduId){
 
-            if(confirm("Remove subject from session?")){
-                
+            if(await app.showConfirmDialog("Remove subject from session?")){
+
                 document.getElementById("updateUnconfirmedSubjects" + esduId).innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                
                 axios.post('{{request.get_full_path}}', {
@@ -1428,7 +1428,7 @@ var app = Vue.createApp({
             
         },
         
-        
+        {%include "modals/alert_dialog.js"%}
     },
 
     //run when vue is mounted
