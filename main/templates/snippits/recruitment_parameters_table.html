@@ -13,7 +13,7 @@
         Genders(s):
     </div>
     <div class="col-md-8 text-end text-md-start">
-        <span v-html="genders_list"></span>
+        [[genders_list]]
     </div>               
 </div>
 <div class = "row">
@@ -21,7 +21,7 @@
         Subject Type(s):
     </div>
     <div class="col-md-8 text-end text-md-start">
-        <span v-html="subject_type_list"></span>
+        [[subject_type_list]]
     </div>               
 </div>
 <div class = "row">
@@ -29,7 +29,7 @@
         Number of Participants:
     </div>
     <div class="col-md-8 text-end text-md-start">
-        <span v-html="recruitment_params.actual_participants"></span>
+        [[recruitment_params.actual_participants]]
     </div>               
 </div>
 <div class = "row">
@@ -37,7 +37,7 @@
         Registration Cutoff:
     </div>
     <div class="col-md-8 text-end text-md-start">
-        <span v-html="recruitment_params.registration_cutoff"></span>
+        [[recruitment_params.registration_cutoff]]
     </div>               
 </div>
 <div class = "row">
@@ -46,7 +46,7 @@
     </div>
     <div class="col-md-8 text-end text-md-start">
         <div v-if="recruitment_params.experience_constraint">
-            <span v-html="recruitment_params.experience_min + ' to ' + recruitment_params.experience_max"></span>
+            [[recruitment_params.experience_min]] to [[recruitment_params.experience_max]]
         </div>
         <div v-else>
             ---
@@ -59,10 +59,10 @@
     </div>
     <div class="col-md-8 text-end text-md-start">
         <div v-if="recruitment_params.allow_multiple_participations">
-           <span v-html="'Yes'"></span>
+           Yes
         </div>
         <div v-else>
-           <span v-html="'No'"></span>
+           No
         </div>
     </div>               
 </div>
@@ -71,7 +71,7 @@
         Include Institution Experience (<span v-if="recruitment_params.institutions_include_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col-md-8 text-end text-md-start">
-        <span v-html="include_institutions_list"></span>
+        [[include_institutions_list]]
     </div>               
 </div>
 <div class = "row">
@@ -79,7 +79,7 @@
         Exclude Institution Experience (<span v-if="recruitment_params.institutions_exclude_all">All</span><span v-else>1+</span>):
     </div>
     <div class="col-md-8 text-end text-md-start">    
-        <span v-html="exclude_institutions_list"></span>
+        [[exclude_institutions_list]]
     </div>               
 </div>
 <div class = "row">
