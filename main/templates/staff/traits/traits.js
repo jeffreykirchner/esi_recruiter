@@ -106,8 +106,13 @@ let app = Vue.createApp({
         selectAll:function selectAll(){
             let checkboxes = document.getElementsByName('traits');
 
+            app.selected_traits = [];
+
             for(let i=0, n=checkboxes.length;i<n;i++) {
                 checkboxes[i].checked = app.select_all_value;
+                if (app.select_all_value) {
+                    app.selected_traits.push(checkboxes[i].value);
+                }
             }
 
             app.select_all_value = !app.select_all_value;
