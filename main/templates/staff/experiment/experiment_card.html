@@ -2,7 +2,7 @@
 
 <div class="card">
     <div class="card-header">
-        Experiment: <span v-if="loading"><i class="fas fa-spinner fa-spin"></i></span><span v-html="experiment.title"></span>
+        Experiment: [[experiment.title]]
     </div>
 
     <div class="card-body">
@@ -21,7 +21,7 @@
                 {{form1.title.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="experiment.title"></span>
+                [[experiment.title]]
             </div>               
         </div>  
         <div class = "row">
@@ -29,7 +29,7 @@
                 {{form1.experiment_manager.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="experiment.experiment_manager"></span>
+                [[experiment.experiment_manager]]
             </div>               
         </div>                                
         <div class = "row">
@@ -37,7 +37,7 @@
                 {{form1.length_default.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="experiment.length_default"></span>
+                [[experiment.length_default]]
             </div>               
         </div> 
         <div class = "row">
@@ -45,7 +45,7 @@
                 {{form1.school.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="experiment.school_full.name"></span>
+                [[experiment.school_full.name]]
             </div>               
         </div>
         <div class = "row">
@@ -72,7 +72,7 @@
                 {{form1.account_default.label}}:
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="experiment.account_default_full.str"></span>
+                [[experiment.account_default_full.str]]
             </div>               
         </div>
         <div class = "row">
@@ -124,7 +124,7 @@
                 Institution(s):
             </div>
             <div class="col-md-8 text-end text-md-start">
-                <span v-html="institutions_list"></span>
+                [[institutions_list]]
             </div>               
         </div>
         <div class = "row">
@@ -190,7 +190,7 @@
                         </caption>
                         <thead>
                             <th scope="col" class="text-nowrap">
-                                Day(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
+                                Date(s) <button class="btn btn-outline-success btn-sm" type="button" v-on:click = "addSession()"><span v-html="addSessionButtonText"></span></button> 
                                 <span v-html="'<br>' + addSessionErrorText" class="text-danger fw-bold"></span> 
                             </th>
                             <th scope="col" class="text-center text-nowrap">
@@ -221,14 +221,14 @@
                                     <span v-for="(d,index) in s.experiment_session_days">
                                         <div>
                                             <span v-if="d.enable_time">
-                                                <span v-html="formatDate(d.date,false)"></span>
+                                                [[formatDate(d.date,false)]]
                                             </span>
                                             <span v-else>
-                                                <span v-html="formatDate(d.date,true)"></span> Anytime
+                                                [[formatDate(d.date,true)]] Anytime
                                             </span>
-                                                
-                                            <span v-if="checkToday(d.date)"><span v-html="'(Today)'"></span></span>
-                                        </div>                                                                                                                                                                             
+
+                                            <span v-if="checkToday(d.date)">(Today)</span>
+                                        </div>
                                     </span>
                                 </td>
                                 <td class="text-center text-nowrap">
@@ -237,13 +237,13 @@
                                 </td>
                                 <td class="text-center text-nowrap">
                                     <div v-if="s.complete">
-                                        <span v-html="'Complete'"></span>
+                                        Complete
                                     </div>
                                     <div v-else>
-                                        <span v-html="'Open'"></span>
+                                        Open
                                     </div>
-                                    <div v-if="s.canceled">
-                                        <span v-html="'Canceled'" class="text-danger"></span>
+                                    <div v-if="s.canceled" class="text-danger">
+                                        Canceled
                                     </div>
                                 </td>
                                 <td class="text-center text-nowrap">
@@ -277,10 +277,7 @@
                         </tbody>
                         <tfoot>
                             <tr v-if="sessions.length === 0">
-                                <td><span v-html="'No Sessions'"></span></td>
-                                <td class="text-center"><span v-html="'---'"></span></td>
-                                <td class="text-center"><span v-html="'---'"></span></td>
-                                <td class="text-center"><span v-html="'---'"></span></td>
+                                <td class="fw-bold">*** No Sessions ***</td>                                
                             </tr>                                   
                         </tfoot>
                     </table>
