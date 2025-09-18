@@ -19,6 +19,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
 from django.db.backends.postgresql.psycopg_any import DateTimeTZRange
 from django.utils import timezone
+from django.db.models import OuterRef, Subquery
 
 from main.models import *
 
@@ -698,6 +699,18 @@ class ExperimentsAdmin(admin.ModelAdmin):
       def has_add_permission(self, request, obj=None):
             return False
       
+      def get_queryset(self, request):
+            queryset = super().get_queryset(request)
+            # Annotate the queryset with the last time an experiment session day was run for each experiment
+            queryset = queryset.annotate(
+                  last_date_run=Subquery(
+                        ExperimentSessionDays.objects.filter(
+                              experiment_session__experiment=OuterRef('pk')
+                        ).order_by('-date').values('date')[:1]
+                  )
+            )
+            return queryset
+      
       def get_form(self, request, obj=None, **kwargs):
             form = super().get_form(request, obj, **kwargs)
 
@@ -736,6 +749,8 @@ class ExperimentsAdmin(admin.ModelAdmin):
 
             return experiment_session_day.date if experiment_session_day else None
       
+      last_date_run.admin_order_field = 'last_date_run'
+
       ordering = ['-timestamp']
       inlines = [ExperimentSessionInline, ExperimentInstitutionsInline]
       search_fields = ['id', 'title', 'experiment_manager',]
