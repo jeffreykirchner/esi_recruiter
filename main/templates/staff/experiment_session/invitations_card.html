@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        Invitations (<span v-html="session.invitationCount"></span>)
+        Invitations ([[session.invitationCount]])
 
         <span class="float-end">
 
@@ -47,8 +47,8 @@
                                     <div v-html="m.emailMessageList"></div>                                                                                
                                 </td>                               
                                 <td class="text-center">                                       
-                                    <div v-html="m.date_string"></div>
-                                    <div class="mt-4" v-html="'Email Count:<br>'+ m.mailResultSentCount"></div>
+                                    <div>[[m.date_string]]</div>
+                                    <div class="mt-2">Email Count:<br>[[m.mailResultSentCount]]</div>
                                     <div v-if="m.mailResultErrorText != ''">
                                         
                                         <div class="mt-4" v-html="'Error: <br>' + m.mailResultErrorText"></div>
