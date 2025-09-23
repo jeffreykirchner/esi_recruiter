@@ -83,11 +83,20 @@ let app = Vue.createApp({
                         {                                                                       
                             // console.log(response.data);
 
+                            //check for url parameter SESSION_DAY_ID
+                            let sessionDayId = new URLSearchParams(window.location.search).get('SESSION_DAY_ID');
+
                             let downloadLink = document.createElement("a");
                             let blob = new Blob(["\ufeff", response.data]);
                             let url = URL.createObjectURL(blob);
                             downloadLink.href = url;
-                            downloadLink.download = "Traits_Report.csv";
+
+                            if (sessionDayId) {
+                                downloadLink.download = "Traits_Report_Session_Day_" + sessionDayId + ".csv";
+                            }
+                            else {
+                                downloadLink.download = "Traits_Report.csv";
+                            }
 
                             document.body.appendChild(downloadLink);
                             downloadLink.click();

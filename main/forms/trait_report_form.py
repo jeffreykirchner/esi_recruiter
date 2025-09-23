@@ -9,6 +9,7 @@ from main.models import HrefTraits
 # trait report form
 class TraitReportForm(forms.Form):
     traits = forms.ModelMultipleChoiceField(label="",
+                                            required=False,
                                             queryset=HrefTraits.objects.filter(archived=False),
                                             widget = forms.CheckboxSelectMultiple(attrs={"v-model":"selected_traits"}))
 
