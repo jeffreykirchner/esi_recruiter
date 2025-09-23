@@ -27,7 +27,7 @@
                         <tbody id="messgeList">                       
                             <tr v-for="(m,index) in messageList" v-bind:key="m.id">                                                                          
                                 <td>                                        
-                                    <div v-html="'Subject: ' + m.subjectText"></div> 
+                                    <div>Subject: [[m.subjectText]]</div> 
                                     <br>
                                     <div v-html="m.messageText"></div>                                                                           
                                 </td>
@@ -35,9 +35,9 @@
                                     <div v-html="m.emailMessageList"></div>                                                                                
                                 </td>                               
                                 <td  class="text-center text-nowrap">                                       
-                                    <div v-html="m.date_raw"></div>
+                                    <div>[[m.date_raw]]</div>
                                     <br>
-                                    <div v-html="'Email Count:<br>'+ m.mailResultSentCount"></div>
+                                    <div>Email Count:<br>[[m.mailResultSentCount]]</div>
                                     <div v-if="m.mailResultErrorText != ''">
                                         <br>
                                         <div v-html="'Error: <br>' + m.mailResultErrorText"></div>
