@@ -130,6 +130,9 @@ let app = Vue.createApp({
 
 
     mounted(){
-            //app.getUser();                    
+        let sessionDayId = new URLSearchParams(window.location.search).get('SESSION_DAY_ID');   
+        if (sessionDayId) {
+            this.active_only = false;
+        }                 
     },
 }).mount('#app');
