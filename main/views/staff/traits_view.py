@@ -133,8 +133,7 @@ def getReport(data, u, session_day_id):
         traits_list = form.cleaned_data['traits']
 
         #get list of valid profiles
-        profiles = profile.objects.filter(email_confirmed = 'yes')\
-                                  .filter(type = 2)\
+        profiles = profile.objects.filter(type = 2)\
                                   .select_related('user', 'major', 'gender', 'subject_type')\
                                   .order_by(Lower('user__last_name'),Lower('user__first_name'))
         
@@ -146,6 +145,7 @@ def getReport(data, u, session_day_id):
 
         if active_only:
             profiles = profiles.filter(paused = False)
+            profiles = profiles.filter(email_confirmed = 'yes')
         
         #id list of needed profiles
         profiles_ids = profiles.values_list('id', flat=True)
@@ -237,6 +237,10 @@ def getReport(data, u, session_day_id):
         # trait names
         headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Sign-up Date', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
 
+        if session_day:
+            #prepend to headertext if session day provided
+            headerText = ['Session Day ID'] + headerText
+
         for i in traits_list:
             headerText.append(i.name)
 
@@ -244,6 +248,10 @@ def getReport(data, u, session_day_id):
 
         #trait descriptions
         headerText = ['', '','', '', '', '','', 'Sign-up', 'Sign-up', 'Sign-up']
+
+        if session_day:
+            #prepend to headertext if session day provided
+            headerText = [''] + headerText
 
         for i in traits_list:
             headerText.append(i.description)
@@ -253,6 +261,9 @@ def getReport(data, u, session_day_id):
         for u_id in u_list:
             u = u_list.get(u_id)
             t=[]
+
+            if session_day:
+                t.append(session_day.id)
 
             t.append(u['recruiter_id'])
             t.append(u['student_id'])
@@ -272,7 +283,7 @@ def getReport(data, u, session_day_id):
 
         return csv_response
     else:
-        logger.info("invalid trait report form")
+        logger.info(f"invalid trait report form: {dict(form.errors.items())}")
         return JsonResponse({"status":"fail","errors":dict(form.errors.items())}, safe=False)
 
 #take CSV file upload and store traits from it

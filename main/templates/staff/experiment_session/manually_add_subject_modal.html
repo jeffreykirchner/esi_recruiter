@@ -77,15 +77,15 @@
                                     <tr v-for="(u,index) in searchResults" v-bind:key="u.id">                                
                                         <td class="text-start text-nowrap">
                                             <a  v-bind:href='"/userInfo/" + u.id' target="_blank">
-                                                <span v-html="u.last_name"></span>, <span v-html="u.first_name"></span>                                   
+                                                [[u.last_name]], [[u.first_name]]
                                             </a>
                                         </td>
                                         <td class="text-center text-nowrap">
-                                            <span v-html="u.profile__studentID"></span>                                 
+                                            [[u.profile__studentID]]
                                         </td>
                                         <td class="text-center text-nowrap">
-                                            <span v-html="u.email"></span>                                   
-                                        </td>                               
+                                            [[u.email]]
+                                        </td>
                                         <td class="text-center text-nowrap">
                                             <div v-if="session.canceled">
                                                 <div class="text-center text-danger">Session Canceled</div>
