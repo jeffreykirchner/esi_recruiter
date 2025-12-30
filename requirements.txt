@@ -6,7 +6,7 @@ cffi==1.17.1
 charset-normalizer==3.3.2
 crispy-bootstrap5==2025.4
 cryptography==44.0.2
-Django==5.2.8
+Django==5.2.9
 django-crispy-forms==2.4
 django-storages==1.14.6
 django-tinymce==4.1.0
@@ -25,4 +25,4 @@ requests-oauthlib==2.0.0
 six==1.17.0
 sqlparse==0.5.3
 typing_extensions==4.13.2
-urllib3==2.5.0
+urllib3==2.6.0
