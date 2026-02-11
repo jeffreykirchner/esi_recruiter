@@ -2,10 +2,10 @@ asgiref==3.8.1
 azure-core==1.38.0
 azure-storage-blob==12.25.1
 certifi==2024.07.04
-cffi==1.17.1
+cffi==2.0.0
 charset-normalizer==3.3.2
 crispy-bootstrap5==2025.4
-cryptography==44.0.2
+cryptography==46.0.5
 Django==5.2.11
 django-crispy-forms==2.4
 django-storages==1.14.6
