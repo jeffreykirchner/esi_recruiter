@@ -190,7 +190,7 @@ class ExperimentSessionDayUsers(models.Model):
     def json_min(self):
         return{
             "id":self.id,            
-            "confirmed":self.bumped,
+            "confirmed":self.confirmed,
             "user":self.user.profile.json_min(),  
             "allowDelete" : self.allowDelete(),
             "allowConfirm" : self.allowConfirm(), 
