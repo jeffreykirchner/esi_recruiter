@@ -162,6 +162,7 @@ def acceptConsentForm(data, u, session, consent_type):
     logger.info(f"Accept consent form: user {u}, session : {session}, data {data}")    
 
     failed = False
+    profile_consent_form = None
 
     try:
 
@@ -169,7 +170,7 @@ def acceptConsentForm(data, u, session, consent_type):
         signature_points = data["consent_form_signature"]
         singnature_resolution = data["consent_form_signature_resolution"]
 
-        if consent_type=="session" and  session.consent_form != consent_form:
+        if consent_type=="session" and session.consent_form != consent_form:
             logger.warning("consent form does not match")
             failed = True
 
@@ -180,7 +181,8 @@ def acceptConsentForm(data, u, session, consent_type):
                                                     singnature_resolution=singnature_resolution)
             profile_consent_form.save()
 
-            main.views.acceptInvitation({"id":session.id}, u)
+            if consent_type=="session":
+                main.views.acceptInvitation({"id":session.id}, u)
 
     except Exception  as e:
         logger.warning("accept consent form error")             
