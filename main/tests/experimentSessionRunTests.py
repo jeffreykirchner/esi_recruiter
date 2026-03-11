@@ -954,21 +954,21 @@ class sessionRunTestCase(TestCase):
 
         #check empty upload
         my_str = ''
-        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id'}
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id', 'ignoreConstraints': False}
 
         r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertEqual(r['message'], "Error: Empty list")
 
         #malformed list
         my_str = 'asdfasdf'
-        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id'}
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'student_id', 'ignoreConstraints': False}
 
         r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertIn("Failed to load earnings: Invalid ID format", r['message'])
 
         #add user
         my_str = '00121212,25,3\n00123456,14,2'
-        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': True, 'uploadIdType': 'student_id'}
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': True, 'uploadIdType': 'student_id', 'ignoreConstraints': False}
 
         r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertIn("Earnings Imported", r['message'])
@@ -980,7 +980,7 @@ class sessionRunTestCase(TestCase):
 
         #upload earning by user id
         my_str = f'{self.u3.id},21.4,4'
-        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'recruiter_id'}
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'recruiter_id', 'ignoreConstraints': False}
 
         r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertIn("Earnings Imported", r['message'])
@@ -992,7 +992,7 @@ class sessionRunTestCase(TestCase):
 
         #upload earning by public id
         my_str = f'{self.u3.profile.public_id},28.01,3'
-        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'public_id'}
+        data = {'action': 'uploadEarningsText', 'text': my_str, 'autoAddUsers': False, 'uploadIdType': 'public_id', 'ignoreConstraints': False}
 
         r = json.loads(takeEarningsUpload2(data, esd1.id, self.staff_u).content.decode("UTF-8"))
         self.assertIn("Earnings Imported", r['message'])
