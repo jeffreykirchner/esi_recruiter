@@ -884,6 +884,7 @@ def takeEarningsUpload2(data, id, request_user):
     text = data["text"]
     auto_add_subjects = data["autoAddUsers"]
     upload_id_type = data["uploadIdType"]
+    ignore_constraints = data["ignoreConstraints"]
 
     message = ""
 
@@ -955,7 +956,9 @@ def takeEarningsUpload2(data, id, request_user):
                     elif len(p)>1:
                         value = {"message" : f"Error: More than one user found ID: {i[0]}"}
                     else:
-                        if p.first().user in u_list_valid:
+                        if ignore_constraints:
+                            value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
+                        elif p.first().user in u_list_valid:
                             value = autoAddSubject(i[0], id, request_user, True, upload_id_type)
                         else:
                             value= {"message" : f"Error: Recruitment violation ID: {i[0]}"}
