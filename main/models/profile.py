@@ -445,7 +445,7 @@ class profile(models.Model):
         return{
             "id":self.user.id,                        
             "first_name":self.user.first_name.capitalize(),   
-            "last_name":self.user.last_name, 
+            "last_name":self.user.last_name.capitalize(), 
             "email":self.user.email,
             "studentID":self.studentID, 
             "type":self.type.json(),  

@@ -508,7 +508,8 @@ let app = Vue.createApp({
                         action : "uploadEarningsText",
                         text : app.uploadEarningsText,         
                         autoAddUsers : app.auto_add_users_on_upload, 
-                        uploadIdType : app.uploadIdType,                                                                                                            
+                        uploadIdType : app.uploadIdType,        
+                        ignoreConstraints:app.ignoreConstraints,                                                                                                      
                     })
                     .then(function (response) {     
 

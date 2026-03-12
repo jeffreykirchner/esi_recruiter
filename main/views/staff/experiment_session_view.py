@@ -127,9 +127,7 @@ class ExperimentSessionView(SingleObjectMixin, View):
         elif data["status"] == "cancelSession":
             return cancelSession(data,id)     
         elif data["status"] == "sendMessage":
-            return sendMessage(data,id)
-        elif data["status"] == "sendMessage":
-            return sendMessage(data,id)   
+            return sendMessage(data,id)  
         elif data["status"] == "reSendInvitation":
             return reSendInvitation(data,id) 
         elif data["status"] == "showInvitations":
