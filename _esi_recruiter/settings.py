@@ -117,11 +117,8 @@ TINYMCE_DEFAULT_CONFIG = {
 
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
-#cookies
-#CSRF_COOKIE_SECURE = True
-#SESSION_COOKIE_SECURE = True
-
 #site framework
 SITE_ID = 1
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+SECURE_HSTS_SECONDS = 3600
