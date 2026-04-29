@@ -10,7 +10,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG',False)
+DEBUG = os.environ.get('DEBUG', 'False').strip().lower() in {'1', 'true', 't', 'yes', 'y', 'on'}
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # STATICFILES_STORAGE = '_esi_recruiter.custom_azure.AzureStaticStorage'
@@ -108,10 +108,10 @@ LOGGING = {
     },
 }
 
-SECURE_SSL_REDIRECT = os.environ['SECURE_SSL_REDIRECT']
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').strip().lower() in {'1', 'true', 't', 'yes', 'y', 'on'}
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = os.environ['SESSION_COOKIE_SECURE']
-CSRF_COOKIE_SECURE = os.environ['CSRF_COOKIE_SECURE']
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').strip().lower() in {'1', 'true', 't', 'yes', 'y', 'on'}
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').strip().lower() in {'1', 'true', 't', 'yes', 'y', 'on'}
 
 PPMS_HOST = os.environ['PPMS_HOST']
 PPMS_USER_NAME = os.environ['PPMS_USER_NAME']
