@@ -8,7 +8,7 @@ class TraitConstraintForm(forms.ModelForm):
 
     trait = forms.ModelChoiceField(label="Trait",
                                    empty_label=None,
-                                   queryset=Traits.objects.order_by("name"),
+                                   queryset=Traits.objects.filter(archived=False).order_by("name"),
                                    widget=forms.Select(attrs={"v-model":"current_trait.trait"}))
 
     include_if_in_range = forms.ChoiceField(label="Mode",

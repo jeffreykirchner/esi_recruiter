@@ -208,7 +208,7 @@ class traitsAdmin(admin.ModelAdmin):
 class profile_traitAdmin(admin.ModelAdmin):
       def get_queryset(self, request):
         qs = super(profile_traitAdmin, self).get_queryset(request)
-        return qs.filter(archived=False)
+        return qs.filter(trait__archived=False)
 
       ordering = ['timestamp']
       fields = ['value']
