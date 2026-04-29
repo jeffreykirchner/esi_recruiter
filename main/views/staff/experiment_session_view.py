@@ -935,7 +935,7 @@ def addTrait(data,id):
 
     tc = RecruitmentParametersTraitConstraint()
     tc.recruitment_parameter = es.recruitment_params
-    tc.trait = Traits.objects.first()
+    tc.trait = Traits.objects.filter(archived=False).first()
     tc.save()
 
     return JsonResponse({"recruitment_params":es.recruitment_params.json(),"status":"success"}, safe=False)
