@@ -64,8 +64,11 @@ jobs:
           PPMS_HOST : ${{ secrets.TEST_PPMS_HOST }}
           PPMS_USER_NAME : ${{ secrets.TEST_PPMS_PASSWORD }}
           PPMS_PASSWORD : ${{ secrets.TEST_EMAIL_MS_HOST }}
+          SECURE_SSL_REDIRECT : False
+          SESSION_COOKIE_SECURE : False
+          CSRF_COOKIE_SECURE : False
           SECRET_KEY: super_duper_secret_key
-        run: python manage.py test
+        run: python manage.py test --failfast --verbosity=2
       
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
