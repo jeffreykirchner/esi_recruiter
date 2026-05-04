@@ -122,12 +122,12 @@ class RecruitmentParametersForm(forms.ModelForm):
     schools_exclude_constraint = forms.TypedChoiceField(label='Enable school exclude?',             
                                          choices=((1, 'Yes'), (0, 'No')),                
                                          widget=forms.RadioSelect(attrs={"v-model":"recruitment_params.schools_exclude_constraint",
-                                                                         "v-on:change":"recruitmentFormChange"}))
-
+                                                                         "v-on:change":"recruitmentFormChange"}))   
+    
     class Meta:
         model=RecruitmentParameters
         #fields = ['id','title', 'experiment_manager', 'actual_participants','registration_cutoff','notes','school','account','department']        
-        exclude=['trait_constraints_require_all']
+        exclude=['trait_constraints_require_all', 'allowed_list']
 
     def clean_registration_cutoff(self):
         registration_cutoff = self.data['registration_cutoff']
