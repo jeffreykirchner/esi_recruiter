@@ -157,7 +157,7 @@ def email_ms_auth() -> bool:
 
             prm.save()
         else:
-            logger.info(f'email service auth failed with username/password: {req_json}')
+            logger.info(f'email service auth failed with username/password: {req.content}')
         
 
     # logger.info(f'email_service_auth status code: {req.status_code}')
