@@ -61,6 +61,8 @@ jobs:
           EMAIL_MS_HOST: ${{ secrets.TEST_EMAIL_MS_HOST }}
           EMAIL_MS_USER_NAME: ${{ secrets.TEST_EMAIL_MS_USER_NAME }}
           EMAIL_MS_PASSWORD: ${{ secrets.TEST_EMAIL_MS_PASSWORD }}
+          EMAIL_MS_CLIENT_ID: ${{ secrets.TEST_EMAIL_MS_CLIENT_ID }}
+          EMAIL_MS_CLIENT_SECRET: ${{ secrets.TEST_EMAIL_MS_CLIENT_SECRET }}
           PPMS_HOST : ${{ secrets.TEST_PPMS_HOST }}
           PPMS_USER_NAME : ${{ secrets.TEST_PPMS_PASSWORD }}
           PPMS_PASSWORD : ${{ secrets.TEST_EMAIL_MS_HOST }}
@@ -68,6 +70,7 @@ jobs:
           SESSION_COOKIE_SECURE : False
           CSRF_COOKIE_SECURE : False
           SECRET_KEY: super_duper_secret_key
+
         run: python manage.py test --failfast --verbosity=2
       
       - name: Upload artifact for deployment jobs
