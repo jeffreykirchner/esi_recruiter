@@ -20,6 +20,7 @@ from main.models import Accounts
 from main.models import RecruitmentParameters
 from main.models import Parameters
 from main.models import Genders
+from main.models import Sexes
 from main.models import SubjectTypes
 from main.models import HelpDocs
 from main.models import InvitationEmailTemplates    
@@ -95,6 +96,7 @@ def createExperimentBlank():
 
     #setup with initial genders selected
     g_list=list(Genders.objects.filter(initialValue = True))
+    sx_list=list(Sexes.objects.filter(initialValue = True))
     st_list = list(SubjectTypes.objects.filter(initialValue = True))
     schools_list = list(Schools.objects.filter(initialValue = True))
 
@@ -116,6 +118,7 @@ def createExperimentBlank():
     e.save()    
 
     rp.gender.set(g_list)
+    rp.sex.set(sx_list)
     rp.subject_type.set(st_list)
     rp.schools_include.set(schools_list)
 

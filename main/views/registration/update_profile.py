@@ -98,6 +98,7 @@ def update_profile(u, data):
 
         u.profile.studentID = strip_tags(form.cleaned_data['chapman_id'].strip())
         u.profile.gender = form.cleaned_data['gender']
+        u.profile.sex = form.cleaned_data['sex']
         u.profile.subject_type = form.cleaned_data['subject_type']
         u.profile.studentWorker = form.cleaned_data['studentWorker']
         u.profile.phone = form.cleaned_data['phone'].strip()

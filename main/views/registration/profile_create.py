@@ -16,6 +16,7 @@ from django.utils.html import strip_tags
 from main.models import AccountTypes
 from main.models import profile
 from main.models import HelpDocs
+from main.models import Sexes
 
 from main.globals import profile_create_send_email
 from main.forms import ProfileForm
@@ -108,7 +109,8 @@ def createUser(request, data):
                               f.cleaned_data['subject_type'],
                               f.cleaned_data['studentWorker'],
                               True,
-                              AccountTypes.objects.get(id=2))
+                              AccountTypes.objects.get(id=2),
+                              sex=f.cleaned_data['sex'])
 
         profile_create_send_email(u)
 
@@ -127,7 +129,7 @@ def createUser(request, data):
 
 def profileCreateUser(username, email, password, firstName, lastName, studentID, 
                       gender, phone, major, subject_type, studentWorker, isActive, 
-                      accountType):
+                      accountType, sex=None):
 
     logger = logging.getLogger(__name__) 
 
@@ -143,6 +145,7 @@ def profileCreateUser(username, email, password, firstName, lastName, studentID,
     p = profile(user=u,
                 studentID=strip_tags(studentID),
                 gender=gender,
+                sex=sex if sex else Sexes.objects.first(),
                 type=accountType,
                 phone=phone,
                 major=major,

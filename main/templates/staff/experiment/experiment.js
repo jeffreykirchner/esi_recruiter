@@ -31,6 +31,7 @@ let app = Vue.createApp({
         exclude_schools_list:"", 
         subject_type_list:"",
         genders_list:"",     
+        sexes_list:"",
         trait_constraint_list:"",         
         buttonText1:"Update",
         buttonText2:"Update",     
@@ -137,6 +138,7 @@ let app = Vue.createApp({
             app.include_schools_list=app.updateDisplayLists2(e.schools_include_full);
             app.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
             app.genders_list=app.updateDisplayLists2(e.gender_full);
+            app.sexes_list=app.updateDisplayLists2(e.sex_full);
             app.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
             app.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
             app.experiment.showUpFee =  parseFloat(app.experiment.showUpFee).toFixed(2); 

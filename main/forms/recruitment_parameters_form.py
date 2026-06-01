@@ -2,6 +2,7 @@ from django import forms
 from django.db.models.functions import Lower
 
 from main.models import Genders
+from main.models import Sexes
 from main.models import SubjectTypes
 from main.models import Institutions
 from main.models import RecruitmentParameters 
@@ -22,6 +23,11 @@ class RecruitmentParametersForm(forms.ModelForm):
                                                 queryset=Genders.objects.all(),
                                                 widget = forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.gender",
                                                                                     "v-on:change":"recruitmentFormChange",}))   
+
+    sex = forms.ModelMultipleChoiceField(label="Sex(es)",
+                                         queryset=Sexes.objects.all(),
+                                         widget=forms.CheckboxSelectMultiple(attrs={"v-model":"recruitment_params.sex",
+                                                                                    "v-on:change":"recruitmentFormChange",}))
                                                                                                                                                 
     subject_type = forms.ModelMultipleChoiceField(label="Subject Type(s)",
                                                     queryset=SubjectTypes.objects.all(),

@@ -567,7 +567,7 @@ class subjectHomeTestCase(TestCase):
         request = {}
         request['user'] = self.u
 
-        profile_data={'action': 'update', 'formData': {'first_name': 'Sam', 'last_name': 'I Am', 'chapman_id': '123456789', 'email': 'abc@123.edu', 'phone': '1231239999', 'gender': '1', 'major': '1', 'subject_type': '2', 'studentWorker': 1, 'paused': 1, 'password1': '', 'password2': ''}}
+        profile_data={'action': 'update', 'formData': {'first_name': 'Sam', 'last_name': 'I Am', 'chapman_id': '123456789', 'email': 'abc@123.edu', 'phone': '1231239999', 'gender': '1', 'sex': '1', 'major': '1', 'subject_type': '2', 'studentWorker': 1, 'paused': 1, 'password1': '', 'password2': ''}}
         r = json.loads(update_profile(self.u, profile_data).content.decode("UTF-8"))
 
         u = User.objects.get(id=self.u.id)
@@ -580,6 +580,7 @@ class subjectHomeTestCase(TestCase):
         self.assertEqual(u.email,"abc@123.edu")
         self.assertEqual(u.profile.phone,"1231239999")
         self.assertEqual(u.profile.gender.id, 1)
+        self.assertEqual(u.profile.sex.id, 1)
         self.assertEqual(u.profile.major.id, 1)
         self.assertEqual(u.profile.subject_type.id, 2)
         self.assertEqual(u.profile.studentWorker, True)
