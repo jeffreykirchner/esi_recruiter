@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
 from main.models import Genders
+from main.models import Sexes
 from main.models import Majors
 from main.models import SubjectTypes
 
@@ -41,6 +42,11 @@ class ProfileFormUpdate(forms.Form):
                                      queryset=Genders.objects.all(),
                                      empty_label=None,
                                      widget=forms.Select(attrs={"v-model":"profile.gender"}))
+
+    sex = forms.ModelChoiceField(label="What is your sex?",
+                                 queryset=Sexes.objects.all(),
+                                 empty_label=None,
+                                 widget=forms.Select(attrs={"v-model":"profile.sex"}))
     
     major = forms.ModelChoiceField(label="Major (Choose Undeclared if non-student)",
                                    queryset=Majors.objects.all().order_by('name'),

@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
 from  main.models import Genders
+from  main.models import Sexes
 from  main.models import SubjectTypes
 from  main.models import Institutions
 from  main.models import Schools
@@ -18,6 +19,7 @@ class RecruitmentParameters(models.Model):
     actual_participants = models.IntegerField(default=1)
     registration_cutoff = models.IntegerField(default=1)    
     gender = models.ManyToManyField(Genders)
+    sex = models.ManyToManyField(Sexes)
     subject_type =  models.ManyToManyField(SubjectTypes)      
 
     #institutions to include or exclude
@@ -71,6 +73,7 @@ class RecruitmentParameters(models.Model):
         self.registration_cutoff = es.registration_cutoff
 
         self.gender.set(es.gender.all()) 
+        self.sex.set(es.sex.all())
         self.subject_type.set(es.subject_type.all())
 
         self.institutions_exclude.set(es.institutions_exclude.all())
@@ -116,6 +119,7 @@ class RecruitmentParameters(models.Model):
         self.actual_participants = 1
         self.registration_cutoff =1 
         self.gender.clear()
+        self.sex.clear()
         self.subject_type.clear()     
 
         #institutions to include or exclude
@@ -160,6 +164,11 @@ class RecruitmentParameters(models.Model):
         s += "Genders: | "
         for g in self.gender.all():
             s +=  g.name + " | "
+        s += "<br>"
+
+        s += "Sexes: | "
+        for sx in self.sex.all():
+            s +=  sx.name + " | "
         s += "<br>"
 
         s += "Subject Types: | "
@@ -265,6 +274,8 @@ class RecruitmentParameters(models.Model):
             "registration_cutoff":self.registration_cutoff,
             "gender":[str(g.id) for g in self.gender.all()],
             "gender_full":[g.json() for g in self.gender.all()],
+            "sex":[str(sx.id) for sx in self.sex.all()],
+            "sex_full":[sx.json() for sx in self.sex.all()],
             "subject_type" : [str(st.id) for st in self.subject_type.all()],
             "subject_type_full" : [st.json() for st in self.subject_type.all()],
             "institutions_exclude" : [str(i.id) for i in self.institutions_exclude.all()],

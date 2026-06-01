@@ -21,6 +21,7 @@ from main.models import AccountTypes
 from main.models import Schools
 from main.models import Majors
 from main.models import Genders
+from main.models import Sexes
 from main.models import SubjectTypes
 from main.models import EmailFilters
 
@@ -37,6 +38,7 @@ class profile(models.Model):
     school = models.ForeignKey(Schools, verbose_name="School", on_delete=models.CASCADE,default=1)                      #Chapman University ETC
     major = models.ForeignKey(Majors, verbose_name="Major", on_delete=models.CASCADE,default=1)                         #Economics ETC
     gender = models.ForeignKey(Genders, verbose_name="Gender", on_delete=models.CASCADE,default=1)
+    sex = models.ForeignKey(Sexes, verbose_name="Sex", on_delete=models.CASCADE, default=1)
     subject_type = models.ForeignKey(SubjectTypes, verbose_name="Subject Type", on_delete=models.CASCADE,default=1)                #Undergrad, grad, non student
     email_filter = models.ForeignKey(EmailFilters, verbose_name="Email Filter", on_delete=models.CASCADE,null=True,blank=True)     #email filters that apply to this user
     
@@ -450,6 +452,7 @@ class profile(models.Model):
             "studentID":self.studentID, 
             "type":self.type.json(),  
             "gender":self.gender.json(),
+            "sex":self.sex.json(),
             "email_confirmed":self.email_confirmed,  
             "blackballed":self.blackballed,         
         }
@@ -480,6 +483,7 @@ class profile(models.Model):
             'chapman_id': self.user.profile.studentID,
             'email': self.user.email,
             'gender': self.user.profile.gender.id,
+            'sex': self.user.profile.sex.id,
             'phone': self.user.profile.phone,
             'major': self.user.profile.major.id,
             'subject_type': self.user.profile.subject_type.id,

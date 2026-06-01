@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
-from main.models import Genders,Experiments,SubjectTypes,AccountTypes,Majors,\
+from main.models import Genders,Sexes,Experiments,SubjectTypes,AccountTypes,Majors,\
                         Parameters,Accounts,Departments,Locations,Institutions,Schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,RecruitmentParametersTraitConstraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -79,6 +79,7 @@ class GenderTestCase(TestCase):
 
             u.is_active = True
             u.profile.email_confirmed = 'yes'
+            u.profile.sex = Sexes.objects.filter(name=g.name).first() or Sexes.objects.first()
 
             u.profile.save()
             u.save()
@@ -99,6 +100,7 @@ class GenderTestCase(TestCase):
         es_women_only = addSessionBlank(e)    
         es_women_only.recruitment_params.reset_settings()
         es_women_only.recruitment_params.gender.set(Genders.objects.filter(name="Female"))
+        es_women_only.recruitment_params.sex.set(Sexes.objects.all())
         es_women_only.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
         esd1 = es_women_only.ESD.first()
        
@@ -118,12 +120,43 @@ class GenderTestCase(TestCase):
         es_all = addSessionBlank(e)    
         es_all.recruitment_params.reset_settings()
         es_all.recruitment_params.gender.set(Genders.objects.all())
+        es_all.recruitment_params.sex.set(Sexes.objects.all())
         es_all.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
 
         u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False,10)
         c=len(u_list)
                
         self.assertEqual(c, len(Genders.objects.all()))
+
+    def testFemaleSexOnly(self):
+        """Test only female sex subjects are recruited"""
+
+        e = Experiments.objects.first()
+
+        es_female_sex_only = addSessionBlank(e)
+        es_female_sex_only.recruitment_params.reset_settings()
+        es_female_sex_only.recruitment_params.gender.set(Genders.objects.all())
+        es_female_sex_only.recruitment_params.sex.set(Sexes.objects.filter(name="Female"))
+        es_female_sex_only.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
+
+        u_list = es_female_sex_only.getValidUserList_forward_check([], True, 0, 0, [], False, 10)
+
+        self.assertEqual(len(u_list), Sexes.objects.filter(name="Female").count())
+
+    def testAllSexes(self):
+        """Test all sexes are recruited"""
+
+        e = Experiments.objects.first()
+
+        es_all_sexes = addSessionBlank(e)
+        es_all_sexes.recruitment_params.reset_settings()
+        es_all_sexes.recruitment_params.gender.set(Genders.objects.all())
+        es_all_sexes.recruitment_params.sex.set(Sexes.objects.all())
+        es_all_sexes.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
+
+        u_list = es_all_sexes.getValidUserList_forward_check([], True, 0, 0, [], False, 10)
+
+        self.assertEqual(len(u_list), Sexes.objects.count())
 
 #test subject types
 class subjectTypeTestCase(TestCase):

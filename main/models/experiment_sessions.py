@@ -595,6 +595,9 @@ class ExperimentSessions(models.Model):
         u_list = self.getValidUserList_gender(u_list)
         if len(u_list) == 0: return u_list
 
+        u_list = self.getValidUserList_sex(u_list)
+        if len(u_list) == 0: return u_list
+
         #logger.info(f"{u_list}")
         u_list = self.getValidUserList_check_allow_list(u_list)
         if len(u_list) == 0: return u_list
@@ -1079,6 +1082,26 @@ class ExperimentSessions(models.Model):
 
         for u in u_list:
             if u.id in valid_users_gender_users:
+                valid_list.append(u)
+
+        return valid_list
+
+    #check that users have the correct sex
+    def getValidUserList_sex(self, u_list):
+        logger = logging.getLogger(__name__)
+        logger.info("getValidUserList_sex")
+
+        valid_sex_ids = self.recruitment_params.sex.all().values_list("id", flat=True)
+
+        if len(valid_sex_ids) == 0:
+            return u_list
+
+        valid_users_sex_users = User.objects.filter(profile__sex__id__in=valid_sex_ids).values_list("id", flat=True)
+
+        valid_list=[]
+
+        for u in u_list:
+            if u.id in valid_users_sex_users:
                 valid_list.append(u)
 
         return valid_list

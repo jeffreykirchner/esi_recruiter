@@ -58,7 +58,8 @@ var app = Vue.createApp({
         exclude_schools_list:"",
         subject_type_list:"",
         trait_constraint_list:"", 
-        genders_list:"",        
+        genders_list:"",      
+        sexes_list:"",  
         buttonText1:"Update",                 //recruitment parameters update button text
         buttonText2:"Update",                 //sesion day update button text
         updateInvitationButtonText:'Update <i class="fas fa-sign-in-alt"></i>',
@@ -179,6 +180,7 @@ var app = Vue.createApp({
             app.exclude_schools_list=app.updateDisplayLists2(e.schools_exclude_full);
             app.trait_constraint_list=app.updateDisplayLists2(e.trait_constraints);
             app.genders_list=app.updateDisplayLists2(e.gender_full);
+            app.sexes_list=app.updateDisplayLists2(e.sex_full);
             app.subject_type_list=app.updateDisplayLists2(e.subject_type_full);
             
         },
