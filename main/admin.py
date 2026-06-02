@@ -93,6 +93,7 @@ class AccountsAdmin(admin.ModelAdmin):
     inlines = [AccountsInline]
 
 admin.site.register(Genders)
+admin.site.register(Sexes)
 admin.site.register(Institutions)
 admin.site.register(Majors)
 admin.site.register(Schools)
@@ -546,27 +547,30 @@ class ProfileAdmin(admin.ModelAdmin):
       inlines = [ProfileConsentFormInline, ProfileTraitsInline, ProfileLoginAttemptInline]
 
       def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
+            form = super().get_form(request, obj, **kwargs)
 
-        form.base_fields['type'].widget.can_change_related = False
-        form.base_fields['type'].widget.can_add_related = False
+            form.base_fields['type'].widget.can_change_related = False
+            form.base_fields['type'].widget.can_add_related = False
 
-        form.base_fields['school'].widget.can_change_related = False
-        form.base_fields['school'].widget.can_add_related = False
+            form.base_fields['school'].widget.can_change_related = False
+            form.base_fields['school'].widget.can_add_related = False
 
-        form.base_fields['major'].widget.can_change_related = False
-        form.base_fields['major'].widget.can_add_related = False
+            form.base_fields['major'].widget.can_change_related = False
+            form.base_fields['major'].widget.can_add_related = False
 
-        form.base_fields['gender'].widget.can_change_related = False
-        form.base_fields['gender'].widget.can_add_related = False
+            form.base_fields['gender'].widget.can_change_related = False
+            form.base_fields['gender'].widget.can_add_related = False
 
-        form.base_fields['subject_type'].widget.can_change_related = False
-        form.base_fields['subject_type'].widget.can_add_related = False
+            form.base_fields['sex'].widget.can_change_related = False
+            form.base_fields['sex'].widget.can_add_related = False
 
-        form.base_fields['email_filter'].widget.can_change_related = False
-        form.base_fields['email_filter'].widget.can_add_related = False
+            form.base_fields['subject_type'].widget.can_change_related = False
+            form.base_fields['subject_type'].widget.can_add_related = False
 
-        return form
+            form.base_fields['email_filter'].widget.can_change_related = False
+            form.base_fields['email_filter'].widget.can_add_related = False
+
+            return form
 
 @admin.register(DailyEmailReport)
 class DailyEmailReportAdmin(admin.ModelAdmin):

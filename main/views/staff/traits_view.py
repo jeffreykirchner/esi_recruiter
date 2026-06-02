@@ -160,6 +160,7 @@ def getReport(data, u, session_day_id):
                                    'public_id',
                                    'major__name',
                                    'gender__name',
+                                   'sex__name',
                                    'subject_type__name',
                                    'id') \
         
@@ -216,6 +217,7 @@ def getReport(data, u, session_day_id):
                                "public_id" : i['public_id'],
                                "major" : i['major__name'],
                                "gender" : i['gender__name'],
+                               "sex" : i['sex__name'],
                                "subject_type" : i['subject_type__name'],
                                "attended_count" : len(attended_list_b[i['id']]["count"]) if attended_list_b.get(i['id'], None) else 0,
                                "traits": traits_base.copy()}            
@@ -235,7 +237,7 @@ def getReport(data, u, session_day_id):
         writer = csv.writer(csv_response)
 
         # trait names
-        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Sign-up Date', 'Experiments Attended', 'Major', 'Gender Identity', 'Enrollment']
+        headerText = ['Recruiter ID', 'Student ID','Public ID', 'Last Name', 'First Name', 'Sign-up Date', 'Experiments Attended', 'Major', 'Gender Identity', 'Sex', 'Enrollment']
 
         if session_day:
             #prepend to headertext if session day provided
@@ -274,6 +276,7 @@ def getReport(data, u, session_day_id):
             t.append(u['attended_count'])
             t.append(u['major'])
             t.append(u['gender'])
+            t.append(u['sex'])
             t.append(u['subject_type'])
 
             for i in traits_list:

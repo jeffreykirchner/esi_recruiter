@@ -2,6 +2,7 @@
 from .parameters import Parameters
 from .email_filters import EmailFilters
 from .schools import Schools
+from .sexes import Sexes
 from .genders import Genders
 from .account_types import AccountTypes
 from .majors import Majors

@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from main.views.registration import profileCreateUser
-from main.models import Genders,Experiments,SubjectTypes,AccountTypes,Majors,\
+from main.models import Genders,Sexes,Experiments,SubjectTypes,AccountTypes,Majors,\
                         Parameters,Accounts,Departments,Locations,Institutions,Schools,EmailFilters,\
                         ExperimentSessionDayUsers,Traits,RecruitmentParametersTraitConstraint,profile_trait
 from main.views.staff.experiment_search_view import createExperimentBlank
@@ -79,6 +79,7 @@ class GenderTestCase(TestCase):
 
             u.is_active = True
             u.profile.email_confirmed = 'yes'
+            u.profile.sex = Sexes.objects.filter(name=g.name).first() or Sexes.objects.first()
 
             u.profile.save()
             u.save()
@@ -99,6 +100,7 @@ class GenderTestCase(TestCase):
         es_women_only = addSessionBlank(e)    
         es_women_only.recruitment_params.reset_settings()
         es_women_only.recruitment_params.gender.set(Genders.objects.filter(name="Female"))
+        es_women_only.recruitment_params.sex.set(Sexes.objects.all())
         es_women_only.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
         esd1 = es_women_only.ESD.first()
        
@@ -118,12 +120,114 @@ class GenderTestCase(TestCase):
         es_all = addSessionBlank(e)    
         es_all.recruitment_params.reset_settings()
         es_all.recruitment_params.gender.set(Genders.objects.all())
+        es_all.recruitment_params.sex.set(Sexes.objects.all())
         es_all.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
 
         u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False,10)
         c=len(u_list)
                
         self.assertEqual(c, len(Genders.objects.all()))
+
+
+#test sex
+class SexTestCase(TestCase):
+    staff_u=None
+    p=None
+    d_now = None      #date time now
+    l1=None           #locations
+    l2=None
+    account1=None     #accounts
+
+    def setUp(self):
+        sys._called_from_test = True
+        logger = logging.getLogger(__name__)
+
+        self.p = Parameters()
+        self.p.save()
+
+        d = Departments(name="d",charge_account="ca",petty_cash="0")
+        d.save()
+
+        self.account1 = Accounts(name="a",number="1.0",department=d)
+        self.account1.save()
+
+        self.l1=Locations(name="l",address="room")
+        self.l1.save()
+
+        i1=Institutions(name="one")
+        i1.save()
+        i2=Institutions(name="two")
+        i2.save()
+        i3=Institutions(name="three")
+        i3.save()
+
+        s=Schools.objects.get(id=1)
+        s.email_filter.set(EmailFilters.objects.all())
+
+        #staff user
+        user_name = "s1@chapman.edu"
+        temp_st =  SubjectTypes.objects.get(id=3)
+        self.staff_u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                            Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                            temp_st,False,True,AccountTypes.objects.get(id=1))
+        self.staff_u.is_staff=True
+        self.staff_u.save()
+
+        self.p.labManager=self.staff_u
+        self.p.save()
+
+        #create 1 user for each sex
+        for sex in Sexes.objects.all():
+            user_name = "sx" + str(sex.id) + "@chapman.edu"
+
+            u = profileCreateUser(user_name,user_name,"zxcvb1234asdf","first","last","123456",\
+                          Genders.objects.first(),"7145551234",Majors.objects.first(),\
+                          SubjectTypes.objects.get(id=1),False,True,AccountTypes.objects.get(id=2))
+
+            logger.info(u)
+
+            u.is_active = True
+            u.profile.email_confirmed = 'yes'
+            u.profile.sex = sex
+
+            u.profile.save()
+            u.save()
+
+            u.profile.setup_email_filter()
+
+        e = createExperimentBlank()
+        e.institution.set(Institutions.objects.filter(name="one"))
+        e.save()
+
+    def testFemaleOnly(self):
+        """Test only female sexes are recruited"""
+
+        e=Experiments.objects.first()
+
+        es_female_only = addSessionBlank(e)
+        es_female_only.recruitment_params.reset_settings()
+        es_female_only.recruitment_params.gender.set(Genders.objects.all())
+        es_female_only.recruitment_params.sex.set(Sexes.objects.filter(name="Female"))
+        es_female_only.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
+
+        u_list = es_female_only.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        self.assertEqual(len(u_list), len(Sexes.objects.filter(name="Female")))
+
+    def testAll(self):
+        """Test all sexes are recruited"""
+
+        e=Experiments.objects.first()
+
+        es_all = addSessionBlank(e)
+        es_all.recruitment_params.reset_settings()
+        es_all.recruitment_params.gender.set(Genders.objects.all())
+        es_all.recruitment_params.sex.set(Sexes.objects.all())
+        es_all.recruitment_params.subject_type.set(SubjectTypes.objects.filter(id=1))
+
+        u_list = es_all.getValidUserList_forward_check([],True,0,0,[],False,10)
+
+        self.assertEqual(len(u_list), len(Sexes.objects.all()))
 
 #test subject types
 class subjectTypeTestCase(TestCase):

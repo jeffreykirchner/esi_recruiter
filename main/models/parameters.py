@@ -41,6 +41,10 @@ class Parameters(models.Model):
     emailVerificationTextSubject = models.CharField(max_length = 1000,default = "")         #email subject sent to user to verify their email address
     emailVerificationResetText = HTMLField(default = "")                                    #email text sent to user to verify their email address
 
+    email_ms_access_token = models.CharField(max_length = 1000, default="", verbose_name="Email MS Auth Access Token")            #access token for Email MS auth service
+    email_ms_refresh_token = models.CharField(max_length = 1000, default="", verbose_name="Email MS Auth Refresh Token")          #refresh token for Email MS auth service
+    email_ms_token_expiration = models.DateTimeField(null=True, blank=True, verbose_name="Email MS Auth Token Expiration")        #expiration time for Email MS auth access token
+
     timestamp = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now= True)
 

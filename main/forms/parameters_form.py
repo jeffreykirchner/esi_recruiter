@@ -81,7 +81,8 @@ class ParametersForm(forms.ModelForm):
                                        widget=forms.NumberInput(attrs={"step":"1","min":"1"}))
 
     noShowCutoffWindow = forms.CharField(label='No-Show Count Window (Days)',
-                                       widget=forms.NumberInput(attrs={"step":"1","min":"1"}))
+                                       widget=forms.NumberInput(attrs={"step":"1","min":"1"}))    
+
 
     class Meta:
         model=Parameters

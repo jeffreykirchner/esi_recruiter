@@ -11,6 +11,7 @@ let app = Vue.createApp({
         session : null,
         recruitment_params:{                          //recruiment parameters
                 gender:[],
+            sex:[],
                 actual_participants:0,
                 registration_cutoff:0,
                 experience_min:0,
