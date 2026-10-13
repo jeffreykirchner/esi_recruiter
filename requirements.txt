@@ -6,7 +6,7 @@ cffi==2.0.0
 charset-normalizer==3.3.2
 crispy-bootstrap5==2025.4
 cryptography==50.0.0
-Django==5.2.16
+Django==5.2.17
 django-crispy-forms==2.4
 django-storages==1.14.6
 django-tinymce==4.1.0
@@ -14,7 +14,7 @@ gunicorn==23.0.0
 idna==3.18
 isodate==0.7.2
 msrest==0.7.1
-oauthlib==3.2.2
+oauthlib==4.0.0
 psycopg==3.2.9
 pyotp==2.9.0
 pycparser==2.22
@@ -26,4 +26,4 @@ six==1.17.0
 sqlparse==0.6.0
 typing_extensions==4.13.2
 tzdata==2026.1
-urllib3==2.7.0
+urllib3==2.8.0
