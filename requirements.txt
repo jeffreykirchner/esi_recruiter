@@ -14,7 +14,7 @@ gunicorn==23.0.0
 idna==3.18
 isodate==0.7.2
 msrest==0.7.1
-oauthlib==4.0.0
+oauthlib==4.0.1
 psycopg==3.2.9
 pyotp==2.9.0
 pycparser==2.22
